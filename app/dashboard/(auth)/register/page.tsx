@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from 'next/link';
+import confetti from "canvas-confetti";
 
 // --- Types & Schema ---
 
@@ -70,6 +71,13 @@ export default function RegisterPage() {
 
     const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
         setComplete(true);
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#3b82f6', '#8b5cf6', '#10b981']
+        });
+        
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -112,7 +120,14 @@ export default function RegisterPage() {
 
                         <div className="space-y-8 relative">
                             {/* Vertical Line */}
-                            <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-border -z-10" />
+                            <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-border -z-10">
+                                <motion.div 
+                                    className="w-full bg-primary origin-top"
+                                    initial={{ height: "0%" }}
+                                    animate={{ height: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}
+                                    transition={{ duration: 0.5 }}
+                                />
+                            </div>
 
                             {STEPS.map((s, i) => {
                                 const isCompleted = step > s.id;

@@ -1,22 +1,23 @@
-
 "use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Smartphone, Brain, ShoppingCart, Building, Search, X, ExternalLink } from "lucide-react";
-import Image from "next/image";
+import { Globe, Smartphone, Brain, ShoppingCart, Building, Search, X, ExternalLink, ArrowRight, Github, Sparkles, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 // Types
 type Project = {
     id: number;
     title: string;
     category: "Web" | "Mobile" | "AI" | "Ecommerce" | "Enterprise";
-    image: string;
+    image: string | null;
     tags: string[];
     description: string;
+    longDescription: string;
     client: string;
     stats: { label: string; value: string }[];
+    gradient: string;
 };
 
 // Mock Data
@@ -25,69 +26,81 @@ const projects: Project[] = [
         id: 1,
         title: "EcoSmart E-commerce",
         category: "Ecommerce",
-        image: "/port-1.jpg",
-        tags: ["Next.js", "Stripe", "Tailwind"],
-        description: "A sustainable fashion marketplace with real-time inventory and AI recommendations.",
+        image: null,
+        tags: ["Next.js", "Stripe", "Tailwind", "Redis"],
+        description: "A sustainable fashion marketplace with real-time inventory.",
+        longDescription: "EcoSmart is a pioneering e-commerce platform dedicated to sustainable fashion. We engineered a real-time inventory system using Redis and developed a personalized recommendation engine that increased conversion rates by 40%.",
         client: "EcoLife Inc.",
-        stats: [{ label: "ROI", value: "250%" }, { label: "Sales", value: "$2M+" }]
+        stats: [{ label: "ROI", value: "250%" }, { label: "Sales", value: "$2M+" }],
+        gradient: "from-emerald-500/20 to-teal-500/20"
     },
     {
         id: 2,
-        title: "FinTech Dashboard",
+        title: "FinTech Analytics Core",
         category: "Enterprise",
-        image: "/port-2.jpg",
-        tags: ["React", "D3.js", "Node.js"],
-        description: "High-performance analytics dashboard for processing millions of transactions.",
+        image: null,
+        tags: ["React", "D3.js", "Node.js", "GraphQL"],
+        description: "High-performance dashboard processing millions of transactions.",
+        longDescription: "Built for high-frequency trading firms, this dashboard visualizes millions of data points in real-time without rendering lag. Utilizes WebWorkers and canvas-based rendering for maximum performance.",
         client: "FinanceFlow",
-        stats: [{ label: "Speed", value: "10x" }, { label: "Users", value: "50k" }]
+        stats: [{ label: "Latency", value: "<50ms" }, { label: "Users", value: "50k" }],
+        gradient: "from-blue-600/20 to-indigo-600/20"
     },
     {
         id: 3,
-        title: "AI Chat Assistant",
+        title: "Nexus AI Assistant",
         category: "AI",
-        image: "/port-3.jpg",
-        tags: ["Python", "OpenAI", "FastAPI"],
-        description: "Customer service automation bot handling 80% of inquiries autonomously.",
+        image: null,
+        tags: ["Python", "LangChain", "FastAPI", "Pinecone"],
+        description: "Customer service automation handling 80% of inquiries.",
+        longDescription: "A context-aware AI agent that integrates with existing helpdesk categories. It uses RAG (Retrieval Augmented Generation) to provide accurate answers based on company knowledge bases.",
         client: "TechHelp",
-        stats: [{ label: "Automation", value: "80%" }, { label: "Cost Saving", value: "40%" }]
+        stats: [{ label: "Automation", value: "80%" }, { label: "Cost Saving", value: "40%" }],
+        gradient: "from-purple-600/20 to-pink-600/20"
     },
     {
         id: 4,
-        title: "Travel App",
+        title: "Nomad Travel App",
         category: "Mobile",
-        image: "/port-4.jpg",
-        tags: ["React Native", "Firebase"],
-        description: "Cross-platform mobile app for booking flights and hotels with offline mode.",
+        image: null,
+        tags: ["React Native", "Firebase", "Google Maps"],
+        description: "Cross-platform mobile app for offline travel planning.",
+        longDescription: "Designed for digital nomads, this app features robust offline-first architecture. Syncs data automatically when connection is restored, ensuring seamless travel planning in remote areas.",
         client: "GoTravel",
-        stats: [{ label: "Downloads", value: "100k+" }, { label: "Rating", value: "4.8" }]
+        stats: [{ label: "Downloads", value: "100k+" }, { label: "Rating", value: "4.8" }],
+        gradient: "from-orange-500/20 to-yellow-500/20"
     },
     {
         id: 5,
-        title: "Healthcare Portal",
+        title: "MediCare Portal",
         category: "Enterprise",
-        image: "/port-5.jpg",
-        tags: ["Next.js", "PostgreSQL", "HIPAA"],
-        description: "Secure patient management system for hospitals.",
+        image: null,
+        tags: ["Next.js", "PostgreSQL", "HIPAA", "Docker"],
+        description: "Secure patient management system for hospital networks.",
+        longDescription: "A HIPAA-compliant platform connecting patients with doctors. Features end-to-end encryption for all medical records and a highly accessible UI for elderly patients.",
         client: "MediCare",
-        stats: [{ label: "Efficiency", value: "+45%" }, { label: "Security", value: "100%" }]
+        stats: [{ label: "Efficiency", value: "+45%" }, { label: "Security", value: "100%" }],
+        gradient: "from-cyan-500/20 to-blue-500/20"
     },
     {
         id: 6,
-        title: "Luxury Brand Site",
+        title: "Chronos Luxury",
         category: "Web",
-        image: "/port-6.jpg",
-        tags: ["GSAP", "Three.js", "WebGL"],
-        description: "Award-winning immersive website for a luxury watch brand.",
+        image: null,
+        tags: ["GSAP", "Three.js", "WebGL", "Blender"],
+        description: "Award-winning immersive 3D website for luxury watches.",
+        longDescription: "To capturing the craftsmanship of luxury timepieces, we built a fully 3D interactive product showcase using Three.js and WebGL. The result is a showroom experience in the browser.",
         client: "Chronos",
-        stats: [{ label: "Traffic", value: "500k" }, { label: "Awards", value: "3" }]
+        stats: [{ label: "Traffic", value: "500k" }, { label: "Awards", value: "3" }],
+        gradient: "from-amber-600/20 to-red-600/20"
     }
 ];
 
 const categories = [
-    { id: "All", label: "All Projects", icon: null },
-    { id: "Web", label: "Web Development", icon: Globe },
+    { id: "All", label: "All Works", icon: Layers },
+    { id: "Web", label: "Web Platforms", icon: Globe },
     { id: "Mobile", label: "Mobile Apps", icon: Smartphone },
-    { id: "AI", label: "AI Solutions", icon: Brain },
+    { id: "AI", label: "AI & ML", icon: Brain },
     { id: "Ecommerce", label: "E-commerce", icon: ShoppingCart },
     { id: "Enterprise", label: "Enterprise", icon: Building },
 ];
@@ -103,98 +116,145 @@ export default function PortfolioMain() {
     );
 
     return (
-        <section className="py-24 bg-background min-h-screen">
-            <div className="container px-4 mx-auto">
+        <section className="py-24 bg-background min-h-screen relative overflow-hidden">
+            {/* Ambient Background */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px]" />
+            </div>
 
-                {/* Header & Filter */}
-                <div className="mb-16 space-y-8">
-                    <div className="text-center">
-                        <h1 className="text-4xl md:text-6xl font-bold mb-6">Our Work</h1>
-                        <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
-                            A collection of digital products that drive business growth.
-                        </p>
-                    </div>
+            <div className="container px-4 mx-auto relative z-10">
 
-                    {/* Search */}
-                    <div className="max-w-md mx-auto relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        <input
-                            type="text"
-                            placeholder="Search projects..."
-                            className="w-full pl-12 pr-4 py-3 rounded-full bg-muted/50 border border-border focus:outline-none focus:border-primary transition-all"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-
-                    {/* Filter Tabs */}
-                    <div className="flex flex-wrap justify-center gap-4">
-                        {categories.map((cat) => (
-                            <button
-                                key={cat.id}
-                                onClick={() => setFilter(cat.id)}
-                                className={cn(
-                                    "flex items-center gap-2 px-6 py-3 rounded-full transition-all border",
-                                    filter === cat.id
-                                        ? "bg-primary text-white border-primary shadow-lg shadow-primary/25"
-                                        : "bg-card border-border hover:border-primary/50 text-muted-foreground"
-                                )}
-                            >
-                                {cat.icon && <cat.icon className="w-4 h-4" />}
-                                <span className="font-medium">{cat.label}</span>
-                                {filter === cat.id && (
-                                    <span className="ml-1 bg-white/20 px-2 py-0.5 rounded text-xs">
-                                        {filter === "All" ? projects.length : projects.filter(p => p.category === filter).length}
-                                    </span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
+                {/* Header Section */}
+                <div className="flex flex-col items-center justify-center text-center mb-16 space-y-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium"
+                    >
+                        <Sparkles className="w-4 h-4" />
+                        <span>World Class Engineering</span>
+                    </motion.div>
+                    
+                    <motion.h1 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-foreground/50"
+                    >
+                        Success Stories
+                    </motion.h1>
+                    
+                    <motion.p 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="text-xl text-muted-foreground max-w-2xl"
+                    >
+                        We build digital products that scale. Explore our portfolio of award-winning applications and systems.
+                    </motion.p>
                 </div>
 
-                {/* Project Grid */}
-                <motion.div
-                    layout
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                {/* Filter & Search Bar - Floating Glass Dock */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="sticky top-4 z-40 mb-12"
                 >
-                    <AnimatePresence>
+                    <div className="mx-auto max-w-5xl bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-2 flex flex-col md:flex-row gap-4 items-center justify-between">
+                        
+                        {/* Scrollable Categories */}
+                        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0 mask-gradient-right px-2">
+                            {categories.map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setFilter(cat.id)}
+                                    className={cn(
+                                        "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap",
+                                        filter === cat.id
+                                            ? "bg-primary text-primary-foreground shadow-md"
+                                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    <cat.icon className="w-4 h-4" />
+                                    <span>{cat.label}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative w-full md:w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2 rounded-xl bg-muted/50 border-transparent focus:bg-background focus:border-primary/20 outline-none text-sm transition-all placeholder:text-muted-foreground/50"
+                            />
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Project Grid */}
+                <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                    <AnimatePresence mode="popLayout">
                         {filteredProjects.map((project) => (
                             <motion.div
                                 layout
                                 key={project.id}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                whileHover={{ y: -10 }}
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                className="group"
                                 onClick={() => setSelectedProject(project)}
-                                className="group cursor-pointer relative bg-card rounded-2xl overflow-hidden border border-border shadow-lg"
                             >
-                                {/* Image Placeholder */}
-                                <div className="relative aspect-[4/3] bg-slate-800 overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-
-                                    {/* Tags Floating */}
-                                    <div className="absolute top-4 left-4 flex flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-4 group-hover:translate-y-0">
-                                        {project.tags.slice(0, 2).map((tag) => (
-                                            <span key={tag} className="px-2 py-1 bg-black/50 backdrop-blur-md text-white text-xs rounded border border-white/10">
-                                                {tag}
+                                <div className="h-full bg-card hover:bg-card/80 border border-border/50 hover:border-primary/20 rounded-[2rem] overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 flex flex-col relative group-hover:-translate-y-2">
+                                    
+                                    {/* Image Area */}
+                                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                                        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 transition-transform duration-700 group-hover:scale-110", project.gradient)} />
+                                        
+                                        {/* Abstract patterns or Placeholder Image */}
+                                        <div className="absolute inset-0 opacity-[0.1] bg-[url('https://grain-texture-url-here.png')] mix-blend-overlay" />
+                                        
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-4xl font-black text-foreground/5 group-hover:text-foreground/10 transition-colors uppercase tracking-tighter">
+                                                {project.category}
                                             </span>
-                                        ))}
+                                        </div>
+
+                                        {/* Overlay Content */}
+                                        <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                                            <div className="flex flex-wrap gap-2 mb-2 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                                {project.tags.slice(0, 3).map((tag) => (
+                                                    <span key={tag} className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-md text-white/90 text-[10px] font-bold border border-white/10">
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300">
+                                            <ArrowRight className="w-5 h-5 -rotate-45" />
+                                        </div>
                                     </div>
 
-                                    {/* Center Text Placeholder */}
-                                    <div className="absolute inset-0 flex items-center justify-center text-slate-600 font-bold text-3xl group-hover:scale-110 transition-transform duration-700">
-                                        {project.category.toUpperCase()}
-                                    </div>
-                                </div>
-
-                                {/* Content */}
-                                <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                                    <h3 className="text-2xl font-bold text-white mb-1">{project.title}</h3>
-                                    <p className="text-gray-300 text-sm line-clamp-1">{project.description}</p>
-
-                                    <div className="mt-4 flex items-center text-primary font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                                        View Case Study <ExternalLink className="w-4 h-4 ml-2" />
+                                    {/* Info Area */}
+                                    <div className="p-6 md:p-8 flex flex-col flex-grow bg-card">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{project.title}</h3>
+                                        </div>
+                                        <p className="text-muted-foreground text-sm line-clamp-2 mb-6 flex-grow">{project.description}</p>
+                                        
+                                        <div className="pt-6 border-t border-border/50 flex items-center justify-between text-xs font-medium text-muted-foreground">
+                                            <span>{project.client}</span>
+                                            <Link href={`/portfolio/${project.id}`} className="flex items-center gap-1 text-primary hover:underline">
+                                                View Case Study <ArrowRight className="w-3 h-3" />
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -202,83 +262,125 @@ export default function PortfolioMain() {
                     </AnimatePresence>
                 </motion.div>
 
-                {/* Modal */}
+                {/* Empty State */}
+                {filteredProjects.length === 0 && (
+                    <div className="text-center py-20">
+                        <p className="text-muted-foreground">No projects found for your search.</p>
+                        <button 
+                            onClick={() => { setFilter("All"); setSearch(""); }}
+                            className="mt-4 text-primary hover:underline"
+                        >
+                            Reset Filters
+                        </button>
+                    </div>
+                )}
+
+
+                {/* Project Details Modal */}
                 <AnimatePresence>
                     {selectedProject && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 overflow-y-auto"
-                            onClick={() => setSelectedProject(null)}
-                        >
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" style={{ margin: 0 }}> {/* Reset margin */}
                             <motion.div
-                                initial={{ scale: 0.9, y: 50 }}
-                                animate={{ scale: 1, y: 0 }}
-                                exit={{ scale: 0.9, y: 50 }}
-                                onClick={(e) => e.stopPropagation()}
-                                className="bg-background w-full max-w-4xl rounded-3xl overflow-hidden relative border border-border"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setSelectedProject(null)}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                            />
+                            
+                            <motion.div
+                                layoutId={`project-${selectedProject.id}`} 
+                                className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-background rounded-[2rem] shadow-2xl border border-border/50 no-scrollbar"
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             >
-                                <button
-                                    onClick={() => setSelectedProject(null)}
-                                    className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full z-10 transition-colors"
-                                >
-                                    <X className="w-6 h-6 text-white" />
-                                </button>
-
-                                {/* Modal Header Image */}
-                                <div className="h-64 md:h-80 bg-slate-800 relative">
-                                    <div className="absolute inset-0 flex items-center justify-center text-4xl text-slate-700 font-bold">
-                                        {selectedProject.title} COVER
-                                    </div>
+                                {/* Modal Header (Image) */}
+                                <div className="relative h-64 md:h-96 w-full overflow-hidden">
+                                     <div className={cn("absolute inset-0 bg-gradient-to-br", selectedProject.gradient)} />
+                                     <div className="absolute inset-0 flex items-center justify-center">
+                                         <h2 className="text-5xl md:text-7xl font-black text-white/10 uppercase tracking-tighter">
+                                             {selectedProject.category}
+                                         </h2>
+                                     </div>
+                                     <button 
+                                        onClick={() => setSelectedProject(null)}
+                                        className="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all z-20"
+                                     >
+                                         <X className="w-5 h-5" />
+                                     </button>
                                 </div>
 
-                                {/* Modal Content */}
-                                <div className="p-8 md:p-12">
-                                    <div className="flex flex-col md:flex-row gap-8 md:gap-16 mb-12">
-                                        <div className="flex-1">
-                                            <h2 className="text-3xl font-bold mb-4">{selectedProject.title}</h2>
-                                            <p className="text-muted-foreground text-lg mb-6">{selectedProject.description}</p>
-
-                                            <div className="flex flex-wrap gap-2 mb-8">
-                                                {selectedProject.tags.map(tag => (
-                                                    <span key={tag} className="px-3 py-1 bg-secondary/10 text-secondary rounded-full font-medium">
-                                                        {tag}
+                                {/* Modal Body */}
+                                <div className="p-8 md:p-12 lg:p-16">
+                                    <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
+                                        
+                                        {/* Main Content */}
+                                        <div className="flex-1 space-y-8">
+                                            <div>
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 uppercase tracking-wider">
+                                                        {selectedProject.category}
                                                     </span>
-                                                ))}
+                                                </div>
+                                                <h2 className="text-4xl md:text-5xl font-bold mb-6">{selectedProject.title}</h2>
+                                                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                                                    {selectedProject.longDescription}
+                                                </p>
                                             </div>
 
-                                            <div className="flex gap-4">
-                                                <button className="px-6 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-colors">
-                                                    Live Demo
+                                            {/* Tech Stack */}
+                                            <div>
+                                                <h3 className="text-sm font-bold text-foreground uppercase tracking-widest mb-4">Technologies Used</h3>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {selectedProject.tags.map(tag => (
+                                                        <span key={tag} className="px-4 py-2 rounded-lg bg-muted border border-border text-sm font-medium text-foreground hover:border-primary/50 transition-colors">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Actions */}
+                                            <div className="flex flex-wrap gap-4 pt-4">
+                                                <button className="flex-1 sm:flex-none h-12 px-8 bg-primary text-primary-foreground rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                                                    <ExternalLink className="w-4 h-4" />
+                                                    View Live Site
                                                 </button>
-                                                <button className="px-6 py-3 border border-border hover:bg-muted rounded-lg font-bold transition-colors">
-                                                    GitHub
+                                                <button className="flex-1 sm:flex-none h-12 px-8 bg-card border border-border text-foreground rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-muted transition-all">
+                                                    <Github className="w-4 h-4" />
+                                                    View Code
                                                 </button>
                                             </div>
                                         </div>
 
-                                        <div className="w-full md:w-64 space-y-6">
-                                            <div className="p-6 bg-card rounded-2xl border border-border">
-                                                <h4 className="font-bold mb-4 text-muted-foreground uppercase text-xs tracking-wider">Project Stats</h4>
-                                                <div className="space-y-4">
-                                                    {selectedProject.stats.map((stat, i) => (
-                                                        <div key={i}>
-                                                            <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                                                            <div className="text-sm text-muted-foreground">{stat.label}</div>
-                                                        </div>
-                                                    ))}
+                                        {/* Sidebar Stats */}
+                                        <div className="w-full lg:w-80 space-y-6">
+                                            <div className="bg-muted/30 border border-border rounded-3xl p-8 space-y-8">
+                                                <div>
+                                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Results & Impact</h4>
+                                                    <div className="space-y-6">
+                                                        {selectedProject.stats.map((stat, i) => (
+                                                            <div key={i} className="space-y-1">
+                                                                <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                                                                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="p-6 bg-card rounded-2xl border border-border">
-                                                <h4 className="font-bold mb-2 text-muted-foreground uppercase text-xs tracking-wider">Client</h4>
-                                                <div className="font-bold text-lg">{selectedProject.client}</div>
+                                                
+                                                <div className="w-full h-px bg-border/50" />
+                                                
+                                                <div>
+                                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Client</h4>
+                                                    <div className="text-lg font-bold">{selectedProject.client}</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </motion.div>
-                        </motion.div>
+                        </div>
                     )}
                 </AnimatePresence>
 

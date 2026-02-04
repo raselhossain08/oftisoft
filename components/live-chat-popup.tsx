@@ -4,6 +4,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Paperclip, ChevronDown, User, Bot, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 // --- Types ---
@@ -307,7 +308,11 @@ export default function LiveChatPopup() {
                                 onSubmit={handleSend}
                                 className="flex items-end gap-2 bg-muted/30 p-2 rounded-xl border border-border focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all"
                             >
-                                <button type="button" className="p-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer hover:rotate-12 duration-300">
+                                <button 
+                                    type="button" 
+                                    onClick={() => toast.info("File upload is not available in demo mode.")}
+                                    className="p-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer hover:rotate-12 duration-300"
+                                >
                                     <Paperclip className="w-5 h-5" />
                                 </button>
 

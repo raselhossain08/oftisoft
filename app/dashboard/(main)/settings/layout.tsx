@@ -38,7 +38,7 @@ export default function SettingsLayout({
     const pathname = usePathname();
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="mx-auto space-y-8">
 
             <div className="flex flex-col md:flex-row gap-8">
 

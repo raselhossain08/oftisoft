@@ -12,7 +12,7 @@ import {
     Paperclip, Send, Smile, Play, Pause, DollarSign,
     CheckCircle2, AlertCircle, Trash2, Edit3, Share2,
     FileText, FileImage, FileCode, Search as SearchIcon,
-    TrendingUp, UploadCloud, Eye, Wallet, RotateCcw, X
+    TrendingUp, UploadCloud, Eye, Wallet, RotateCcw, X, ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -84,6 +84,43 @@ export default function ProjectDetailsPage() {
     const [time, setTime] = useState(0);
     const [previewFile, setPreviewFile] = useState<any>(null);
 
+    // --- Interaction State ---
+    const [messages, setMessages] = useState([
+        { id: 1, user: "SJ", text: "I've just uploaded the new Figma designs. Can someone check the hero section?", time: "10:05 AM", color: "bg-pink-500", self: false },
+        { id: 2, user: "AM", text: "Looks great, Sarah! I'll take a look right now.", time: "10:12 AM", color: "bg-blue-500", self: true },
+    ]);
+    const [chatInput, setChatInput] = useState("");
+    const chatScrollRef = useRef<HTMLDivElement>(null);
+
+    const [tasks, setTasks] = useState(TASKS);
+
+    const handleSendMessage = () => {
+        if (!chatInput.trim()) return;
+        setMessages([...messages, {
+            id: Date.now(),
+            user: "AM",
+            text: chatInput,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            color: "bg-blue-500",
+            self: true
+        }]);
+        setChatInput("");
+        setTimeout(() => chatScrollRef.current?.scrollTo({ top: chatScrollRef.current.scrollHeight, behavior: 'smooth' }), 100);
+    };
+
+    const handleAddTask = (limitColId?: string) => {
+        const title = prompt("Enter task title:");
+        if (title) {
+            setTasks([...tasks, {
+                id: Date.now(),
+                title,
+                col: limitColId || "todo",
+                priority: "Medium",
+                assignee: "AM"
+            }]);
+        }
+    };
+
     // Timer Logic
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -143,9 +180,9 @@ export default function ProjectDetailsPage() {
                         <button className="p-2.5 border border-border rounded-xl hover:bg-muted transition-colors">
                             <Share2 className="w-4 h-4" />
                         </button>
-                        <button className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5">
+                        <Link href={`/dashboard/projects/${params.id}/edit`} className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 text-center">
                             Edit Project
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -302,7 +339,7 @@ export default function ProjectDetailsPage() {
                                     </div>
                                     <button className="p-2.5 border border-border rounded-xl hover:bg-muted transition-colors"><Filter className="w-4 h-4" /></button>
                                 </div>
-                                <button className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
+                                <button onClick={() => handleAddTask()} className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
                                     <Plus className="w-4 h-4" /> Add Task
                                 </button>
                             </div>
@@ -319,8 +356,8 @@ export default function ProjectDetailsPage() {
                                         </div>
 
                                         <div className="space-y-4">
-                                            {TASKS.filter(t => t.col === col.id).map((task) => (
-                                                <div key={task.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm hover:border-primary/50 transition-all cursor-grab group">
+                                            {tasks.filter(t => t.col === col.id).map((task) => (
+                                                <div key={task.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm hover:border-primary/50 transition-all cursor-grab group relative">
                                                     <div className="flex justify-between items-start mb-3">
                                                         <span className={cn(
                                                             "text-[10px] px-2 py-0.5 rounded font-extrabold uppercase",
@@ -329,7 +366,12 @@ export default function ProjectDetailsPage() {
                                                         )}>
                                                             {task.priority}
                                                         </span>
-                                                        <button className="opacity-0 group-hover:opacity-100 transition-opacity"><Edit3 className="w-3.5 h-3.5" /></button>
+                                                        <button 
+                                                            onClick={() => setTasks(tasks.filter(t => t.id !== task.id))}
+                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
                                                     </div>
                                                     <h5 className="font-bold text-sm mb-4">{task.title}</h5>
                                                     <div className="flex justify-between items-center">
@@ -342,7 +384,10 @@ export default function ProjectDetailsPage() {
                                                     </div>
                                                 </div>
                                             ))}
-                                            <button className="w-full py-2 border-2 border-dashed border-border rounded-2xl text-xs font-bold text-muted-foreground hover:bg-muted hover:border-primary/30 transition-all">
+                                            <button 
+                                                onClick={() => handleAddTask(col.id)}
+                                                className="w-full py-2 border-2 border-dashed border-border rounded-2xl text-xs font-bold text-muted-foreground hover:bg-muted hover:border-primary/30 transition-all"
+                                            >
                                                 + New Task
                                             </button>
                                         </div>
@@ -395,28 +440,46 @@ export default function ProjectDetailsPage() {
                     {/* Tab: CHAT */}
                     {activeTab === "chat" && (
                         <div className="h-[500px] flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-2xl">
-                            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">SJ</div>
-                                    <div className="space-y-1">
-                                        <p className="bg-muted px-4 py-2.5 rounded-2xl rounded-tl-none text-sm max-w-sm">I've just uploaded the new Figma designs. Can someone check the hero section?</p>
-                                        <p className="text-[10px] text-muted-foreground">10:05 AM</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-end gap-3 flex-row-reverse">
-                                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">AM</div>
-                                    <div className="space-y-1 flex flex-col items-end">
-                                        <p className="bg-primary text-white px-4 py-2.5 rounded-2xl rounded-br-none text-sm max-w-sm">Looks great, Sarah! I'll take a look right now.</p>
-                                        <p className="text-[10px] text-muted-foreground">10:12 AM</p>
-                                    </div>
-                                </div>
+                            <div ref={chatScrollRef} className="flex-1 p-6 space-y-6 overflow-y-auto">
+                                {messages.map((msg) => (
+                                    <motion.div 
+                                        key={msg.id} 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className={cn("flex items-start gap-3", msg.self && "flex-row-reverse")}
+                                    >
+                                        <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0", msg.color)}>
+                                            {msg.user}
+                                        </div>
+                                        <div className={cn("space-y-1 flex flex-col", msg.self ? "items-end" : "items-start")}>
+                                            <p className={cn(
+                                                "px-4 py-2.5 rounded-2xl text-sm max-w-sm shadow-sm",
+                                                msg.self ? "bg-primary text-white rounded-br-none" : "bg-muted rounded-tl-none"
+                                            )}>
+                                                {msg.text}
+                                            </p>
+                                            <p className="text-[10px] text-muted-foreground">{msg.time}</p>
+                                        </div>
+                                    </motion.div>
+                                ))}
                             </div>
                             <div className="p-4 border-t border-border bg-muted/10">
                                 <div className="flex items-center gap-2 bg-card border border-border rounded-2xl p-2 px-4 shadow-inner focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                                     <button className="p-2 text-muted-foreground hover:text-primary transition-colors"><Paperclip className="w-5 h-5" /></button>
-                                    <input className="flex-1 bg-transparent border-none focus:outline-none text-sm py-2" placeholder="Send a message..." />
+                                    <input 
+                                        value={chatInput}
+                                        onChange={(e) => setChatInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                                        className="flex-1 bg-transparent border-none focus:outline-none text-sm py-2" 
+                                        placeholder="Send a message..." 
+                                    />
                                     <button className="p-2 text-muted-foreground hover:text-primary transition-colors"><Smile className="w-5 h-5" /></button>
-                                    <button className="p-2.5 bg-primary text-white rounded-xl shadow-lg shadow-primary/20"><Send className="w-4 h-4" /></button>
+                                    <button 
+                                        onClick={handleSendMessage}
+                                        className="p-2.5 bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                                    >
+                                        <Send className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -523,17 +586,31 @@ export default function ProjectDetailsPage() {
                                 <h3 className="text-xl font-bold mb-6">General Configuration</h3>
                                 <div className="space-y-6">
                                     {[
-                                        { label: "Allow client access", desc: "Clients can view progress and files." },
-                                        { label: "Auto-archive completed tasks", desc: "Moves and hides tasks in 'Done' column after 7 days." },
-                                        { label: "Slack Notifications", desc: "Sync all activity to the project channel." },
+                                        { label: "Allow client access", desc: "Clients can view progress, order services, and comment.", active: true },
+                                        { label: "Auto-archive completed tasks", desc: "Moves and hides tasks in 'Done' column after 7 days.", active: false },
+                                        { label: "Slack Notifications", desc: "Sync all activity to the project channel.", active: true },
                                     ].map((opt, i) => (
                                         <div key={i} className="flex items-center justify-between p-4 bg-muted/10 border border-border rounded-2xl">
                                             <div>
                                                 <h4 className="font-bold text-sm">{opt.label}</h4>
                                                 <p className="text-xs text-muted-foreground">{opt.desc}</p>
+                                                {opt.active && opt.label === "Allow client access" && (
+                                                    <div className="mt-2 flex items-center gap-2">
+                                                        <span className="text-[10px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded font-bold border border-green-500/20">Active</span>
+                                                        <Link href="#" className="text-[10px] text-primary hover:underline flex items-center gap-1">
+                                                            View Client Portal <ExternalLink size={10} />
+                                                        </Link>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-muted transition-colors duration-200 ease-in-out">
-                                                <span className="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" />
+                                            <div className={cn(
+                                                "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
+                                                opt.active ? "bg-primary" : "bg-muted"
+                                            )}>
+                                                <span className={cn(
+                                                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                                    opt.active ? "translate-x-5" : "translate-x-0"
+                                                )} />
                                             </div>
                                         </div>
                                     ))}
@@ -545,7 +622,7 @@ export default function ProjectDetailsPage() {
                                 </h3>
                                 <div className="space-y-4">
                                     <p className="text-sm text-muted-foreground mb-4">Deleting a project is irreversible. All task history, files, and chats will be permanently removed.</p>
-                                    <button className="px-6 py-3 border-2 border-red-500/20 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 transition-all flex items-center gap-2">
+                                    <button onClick={() => { if(confirm("Are you sure?")) window.location.href = "/dashboard/projects" }} className="px-6 py-3 border-2 border-red-500/20 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 transition-all flex items-center gap-2">
                                         <Trash2 className="w-4 h-4" /> Delete This Project
                                     </button>
                                 </div>

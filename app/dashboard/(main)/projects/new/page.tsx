@@ -62,10 +62,25 @@ export default function CreateProjectPage() {
         }
     }
 
+    // Added state for timeline
+    const [timeline, setTimeline] = useState([
+        { id: 1, title: "Project Kickoff", duration: "1 week" },
+        { id: 2, title: "Design Phase", duration: "2 weeks" },
+        { id: 3, title: "Development", duration: "4 weeks" }
+    ]);
+    const [newMilestone, setNewMilestone] = useState("");
+
+    const addMilestone = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newMilestone.trim()) {
+            setTimeline([...timeline, { id: Date.now(), title: newMilestone, duration: "1 week" }]);
+            setNewMilestone("");
+        }
+    };
+
     return (
         <div className="max-w-5xl mx-auto py-8">
-
-            {/* Step Indicator */}
+            {/* Step Indicator (unchanged)... */}
             <div className="mb-12">
                 <div className="flex items-center justify-between relative">
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-muted -z-10" />
@@ -108,61 +123,31 @@ export default function CreateProjectPage() {
                                 className="space-y-8"
                             >
                                 <div className="text-center mb-10">
-                                    <h2 className="text-3xl font-bold mb-2">Let's start with the basics</h2>
-                                    <p className="text-muted-foreground">What kind of project are you building today?</p>
+                                    <h2 className="text-3xl font-bold mb-2">Let's build something amazing.</h2>
+                                    <p className="text-muted-foreground">What kind of project are you starting?</p>
                                 </div>
-
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {PROJECT_TYPES.map((type) => (
                                         <button
                                             key={type.id}
                                             onClick={() => setProjectType(type.id)}
                                             className={cn(
-                                                "relative group p-6 rounded-2xl border-2 text-left transition-all hover:shadow-lg",
-                                                projectType === type.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 bg-card"
+                                                "relative p-6 rounded-3xl border text-left transition-all hover:shadow-xl hover:-translate-y-1 group overflow-hidden",
+                                                projectType === type.id ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border bg-card hover:border-primary/50"
                                             )}
                                         >
-                                            <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-white shadow-md", type.color)}>
-                                                <type.icon className="w-6 h-6" />
+                                            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4 text-white shadow-lg", type.color)}>
+                                                <type.icon size={24} />
                                             </div>
                                             <h3 className="font-bold text-lg mb-1">{type.title}</h3>
                                             <p className="text-sm text-muted-foreground">{type.desc}</p>
-
                                             {projectType === type.id && (
-                                                <div className="absolute top-4 right-4 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                                                    <CheckSquare className="w-3.5 h-3.5 text-white" />
+                                                <div className="absolute top-4 right-4 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white">
+                                                    <CheckSquare size={14} />
                                                 </div>
                                             )}
                                         </button>
                                     ))}
-                                </div>
-
-                                <div className="mt-12">
-                                    <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                                        <Wand2 className="w-5 h-5 text-purple-500" /> Start from a Template
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {TEMPLATES.map((tmpl) => (
-                                            <div key={tmpl.id} className="group relative rounded-xl overflow-hidden cursor-pointer border border-border">
-                                                <div className={`h-32 ${tmpl.image} relative`}>
-                                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
-                                                </div>
-                                                <div className="p-4 bg-card">
-                                                    <h4 className="font-bold">{tmpl.name}</h4>
-                                                    <div className="flex gap-2 mt-2">
-                                                        {tmpl.tags.map(t => (
-                                                            <span key={t} className="text-[10px] bg-muted px-2 py-1 rounded">{t}</span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                                <div className="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <button className="text-white font-bold border border-white px-4 py-2 rounded-lg hover:bg-white hover:text-primary transition-colors">
-                                                        Use Template
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -176,53 +161,52 @@ export default function CreateProjectPage() {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="space-y-8"
                             >
-                                <div className="text-center mb-10">
-                                    <h2 className="text-3xl font-bold mb-2">Define Requirements</h2>
-                                    <p className="text-muted-foreground">List out the key features and goals.</p>
+                                <div className="text-center mb-6">
+                                    <h2 className="text-3xl font-bold mb-2">Project Scope</h2>
+                                    <p className="text-muted-foreground">Choose a template or define custom requirements.</p>
                                 </div>
 
-                                <div className="max-w-2xl mx-auto">
-                                    <form onSubmit={addRequirement} className="flex gap-2 mb-8">
-                                        <input
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                    {TEMPLATES.map((tpl) => (
+                                        <div key={tpl.id} className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer" onClick={() => {}}>
+                                            <div className={cn("absolute inset-0 transition-transform group-hover:scale-110", tpl.image)} />
+                                            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+                                            <div className="absolute bottom-0 left-0 p-4 w-full">
+                                                <h4 className="font-bold text-white mb-1">{tpl.name}</h4>
+                                                <div className="flex gap-2">
+                                                    {tpl.tags.map(t => <span key={t} className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">{t}</span>)}
+                                                </div>
+                                            </div>
+                                            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-white/20 p-2 rounded-full backdrop-blur text-white hover:bg-white hover:text-primary">
+                                                <Plus size={16} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="bg-muted/30 border border-border rounded-3xl p-6">
+                                    <h3 className="font-bold mb-4">Custom Requirements</h3>
+                                    <form onSubmit={addRequirement} className="flex gap-2 mb-4">
+                                        <input 
                                             value={reqInput}
                                             onChange={(e) => setReqInput(e.target.value)}
-                                            placeholder="Add a feature (e.g., 'User Authentication')"
-                                            className="flex-1 bg-muted/50 border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            placeholder="Add a feature (e.g. 'Stripe Integration')..."
+                                            className="flex-1 bg-card border border-border rounded-xl px-4 focus:ring-2 focus:ring-primary/20 outline-none"
                                         />
-                                        <button type="submit" className="bg-primary text-white p-3 rounded-xl hover:bg-primary/90">
-                                            <Plus className="w-5 h-5" />
+                                        <button className="px-4 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors">
+                                            Add
                                         </button>
                                     </form>
-
-                                    <div className="bg-muted/30 rounded-2xl p-6 min-h-[200px]">
-                                        {requirements.length === 0 ? (
-                                            <div className="text-center text-muted-foreground py-10">
-                                                <p>No requirements added yet.</p>
-                                                <p className="text-sm mt-2">Use the AI Assistant to generate suggestions.</p>
-                                                <button className="mt-4 text-purple-500 font-bold flex items-center justify-center gap-2 mx-auto hover:underline">
-                                                    <Wand2 className="w-4 h-4" /> Auto-Generate
+                                    <div className="flex flex-wrap gap-2">
+                                        {requirements.length === 0 && <span className="text-sm text-muted-foreground italic">No requirements added yet.</span>}
+                                        {requirements.map((req, i) => (
+                                            <span key={i} className="bg-card border border-border pl-3 pr-2 py-1.5 rounded-full text-sm font-medium flex items-center gap-2">
+                                                {req}
+                                                <button onClick={() => setRequirements(requirements.filter((_, idx) => idx !== i))} className="hover:bg-muted rounded-full p-0.5">
+                                                    <X size={14} />
                                                 </button>
-                                            </div>
-                                        ) : (
-                                            <ul className="space-y-3">
-                                                {requirements.map((req, i) => (
-                                                    <motion.li
-                                                        key={i}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        className="flex items-center justify-between bg-card border border-border p-3 rounded-lg group"
-                                                    >
-                                                        <span>{req}</span>
-                                                        <button
-                                                            onClick={() => setRequirements(requirements.filter((_, idx) => idx !== i))}
-                                                            className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </button>
-                                                    </motion.li>
-                                                ))}
-                                            </ul>
-                                        )}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
                             </motion.div>
@@ -235,79 +219,135 @@ export default function CreateProjectPage() {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="space-y-6"
+                                className="space-y-8"
                             >
-                                <div className="text-center mb-8">
+                                <div className="text-center mb-10">
                                     <h2 className="text-3xl font-bold mb-2">Assemble Your Team</h2>
-                                    <p className="text-muted-foreground">Select the best people for the job.</p>
+                                    <p className="text-muted-foreground">Select members to invite to this project.</p>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="space-y-4">
                                     {TEAM_MEMBERS.map((member) => (
-                                        <div
+                                        <div 
                                             key={member.id}
                                             onClick={() => {
-                                                if (selectedTeam.includes(member.id)) {
-                                                    setSelectedTeam(selectedTeam.filter(id => id !== member.id));
-                                                } else {
-                                                    setSelectedTeam([...selectedTeam, member.id]);
-                                                }
+                                                if (selectedTeam.includes(member.id)) setSelectedTeam(selectedTeam.filter(id => id !== member.id));
+                                                else setSelectedTeam([...selectedTeam, member.id]);
                                             }}
                                             className={cn(
-                                                "bg-card border-2 rounded-2xl p-6 cursor-pointer transition-all hover:shadow-lg relative",
-                                                selectedTeam.includes(member.id) ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                                                "flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all",
+                                                selectedTeam.includes(member.id) ? "bg-primary/5 border-primary shadow-sm" : "bg-card border-border hover:border-primary/30"
                                             )}
                                         >
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center font-bold text-muted-foreground">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-muted-foreground">
                                                     {member.avatar}
                                                 </div>
                                                 <div>
                                                     <h4 className="font-bold">{member.name}</h4>
-                                                    <p className="text-xs text-muted-foreground">{member.role}</p>
+                                                    <p className="text-sm text-muted-foreground">{member.role}</p>
                                                 </div>
                                             </div>
-
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between text-xs">
-                                                    <span>Workload</span>
-                                                    <span className={member.status === 'busy' ? "text-orange-500" : "text-green-500"}>
-                                                        {member.status === 'busy' ? '80%' : '20%'}
-                                                    </span>
-                                                </div>
-                                                <div className="w-full bg-muted rounded-full h-1.5">
-                                                    <div
-                                                        className={cn("h-full rounded-full", member.status === 'busy' ? "bg-orange-500" : "bg-green-500")}
-                                                        style={{ width: member.status === 'busy' ? '80%' : '20%' }}
-                                                    />
+                                            <div className="flex items-center gap-4">
+                                                <span className={cn(
+                                                    "text-xs px-2 py-0.5 rounded-full border",
+                                                    member.status === 'available' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-orange-500/10 text-orange-500 border-orange-500/20"
+                                                )}>
+                                                    {member.status}
+                                                </span>
+                                                <div className={cn(
+                                                    "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
+                                                    selectedTeam.includes(member.id) ? "bg-primary border-primary text-white" : "border-muted-foreground/30"
+                                                )}>
+                                                    {selectedTeam.includes(member.id) && <CheckSquare size={14} />}
                                                 </div>
                                             </div>
-
-                                            {selectedTeam.includes(member.id) && (
-                                                <div className="absolute top-4 right-4 text-primary">
-                                                    <CheckSquare className="w-5 h-5" />
-                                                </div>
-                                            )}
                                         </div>
                                     ))}
                                 </div>
                             </motion.div>
                         )}
 
-                        {/* Step 4: Timeline (Simplified) */}
+                        {/* Step 4: Timeline */}
                         {step === 4 && (
                             <motion.div
                                 key="step4"
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="text-center py-10"
+                                className="space-y-8"
                             >
-                                <h2 className="text-3xl font-bold mb-6">Timeline Planning</h2>
-                                <div className="bg-muted/20 p-8 rounded-2xl border border-dashed border-border mb-8">
-                                    <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                                    <p className="text-lg font-bold">Interactive Timeline Component</p>
-                                    <p className="text-muted-foreground">Drag and drop to set milestones and deadlines.</p>
+                                <div className="text-center mb-10">
+                                    <h2 className="text-3xl font-bold mb-2">Project Timeline</h2>
+                                    <p className="text-muted-foreground">Map out your milestones and phases.</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                    {/* Timeline Visualizer */}
+                                    <div className="relative pl-8 border-l-2 border-dashed border-border space-y-8">
+                                        {timeline.map((phase, i) => (
+                                            <motion.div 
+                                                key={phase.id}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: i * 0.1 }}
+                                                className="relative group"
+                                            >
+                                                <div className="absolute -left-[41px] top-1 w-5 h-5 rounded-full bg-primary border-4 border-card shadow-lg shadow-primary/20 z-10" />
+                                                <div className="bg-muted/30 border border-border rounded-2xl p-4 hover:border-primary/50 transition-colors flex justify-between items-center group-hover:bg-card group-hover:shadow-md">
+                                                    <div>
+                                                        <h4 className="font-bold">{phase.title}</h4>
+                                                        <p className="text-xs text-muted-foreground">{phase.duration}</p>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => setTimeline(timeline.filter(t => t.id !== phase.id))}
+                                                        className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                        <div className="absolute -left-[41px] bottom-0 w-5 h-5 rounded-full bg-green-500 border-4 border-card animate-pulse" />
+                                    </div>
+
+                                    {/* Timeline Editor */}
+                                    <div className="space-y-6">
+                                        <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10">
+                                            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                                <Calendar className="w-5 h-5 text-primary" /> Add Phase
+                                            </h3>
+                                            <form onSubmit={addMilestone} className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-bold text-muted-foreground uppercase">Phase Name</label>
+                                                    <input 
+                                                        value={newMilestone}
+                                                        onChange={(e) => setNewMilestone(e.target.value)}
+                                                        placeholder="e.g. Beta Testing"
+                                                        className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                                                    />
+                                                </div>
+                                                <button type="submit" className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                                                    <Plus size={18} /> Add to Timeline
+                                                </button>
+                                            </form>
+                                        </div>
+                                        
+                                        <div className="bg-card border border-border rounded-2xl p-6">
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold">
+                                                    AI
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold">AI Planner</h4>
+                                                    <p className="text-xs text-muted-foreground">Generate a schedule based on requirements.</p>
+                                                </div>
+                                            </div>
+                                            <button className="w-full py-2 border border-border rounded-xl text-sm font-bold hover:bg-muted transition-colors">
+                                                Generate Schedule <Wand2 className="w-3 h-3 inline ml-1" />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}

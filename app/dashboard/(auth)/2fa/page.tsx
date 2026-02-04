@@ -11,6 +11,13 @@ export default function TwoFactorPage() {
     const [code, setCode] = useState(["", "", "", "", "", ""]);
     const [loading, setLoading] = useState(false);
 
+    const handleVerify = (finalCode?: string[] | React.MouseEvent) => {
+        setLoading(true);
+        setTimeout(() => {
+            router.push("/dashboard");
+        }, 1500);
+    };
+
     const handleChange = (index: number, value: string) => {
         if (value.length > 1) return;
         const newCode = [...code];
@@ -22,6 +29,11 @@ export default function TwoFactorPage() {
             const nextInput = document.getElementById(`code-${index + 1}`);
             nextInput?.focus();
         }
+
+        // Auto-submit if full
+        if (newCode.every(digit => digit !== "") && index === 5 && value) {
+            handleVerify(newCode); 
+        }
     };
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -29,13 +41,6 @@ export default function TwoFactorPage() {
             const prevInput = document.getElementById(`code-${index - 1}`);
             prevInput?.focus();
         }
-    };
-
-    const handleVerify = () => {
-        setLoading(true);
-        setTimeout(() => {
-            router.push("/dashboard");
-        }, 1500);
     };
 
     return (

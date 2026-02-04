@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -19,32 +18,58 @@ export default function BottomNav() {
     const pathname = usePathname();
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-2xl border-t border-border px-6 py-2 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-            <div className="flex justify-between items-center">
+        <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
+            <nav className="bg-background/60 backdrop-blur-xl border border-white/10 dark:border-white/5 rounded-2xl shadow-2xl shadow-black/20 p-2 flex justify-between items-center relative overflow-hidden ring-1 ring-white/10">
+                
+                {/* Dynamic Background Glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-50 blur-xl pointer-events-none" />
+
                 {LINKS.map((link) => {
                     const isActive = pathname === link.href || (link.href !== "/dashboard" && pathname.startsWith(link.href));
+                    
                     return (
                         <Link
                             key={link.href}
                             href={link.href}
-                            className={cn(
-                                "flex flex-col items-center gap-1.5 transition-all relative py-1",
-                                isActive ? "text-primary" : "text-muted-foreground"
-                            )}
+                            className="relative flex-1 flex flex-col items-center justify-center py-2"
                         >
                             {isActive && (
                                 <motion.div
-                                    layoutId="bottom-nav-indicator"
-                                    className="absolute -top-2 w-8 h-1 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary),0.5)]"
-                                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                    layoutId="nav-pill"
+                                    className="absolute inset-0 bg-primary/10 rounded-xl"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
-                            <link.icon className={cn("w-5 h-5", isActive && "animate-pulse")} />
-                            <span className="text-[10px] font-bold uppercase tracking-tighter">{link.label}</span>
+                            
+                            <div className={cn(
+                                "relative z-10 flex flex-col items-center gap-1 transition-colors duration-300",
+                                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                            )}>
+                                <motion.div
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    className="relative"
+                                >
+                                    <link.icon className={cn("w-6 h-6", isActive && "fill-primary/20")} strokeWidth={isActive ? 2.5 : 2} />
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="nav-glow"
+                                            className="absolute inset-0 bg-primary/20 blur-lg rounded-full"
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                    )}
+                                </motion.div>
+                                <span className={cn(
+                                    "text-[9px] font-bold uppercase tracking-wider transition-all duration-300",
+                                    isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 hidden"
+                                )}>
+                                    {link.label}
+                                </span>
+                            </div>
                         </Link>
                     );
                 })}
-            </div>
+            </nav>
         </div>
     );
 }

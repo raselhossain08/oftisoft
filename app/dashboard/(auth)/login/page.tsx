@@ -107,21 +107,49 @@ export default function LoginPage() {
       <div className="hidden lg:flex w-[60%] relative bg-[#030712] overflow-hidden flex-col justify-between p-16">
         {/* Animated Background */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-[#030712] to-[#030712]" />
-          <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/20 via-[#030712] to-[#030712]" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-[#030712] to-[#030712]" />
+          <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/10 via-[#030712] to-[#030712]" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grain-texture-url-here.png')] opacity-[0.03] mix-blend-overlay" />
 
-          {/* Floating Code Snippets Decoration */}
+          {/* Floating Code Snippets Decoration with Parallax */}
           <motion.div
-            animate={{ y: [0, -20, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-20 right-20 w-64 h-40 bg-card/10 backdrop-blur-md rounded-lg border border-white/5 p-4 transform rotate-6"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute top-1/4 right-0 pointer-events-none"
           >
-            <div className="h-2 w-20 bg-primary/40 rounded mb-2" />
-            <div className="space-y-2 opacity-30">
-              <div className="h-2 w-full bg-white/20 rounded" />
-              <div className="h-2 w-3/4 bg-white/20 rounded" />
-              <div className="h-2 w-1/2 bg-white/20 rounded" />
-            </div>
+             <div className="relative w-[500px] h-[500px]">
+                {/* Abstract Shapes */}
+                <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full border border-white/5 border-dashed"
+                />
+                <motion.div 
+                   animate={{ rotate: -360 }}
+                   transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                   className="absolute top-10 right-10 w-[300px] h-[300px] rounded-full border border-white/5"
+                />
+
+                {/* Code Card */}
+                <motion.div
+                    animate={{ y: [0, -15, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-20 right-20 w-72 bg-gray-900/50 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl rotate-[-6deg]"
+                >
+                    <div className="flex gap-2 mb-4">
+                        <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                    </div>
+                    <div className="space-y-3 font-mono text-xs opacity-60">
+                        <div className="flex gap-2"><span className="text-purple-400">const</span> <span className="text-blue-400">future</span> = <span className="text-primary">await</span> build();</div>
+                        <div className="flex gap-2 pl-4"><span className="text-blue-400">return</span> <span className="text-green-400">"Ofitsoft"</span>;</div>
+                        <div className="w-full h-px bg-white/10 my-2" />
+                        <div className="flex gap-2 text-[10px] opacity-50">// System Optimized</div>
+                    </div>
+                </motion.div>
+             </div>
           </motion.div>
         </div>
 

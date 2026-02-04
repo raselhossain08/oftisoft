@@ -146,7 +146,7 @@ export default function ForgotPasswordPage() {
                                         disabled={!canResend}
                                         onClick={() => { setCountdown(60); setCanResend(false); }}
                                     >
-                                        {canResend ? "Result Email" : `Resend in 00:${countdown.toString().padStart(2, '0')}`}
+                                        {canResend ? "Resend Email" : `Resend in 00:${countdown.toString().padStart(2, '0')}`}
                                     </button>
                                 </div>
                             </motion.div>

@@ -88,7 +88,17 @@ export default function DashboardHome() {
                             repeat={Infinity}
                         />
                     </h1>
-                    <p className="text-muted-foreground font-medium">You have <span className="text-primary font-bold underline underline-offset-4 Decoration-2">3 critical deadlines</span> approaching this week.</p>
+                    <div className="h-8 overflow-hidden relative mt-1">
+                        <motion.div
+                            animate={{ y: ["0%", "-33.33%", "-66.66%"] }}
+                            transition={{ duration: 10, repeat: Infinity, times: [0, 0.33, 0.66], ease: "easeInOut" }}
+                            className="flex flex-col text-sm font-medium text-muted-foreground"
+                        >
+                            <span className="h-8 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> You have <span className="text-foreground font-bold underline">3 critical deadlines</span> this week.</span>
+                            <span className="h-8 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500" /> New feature "AI Chat" is <span className="text-foreground font-bold">ready for review</span>.</span>
+                            <span className="h-8 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-500" /> Server uptime was <span className="text-foreground font-bold">99.99%</span> last month.</span>
+                        </motion.div>
+                    </div>
                 </div>
                 <div className="flex bg-muted p-1 rounded-2xl border border-border">
                     <Link href="/dashboard" className="px-4 py-2 bg-card rounded-xl text-xs font-bold shadow-sm">Overview</Link>
@@ -118,8 +128,8 @@ export default function DashboardHome() {
                                 <p className="text-sm text-muted-foreground">Real-time performance metrics</p>
                             </div>
                             <div className="flex gap-2">
-                                <button className="p-2 border border-border rounded-xl hover:bg-muted"><Activity className="w-4 h-4" /></button>
-                                <button className="p-2 border border-border rounded-xl hover:bg-muted"><MoreHorizontal className="w-4 h-4" /></button>
+                                <Link href="/dashboard/analytics" className="p-2 border border-border rounded-xl hover:bg-muted transition-colors" title="View Detailed Analytics"><Activity className="w-4 h-4" /></Link>
+                                <button className="p-2 border border-border rounded-xl hover:bg-muted transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                             </div>
                         </div>
                         <div className="h-[350px] w-full">
@@ -149,12 +159,12 @@ export default function DashboardHome() {
                             </h3>
                             <div className="grid grid-cols-2 gap-4">
                                 {ACHIEVEMENTS.map((ach, i) => (
-                                    <div key={i} className="flex flex-col items-center p-4 bg-muted/20 border border-border rounded-3xl hover:border-primary/50 transition-all group cursor-pointer">
+                                    <Link href="/dashboard/settings/profile" key={i} className="flex flex-col items-center p-4 bg-muted/20 border border-border rounded-3xl hover:border-primary/50 transition-all group cursor-pointer">
                                         <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform", ach.bg, ach.color)}>
                                             <ach.icon size={24} />
                                         </div>
                                         <p className="text-xs font-bold text-center">{ach.title}</p>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
@@ -202,12 +212,12 @@ export default function DashboardHome() {
                             ))}
                             {Array.from({ length: 31 }).map((_, i) => (
                                 <div key={i} className="relative py-1">
-                                    <span className={cn(
+                                    <Link href={`/dashboard/calendar?date=${i + 1}`} className={cn(
                                         "text-xs font-bold w-8 h-8 flex items-center justify-center mx-auto rounded-xl transition-all cursor-pointer",
                                         i + 1 === 24 ? "bg-primary text-white shadow-lg shadow-primary/30" : "hover:bg-muted"
                                     )}>
                                         {i + 1}
-                                    </span>
+                                    </Link>
                                     {[12, 18, 28].includes(i + 1) && (
                                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
                                     )}
