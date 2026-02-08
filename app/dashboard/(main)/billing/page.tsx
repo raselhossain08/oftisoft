@@ -1,123 +1,116 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
     CreditCard, Download, ExternalLink, CheckCircle2, AlertCircle,
-    ArrowUpRight, ArrowDownRight, Zap, Shield, FileText, Plus, X, Lock, Check
+    ArrowUpRight, ArrowDownRight, Zap, Shield, FileText, Plus, X, Lock, Check, Loader2, Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
 } from "recharts";
-
-// --- Mock Data ---
-
-const USAGE_DATA = [
-    { name: 'Jan', amount: 1200 },
-    { name: 'Feb', amount: 1900 },
-    { name: 'Mar', amount: 1500 },
-    { name: 'Apr', amount: 2400 },
-    { name: 'May', amount: 3200 },
-    { name: 'Jun', amount: 2800 },
-];
-
-const INVOICES = [
-    { id: "INV-001", date: "Jun 01, 2026", amount: "$2,800.00", status: "Paid" },
-    { id: "INV-002", date: "May 01, 2026", amount: "$3,200.00", status: "Paid" },
-    { id: "INV-003", date: "Apr 01, 2026", amount: "$2,400.00", status: "Paid" },
-];
-
-// --- Components ---
-
-const CustomDialog = ({ isOpen, onClose, title, children }: { isOpen: boolean, onClose: () => void, title: string, children: React.ReactNode }) => {
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-                    />
-                    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="bg-card border border-border w-full max-w-md rounded-xl shadow-2xl pointer-events-auto overflow-hidden"
-                        >
-                            <div className="flex justify-between items-center p-6 border-b border-border">
-                                <h3 className="font-bold text-lg">{title}</h3>
-                                <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                    <X size={18} />
-                                </button>
-                            </div>
-                            <div className="p-6">
-                                {children}
-                            </div>
-                        </motion.div>
-                    </div>
-                </>
-            )}
-        </AnimatePresence>
-    );
-};
+import { useInvoices } from "@/hooks/useInvoices";
+import { useSubscription } from "@/hooks/useSubscription";
+import { usePaymentMethods } from "@/hooks/usePaymentMethods";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { billingAPI } from "@/lib/api";
+import { useEffect } from "react";
 
 export default function BillingOverview() {
-    const [cards, setCards] = useState([
-        { id: 1, last4: "4242", brand: "Visa", expiry: "12/28", default: true },
-        { id: 2, last4: "8888", brand: "Mastercard", expiry: "10/27", default: false },
-    ]);
+    const { invoices, isLoading: isLoadingInvoices } = useInvoices();
+    const { subscription } = useSubscription();
+    const { 
+        paymentMethods, 
+        isLoading: isLoadingMethods, 
+        addPaymentMethod, 
+        setDefaultMethod, 
+        deleteMethod 
+    } = usePaymentMethods();
 
     const [isAddCardOpen, setIsAddCardOpen] = useState(false);
     const [newCard, setNewCard] = useState({ number: "", expiry: "", cvc: "", name: "" });
-    const [loading, setLoading] = useState(false);
+    const [isAddingCard, setIsAddingCard] = useState(false);
+    const [usage, setUsage] = useState<any>(null);
 
-    const handleSetDefault = (id: number) => {
-        setCards(cards.map(card => ({
-            ...card,
-            default: card.id === id
-        })));
-    };
+    useEffect(() => {
+        billingAPI.getUsage().then(setUsage).catch(console.error);
+    }, [subscription?.plan]);
 
-    const handleAddCard = (e: React.FormEvent) => {
+    const chartData = useMemo(() => {
+        // Build chart data from invoices (last 6 months)
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const currentMonth = new Date().getMonth();
+        const last6Months: { name: string; amount: number }[] = [];
+        
+        for (let i = 5; i >= 0; i--) {
+            const m = (currentMonth - i + 12) % 12;
+            last6Months.push({ name: months[m], amount: 0 });
+        }
+
+        invoices.forEach(inv => {
+            const date = new Date(inv.createdAt);
+            const mName = months[date.getMonth()];
+            const dataPoint = last6Months.find(d => d.name === mName);
+            if (dataPoint) {
+                const amt = parseFloat(inv.amount.replace(/[^0-9.-]+/g, ""));
+                dataPoint.amount += isNaN(amt) ? 0 : amt;
+            }
+        });
+
+        return last6Months;
+    }, [invoices]);
+
+    const handleAddCard = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        // Simulate API
-        setTimeout(() => {
-            const last4 = newCard.number.slice(-4) || "0000";
+        setIsAddingCard(true);
+        try {
+            const last4 = newCard.number.replace(/\s/g, "").slice(-4);
             const brand = newCard.number.startsWith("4") ? "Visa" : "Mastercard";
-            const newId = Math.max(...cards.map(c => c.id)) + 1;
             
-            setCards([...cards, {
-                id: newId,
+            await addPaymentMethod({
                 last4,
                 brand,
-                expiry: newCard.expiry || "12/30",
-                default: false
-            }]);
+                expiry: newCard.expiry,
+                isDefault: paymentMethods.length === 0,
+                type: brand
+            });
             
-            setLoading(false);
             setIsAddCardOpen(false);
             setNewCard({ number: "", expiry: "", cvc: "", name: "" });
-        }, 1500);
+        } catch (error) {
+            // Error managed by hook
+        } finally {
+            setIsAddingCard(false);
+        }
     };
 
     return (
-        <div className="space-y-8  mx-auto">
+        <div className="space-y-8 mx-auto">
 
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Billing & Usage</h1>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 border border-border rounded-xl font-medium hover:bg-muted transition-colors">
-                        View All Invoices
-                    </button>
-                    <Link href="/dashboard/billing/subscription" className="px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                        Upgrade Plan
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight">Billing & Usage</h1>
+                    <p className="text-muted-foreground font-medium">Manage your subscription, methods and monitor usage.</p>
+                </div>
+                <div className="flex gap-3">
+                    <Link href="/dashboard/billing/invoices" className="px-5 py-2.5 border border-border/50 bg-card rounded-2xl font-bold hover:bg-muted transition-all text-sm shadow-sm">
+                        View Ledger
+                    </Link>
+                    <Link href="/dashboard/billing/subscription" className="px-5 py-2.5 bg-primary text-white rounded-2xl font-black text-sm hover:hover:scale-[1.02] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
+                        <Zap className="w-4 h-4 fill-white" /> Upgrade Tier
                     </Link>
                 </div>
             </div>
@@ -128,71 +121,92 @@ export default function BillingOverview() {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="md:col-span-1 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-6 text-white relative overflow-hidden"
+                    className={cn(
+                        "md:col-span-1 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl transition-all duration-500",
+                        subscription?.plan === 'Business' ? "bg-gradient-to-br from-slate-900 to-slate-800" :
+                        subscription?.plan === 'Pro' ? "bg-gradient-to-br from-indigo-600 to-purple-700" :
+                        "bg-gradient-to-br from-blue-500 to-cyan-600"
+                    )}
                 >
                     <div className="relative z-10">
-                        <div className="flex justify-between items-start mb-6">
+                        <div className="flex justify-between items-start mb-8">
                             <div>
-                                <p className="text-indigo-200 font-medium mb-1">Current Plan</p>
-                                <h2 className="text-3xl font-bold flex items-center gap-2">
-                                    Pro Plan <Zap className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                                <p className="text-white/60 text-xs font-black uppercase tracking-widest mb-1">Compute Tier</p>
+                                <h2 className="text-4xl font-black flex items-center gap-3 tracking-tighter">
+                                    {subscription?.plan || 'Starter'} <Zap className="w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
                                 </h2>
                             </div>
-                            <div className="bg-white/10 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm border border-white/20">
-                                Active
+                            <div className="bg-white/10 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter backdrop-blur-md border border-white/20">
+                                {subscription?.status === 'active' ? 'Active System' : 'Maintenance'}
                             </div>
                         </div>
 
-                        <div className="space-y-4 mb-8">
-                            <div className="space-y-1">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-indigo-100">Storage Usage</span>
-                                    <span className="font-bold">45GB / 100GB</span>
+                        <div className="space-y-6 mb-10">
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold">
+                                    <span className="text-white/70 uppercase">Storage Cluster</span>
+                                    <span className="font-black tracking-wider">{usage?.storage?.used || "0.4GB"} / {usage?.storage?.total || "0.5GB"}</span>
                                 </div>
-                                <div className="w-full bg-black/20 rounded-full h-2">
-                                    <div className="bg-white h-full rounded-full w-[45%]" />
+                                <div className="w-full bg-black/30 rounded-full h-2.5 p-0.5 overflow-hidden border border-white/10">
+                                    <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${usage?.storage?.percent || 80}%` }}
+                                        className="bg-white h-full rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" 
+                                    />
                                 </div>
                             </div>
-                            <div className="space-y-1">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-indigo-100">API Calls</span>
-                                    <span className="font-bold">8.2k / 10k</span>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold">
+                                    <span className="text-white/70 uppercase">Throughput / API</span>
+                                    <span className="font-black tracking-wider">{usage?.apiCalls?.used || "450"} / {usage?.apiCalls?.total || "500"}</span>
                                 </div>
-                                <div className="w-full bg-black/20 rounded-full h-2">
-                                    <div className="bg-green-400 h-full rounded-full w-[82%]" />
+                                <div className="w-full bg-black/30 rounded-full h-2.5 p-0.5 overflow-hidden border border-white/10">
+                                    <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${usage?.apiCalls?.percent || 90}%` }}
+                                        className="bg-green-400 h-full rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]" 
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex justify-between items-center text-sm border-t border-white/10 pt-4">
-                            <span className="text-indigo-200">Renews on Jul 01, 2026</span>
-                            <span className="font-bold">$49/month</span>
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest border-t border-white/10 pt-6">
+                            <span className="text-white/50">Next Cycle: Jul 01, 2026</span>
+                            <span className="text-white">
+                                {subscription?.plan === 'Business' ? "$99/mo" : subscription?.plan === 'Pro' ? "$29/mo" : "Free Tier"}
+                            </span>
                         </div>
                     </div>
 
-                    {/* Decorative Circles */}
-                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 rounded-full blur-2xl" />
+                    <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/5 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-black/20 rounded-full blur-3xl" />
                 </motion.div>
 
                 {/* Usage Chart */}
-                <div className="md:col-span-2 bg-card border border-border rounded-3xl p-6 shadow-sm">
-                    <h3 className="font-bold mb-6">Spend History</h3>
+                <div className="md:col-span-2 bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm">
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="font-black text-xl tracking-tight">Computational Investment</h3>
+                        <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full border border-border/50">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Trend 6M</span>
+                        </div>
+                    </div>
                     <div className="h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={USAGE_DATA}>
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                            < BarChart data={chartData}>
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 800 }} />
                                 <Tooltip
-                                    cursor={{ fill: 'transparent' }}
-                                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#fff' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    cursor={{ fill: 'rgba(99, 102, 241, 0.05)', radius: 4 }}
+                                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '16px', color: '#fff', backdropFilter: 'blur(8px)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)' }}
+                                    itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                                    labelStyle={{ fontWeight: 'black', color: '#6366f1', marginBottom: '4px', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.1em' }}
                                 />
-                                <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
-                                    {USAGE_DATA.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={index === USAGE_DATA.length - 1 ? '#6366f1' : '#334155'} />
+                                <Bar dataKey="amount" radius={8} barSize={40}>
+                                    {chartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? '#6366f1' : 'rgba(99, 102, 241, 0.2)'} />
                                     ))}
                                 </Bar>
-                            </BarChart>
+                            </ BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
@@ -201,151 +215,221 @@ export default function BillingOverview() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* Payment Methods */}
-                <div className="bg-card border border-border rounded-3xl p-6 shadow-sm">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold">Payment Methods</h3>
-                        <button 
+                <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm">
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="font-black text-xl tracking-tight">Authorized Methods</h3>
+                        <Button 
+                            variant="ghost"
+                            size="sm"
                             onClick={() => setIsAddCardOpen(true)}
-                            className="text-primary text-sm font-bold hover:underline flex items-center gap-1"
+                            className="text-primary h-9 font-black uppercase tracking-widest text-[10px] hover:bg-primary/10 rounded-xl"
                         >
-                            <Plus size={14} /> Add New
-                        </button>
+                            <Plus size={14} className="mr-1 stroke-[3px]" /> Add Entity
+                        </Button>
                     </div>
                     <div className="space-y-4">
-                        {cards.map((card) => (
-                            <div key={card.id} className="flex items-center justify-between p-4 border border-border rounded-2xl bg-muted/30">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-8 bg-card border border-border rounded-md flex items-center justify-center">
-                                        <CreditCard className="w-5 h-5 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm">•••• •••• •••• {card.last4}</p>
-                                        <p className="text-xs text-muted-foreground">Expires {card.expiry} • {card.brand}</p>
-                                    </div>
-                                </div>
+                        {isLoadingMethods ? (
+                            <div className="py-12 flex flex-col items-center justify-center gap-3 opacity-50">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                <span className="text-[10px] font-black tracking-widest uppercase">Decryption in progress...</span>
+                            </div>
+                        ) : paymentMethods.length === 0 ? (
+                            <div className="py-12 flex flex-col items-center justify-center text-center gap-4 border-2 border-dashed border-border/50 rounded-3xl">
+                                <CreditCard className="w-10 h-10 text-muted-foreground/30" />
                                 <div>
-                                    {card.default ? (
-                                        <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded-full border border-green-500/20 flex items-center gap-1">
-                                            <Check size={10} /> Default
-                                        </span>
-                                    ) : (
-                                        <button 
-                                            onClick={() => handleSetDefault(card.id)}
-                                            className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors hover:bg-muted px-2 py-1 rounded-lg"
-                                        >
-                                            Set Default
-                                        </button>
-                                    )}
+                                    <p className="font-black text-sm uppercase tracking-widest text-muted-foreground">No Methods Found</p>
+                                    <p className="text-xs text-muted-foreground/60 font-medium">Add a payment method to begin.</p>
                                 </div>
                             </div>
-                        ))}
+                        ) : (
+                            paymentMethods.map((card) => (
+                                <div key={card.id} className="group relative flex items-center justify-between p-5 border border-border/50 rounded-[1.5rem] bg-background/50 hover:bg-muted/30 transition-all duration-300">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-14 h-9 bg-card border border-border/50 rounded-xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                                            <CreditCard className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        </div>
+                                        <div>
+                                            <p className="font-black text-sm tracking-widest">•••• {card.last4}</p>
+                                            <p className="text-[10px] font-black uppercase text-muted-foreground tracking-tighter opacity-60">Expires {card.expiry} • {card.brand}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {card.isDefault ? (
+                                            <div className="px-3 py-1 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-1.5 shadow-sm">
+                                                <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                                                <span className="text-[9px] font-black text-green-600 uppercase tracking-widest">Default</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center">
+                                                <Button 
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setDefaultMethod(card.id)}
+                                                    className="h-8 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary"
+                                                >
+                                                    Set Default
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => deleteMethod(card.id)}
+                                                    className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 
                 {/* Recent Invoices */}
-                <div className="bg-card border border-border rounded-3xl p-6 shadow-sm">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold">Recent Invoices</h3>
+                <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm">
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="font-black text-xl tracking-tight">Recent Ledger</h3>
                     </div>
                     <div className="space-y-1">
-                        {INVOICES.map((inv, i) => (
-                            <div key={i} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-xl transition-colors cursor-pointer group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                        <FileText className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm">{inv.amount}</p>
-                                        <p className="text-xs text-muted-foreground">{inv.date}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded-full">{inv.status}</span>
-                                    <button className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground">
-                                        <Download className="w-4 h-4" />
-                                    </button>
-                                </div>
+                        {isLoadingInvoices ? (
+                            <div className="py-12 flex flex-col items-center justify-center opacity-50">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
                             </div>
-                        ))}
+                        ) : invoices.length === 0 ? (
+                            <p className="text-center py-12 text-muted-foreground text-sm font-medium">No transactions recorded yet.</p>
+                        ) : (
+                            invoices.slice(0, 4).map((inv, i) => (
+                                <div key={i} className="flex items-center justify-between p-4 hover:bg-primary/[0.03] rounded-2xl transition-all cursor-pointer group animate-in fade-in slide-in-from-right-4 duration-500" style={{ animationDelay: `${i * 100}ms` }}>
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-11 h-11 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-all group-hover:rotate-6">
+                                            <FileText className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="font-black text-sm tracking-tight">{inv.amount}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
+                                                {new Date(inv.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <span className={cn(
+                                            "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border",
+                                            inv.status === 'completed' ? "bg-green-500/10 text-green-600 border-green-500/10" : "bg-orange-500/10 text-orange-600 border-orange-500/10"
+                                        )}>
+                                            {inv.status}
+                                        </span>
+                                        <button className="p-2.5 hover:bg-muted bg-background border border-border rounded-xl text-muted-foreground hover:text-foreground transition-all shadow-sm">
+                                            <Download className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 
             </div>
 
             {/* Add Card Dialog */}
-            <CustomDialog 
-                isOpen={isAddCardOpen} 
-                onClose={() => setIsAddCardOpen(false)} 
-                title="Add Payment Method"
-            >
-                <form onSubmit={handleAddCard} className="space-y-4">
-                    <div className="p-4 bg-muted/30 rounded-lg flex items-center gap-3 border border-border">
-                        <Shield className="w-5 h-5 text-green-500" />
-                        <p className="text-xs text-muted-foreground">Your payment information is encrypted and secure.</p>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-muted-foreground">Name on Card</label>
-                        <input 
-                            required
-                            value={newCard.name}
-                            onChange={(e) => setNewCard({...newCard, name: e.target.value})}
-                            placeholder="J. Doe"
-                            className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-muted-foreground">Card Number</label>
-                        <div className="relative">
-                            <input 
-                                required
-                                value={newCard.number}
-                                onChange={(e) => setNewCard({...newCard, number: e.target.value})}
-                                placeholder="0000 0000 0000 0000"
-                                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 font-mono"
-                            />
-                            <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Dialog open={isAddCardOpen} onOpenChange={setIsAddCardOpen}>
+                <DialogContent className="sm:max-w-md rounded-[2.5rem] border-border/50">
+                    <DialogHeader>
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                            <CreditCard className="w-7 h-7 text-primary" />
                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-muted-foreground">Expiry Date</label>
-                            <input 
-                                required
-                                value={newCard.expiry}
-                                onChange={(e) => setNewCard({...newCard, expiry: e.target.value})}
-                                placeholder="MM/YY"
-                                className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 font-mono"
-                            />
+                        <DialogTitle className="text-3xl font-black tracking-tighter">Register Method</DialogTitle>
+                        <DialogDescription className="text-sm">
+                            Connect a new computational credit source to your cluster.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <form onSubmit={handleAddCard} className="space-y-6 py-4">
+                        <div className="p-4 bg-green-500/5 rounded-2xl border border-green-500/20 flex items-start gap-4">
+                            <Shield className="w-5 h-5 text-green-500 mt-0.5" />
+                            <p className="text-[10px] text-muted-foreground font-medium leading-relaxed">
+                                YOUR CREDENTIALS ARE ENCRYPTED VIA QUANTUM-RESISTANT SHS-256 INFRASTRUCTURE. WE NEVER STORE SENSITIVE PII.
+                            </p>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-muted-foreground">CVC / CWW</label>
-                            <div className="relative">
-                                <input 
+
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Entity Name</Label>
+                                <Input 
                                     required
-                                    value={newCard.cvc}
-                                    onChange={(e) => setNewCard({...newCard, cvc: e.target.value})}
-                                    placeholder="123"
-                                    className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 font-mono"
+                                    value={newCard.name}
+                                    onChange={(e) => setNewCard({...newCard, name: e.target.value})}
+                                    placeholder="JAYDEN DOE"
+                                    className="h-auto border-border/50 bg-muted/20 rounded-xl font-bold uppercase placeholder:opacity-30 placeholder:normal-case"
                                 />
-                                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Universal Identifier (PAN)</Label>
+                                <div className="relative">
+                                    <Input 
+                                        required
+                                        value={newCard.number}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\s/g, "").replace(/[^0-9]/g, "");
+                                            const formatted = val.match(/.{1,4}/g)?.join(" ") || val;
+                                            setNewCard({...newCard, number: formatted.slice(0, 19)});
+                                        }}
+                                        placeholder="0000 0000 0000 0000"
+                                        className="h-auto pl-12 border-border/50 bg-muted/20 rounded-xl font-black tracking-widest"
+                                    />
+                                    <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Cycle Expiry</Label>
+                                    <Input 
+                                        required
+                                        value={newCard.expiry}
+                                        onChange={(e) => {
+                                            let val = e.target.value.replace(/[^0-9]/g, "");
+                                            if (val.length >= 2) val = val.slice(0, 2) + "/" + val.slice(2, 4);
+                                            setNewCard({...newCard, expiry: val.slice(0, 5)});
+                                        }}
+                                        placeholder="MM/YY"
+                                        className="h-auto border-border/50 bg-muted/20 rounded-xl font-black text-center"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Security Key (CVC)</Label>
+                                    <div className="relative">
+                                        <Input 
+                                            required
+                                            type="password"
+                                            value={newCard.cvc}
+                                            onChange={(e) => setNewCard({...newCard, cvc: e.target.value.slice(0, 4)})}
+                                            placeholder="•••"
+                                            className="h-auto border-border/50 bg-muted/20 rounded-xl font-black text-center tracking-[0.5em]"
+                                        />
+                                        <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="pt-2">
-                        <button 
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50"
-                        >
-                            {loading ? "Adding..." : "Add Card"}
-                        </button>
-                    </div>
-                </form>
-            </CustomDialog>
+                        <DialogFooter className="pt-4">
+                            <Button 
+                                type="submit"
+                                disabled={isAddingCard}
+                                className="w-full h-14 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform"
+                            >
+                                {isAddingCard ? (
+                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                ) : (
+                                    "Authorize Link"
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
         </div>
     );

@@ -1,71 +1,55 @@
-"use client";
-
-import { useState } from "react";
+"use client"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Smartphone, Brain, Layers, Server, Sparkles, ArrowRight, Code, ShieldCheck, Zap } from "lucide-react";
+import { 
+    Plus, Save, Trash2, LayoutTemplate, Grid, HelpCircle, Server, Database, Cloud, 
+    Brain, Smartphone, Layout, Video, FileText, Code2, ClipboardCheck, Rocket, 
+    HeartPulse, Globe, Zap, Code, ShieldCheck, Sparkles, Layers, Crown, ArrowRight
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useState } from "react";
+import { useServicesContentStore } from "@/lib/store/services-content";
+import { usePageContent } from "@/hooks/usePageContent";
 
-const services = [
-    {
-        id: "web",
-        label: "Modern Web",
-        icon: Globe,
-        gradient: "from-blue-600 to-cyan-500",
-        title: "High-Performance Web Applications",
-        description: "We build pixel-perfect, SEO-optimized web applications using Next.js 15 and React Server Components. Our sites aren't just beautiful; they are lightning fast and score 100 on Core Web Vitals.",
-        features: [
-            { icon: Zap, title: "Speed Optimization", desc: "Sub-second load times" },
-            { icon: Code, title: "Clean Architecture", desc: "Scalable codebase patterns" },
-            { icon: ShieldCheck, title: "Enterprise Security", desc: "OWASP compliance built-in" }
-        ]
-    },
-    {
-        id: "mobile",
-        label: "Mobile Apps",
-        icon: Smartphone,
-        gradient: "from-purple-600 to-pink-500",
-        title: "Native-Quality Cross-Platform Apps",
-        description: "Reach iOS and Android users simultaneously with React Native. We deliver fluid animations, offline capabilities, and deeply integrated native features without the cost of two separate teams.",
-        features: [
-            { icon: Smartphone, title: "One Codebase", desc: "iOS & Android support" },
-            { icon: Zap, title: "60 FPS Performance", desc: "Fluid animations" },
-            { icon: Layers, title: "Offline First", desc: "Works without signal" }
-        ]
-    },
-    {
-        id: "ai",
-        label: "AI Solutions",
-        icon: Brain,
-        gradient: "from-indigo-600 to-violet-500",
-        title: "Intelligent Business Automation",
-        description: "Transform your business operations with custom AI agents. From customer support chatbots tied to your knowledge base, to predictive analytics models that spot trends before they happen.",
-        features: [
-            { icon: Brain, title: "RAG Pipelines", desc: "Chat with your data" },
-            { icon: Sparkles, title: "Generative AI", desc: "Automated content creation" },
-            { icon: Code, title: "Custom Models", desc: "Fine-tuned for your niche" }
-        ]
-    },
-    {
-        id: "devops",
-        label: "DevOps & Cloud",
-        icon: Server,
-        gradient: "from-emerald-500 to-teal-500",
-        title: "Scalable Cloud Infrastructure",
-        description: "Sleep soundly knowing your infrastructure scales automatically. We design serverless architectures on AWS and Vercel that handle traffic spikes effortlessly while minimizing costs.",
-        features: [
-            { icon: Server, title: "Auto-Scaling", desc: "Zero downtime deployment" },
-            { icon: ShieldCheck, title: "Cloud Security", desc: "Automated compliance" },
-            { icon: Layers, title: "Infrastructure as Code", desc: "Terraform / CDK" }
-        ]
-    }
-];
+// Icon mapping
+const iconMap: any = {
+    Plus, Save, Trash2, LayoutTemplate, Grid, HelpCircle, Server, Database, Cloud, 
+    Brain, Smartphone, Layout, Video, FileText, Code2, ClipboardCheck, Rocket, 
+    HeartPulse, Globe, Zap, Code, ShieldCheck, Sparkles, Layers, Crown, ArrowRight,
+    MessageSquare: Layout // Added fallback
+};
 
 export default function ServicesOverview() {
-    const [activeService, setActiveService] = useState(services[0]);
+    const { pageContent, isLoading } = usePageContent('services');
+    const { content: storeContent } = useServicesContentStore();
+
+    if (isLoading) {
+        return (
+            <div className="py-16 md:py-24 bg-background relative flex items-center justify-center">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Syncing Service Nodes...
+                </div>
+            </div>
+        );
+    }
+
+    const content = pageContent?.content || storeContent;
+    const services = content?.overview || [];
+    const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
+
+    // Initialize with first service when data loads or if valid
+    const activeService = services.find((s: any) => s.id === activeServiceId) || services[0];
+    
+    // Safety check if no services
+    if (!activeService) return null;
+
+    const ActiveIcon = iconMap[activeService.iconName] || Globe;
 
     return (
-        <section className="py-24 bg-background relative overflow-hidden min-h-screen flex items-center">
+        <section className="py-16 md:py-24 bg-background relative overflow-hidden flex items-center">
             {/* Dynamic Background Gradient */}
             <div className="absolute inset-0 transition-colors duration-1000 bg-background">
                 <AnimatePresence mode="wait">
@@ -75,15 +59,15 @@ export default function ServicesOverview() {
                         animate={{ opacity: 0.15 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 1 }}
-                        className={cn("absolute -top-[50%] -left-[20%] w-[1200px] h-[1200px] rounded-full blur-[150px] bg-gradient-to-br", activeService.gradient)}
+                        className={cn("absolute -top-[50%] -left-[20%] w-[600px] md:w-[1200px] h-[600px] md:h-[1200px] rounded-full blur-[100px] md:blur-[150px] bg-gradient-to-br", activeService.gradient)}
                     />
                 </AnimatePresence>
             </div>
 
             <div className="container px-4 mx-auto relative z-10">
-                <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start">
+                <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-start">
                     
-                    {/* Left: Navigation Menu */}
+                    {/* Left: Navigation Menu (Horizontal Scroll on Mobile) */}
                     <div className="w-full lg:w-1/3">
                         <motion.div 
                             initial={{ opacity: 0, x: -50 }}
@@ -91,45 +75,50 @@ export default function ServicesOverview() {
                             viewport={{ once: true }}
                             className="space-y-4"
                         >
-                            <h2 className="text-4xl font-bold mb-12">Our Expertise</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 md:mb-12">Our Expertise</h2>
                             
-                            {services.map((service) => (
-                                <button
-                                    key={service.id}
-                                    onClick={() => setActiveService(service)}
-                                    className="group w-full text-left"
-                                >
-                                    <div className={cn(
-                                        "p-6 rounded-2xl transition-all duration-300 border backdrop-blur-sm",
-                                        activeService.id === service.id 
-                                            ? "bg-card border-primary/20 shadow-xl shadow-primary/5 translate-x-4" 
-                                            : "bg-transparent border-transparent hover:bg-card/30 text-muted-foreground hover:text-foreground"
-                                    )}>
-                                        <div className="flex items-center gap-4">
-                                            <div className={cn(
-                                                "w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300",
-                                                activeService.id === service.id ? "bg-primary text-primary-foreground" : "bg-muted group-hover:bg-card"
-                                            )}>
-                                                <service.icon className="w-6 h-6" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-lg">{service.label}</h3>
-                                                {activeService.id === service.id && (
-                                                    <motion.div 
-                                                        layoutId="active-arrow"
-                                                        className="h-1 w-12 bg-primary rounded-full mt-2" 
-                                                    />
-                                                )}
+                            <div className="flex lg:flex-col overflow-x-auto pb-4 lg:pb-0 gap-4 lg:gap-0 no-scrollbar snap-x">
+                                {services.map((service: any) => {
+                                    const Icon = iconMap[service.iconName] || Globe;
+                                    return (
+                                        <button
+                                            key={service.id}
+                                            onClick={() => setActiveServiceId(service.id)}
+                                        className="group lg:w-full text-left flex-shrink-0 snap-center"
+                                    >
+                                        <div className={cn(
+                                            "p-4 md:p-6 rounded-2xl transition-all duration-300 border backdrop-blur-sm min-w-[260px] lg:min-w-0",
+                                            activeService.id === service.id 
+                                                ? "bg-card border-primary/20 shadow-xl shadow-primary/5 lg:translate-x-4" 
+                                                : "bg-transparent border-transparent hover:bg-card/30 text-muted-foreground hover:text-foreground"
+                                        )}>
+                                            <div className="flex items-center gap-4">
+                                                <div className={cn(
+                                                    "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-colors duration-300",
+                                                    activeService.id === service.id ? "bg-primary text-primary-foreground" : "bg-muted group-hover:bg-card"
+                                                )}>
+                                                    <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-base md:text-lg">{service.label}</h3>
+                                                    {activeService.id === service.id && (
+                                                        <motion.div 
+                                                            layoutId="active-arrow"
+                                                            className="h-1 w-12 bg-primary rounded-full mt-2 hidden lg:block" 
+                                                        />
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </button>
-                            ))}
+                                    </button>
+                                    );
+                                })}
+                            </div>
                         </motion.div>
                     </div>
 
                     {/* Right: Dynamic Content Area */}
-                    <div className="w-full lg:w-2/3">
+                    <div className="w-full lg:w-2/3 min-h-[500px]">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={activeService.id}
@@ -140,44 +129,52 @@ export default function ServicesOverview() {
                                 className="relative"
                             >
                                 {/* Decorative Icon Background */}
-                                <activeService.icon className="absolute -top-10 -right-10 w-64 h-64 opacity-[0.03] text-foreground rotate-12" />
+                                <ActiveIcon className="absolute -top-10 -right-10 w-48 h-48 md:w-64 md:h-64 opacity-[0.03] text-foreground rotate-12 pointer-events-none" />
 
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-bold border border-primary/20 mb-6">
-                                    <Sparkles className="w-4 h-4" />
-                                    <span>Premium Service</span>
-                                </div>
+                                <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary mb-6">
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    Premium Service
+                                </Badge>
                                 
-                                <h3 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+                                <h3 className="text-3xl md:text-6xl font-black mb-6 leading-tight">
                                     {activeService.title}
                                 </h3>
                                 
-                                <p className="text-xl text-muted-foreground leading-relaxed mb-12 max-w-2xl">
+                                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 max-w-2xl">
                                     {activeService.description}
                                 </p>
 
                                 {/* Feature Cards Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                                    {activeService.features.map((feature, idx) => (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12">
+                                    {activeService.features.map((feature: any, idx: number) => {
+                                        const FeatureIcon = iconMap[feature.iconName] || Zap;
+                                        return (
                                         <motion.div
                                             key={idx}
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 0.2 + (idx * 0.1) }}
-                                            className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors group/card"
                                         >
-                                            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-4 group-hover/card:bg-primary/20 group-hover/card:text-primary transition-colors">
-                                                <feature.icon className="w-5 h-5" />
-                                            </div>
-                                            <h4 className="font-bold mb-1">{feature.title}</h4>
-                                            <p className="text-sm text-muted-foreground">{feature.desc}</p>
+                                            <Card className="h-full border-border hover:border-primary/50 transition-colors group/card">
+                                                <CardContent className="p-6">
+                                                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-4 group-hover/card:bg-primary/20 group-hover/card:text-primary transition-colors">
+                                                        <FeatureIcon className="w-5 h-5" />
+                                                    </div>
+                                                    <h4 className="font-bold mb-1">{feature.title}</h4>
+                                                    <p className="text-sm text-muted-foreground">{feature.desc}</p>
+                                                </CardContent>
+                                            </Card>
                                         </motion.div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
 
-                                <Link href={`/services/${activeService.id}`} className="h-14 px-8 rounded-full bg-foreground text-background font-bold flex items-center gap-2 hover:bg-foreground/80 transition-colors shadow-2xl w-fit">
-                                    explore {activeService.label}
-                                    <ArrowRight className="w-5 h-5" />
-                                </Link>
+                                <Button asChild size="lg" className="rounded-full font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all">
+                                    <Link href={`/services/${activeService.id}`}>
+                                        Explore {activeService.label}
+                                        <ArrowRight className="ml-2 w-5 h-5" />
+                                    </Link>
+                                </Button>
 
                             </motion.div>
                         </AnimatePresence>

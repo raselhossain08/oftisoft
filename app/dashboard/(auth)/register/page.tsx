@@ -1,394 +1,432 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-    CheckCircle2, ArrowRight, ArrowLeft, Building2, User, Globe,
-    UploadCloud, Briefcase, CreditCard, PlayCircle, Edit2
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+  Clock,
+  Brain,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import Link from 'next/link';
-import confetti from "canvas-confetti";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
-// --- Types & Schema ---
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 const registerSchema = z.object({
-    // Step 1
-    fullName: z.string().min(2, "Name is required"),
-    email: z.string().email("Invalid email"),
-    password: z.string().min(8, "Password must be at least 8 characters")
-        .regex(/[A-Z]/, "Must contain uppercase")
-        .regex(/[0-9]/, "Must contain number"),
-    // Step 2
-    companyName: z.string().min(2, "Company Name is required"),
-    companySize: z.string(),
-    // Step 3
-    services: z.array(z.string()).min(1, "Select at least one service"),
-    budget: z.number().min(1000, "Minimum budget is $1000"),
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Please enter a valid email"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-const STEPS = [
-    { id: 1, title: "Account Details", icon: User },
-    { id: 2, title: "Company Info", icon: Building2 },
-    { id: 3, title: "Services", icon: Briefcase },
-    { id: 4, title: "Review", icon: CheckCircle2 },
+const testimonials = [
+  {
+    quote:
+      "Ofitsoft transformed our workflow completely. The real-time updates are a game changer.",
+    author: "Sarah Jenkins",
+    role: "CTO, TechFlow",
+    stars: 5,
+  },
+  {
+    quote:
+      "The best dashboard experience we've ever had. Scalable, fast, and beautiful.",
+    author: "Michael Chen",
+    role: "Product Lead, Innovate",
+    stars: 5,
+  },
+  {
+    quote:
+      "Support is top-notch. They helped us integrate our AI models in record time.",
+    author: "Elena Rodriguez",
+    role: "Founder, AI Labs",
+    stars: 5,
+  },
 ];
 
-const SERVICE_OPTIONS = [
-    { id: "web", label: "Web Development", icon: Globe },
-    { id: "mobile", label: "Mobile Apps", icon: Briefcase }, // Using briefcase as placeholder for phone
-    { id: "ai", label: "AI Solutions", icon: UploadCloud }, // Placeholder for Brain
-    { id: "ecommerce", label: "E-commerce", icon: CreditCard },
+const features = [
+  { icon: ShieldCheck, text: "Secure File Sharing" },
+  { icon: Clock, text: "24/7 Support Access" },
+  { icon: Brain, text: "AI-Powered Insights" },
 ];
-
-import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
-    const router = useRouter();
-    const [step, setStep] = useState(1);
-    const [complete, setComplete] = useState(false);
+  const router = useRouter();
+  const { register: registerUser, isLoading: authLoading } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-    const { register, handleSubmit, watch, setValue, formState: { errors, isValid } } = useForm<RegisterFormData>({
-        resolver: zodResolver(registerSchema),
-        mode: "onChange",
-        defaultValues: {
-            services: [],
-            budget: 5000,
-            companySize: "1-10",
-        }
-    });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
 
-    const formData = watch();
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
 
-    const nextStep = () => setStep(prev => Math.min(prev + 1, 4));
-    const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+  const onSubmit = async (data: RegisterFormData) => {
+    const id = toast.loading("Creating your account...");
+    try {
+      const result = await registerUser(
+        data.name,
+        data.email,
+        data.phone,
+        data.password
+      );
+      if (result.success) {
+        toast.success("Account created. Please sign in.", { id });
+        setIsSuccess(true);
+        setTimeout(() => router.push("/dashboard/login"), 800);
+      } else {
+        toast.error(result.error ?? "Registration failed", { id });
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.", { id });
+    }
+  };
 
-    const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
-        setComplete(true);
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#3b82f6', '#8b5cf6', '#10b981']
-        });
-        
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+  return (
+    <div className="min-h-screen w-full flex">
+      {/* LEFT SIDE - HERO (60%) */}
+      <div className="hidden lg:flex w-[60%] relative bg-[#030712] overflow-hidden flex-col justify-between p-12 xl:p-16">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-[#030712] to-[#030712]" />
+          <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/10 via-[#030712] to-[#030712]" />
+          <div className="absolute top-0 left-0 w-full h-full bg-grain opacity-[0.03] mix-blend-overlay" />
 
-        // Final destination: Login
-        setTimeout(() => {
-            router.push("/dashboard/login");
-        }, 3000);
-    };
-
-    // --- Animations ---
-    const variants = {
-        enter: (direction: number) => ({
-            x: direction > 0 ? 50 : -50,
-            opacity: 0
-        }),
-        center: {
-            zIndex: 1,
-            x: 0,
-            opacity: 1
-        },
-        exit: (direction: number) => ({
-            zIndex: 0,
-            x: direction < 0 ? 50 : -50,
-            opacity: 0
-        })
-    };
-
-    return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-
-            {/* Container */}
-            <div className="w-full max-w-4xl bg-card border border-border rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[600px]">
-
-                {/* Sidebar / Progress */}
-                <div className="w-full md:w-1/3 bg-muted/30 border-r border-border p-8 flex flex-col justify-between">
-                    <div>
-                        <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary block mb-12">
-                            Ofitsoft
-                        </Link>
-
-                        <div className="space-y-8 relative">
-                            {/* Vertical Line */}
-                            <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-border -z-10">
-                                <motion.div 
-                                    className="w-full bg-primary origin-top"
-                                    initial={{ height: "0%" }}
-                                    animate={{ height: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}
-                                    transition={{ duration: 0.5 }}
-                                />
-                            </div>
-
-                            {STEPS.map((s, i) => {
-                                const isCompleted = step > s.id;
-                                const isCurrent = step === s.id;
-
-                                return (
-                                    <div key={s.id} className="flex items-center gap-4">
-                                        <div className={cn(
-                                            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 z-10",
-                                            isCompleted || isCurrent ? "bg-primary border-primary text-white" : "bg-card border-border text-muted-foreground"
-                                        )}>
-                                            {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : s.id}
-                                        </div>
-                                        <div className={cn(
-                                            "transition-colors duration-300",
-                                            isCurrent ? "text-foreground font-bold" : "text-muted-foreground"
-                                        )}>
-                                            {s.title}
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-
-                    <div className="text-sm text-muted-foreground mt-8">
-                        Already have an account? <Link href="/dashboard/login" className="text-primary hover:underline">Log in</Link>
-                    </div>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute top-1/4 right-0 pointer-events-none"
+          >
+            <div className="relative w-[500px] h-[500px]">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+                className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full border border-white/5 border-dashed"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                className="absolute top-10 right-10 w-[300px] h-[300px] rounded-full border border-white/5"
+              />
+              <motion.div
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-20 right-20 w-72 bg-gray-900/50 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl -rotate-6"
+              >
+                <div className="flex gap-2 mb-4">
+                  <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/50" />
                 </div>
-
-                {/* Form Area */}
-                <div className="flex-1 p-8 md:p-12 relative overflow-hidden">
-                    {complete ? (
-                        <div className="h-full flex flex-col items-center justify-center text-center">
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6"
-                            >
-                                <CheckCircle2 className="w-12 h-12 text-white" />
-                            </motion.div>
-                            <h2 className="text-3xl font-bold mb-4">You're All Set!</h2>
-                            <p className="text-muted-foreground mb-8 text-lg">
-                                Welcome to Ofitsoft. Your account has been created successfully.
-                            </p>
-                            <div className="rounded-xl overflow-hidden border border-border shadow-lg relative group cursor-pointer w-full max-w-sm">
-                                <div className="bg-slate-900 aspect-video flex items-center justify-center relative">
-                                    <PlayCircle className="w-16 h-16 text-white opacity-80 group-hover:scale-110 transition-transform" />
-                                </div>
-                                <div className="p-4 bg-card">
-                                    <p className="font-bold">Welcome Message from CEO</p>
-                                    <p className="text-xs text-muted-foreground">Rasel Hossain • 1:20s</p>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="h-full flex flex-col">
-                            <h2 className="text-2xl font-bold mb-2">{STEPS.find(s => s.id === step)?.title}</h2>
-                            <p className="text-muted-foreground mb-8">Please fill in the details below to proceed.</p>
-
-                            <form className="flex-1 flex flex-col" onSubmit={(e) => e.preventDefault()}>
-                                <AnimatePresence custom={step} mode="wait">
-                                    <motion.div
-                                        key={step}
-                                        custom={step}
-                                        variants={variants}
-                                        initial="enter"
-                                        animate="center"
-                                        exit="exit"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                        className="flex-1"
-                                    >
-                                        {/* Step 1: Account */}
-                                        {step === 1 && (
-                                            <div className="space-y-4 max-w-md">
-                                                <div>
-                                                    <label className="text-sm font-medium mb-1 block">Full Name</label>
-                                                    <input {...register("fullName")} className="input-field w-full p-3 rounded-xl bg-muted/50 border border-border" placeholder="John Doe" />
-                                                    {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
-                                                </div>
-                                                <div>
-                                                    <label className="text-sm font-medium mb-1 block">Email Address</label>
-                                                    <input {...register("email")} className="input-field w-full p-3 rounded-xl bg-muted/50 border border-border" placeholder="john@example.com" />
-                                                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-                                                </div>
-                                                <div>
-                                                    <label className="text-sm font-medium mb-1 block">Password</label>
-                                                    <input type="password" {...register("password")} className="input-field w-full p-3 rounded-xl bg-muted/50 border border-border" placeholder="••••••••" />
-                                                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Step 2: Company */}
-                                        {step === 2 && (
-                                            <div className="space-y-6 max-w-md">
-                                                <div>
-                                                    <label className="text-sm font-medium mb-1 block">Company Name</label>
-                                                    <input {...register("companyName")} className="input-field w-full p-3 rounded-xl bg-muted/50 border border-border" placeholder="Acme Inc." />
-                                                </div>
-                                                <div>
-                                                    <label className="text-sm font-medium mb-2 block">Company Size</label>
-                                                    <div className="grid grid-cols-2 gap-2">
-                                                        {["1-10", "11-50", "51-200", "200+"].map(size => (
-                                                            <button
-                                                                key={size}
-                                                                type="button"
-                                                                onClick={() => setValue("companySize", size)}
-                                                                className={cn(
-                                                                    "p-3 rounded-xl border transition-all text-sm",
-                                                                    formData.companySize === size ? "bg-primary/10 border-primary text-primary font-bold" : "bg-card border-border hover:border-primary/50"
-                                                                )}
-                                                            >
-                                                                {size} Employees
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                {/* Mock Logo Upload */}
-                                                <div className="border-2 border-dashed border-border rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-muted/30 cursor-pointer transition-colors">
-                                                    <UploadCloud className="w-8 h-8 text-muted-foreground mb-2" />
-                                                    <p className="text-sm font-medium">Upload Company Logo</p>
-                                                    <p className="text-xs text-muted-foreground">Drag & drop or click to browse</p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Step 3: Services */}
-                                        {step === 3 && (
-                                            <div className="space-y-6">
-                                                <div>
-                                                    <label className="text-sm font-medium mb-3 block">What are you looking for?</label>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        {SERVICE_OPTIONS.map(service => {
-                                                            const isSelected = formData.services?.includes(service.id);
-                                                            return (
-                                                                <button
-                                                                    key={service.id}
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        const current = formData.services || [];
-                                                                        const newServices = isSelected
-                                                                            ? current.filter(s => s !== service.id)
-                                                                            : [...current, service.id];
-                                                                        setValue("services", newServices);
-                                                                    }}
-                                                                    className={cn(
-                                                                        "p-4 rounded-xl border text-left transition-all relative overflow-hidden group",
-                                                                        isSelected ? "bg-gradient-to-br from-primary/10 to-primary/5 border-primary shadow-lg shadow-primary/10" : "bg-card border-border hover:border-primary/50"
-                                                                    )}
-                                                                >
-                                                                    <service.icon className={cn("w-6 h-6 mb-3", isSelected ? "text-primary" : "text-muted-foreground")} />
-                                                                    <div className="font-bold text-sm">{service.label}</div>
-                                                                    {isSelected && <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />}
-                                                                </button>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <label className="text-sm font-medium mb-2 block flex justify-between">
-                                                        <span>Estimated Budget</span>
-                                                        <span className="text-primary font-bold">${formData.budget?.toLocaleString()}</span>
-                                                    </label>
-                                                    <input
-                                                        type="range"
-                                                        min="1000"
-                                                        max="100000"
-                                                        step="1000"
-                                                        className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                                                        {...register("budget", { valueAsNumber: true })}
-                                                    />
-                                                    <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                                                        <span>$1k</span>
-                                                        <span>$100k+</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Step 4: Review */}
-                                        {step === 4 && (
-                                            <div className="space-y-4">
-                                                <div className="bg-card border border-border rounded-xl p-4 flex justify-between items-start">
-                                                    <div>
-                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-bold mb-1">Account</div>
-                                                        <div className="font-bold">{formData.fullName}</div>
-                                                        <div className="text-sm text-muted-foreground">{formData.email}</div>
-                                                    </div>
-                                                    <button onClick={() => setStep(1)} className="p-2 hover:bg-muted rounded-full">
-                                                        <Edit2 className="w-4 h-4 text-primary" />
-                                                    </button>
-                                                </div>
-                                                <div className="bg-card border border-border rounded-xl p-4 flex justify-between items-start">
-                                                    <div>
-                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-bold mb-1">Company</div>
-                                                        <div className="font-bold">{formData.companyName}</div>
-                                                        <div className="text-sm text-muted-foreground">{formData.companySize} Employees</div>
-                                                    </div>
-                                                    <button onClick={() => setStep(2)} className="p-2 hover:bg-muted rounded-full">
-                                                        <Edit2 className="w-4 h-4 text-primary" />
-                                                    </button>
-                                                </div>
-                                                <div className="bg-card border border-border rounded-xl p-4 flex justify-between items-start">
-                                                    <div>
-                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-bold mb-1">Project</div>
-                                                        <div className="font-bold flex gap-2 flex-wrap">
-                                                            {formData.services?.map(s => (
-                                                                <span key={s} className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded">{SERVICE_OPTIONS.find(so => so.id === s)?.label}</span>
-                                                            ))}
-                                                        </div>
-                                                        <div className="text-sm text-muted-foreground mt-1">Budget: ${formData.budget?.toLocaleString()}</div>
-                                                    </div>
-                                                    <button onClick={() => setStep(3)} className="p-2 hover:bg-muted rounded-full">
-                                                        <Edit2 className="w-4 h-4 text-primary" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                </AnimatePresence>
-
-                                {/* Navigation Actions */}
-                                <div className="flex justify-between mt-8 pt-4 border-t border-border">
-                                    {step > 1 ? (
-                                        <button
-                                            onClick={prevStep}
-                                            type="button"
-                                            className="px-6 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors flex items-center gap-2"
-                                        >
-                                            <ArrowLeft className="w-4 h-4" /> Back
-                                        </button>
-                                    ) : (
-                                        <div></div> // Spacer
-                                    )}
-
-                                    {step < 4 ? (
-                                        <button
-                                            onClick={nextStep}
-                                            type="button"
-                                            className="px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25 flex items-center gap-2"
-                                        >
-                                            Next Step <ArrowRight className="w-4 h-4" />
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={handleSubmit(onSubmit)}
-                                            className="px-8 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-colors shadow-lg shadow-green-500/25 flex items-center gap-2"
-                                        >
-                                            Create Account <CheckCircle2 className="w-4 h-4" />
-                                        </button>
-                                    )}
-                                </div>
-                            </form>
-                        </div>
-                    )}
+                <div className="space-y-3 font-mono text-xs opacity-60">
+                  <div className="flex gap-2">
+                    <span className="text-purple-400">const</span>{" "}
+                    <span className="text-blue-400">account</span> ={" "}
+                    <span className="text-primary">await</span> register();
+                  </div>
+                  <div className="flex gap-2 pl-4">
+                    <span className="text-blue-400">return</span>{" "}
+                    <span className="text-green-400">&quot;Welcome!&quot;</span>;
+                  </div>
+                  <div className="w-full h-px bg-white/10 my-2" />
+                  <div className="flex gap-2 text-[10px] opacity-50">
+                    // Create your account
+                  </div>
                 </div>
-
+              </motion.div>
             </div>
+          </motion.div>
         </div>
-    );
+
+        <div className="relative z-10 h-full flex flex-col justify-between">
+          <div>
+            <Link
+              href="/"
+              className="text-2xl xl:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
+            >
+              Ofitsoft
+            </Link>
+            <p className="text-muted-foreground mt-2 text-sm xl:text-base">
+              Premium Software Solutions
+            </p>
+          </div>
+
+          <div className="max-w-xl">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentTestimonial}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonials[currentTestimonial].stars)].map(
+                    (_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                      >
+                        <span className="text-yellow-500">★</span>
+                      </motion.div>
+                    )
+                  )}
+                </div>
+                <h3 className="text-xl xl:text-2xl font-medium text-white mb-6 leading-relaxed">
+                  &quot;{testimonials[currentTestimonial].quote}&quot;
+                </h3>
+                <div>
+                  <p className="font-bold text-white">
+                    {testimonials[currentTestimonial].author}
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    {testimonials[currentTestimonial].role}
+                  </p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="flex flex-wrap gap-6 xl:gap-8">
+            {features.map((feature, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 text-sm text-gray-300"
+              >
+                <div className="p-2 rounded-full bg-white/5 border border-white/10 text-primary shrink-0">
+                  <feature.icon className="w-4 h-4" />
+                </div>
+                <span>{feature.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE - FORM (40%) */}
+      <div className="w-full lg:w-[40%] bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full max-w-md space-y-6 sm:space-y-8"
+        >
+          <div className="text-center lg:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+              Create Account
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Fill in your details to get started.
+            </p>
+          </div>
+
+          {isSuccess ? (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex flex-col items-center justify-center py-8 sm:py-12 text-center"
+            >
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-4 sm:mb-6 text-green-500">
+                <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold mb-2">
+                Account Created!
+              </h2>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                Redirecting to login...
+              </p>
+            </motion.div>
+          ) : (
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4 sm:space-y-5"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <div className="relative group">
+                  <User className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
+                  <Input
+                    id="name"
+                    {...register("name")}
+                    type="text"
+                    placeholder="John Doe"
+                    className={cn(
+                      "pl-10 sm:pl-12 h-10 sm:h-11",
+                      errors.name &&
+                        "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    aria-invalid={!!errors.name}
+                  />
+                </div>
+                {errors.name && (
+                  <p className="text-xs text-destructive">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
+                  <Input
+                    id="email"
+                    {...register("email")}
+                    type="email"
+                    placeholder="john@example.com"
+                    className={cn(
+                      "pl-10 sm:pl-12 h-10 sm:h-11",
+                      errors.email &&
+                        "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    aria-invalid={!!errors.email}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-xs text-destructive">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="relative group">
+                  <Phone className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
+                  <Input
+                    id="phone"
+                    {...register("phone")}
+                    type="tel"
+                    inputMode="numeric"
+                    placeholder="+1 234 567 8900"
+                    className={cn(
+                      "pl-10 sm:pl-12 h-10 sm:h-11",
+                      errors.phone &&
+                        "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    aria-invalid={!!errors.phone}
+                  />
+                </div>
+                {errors.phone && (
+                  <p className="text-xs text-destructive">
+                    {errors.phone.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative group">
+                  <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
+                  <Input
+                    id="password"
+                    {...register("password")}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password (min 8 characters)"
+                    className={cn(
+                      "pl-10 sm:pl-12 pr-10 sm:pr-12 h-10 sm:h-11",
+                      errors.password &&
+                        "border-destructive focus-visible:ring-destructive/20"
+                    )}
+                    aria-invalid={!!errors.password}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
+                    ) : (
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                    )}
+                  </Button>
+                </div>
+                {errors.password && (
+                  <p className="text-xs text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={authLoading}
+                className={cn(
+                  "w-full h-10 sm:h-12 font-bold rounded-xl",
+                  "bg-gradient-to-r from-primary to-secondary",
+                  "hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]",
+                  "shadow-lg shadow-primary/25 transition-all"
+                )}
+                size="lg"
+              >
+                {authLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Create Account
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </Button>
+
+              <Separator className="my-6 sm:my-8" />
+
+              <p className="text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Button variant="link" asChild className="h-auto p-0 font-bold">
+                  <Link
+                    href="/dashboard/login"
+                    className="inline-flex items-center gap-2 group"
+                  >
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                    Back to Login
+                  </Link>
+                </Button>
+              </p>
+            </form>
+          )}
+        </motion.div>
+      </div>
+    </div>
+  );
 }

@@ -6,8 +6,29 @@ import Link from "next/link";
 import CountUp from "react-countup";
 import { ArrowRight, Play, Code2, Cpu, Globe, CheckCircle2 } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
+import { useHomeContentStore } from "@/lib/store/home-content";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function Hero() {
+    // Get content from CMS store
+    const { content } = useHomeContentStore();
+    const heroContent = content?.hero || {
+        title: 'Future-Ready',
+        subtitle: 'Digital Solutions.',
+        description: 'We engineer premium software experiences that redefine industries. Built for performance, scalability, and impact.',
+        badge: 'Accepting New Projects',
+        primaryCTA: { text: 'Start Project', link: '/#contact' },
+        secondaryCTA: { text: 'Showreel', link: '/portfolio' },
+        stats: [
+            { value: 150, suffix: '+', label: 'Projects Completed' },
+            { value: 98, suffix: '%', label: 'Client Satisfaction' },
+            { value: 6, suffix: 'Y', label: 'Years Experience' }
+        ]
+    };
+
+    // ... existing refs and hooks ...
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollY } = useScroll();
     const y1 = useTransform(scrollY, [0, 500], [0, 100]);
@@ -53,15 +74,14 @@ export default function Hero() {
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg"
                         >
-                            <span className="relative flex h-2.5 w-2.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                            </span>
-                            <span className="text-sm font-medium text-foreground/90 tracking-wide">
-                                Accepting New Projects
-                            </span>
+                            <Badge variant="glass" className="px-5 py-2.5 gap-2.5 rounded-full text-base font-medium tracking-wide">
+                                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                                </span>
+                                {heroContent.badge}
+                            </Badge>
                         </motion.div>
 
                         <motion.h1 
@@ -70,8 +90,8 @@ export default function Hero() {
                             transition={{ delay: 0.1 }}
                             className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
                         >
-                            <span className="block text-foreground drop-shadow-sm">Future-Ready</span>
-                            <SmoothTypewriter />
+                            <span className="block text-foreground drop-shadow-sm">{heroContent.title}</span>
+                            <SmoothTypewriter subtitle={heroContent.subtitle} />
                         </motion.h1>
 
                         <motion.p 
@@ -80,8 +100,7 @@ export default function Hero() {
                             transition={{ delay: 0.2 }}
                             className="text-lg md:text-xl text-muted-foreground/80 font-light leading-relaxed"
                         >
-                            We engineer premium software experiences that redefine industries. 
-                            Built for performance, scalability, and impact.
+                            {heroContent.description}
                         </motion.p>
 
                         <motion.div 
@@ -90,18 +109,22 @@ export default function Hero() {
                             transition={{ delay: 0.3 }}
                             className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
                         >
-                            <Link href="/#contact" className="w-full sm:w-auto group relative px-8 py-4 bg-foreground text-background rounded-full font-bold text-lg overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] text-center">
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    Start Project
-                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </span>
-                                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            </Link>
+                            <Button asChild size="xl" variant="premium" className="w-full sm:w-auto">
+                                <Link href={heroContent.primaryCTA.link}>
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        {heroContent.primaryCTA.text}
+                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
+                                </Link>
+                            </Button>
 
-                            <Link href="/portfolio" className="w-full sm:w-auto group px-8 py-4 bg-white/5 border border-white/10 rounded-full font-semibold text-lg hover:bg-white/10 transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
-                                <Play className="w-4 h-4 fill-current" />
-                                Showreel
-                            </Link>
+                            <Button asChild size="xl" variant="outline" className="w-full sm:w-auto border-white/10 bg-white/5 hover:bg-white/10 text-foreground backdrop-blur-sm rounded-full">
+                                <Link href={heroContent.secondaryCTA.link}>
+                                    <Play className="w-4 h-4 fill-current mr-2" />
+                                    {heroContent.secondaryCTA.text}
+                                </Link>
+                            </Button>
                         </motion.div>
 
                         <motion.div 
@@ -112,31 +135,27 @@ export default function Hero() {
                                 hidden: { opacity: 0 },
                                 visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
                             }}
-                            className="pt-10 w-full border-t border-white/5 mt-8 grid grid-cols-3 gap-4"
+                            className="pt-10 w-full border-t border-white/5 mt-8 flex flex-wrap justify-center md:justify-between lg:justify-start gap-x-8 gap-y-6"
                         >
-                            {[
-                                { value: 150, suffix: "+", label: "Projects Completed" },
-                                { value: 98, suffix: "%", label: "Client Satisfaction" },
-                                { value: 6, suffix: "Y", label: "Years Experience" }
-                            ].map((stat, i) => (
+                            {heroContent.stats?.map((stat: any, i: number) => (
                                 <motion.div 
                                     key={i}
                                     variants={{
                                         hidden: { opacity: 0, y: 20 },
                                         visible: { opacity: 1, y: 0 }
                                     }}
-                                    className="relative group"
+                                    className="relative group flex flex-col items-center lg:items-start min-w-[100px]"
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                    <div className="relative">
-                                        <div className="flex items-baseline gap-1">
+                                    <div className="relative w-full">
+                                        <div className="flex items-baseline justify-center lg:justify-start gap-1">
                                             <span className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                                                 <CountUp end={stat.value} duration={2.5} enableScrollSpy scrollSpyOnce />
                                             </span>
                                             <span className="text-xl text-primary font-semibold">{stat.suffix}</span>
                                         </div>
-                                        <div className="h-0.5 w-8 bg-primary/30 mt-2 mb-2 group-hover:w-full transition-all duration-500" />
-                                        <p className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-medium">
+                                        <div className="h-0.5 w-8 bg-primary/30 mt-2 mb-2 mx-auto lg:mx-0 group-hover:w-full transition-all duration-500" />
+                                        <p className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-medium text-center lg:text-left">
                                             {stat.label}
                                         </p>
                                     </div>
@@ -234,21 +253,26 @@ export default function Hero() {
     );
 }
 
-function SmoothTypewriter() {
-    const words = [
+function SmoothTypewriter({ subtitle }: { subtitle?: string }) {
+    const defaultWords = [
         "Digital Solutions.",
         "Web Architecture.",
         "AI Innovation.",
         "SaaS Platforms."
     ];
+    
+    // If subtitle is provided, use it as a single word, otherwise use default words
+    const words = subtitle ? [subtitle] : defaultWords;
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
+        if (words.length <= 1) return; // Don't cycle if only one word
+        
         const interval = setInterval(() => {
             setIndex((prev) => (prev + 1) % words.length);
         }, 3000);
         return () => clearInterval(interval);
-    }, []);
+    }, [words.length]);
 
     return (
         <span className="flex gap-2 items-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient h-[1.1em]">
@@ -264,11 +288,13 @@ function SmoothTypewriter() {
                     {words[index]}
                 </motion.span>
             </AnimatePresence>
-            <motion.span
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                className="w-[3px] h-[0.9em] bg-purple-400 rounded-full inline-block"
-            />
+            {words.length > 1 && (
+                <motion.span
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                    className="w-[3px] h-[0.9em] bg-purple-400 rounded-full inline-block"
+                />
+            )}
         </span>
     );
 }

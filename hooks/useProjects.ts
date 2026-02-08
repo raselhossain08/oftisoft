@@ -1,0 +1,86 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { projectsAPI, Project } from '@/lib/api';
+import { toast } from 'sonner';
+
+export function useProjects(projectId?: string, status?: string) {
+    const queryClient = useQueryClient();
+
+    const { data: projects = [], isLoading: projectsLoading } = useQuery({
+        queryKey: ['projects', status],
+        queryFn: () => projectsAPI.getProjects(status),
+        enabled: !projectId
+    });
+
+    const { data: project, isLoading: projectLoading } = useQuery({
+        queryKey: ['projects', projectId],
+        queryFn: () => projectsAPI.getProject(projectId!),
+        enabled: !!projectId
+    });
+
+    const { data: stats } = useQuery({
+        queryKey: ['projects', 'stats'],
+        queryFn: projectsAPI.getStats,
+        enabled: !projectId
+    });
+
+    const createProjectMutation = useMutation({
+        mutationFn: projectsAPI.createProject,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+            toast.success("Project created successfully");
+        },
+        onError: () => {
+            toast.error("Failed to create project");
+        }
+    });
+
+    const updateProjectMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<Project> }) =>
+            projectsAPI.updateProject(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+            toast.success("Project updated successfully");
+        },
+        onError: () => {
+            toast.error("Failed to update project");
+        }
+    });
+
+    const deleteProjectMutation = useMutation({
+        mutationFn: projectsAPI.deleteProject,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+            toast.success("Project deleted successfully");
+        },
+        onError: () => {
+            toast.error("Failed to delete project");
+        }
+    });
+
+    const updatePaymentStatusMutation = useMutation({
+        mutationFn: ({ id, paymentStatus }: { id: string; paymentStatus: string }) =>
+            projectsAPI.updatePaymentStatus(id, paymentStatus),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+            toast.success("Payment status updated successfully");
+        },
+        onError: () => {
+            toast.error("Failed to update payment status");
+        }
+    });
+
+    return {
+        projects: projects as Project[],
+        project: project as Project,
+        stats,
+        isLoading: projectId ? projectLoading : projectsLoading,
+        createProject: (data: Partial<Project>) => createProjectMutation.mutate(data),
+        updateProject: (id: string, data: Partial<Project>) => updateProjectMutation.mutate({ id, data }),
+        deleteProject: (id: string) => deleteProjectMutation.mutate(id),
+        updatePaymentStatus: (id: string, paymentStatus: string) => updatePaymentStatusMutation.mutate({ id, paymentStatus }),
+        isCreating: createProjectMutation.isPending,
+        isUpdating: updateProjectMutation.isPending,
+        isDeleting: deleteProjectMutation.isPending,
+        isUpdatingPayment: updatePaymentStatusMutation.isPending,
+    };
+}

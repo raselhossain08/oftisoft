@@ -5,52 +5,16 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ZoomIn, PlayCircle, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const items = [
-    { 
-        id: 1, 
-        type: "video", 
-        thumb: "bg-red-900", 
-        title: "Annual Hackathon 2025", 
-        location: "San Francisco HQ",
-        size: "col-span-1 md:col-span-2 row-span-2" 
-    },
-    { 
-        id: 2, 
-        type: "image", 
-        thumb: "bg-blue-900", 
-        title: "Brainstorming Session", 
-        location: "Design Studio",
-        size: "col-span-1" 
-    },
-    { 
-        id: 3, 
-        type: "image", 
-        thumb: "bg-green-900", 
-        title: "Team Lunch Friday", 
-        location: "Rooftop Lounge",
-        size: "col-span-1" 
-    },
-    { 
-        id: 4, 
-        type: "image", 
-        thumb: "bg-purple-900", 
-        title: "Deep Work Zone", 
-        location: "Quiet Area",
-        size: "col-span-1" 
-    },
-    { 
-        id: 5, 
-        type: "image", 
-        thumb: "bg-orange-900", 
-        title: "Client Presentation", 
-        location: "Conference Room A",
-        size: "col-span-1" 
-    },
-];
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { useAboutContentStore } from "@/lib/store/about-content";
 
 export default function OfficeCulture() {
-    const [selectedItem, setSelectedItem] = useState<typeof items[0] | null>(null);
+    const { content } = useAboutContentStore();
+    const culture = content?.culture;
+    const items = culture?.items || [];
+
+    const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
     return (
         <section className="py-20 md:py-32 bg-transparent relative overflow-hidden">
@@ -64,13 +28,13 @@ export default function OfficeCulture() {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                     >
-                         <h2 className="text-sm font-bold text-primary tracking-[0.2em] uppercase mb-4">
-                            Life at Ofitsoft
-                        </h2>
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5 rounded-full">
+                            {culture?.badge || "Life at Ofitsoft"}
+                        </Badge>
                         <h3 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-                            Where Culture Meets <br />
+                            {culture?.titleLine1 || "Where Culture Meets"} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                Creativity.
+                                {culture?.titleLine2 || "Creativity."}
                             </span>
                         </h3>
                     </motion.div>
@@ -93,8 +57,12 @@ export default function OfficeCulture() {
                                 "h-[300px] md:h-auto"
                             )}
                         >
-                             {/* Image Placeholder */}
-                            <div className={cn("absolute inset-0 transition-transform duration-700 group-hover:scale-105 opacity-80", item.thumb)} />
+                             {/* Image or Placeholder */}
+                            {item.thumb && (item.thumb.startsWith('data:') || item.thumb.startsWith('http') || item.thumb.startsWith('/')) ? (
+                                <img src={item.thumb} alt={item.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80" />
+                            ) : (
+                                <div className={cn("absolute inset-0 transition-transform duration-700 group-hover:scale-105 opacity-80", item.thumb)} />
+                            )}
                             
                             {/* Gradient Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
@@ -140,9 +108,23 @@ export default function OfficeCulture() {
                                 onClick={(e) => e.stopPropagation()}
                                 className="relative w-full max-w-5xl aspect-video bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
                             >
-                                <div className={cn("absolute inset-0 flex items-center justify-center text-white/20 text-4xl font-bold uppercase", selectedItem.thumb)}>
-                                    {selectedItem.title} Preview
-                                </div>
+                                {selectedItem.type === 'video' ? (
+                                    <video 
+                                        src={selectedItem.thumb} 
+                                        className="absolute inset-0 w-full h-full object-cover" 
+                                        controls 
+                                        autoPlay 
+                                        loop
+                                    />
+                                ) : (
+                                    selectedItem.thumb && (selectedItem.thumb.startsWith('data:') || selectedItem.thumb.startsWith('http') || selectedItem.thumb.startsWith('/')) ? (
+                                        <img src={selectedItem.thumb} alt={selectedItem.title} className="absolute inset-0 w-full h-full object-cover" />
+                                    ) : (
+                                        <div className={cn("absolute inset-0 flex items-center justify-center text-white/20 text-4xl font-bold uppercase", selectedItem.thumb)}>
+                                            {selectedItem.title} Preview
+                                        </div>
+                                    )
+                                )}
                                 
                                 <div className="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/90 to-transparent">
                                     <h3 className="text-3xl font-bold text-white mb-2">{selectedItem.title}</h3>

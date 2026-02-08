@@ -13,55 +13,49 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-// Mock Data content (this would come from a CMS)
-const post = {
-    title: "The Future of Web Development: How AI is Changing the Landscape",
-    subtitle: "Exploring the symbiotic relationship between artificial intelligence and modern engineering workflows.",
-    author: {
-        name: "Rasel Hossain",
-        role: "Senior Engineer",
-        image: null // could be url
-    },
-    date: "Oct 24, 2026",
-    readTime: "5 min read",
-    category: "AI & Innovation",
-    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2665&auto=format&fit=crop",
-    tags: ["AI", "Web Dev", "Future", "Tech"],
-    content: `
-        <p>The landscape of web development is undergoing a seismic shift. As we step further into 2026, the lines between traditional coding and AI-assisted generation are blurring, creating a new paradigm for software engineers.</p>
-        
-        <h2>The Rise of AI-Native Frameworks</h2>
-        <p>Gone are the days when AI was just a helper in your IDE. Today, we are seeing the emergence of <strong>AI-native frameworks</strong> that can perform self-healing, auto-optimization, and predictive pre-fetching based on user behavior models.</p>
-        
-        <blockquote>
-            "The developer of the future isn't just a writer of code, but an architect of intelligence."
-        </blockquote>
+import { useBlogContentStore } from "@/lib/store/blog-content";
 
-        <h2>Workflow Automation</h2>
-        <p>Imagine a CI/CD pipeline that doesn't just run tests but rewrites broken code, suggests architectural improvements, and automatically documents changes. This isn't science fiction; it's the standard for high-performing teams in 2026.</p>
+// Remove static mock data
 
-        <h3>Key Benefits:</h3>
-        <ul>
-            <li><strong>Velocity:</strong> Ship features 3x faster with AI drafting the boilerplate.</li>
-            <li><strong>Quality:</strong> Automated edge-case detection prevents bugs before they reach production.</li>
-            <li><strong>Creativity:</strong> Freeing developers from mundane tasks allows for focus on high-level problem solving.</li>
-        </ul>
-
-        <h2>Conclusion</h2>
-        <p>As we embrace these tools, the role of the developer transforms. We become conductors of a symphony of agents, guiding them to build software that is more robust, accessible, and powerful than ever before.</p>
-    `,
-    relatedPosts: [
-        { title: "React Server Components Explained", category: "React", image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2070&auto=format&fit=crop" },
-        { title: "Building Scalable Microservices", category: "Backend", image: "https://images.unsplash.com/photo-1558494949-ef2a0de47285?q=80&w=2070&auto=format&fit=crop" },
-        { title: "The State of CSS in 2026", category: "Design", image: "https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?q=80&w=2070&auto=format&fit=crop" }
-    ]
-};
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
+    const { content } = useBlogContentStore();
     const { scrollYProgress } = useScroll();
     const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isMounted, setIsMounted] = useState(false);
+
+    // Find post
+    // Note: In real app, you might want to fetch by ID or slug physically if using SSR
+    // Here we use client store.
+    
+    // We need to use `slug` to find the post. If `content` is not ready, we wait.
+    // Since `slug` might come as ID or actual slug, let's try finding by both.
+    const post = content?.posts.find(p => p.id === params.slug || p.slug === params.slug);
+    const author = post ? content?.authors.find(a => a.id === post.authorId) : null;
+    const category = post ? content?.categories.find(c => c.id === post.category) : null;
+    
+    // Get related posts (same category, excluding current)
+    const relatedPosts = content?.posts.filter(p => p.category === post?.category && p.id !== post?.id).slice(0, 3) || [];
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
+
+    if (!post) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold mb-4">Post Not Found</h1>
+                    <Link href="/blog">
+                        <span className="text-primary hover:underline">Back to Blog</span>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     useEffect(() => {
         setIsMounted(true);
@@ -95,13 +89,13 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             {/* Immersive Hero */}
             <section className="relative h-[85vh] min-h-[600px] flex items-end justify-center pb-24 overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <Image 
-                        src={post.image} 
-                        alt={post.title} 
-                        fill 
-                        className="object-cover"
-                        priority
-                    />
+                    <div className="relative w-full h-full"> 
+                        {/* Fallback Image or Post Image */}
+                        <div 
+                            className="absolute inset-0 bg-cover bg-center"
+                            style={{ backgroundImage: `url('${post.coverImage || '/placeholder-image.jpg'}')` }}
+                        />
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                     <div className="absolute inset-0 bg-black/30" />
                 </div>
@@ -114,7 +108,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                     >
                          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm font-bold uppercase tracking-wider mb-8 shadow-xl">
                             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                            <span>{post.category}</span>
+                            <span>{category?.label || "Article"}</span>
                         </div>
 
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-8 leading-tight tracking-tight drop-shadow-2xl">
@@ -128,7 +122,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 </div>
                                 <div className="text-left">
                                     <div className="text-xs opacity-70 uppercase tracking-wider">Author</div>
-                                    <div>{post.author.name}</div>
+                                    <div>{author?.name || "Unknown Author"}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
@@ -147,7 +141,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             {/* Content Body */}
             <section className="py-16 md:py-24 relative">
                  {/* Background Grain */}
-                 <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grain-texture-url-here.png')] mix-blend-overlay pointer-events-none" />
+                 <div className="absolute inset-0 opacity-[0.03] bg-grain mix-blend-overlay pointer-events-none" />
 
                 <div className="container px-4 mx-auto">
                     <div className="flex flex-col lg:flex-row gap-16 max-w-7xl mx-auto">
@@ -172,9 +166,9 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 className="prose prose-lg md:prose-xl dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-[2rem] prose-img:shadow-2xl max-w-none"
                             >
                                 <p className="lead text-2xl md:text-3xl text-foreground font-light mb-12 border-l-4 border-primary pl-6 italic">
-                                    {post.subtitle}
+                                    {post.excerpt}
                                 </p>
-                                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                                <div dangerouslySetInnerHTML={{ __html: post.content || "<p>No content available.</p>" }} />
                             </motion.div>
 
                             {/* Tags */}
@@ -182,7 +176,8 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                 <div className="flex items-center gap-4 mb-6">
                                     <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Tags:</span>
                                     <div className="flex flex-wrap gap-2">
-                                        {post.tags.map(tag => (
+                                        {/* Mock tags for now as store doesn't have tags yet */}
+                                        {['Tech', category?.label || 'Blog'].map(tag => (
                                             <span key={tag} className="px-4 py-2 bg-muted/50 border border-border rounded-full text-xs font-bold text-muted-foreground hover:text-primary hover:border-primary transition-all cursor-pointer">
                                                 #{tag}
                                             </span>
@@ -194,13 +189,13 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                             {/* Author Bio Box */}
                             <div className="mt-12 p-8 rounded-3xl bg-card border border-border flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
                                 <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center font-bold text-2xl text-muted-foreground border-2 border-border">
-                                    {post.author.name.charAt(0)}
+                                    {author?.initials || "Au"}
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-lg font-bold text-foreground">Written by {post.author.name}</h4>
-                                    <p className="text-sm text-primary font-medium mb-3">{post.author.role}</p>
+                                    <h4 className="text-lg font-bold text-foreground">Written by {author?.name || "Unknown"}</h4>
+                                    <p className="text-sm text-primary font-medium mb-3">{author?.role || "Contributor"}</p>
                                     <p className="text-muted-foreground text-sm leading-relaxed">
-                                        A passionate engineer exploring the boundaries of AI and web technologies. focused on building scalable, user-centric applications.
+                                        {author?.bio || "A passionate contributor to the team."}
                                     </p>
                                 </div>
                                 <button className="px-6 py-2 rounded-full border border-border font-bold text-sm hover:bg-foreground hover:text-background transition-colors">
@@ -252,24 +247,30 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                         }}
                         autoplay={{ delay: 5000, disableOnInteraction: false }}
                     >
-                        {post.relatedPosts.map((related, i) => (
+                        {relatedPosts.map((related, i) => (
                             <SwiperSlide key={i}>
                                 <div className="group cursor-pointer">
-                                    <div className="relative h-64 w-full rounded-2xl overflow-hidden mb-6">
-                                        <Image 
-                                            src={related.image} 
-                                            alt={related.title} 
-                                            fill 
-                                            className="object-cover transition-transform duration-700 group-hover:scale-110" 
-                                        />
-                                        <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                                            {related.category}
+                                    <Link href={`/blog/${related.id}`}>
+                                        <div className="relative h-64 w-full rounded-2xl overflow-hidden mb-6 bg-muted">
+                                            {related.coverImage ? (
+                                                  <img 
+                                                    src={related.coverImage} 
+                                                    alt={related.title} 
+                                                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110" 
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20" />
+                                            )}
+                                          
+                                            <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                                {content?.categories.find(c => c.id === related.category)?.label || "Article"}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">{related.title}</h3>
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium group-hover:translate-x-1 transition-transform">
-                                        Read Article <ArrowRight className="w-4 h-4" />
-                                    </div>
+                                        <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">{related.title}</h3>
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium group-hover:translate-x-1 transition-transform">
+                                            Read Article <ArrowRight className="w-4 h-4" />
+                                        </div>
+                                    </Link>
                                 </div>
                             </SwiperSlide>
                         ))}

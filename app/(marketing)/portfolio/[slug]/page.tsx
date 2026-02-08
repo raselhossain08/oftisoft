@@ -16,33 +16,23 @@ import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 
 import { cn } from "@/lib/utils";
-
-// Mock Data
-const projectData = {
-    title: "EcoSmart E-commerce",
-    subtitle: "Sustainable Fashion Marketplace",
-    category: "Full Stack Development",
-    client: "EcoLife Inc.",
-    date: "October 2025",
-    description: "A revolutionary sustainable fashion marketplace featuring real-time inventory management, AI-driven recommendations, and a carbon footprint calculator for every purchase.",
-    challenge: "The client needed a scalable platform capable of handling flash sales with thousands of concurrent users while maintaining sub-second load times. They also required complex logic to calculate and visualize the environmental impact of each product.",
-    solution: "We engineered a headless architecture using Next.js 15 for the frontend and a microservices-based backend with Node.js. Redis was utilized for high-speed caching of inventory data, and we integrated a custom AI model to analyze reliable sustainability data for the carbon calculator.",
-    technologies: ["Next.js 15", "TypeScript", "Tailwind CSS", "Node.js", "Redis", "PostgreSQL", "Stripe", "OpenAI API"],
-    results: [
-        { label: "Conversion Rate", value: "+40%" },
-        { label: "Page Load Time", value: "0.8s" },
-        { label: "Concurrent Users", value: "10k+" },
-        { label: "Carbon Offset", value: "50 Tons" }
-    ],
-    gallery: [
-        "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop", // Fashion
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop", // Store
-        "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop", // Shopping
-        "https://images.unsplash.com/photo-1472851294608-415522f96319?q=80&w=2070&auto=format&fit=crop"  // Detail
-    ]
-};
+import { usePortfolioContentStore } from "@/lib/store/portfolio-content";
+import { notFound, useRouter } from "next/navigation";
 
 export default function ProjectDetailPage({ params }: { params: { slug: string } }) {
+    const { content } = usePortfolioContentStore();
+    const router = useRouter();
+    
+    // Find project by ID (slug)
+    const project = content?.projects.find(p => p.id === params.slug);
+
+    // Fallback if not found (should be handled by middleware or static generation usually, but here client-side)
+    useEffect(() => {
+        if (!project && content?.projects.length) {
+            router.push('/portfolio');
+        }
+    }, [project, router, content]);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({ target: containerRef });
     const yHero = useTransform(scrollYProgress, [0, 0.5], [0, 200]);
@@ -54,7 +44,15 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => setIsMounted(true), []);
 
-    if (!isMounted) return null;
+    if (!isMounted || !project) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-pulse bg-primary/20 w-12 h-12 rounded-full" /></div>;
+
+    // Use fallback images if none provided
+    const galleryImages = [
+        "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1472851294608-415522f96319?q=80&w=2070&auto=format&fit=crop"
+    ];
 
     return (
         <main ref={containerRef} className="min-h-screen bg-background relative overflow-hidden">
@@ -82,9 +80,11 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                     style={{ y: yHero }}
                     className="absolute inset-0 z-0"
                 >
+                    <div className={cn("absolute inset-0 bg-gradient-to-br opacity-30", project.gradient)} />
+                    {/* Placeholder image logic since we don't have real uploaded images yet */}
                     <Image 
-                        src={projectData.gallery[0]} 
-                        alt={projectData.title} 
+                        src={galleryImages[0]} 
+                        alt={project.title} 
                         fill 
                         className="object-cover"
                         priority
@@ -105,15 +105,15 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                         >
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-background/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm font-bold uppercase tracking-wider mb-6 shadow-xl">
                                 <Layers className="w-4 h-4" />
-                                <span>{projectData.category}</span>
+                                <span>{project.category}</span>
                             </div>
                             
                             <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white mb-6 tracking-tighter leading-[0.9]">
-                                {projectData.title}
+                                {project.title}
                             </h1>
                             
                             <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-light mb-10 leading-relaxed">
-                                {projectData.subtitle}
+                                {project.description}
                             </p>
 
                             <div className="flex flex-wrap gap-8 text-white/90 font-medium text-lg border-t border-white/20 pt-8">
@@ -123,7 +123,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-xs uppercase tracking-widest text-white/60">Client</span>
-                                        <span>{projectData.client}</span>
+                                        <span>{project.client}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -131,8 +131,8 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                         <Calendar className="w-5 h-5" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs uppercase tracking-widest text-white/60">Date</span>
-                                        <span>{projectData.date}</span>
+                                        <span className="text-xs uppercase tracking-widest text-white/60">Project ID</span>
+                                        <span className="text-xs">{project.id.slice(0, 8)}...</span>
                                     </div>
                                 </div>
                             </div>
@@ -158,8 +158,9 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                 <h3 className="text-3xl font-bold mb-6">About the Project</h3>
                                 <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
                                     <p className="text-xl md:text-2xl font-light text-foreground mb-8">
-                                        {projectData.description}
+                                        {project.longDescription}
                                     </p>
+                                    <p>{project.description}</p>
                                 </div>
                             </motion.div>
 
@@ -179,7 +180,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                     navigation={true}
                                     className="h-full w-full"
                                  >
-                                    {projectData.gallery.map((img, i) => (
+                                    {galleryImages.map((img, i) => (
                                         <SwiperSlide key={i} onClick={() => setLightboxIndex(i)}>
                                             <div className="relative w-full h-full">
                                                 <Image 
@@ -201,8 +202,8 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                             {/* Challenge & Solution Grid */}
                             <div className="grid md:grid-cols-2 gap-8">
                                 {[
-                                    { title: "The Challenge", content: projectData.challenge, color: "bg-red-500" },
-                                    { title: "Our Solution", content: projectData.solution, color: "bg-green-500" }
+                                    { title: "The Summary", content: project.description, color: "bg-blue-500" },
+                                    { title: "Detailed Analysis", content: project.longDescription, color: "bg-purple-500" }
                                 ].map((item, i) => (
                                     <motion.div 
                                         key={i}
@@ -233,7 +234,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                 <div className="bg-card/50 backdrop-blur-xl border border-border p-8 rounded-3xl shadow-xl">
                                     <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-8">Impact & Results</h4>
                                     <div className="grid grid-cols-1 gap-6">
-                                        {projectData.results.map((result, i) => (
+                                        {project.stats.map((result, i) => (
                                             <motion.div 
                                                 key={i}
                                                 initial={{ opacity: 0, x: 20 }}
@@ -256,7 +257,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                         Technology Stack
                                     </h4>
                                     <div className="flex flex-wrap gap-2">
-                                        {projectData.technologies.map((tech, i) => (
+                                        {project.tags.map((tech, i) => (
                                             <motion.span 
                                                 key={tech}
                                                 initial={{ opacity: 0, scale: 0.8 }}
@@ -314,13 +315,13 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                         </button>
                         
                         <div className="relative w-full max-w-7xl h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                            <Swiper
+                                <Swiper
                                 initialSlide={lightboxIndex}
                                 modules={[Navigation]}
                                 navigation={true}
                                 className="w-full h-full"
                             >
-                                {projectData.gallery.map((img, i) => (
+                                {galleryImages.map((img, i) => (
                                     <SwiperSlide key={i} className="flex items-center justify-center">
                                         <div className="relative w-full h-full max-h-[85vh]">
                                             <Image 

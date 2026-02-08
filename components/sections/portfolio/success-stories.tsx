@@ -81,6 +81,11 @@ const stats = [
     }
 ];
 
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+
+// ... existing imports
+
 export default function SuccessStories() {
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
@@ -92,18 +97,18 @@ export default function SuccessStories() {
     const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
     return (
-        <section ref={containerRef} className="py-32 relative overflow-hidden">
+        <section ref={containerRef} className="py-16 md:py-32 relative overflow-hidden">
             {/* Background elements */}
             <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background pointer-events-none" />
             <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
             
             <div className="container px-4 mx-auto relative z-10">
-                <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
                     
                     {/* Left: Testimonials Carousel */}
                     <motion.div 
                         style={{ opacity }}
-                        className="w-full lg:w-1/2"
+                        className="w-full lg:w-1/2 order-2 lg:order-1"
                     >
                          <div className="relative">
                             <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-[2rem] blur-2xl opacity-50" />
@@ -112,35 +117,37 @@ export default function SuccessStories() {
                                 effect={'cards'}
                                 grabCursor={true}
                                 modules={[EffectCards, Autoplay, Pagination]}
-                                className="w-full max-w-md mx-auto"
+                                className="w-full max-w-sm md:max-w-md mx-auto"
                                 autoplay={{ delay: 5000 }}
                                 pagination={{ clickable: true }}
                             >
                                 {testimonials.map((t) => (
-                                    <SwiperSlide key={t.id} className="bg-card border border-border rounded-3xl p-8 md:p-10 shadow-2xl">
-                                        <div className="flex flex-col h-full justify-between min-h-[300px]">
-                                            <div>
-                                                <Quote className="w-12 h-12 text-primary/20 mb-6" />
-                                                <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8">
-                                                    "{t.quote}"
-                                                </p>
-                                            </div>
-                                            
-                                            <div className="flex items-center justify-between border-t border-border pt-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center font-bold text-lg">
-                                                        {t.author.charAt(0)}
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="font-bold">{t.author}</h4>
-                                                        <p className="text-sm text-muted-foreground">{t.role}</p>
-                                                    </div>
+                                    <SwiperSlide key={t.id}>
+                                        <Card className="bg-card border-border shadow-2xl h-full rounded-3xl overflow-hidden">
+                                            <CardContent className="p-8 md:p-10 flex flex-col justify-between h-full min-h-[320px] md:min-h-[380px]">
+                                                <div>
+                                                    <Quote className="w-10 h-10 md:w-12 md:h-12 text-primary/20 mb-6" />
+                                                    <p className="text-lg md:text-2xl font-medium leading-relaxed mb-6 md:mb-8">
+                                                        "{t.quote}"
+                                                    </p>
                                                 </div>
-                                                <div className="hidden sm:block px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">
-                                                    {t.impact}
+                                                
+                                                <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-t border-border pt-6">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-muted flex items-center justify-center font-bold text-lg">
+                                                            {t.author.charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-bold text-sm md:text-base">{t.author}</h4>
+                                                            <p className="text-xs md:text-sm text-muted-foreground">{t.role}</p>
+                                                        </div>
+                                                    </div>
+                                                    <Badge variant="secondary" className="bg-primary/10 text-primary w-fit">
+                                                        {t.impact}
+                                                    </Badge>
                                                 </div>
-                                            </div>
-                                        </div>
+                                            </CardContent>
+                                        </Card>
                                     </SwiperSlide>
                                 ))}
                             </Swiper>
@@ -148,24 +155,24 @@ export default function SuccessStories() {
                     </motion.div>
 
                     {/* Right: Stats Grid */}
-                    <div className="w-full lg:w-1/2">
+                    <div className="w-full lg:w-1/2 order-1 lg:order-2">
                         <motion.div
                             initial={{ opacity: 0, x: 50 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
                         >
-                            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-center lg:text-left">
                                 Real Results, <br />
                                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
                                     Measurable Impact.
                                 </span>
                             </h2>
-                            <p className="text-xl text-muted-foreground mb-12 max-w-lg">
+                            <p className="text-base md:text-xl text-muted-foreground mb-8 md:mb-12 max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
                                 We delivered exceptional value to our partners through innovation, speed, and engineering excellence.
                             </p>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                                 {stats.map((stat, i) => (
                                     <motion.div
                                         key={stat.id}
@@ -174,16 +181,19 @@ export default function SuccessStories() {
                                         viewport={{ once: true }}
                                         transition={{ delay: i * 0.1 }}
                                         whileHover={{ y: -5 }}
-                                        className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6 hover:shadow-lg transition-all group"
                                     >
-                                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors", stat.bg)}>
-                                            <stat.icon className={cn("w-6 h-6", stat.color)} />
-                                        </div>
-                                        <h3 className={cn("text-4xl font-bold mb-2", stat.color)}>
-                                            <CountUp end={stat.val} decimals={stat.val % 1 !== 0 ? 1 : 0} duration={3} suffix={stat.suffix} />
-                                        </h3>
-                                        <p className="font-bold text-foreground">{stat.title}</p>
-                                        <p className="text-sm text-muted-foreground">{stat.desc}</p>
+                                        <Card className="bg-card/50 backdrop-blur-sm border-border hover:shadow-lg transition-all group h-full">
+                                            <CardContent className="p-6">
+                                                <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors", stat.bg)}>
+                                                    <stat.icon className={cn("w-6 h-6", stat.color)} />
+                                                </div>
+                                                <h3 className={cn("text-3xl md:text-4xl font-bold mb-2", stat.color)}>
+                                                    <CountUp end={stat.val} decimals={stat.val % 1 !== 0 ? 1 : 0} duration={3} suffix={stat.suffix} />
+                                                </h3>
+                                                <p className="font-bold text-foreground text-sm md:text-base">{stat.title}</p>
+                                                <p className="text-xs md:text-sm text-muted-foreground">{stat.desc}</p>
+                                            </CardContent>
+                                        </Card>
                                     </motion.div>
                                 ))}
                             </div>

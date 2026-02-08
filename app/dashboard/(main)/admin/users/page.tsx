@@ -1,429 +1,450 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { 
-    Search, Filter, MoreVertical, Shield, User, 
-    CheckCircle2, XCircle, Mail, Download, Trash2, Edit, Plus, X, Lock
+    Search, 
+    Filter, 
+    MoreHorizontal, 
+    Mail, 
+    MessageSquare, 
+    UserPlus, 
+    Download,
+    Users,
+    Star,
+    TrendingUp,
+    ShieldCheck,
+    Clock,
+    MoreVertical,
+    ChevronRight,
+    SearchX,
+    Trash2,
+    ShieldAlert
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableHead, 
+    TableHeader, 
+    TableRow 
+} from "@/components/ui/table";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
+import { toast } from "sonner";
+import { useUsers } from "@/hooks/useUsers";
+import { AddUserDialog } from "@/components/dashboard/add-user-dialog";
+import { 
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
-// Mock Data
-const INITIAL_USERS = [
-    { id: 1, name: "Alex Morgan", email: "alex@example.com", role: "Admin", status: "Active", lastActive: "2 min ago", avatar: "AM", color: "bg-blue-500" },
-    { id: 2, name: "Sarah Jenkins", email: "sarah@design.co", role: "Editor", status: "Active", lastActive: "1 hour ago", avatar: "SJ", color: "bg-pink-500" },
-    { id: 3, name: "Mike Thompson", email: "mike@devops.io", role: "Viewer", status: "Inactive", lastActive: "3 days ago", avatar: "MT", color: "bg-purple-500" },
-    { id: 4, name: "Emily Chen", email: "emily@inc.com", role: "User", status: "Active", lastActive: "5 min ago", avatar: "EC", color: "bg-green-500" },
-    { id: 5, name: "David Wilson", email: "david@corp.net", role: "User", status: "Suspended", lastActive: "1 week ago", avatar: "DW", color: "bg-yellow-500" },
-];
-
-// --- Components ---
-
-const CustomDialog = ({ isOpen, onClose, title, children }: { isOpen: boolean, onClose: () => void, title: string, children: React.ReactNode }) => {
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-                    />
-                    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="bg-card border border-border w-full max-w-md rounded-xl shadow-2xl pointer-events-auto overflow-hidden"
-                        >
-                            <div className="flex justify-between items-center p-6 border-b border-border">
-                                <h3 className="font-bold text-lg">{title}</h3>
-                                <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                    <X size={18} />
-                                </button>
-                            </div>
-                            <div className="p-6">
-                                {children}
-                            </div>
-                        </motion.div>
-                    </div>
-                </>
-            )}
-        </AnimatePresence>
-    );
-};
-
-export default function UserManagementPage() {
-    const [users, setUsers] = useState(INITIAL_USERS);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+export default function UsersPage() {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeSegment, setActiveSegment] = useState("All Users");
+    const { users, isLoading, fetchUsers, toggleUserStatus, deleteUser } = useUsers();
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [isAddUserOpen, setIsAddUserOpen] = useState(false);
     
-    // Modal States
-    const [isAddOpen, setIsAddOpen] = useState(false);
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [currentUser, setCurrentUser] = useState<any>(null); // For Edit
-    const [newUser, setNewUser] = useState({ name: "", email: "", role: "User" });
+    // New Dialog States
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [isEmailOpen, setIsEmailOpen] = useState(false);
+    const [isMessageOpen, setIsMessageOpen] = useState(false);
 
-    const toggleUser = (id: number) => {
-        if (selectedUsers.includes(id)) {
-            setSelectedUsers(selectedUsers.filter(u => u !== id));
-        } else {
-            setSelectedUsers([...selectedUsers, id]);
+    useEffect(() => {
+        const params: any = { search: searchQuery };
+        if (activeSegment === "Active Users") params.isActive = true;
+        if (activeSegment === "Deactivated") params.isActive = false;
+        if (activeSegment === "Admins") params.role = "Admin";
+        if (activeSegment === "Support Staff") params.role = "Support";
+        if (activeSegment === "Managers") params.role = "Editor";
+        
+        fetchUsers(params);
+    }, [fetchUsers, searchQuery, activeSegment]);
+
+    const getRoleBadge = (role: string) => {
+        switch (role) {
+            case "Admin":
+                return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-1"><Star className="w-3 h-3 fill-amber-500" /> Admin</Badge>;
+            case "Editor":
+                return <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20 gap-1"><ShieldCheck className="w-3 h-3" /> Editor</Badge>;
+            case "Support":
+                return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">Support</Badge>;
+            default:
+                return <Badge variant="outline" className="border-border/50">{role}</Badge>;
         }
     };
 
-    const handleAddUser = (e: React.FormEvent) => {
-        e.preventDefault();
-        const id = Math.max(...users.map(u => u.id)) + 1;
-        const initials = newUser.name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
-        
-        setUsers([...users, {
-            id,
-            name: newUser.name,
-            email: newUser.email,
-            role: newUser.role,
-            status: "Active",
-            lastActive: "Just now",
-            avatar: initials,
-            color: "bg-gray-500"
-        }]);
-        setNewUser({ name: "", email: "", role: "User" });
-        setIsAddOpen(false);
+    const handleExport = () => {
+        toast.success("Preparing user data export...");
     };
-
-    const handleEditUser = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!currentUser) return;
-        
-        setUsers(users.map(u => u.id === currentUser.id ? { ...u, ...currentUser } : u));
-        setIsEditOpen(false);
-        setCurrentUser(null);
-    };
-
-    const handleDeleteUser = (id: number) => {
-        if (confirm("Are you sure you want to delete this user?")) {
-            setUsers(users.filter(u => u.id !== id));
-            setSelectedUsers(selectedUsers.filter(uid => uid !== id));
-        }
-    };
-    
-    const handleBulkDelete = () => {
-         if (confirm(`Delete ${selectedUsers.length} users?`)) {
-            setUsers(users.filter(u => !selectedUsers.includes(u.id)));
-            setSelectedUsers([]);
-         }
-    };
-
-    const openEdit = (user: any) => {
-        setCurrentUser(user);
-        setIsEditOpen(true);
-    };
-
-    const filteredUsers = users.filter(u => 
-        u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        u.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
-        <div className="mx-auto space-y-8">
-            
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-500">
-                        User Management
-                    </h1>
-                    <p className="text-muted-foreground">Manage system access and permissions.</p>
+                    <h1 className="text-3xl font-black tracking-tighter">User Management</h1>
+                    <p className="text-muted-foreground">Manage your relationships, segment users, and track customer lifetime value.</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 border border-border rounded-xl font-bold hover:bg-muted transition-colors flex items-center gap-2">
-                        <Download className="w-4 h-4" /> Export
-                    </button>
-                    <button 
-                        onClick={() => setIsAddOpen(true)}
-                        className="px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2"
+                <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" className="gap-2 rounded-xl h-11" onClick={handleExport}>
+                        <Download className="w-4 h-4" />
+                        Export Users
+                    </Button>
+                    <Button 
+                        className="gap-2 rounded-xl h-11 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 px-6 font-bold"
+                        onClick={() => setIsAddUserOpen(true)}
                     >
-                        <User className="w-4 h-4" /> Add User
-                    </button>
+                        <UserPlus className="w-4 h-4" />
+                        Add User
+                    </Button>
                 </div>
             </div>
 
-            {/* Toolbar */}
-            <div className="bg-card border border-border rounded-2xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center shadow-sm">
-                <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input 
-                        placeholder="Search users by name or email..." 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                </div>
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                    <button className="px-4 py-2 bg-muted/50 hover:bg-muted border border-border rounded-xl text-sm font-bold flex items-center gap-2 transition-colors">
-                        <Filter className="w-4 h-4" /> Filters
-                    </button>
-                    {selectedUsers.length > 0 && (
-                         <button 
-                            onClick={handleBulkDelete}
-                            className="px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors animate-in fade-in slide-in-from-right-4"
-                        >
-                            <Trash2 className="w-4 h-4" /> Delete ({selectedUsers.length})
-                        </button>
-                    )}
-                </div>
+            <AddUserDialog 
+                open={isAddUserOpen} 
+                onOpenChange={setIsAddUserOpen}
+                onSuccess={() => fetchUsers({ search: searchQuery })}
+            />
+
+            {/* User Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Users</CardTitle>
+                        <Users className="h-4 w-4 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-black">{users.length}</div>
+                        <p className="text-[10px] text-muted-foreground uppercase mt-1 font-bold">Syncing live data</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">Active Accounts</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-black">{users.filter(u => u.isActive).length}</div>
+                        <p className="text-[10px] text-green-500 uppercase mt-1 font-bold">Currently online/active</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">Verified Rate</CardTitle>
+                        <ShieldCheck className="h-4 w-4 text-purple-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-black">
+                            {users.length > 0 ? ((users.filter(u => u.isEmailVerified).length / users.length) * 100).toFixed(0) : 0}%
+                        </div>
+                        <p className="text-[10px] text-muted-foreground uppercase mt-1 font-bold">Identity compliance</p>
+                    </CardContent>
+                </Card>
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden border-l-4 border-l-primary/50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">New Growth</CardTitle>
+                        <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-black text-primary">+12</div>
+                        <p className="text-[10px] text-primary/60 uppercase mt-1 font-bold">Captured this week</p>
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Users Table */}
-            <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-muted/30 border-b border-border text-xs uppercase font-bold text-muted-foreground">
-                            <tr>
-                                <th className="p-4 w-12 text-center">
-                                    <input 
-                                        type="checkbox" 
-                                        className="rounded border-border"
-                                        onChange={(e) => {
-                                            if(e.target.checked) setSelectedUsers(users.map(u => u.id));
-                                            else setSelectedUsers([]);
-                                        }}
-                                        checked={selectedUsers.length === users.length && users.length > 0}
-                                    />
-                                </th>
-                                <th className="p-4 text-left">User</th>
-                                <th className="p-4 text-left">Role</th>
-                                <th className="p-4 text-left">Status</th>
-                                <th className="p-4 text-left">Last Active</th>
-                                <th className="p-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border">
-                            <AnimatePresence>
-                                {filteredUsers.map((user, i) => (
-                                    <motion.tr 
-                                        key={user.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, height: 0, transition: { duration: 0.2 } }}
-                                        transition={{ delay: i * 0.05 }}
-                                        className={cn(
-                                            "group hover:bg-muted/30 transition-colors",
-                                            selectedUsers.includes(user.id) && "bg-primary/5"
-                                        )}
+            <div className="grid lg:grid-cols-4 gap-8">
+                {/* Sidebar Filters */}
+                <div className="space-y-6">
+                    <Card className="border-border/50 h-fit rounded-2xl overflow-hidden shadow-sm">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-black uppercase">Quick Segments</CardTitle>
+                            <CardDescription>Filter users by behavior.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="flex flex-col">
+                                {[
+                                    { name: "All Users" },
+                                    { name: "Active Users" },
+                                    { name: "Admins" },
+                                    { name: "Support Staff" },
+                                    { name: "Managers" },
+                                    { name: "Deactivated" },
+                                ].map((segment) => (
+                                    <button 
+                                        key={segment.name}
+                                        onClick={() => setActiveSegment(segment.name)}
+                                        className={`flex items-center justify-between px-6 py-3.5 text-sm transition-all hover:bg-muted/50 ${activeSegment === segment.name ? "bg-primary/10 text-primary font-black border-r-4 border-primary" : "text-muted-foreground font-medium"}`}
                                     >
-                                        <td className="p-4 text-center">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={selectedUsers.includes(user.id)}
-                                                onChange={() => toggleUser(user.id)}
-                                                className="rounded border-border accent-primary"
-                                            />
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md", user.color)}>
-                                                    {user.avatar}
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold flex items-center gap-2">
-                                                        {user.name}
-                                                        {user.role === 'Admin' && <Shield className="w-3 h-3 text-primary fill-primary/20" />}
-                                                    </div>
-                                                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                                        <Mail className="w-3 h-3" /> {user.email}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={cn(
-                                                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border",
-                                                user.role === 'Admin' ? "bg-purple-500/10 text-purple-600 border-purple-500/20" :
-                                                user.role === 'Editor' ? "bg-blue-500/10 text-blue-600 border-blue-500/20" :
-                                                "bg-muted text-muted-foreground border-border"
-                                            )}>
-                                                {user.role}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={cn(
-                                                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border",
-                                                user.status === 'Active' ? "bg-green-500/10 text-green-600 border-green-500/20" :
-                                                user.status === 'Inactive' ? "bg-muted text-muted-foreground border-border" :
-                                                "bg-red-500/10 text-red-600 border-red-500/20"
-                                            )}>
-                                                {user.status === 'Active' && <CheckCircle2 className="w-3 h-3" />}
-                                                {user.status === 'Suspended' && <XCircle className="w-3 h-3" />}
-                                                {user.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-sm text-muted-foreground font-medium">
-                                            {user.lastActive}
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button 
-                                                    onClick={() => openEdit(user)}
-                                                    className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDeleteUser(user.id)}
-                                                    className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-red-500 transition-colors"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                                <button className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </motion.tr>
+                                        <span>{segment.name}</span>
+                                    </button>
                                 ))}
-                            </AnimatePresence>
-                        </tbody>
-                    </table>
-                    {filteredUsers.length === 0 && (
-                        <div className="text-center py-10 text-muted-foreground">
-                            No users found.
-                        </div>
-                    )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-border/50 bg-primary/5 rounded-2xl border-dashed">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-black uppercase">Sync Protocol</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <p className="text-[10px] font-bold text-muted-foreground leading-relaxed uppercase">Your segments are synced with downstream services every 6 hours.</p>
+                            <Button variant="outline" className="w-full rounded-xl bg-background text-[10px] h-9 font-black" onClick={() => toast.success("Batch sync dispatched...")}>BATCH SYNC NOW</Button>
+                        </CardContent>
+                    </Card>
                 </div>
-                
-                {/* Pagination */}
-                <div className="p-4 border-t border-border flex items-center justify-between text-sm text-muted-foreground">
-                    <div>Showing {filteredUsers.length} of {users.length} users</div>
-                    <div className="flex gap-2">
-                        <button className="px-3 py-1 border border-border rounded-lg hover:bg-muted disabled:opacity-50" disabled>Previous</button>
-                        <button className="px-3 py-1 border border-border rounded-lg hover:bg-muted">Next</button>
-                    </div>
+
+                {/* User List */}
+                <div className="lg:col-span-3 space-y-4">
+                    <Card className="border-border/50 rounded-2xl overflow-hidden shadow-sm">
+                        <CardHeader className="p-6 border-b border-border/50 bg-muted/5">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="relative flex-1 max-w-sm">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                        placeholder="Search by name, email, city..." 
+                                        className="pl-10 h-11 rounded-xl bg-background font-medium"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="outline" size="sm" className="gap-2 rounded-xl h-10 font-bold px-4">
+                                        <Filter className="h-4 w-4" />
+                                        Advanced
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            {users.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="bg-muted/10 hover:bg-transparent border-b border-border/50">
+                                            <TableHead className="w-[300px] font-black uppercase text-[10px] tracking-widest px-6 h-auto">Identify</TableHead>
+                                            <TableHead className="font-black uppercase text-[10px] tracking-widest h-auto">Security Role</TableHead>
+                                            <TableHead className="font-black uppercase text-[10px] tracking-widest h-auto">Connectivity</TableHead>
+                                            <TableHead className="font-black uppercase text-[10px] tracking-widest h-auto">Network Status</TableHead>
+                                            <TableHead className="text-right font-black uppercase text-[10px] tracking-widest px-6 h-auto">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {users.map((u) => (
+                                            <TableRow key={u.id} className="group hover:bg-primary/5 transition-all border-b border-border/20">
+                                                <TableCell className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar className="h-11 w-11 border-2 border-background shadow-md">
+                                                            <AvatarImage src={u.avatarUrl} />
+                                                            <AvatarFallback className="bg-primary/10 text-primary font-black text-xs">
+                                                                {u.name.split(" ").map(n => n[0]).join("")}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-black text-sm tracking-tight">{u.name}</span>
+                                                            <span className="text-[10px] text-muted-foreground font-bold">{u.email}</span>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>{getRoleBadge(u.role)}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-[11px] font-black">{u.city || "EXTERNAL"}, {u.state || "GW"}</div>
+                                                        <div className="text-[9px] font-mono text-muted-foreground">{u.phone || "---"}</div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-2 h-2 rounded-full ${u.isActive ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-muted"}`} />
+                                                        <span className="text-[9px] font-black uppercase tracking-tighter">{u.isActive ? "online_active" : "offline_locked"}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-right px-6">
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <Button asChild variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-primary hover:bg-primary/10 transition-all">
+                                                            <Link href={`/dashboard/admin/users/${u.id}`}>
+                                                                <ChevronRight className="w-5 h-5" />
+                                                            </Link>
+                                                        </Button>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-muted/50">
+                                                                    <MoreVertical className="h-5 h-5" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-xl border-border/50">
+                                                                <DropdownMenuLabel className="text-[10px] font-black uppercase text-muted-foreground px-2 py-1.5">Administrative Panel</DropdownMenuLabel>
+                                                                <DropdownMenuItem 
+                                                                    className="gap-2 cursor-pointer rounded-xl font-bold py-2.5" 
+                                                                    onClick={() => {
+                                                                        setSelectedUser(u);
+                                                                        setIsEmailOpen(true);
+                                                                    }}
+                                                                >
+                                                                    <Mail className="w-4 h-4 text-primary" /> Send Official Email
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem 
+                                                                    className="gap-2 cursor-pointer rounded-xl font-bold py-2.5" 
+                                                                    onClick={() => {
+                                                                        setSelectedUser(u);
+                                                                        setIsMessageOpen(true);
+                                                                    }}
+                                                                >
+                                                                    <MessageSquare className="w-4 h-4 text-purple-500" /> Dispatch Alert
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator className="my-2" />
+                                                                <DropdownMenuItem 
+                                                                    className="gap-2 cursor-pointer rounded-xl font-bold py-2.5"
+                                                                    onClick={() => toggleUserStatus(u.id)}
+                                                                >
+                                                                    <ShieldAlert className="w-4 h-4 text-amber-500" /> 
+                                                                    {u.isActive ? "Force Deactivate" : "Bypass Activation"}
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem 
+                                                                    className="gap-2 text-destructive focus:bg-destructive/10 cursor-pointer rounded-xl font-bold py-2.5"
+                                                                    onClick={() => setDeleteId(u.id)}
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" /> Purge Records
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : isLoading ? (
+                                <div className="py-24 flex flex-col items-center justify-center gap-4">
+                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+                                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Intercepting Grid Data...</p>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-24 bg-muted/5">
+                                    <SearchX className="h-16 w-16 text-muted-foreground/30 mb-4" />
+                                    <h3 className="text-xl font-black">Zero matches found</h3>
+                                    <p className="text-muted-foreground text-[10px] font-bold uppercase max-w-xs text-center mt-2 tracking-widest">The current query returned no active entities from the ledger.</p>
+                                    <Button variant="outline" className="mt-6 rounded-xl font-black text-xs border-primary/20 text-primary px-8" onClick={() => setSearchQuery("")}>RESET SEARCH</Button>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 
-            {/* Add User Dialog */}
-            <CustomDialog 
-                isOpen={isAddOpen} 
-                onClose={() => setIsAddOpen(false)} 
-                title="Add New User"
-            >
-                <form onSubmit={handleAddUser} className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-muted-foreground">Full Name</label>
-                        <input 
-                            required
-                            value={newUser.name}
-                            onChange={(e) => setNewUser({...newUser, name: e.target.value})}
-                            placeholder="e.g. John Doe"
-                            className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            {/* DIALOGS */}
+
+            {/* Email Dialog */}
+            <Dialog open={isEmailOpen} onOpenChange={setIsEmailOpen}>
+                <DialogContent className="sm:max-w-[500px] rounded-[2rem] border-border/50">
+                    <DialogHeader>
+                        <div className="w-12 h-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                            <Mail className="w-6 h-6 text-primary" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black tracking-tighter">Send Official Email</DialogTitle>
+                        <DialogDescription className="font-bold">
+                            Direct contact to <span className="text-primary">{selectedUser?.email}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label className="font-black text-[11px] uppercase ml-1">Transmission Subject</Label>
+                            <Input placeholder="Official Account Notice" className="rounded-xl h-auto font-medium" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="font-black text-[11px] uppercase ml-1">Message Header/Body</Label>
+                            <textarea 
+                                className="w-full h-32 rounded-[1.5rem] border border-input bg-background px-4 py-3 text-sm font-medium placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-all"
+                                placeholder="Enter message payload..."
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" className="rounded-xl h-11 font-bold" onClick={() => setIsEmailOpen(false)}>Cancel</Button>
+                        <Button className="rounded-xl h-11 px-8 shadow-lg shadow-primary/30 font-black tracking-tight" onClick={() => {
+                            toast.success("Message queued in CDN");
+                            setIsEmailOpen(false);
+                        }}>
+                            DISPATCH EMAIL
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Message Dialog */}
+            <Dialog open={isMessageOpen} onOpenChange={setIsMessageOpen}>
+                <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-border/50">
+                    <DialogHeader>
+                        <div className="w-12 h-auto rounded-2xl bg-purple-500/10 flex items-center justify-center mb-4">
+                            <MessageSquare className="w-6 h-6 text-purple-500" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black tracking-tighter">Dispatch Alert</DialogTitle>
+                        <DialogDescription className="font-bold">
+                            Send websocket notification to <span className="text-purple-500">{selectedUser?.name}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <textarea 
+                            className="w-full h-24 rounded-[1.5rem] border border-input bg-background px-4 py-3 text-sm font-medium placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/20 resize-none transition-all"
+                            placeholder="Type alert payload..."
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-muted-foreground">Email Address</label>
-                        <input 
-                            required
-                            type="email"
-                            value={newUser.email}
-                            onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                            placeholder="john@example.com"
-                            className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
+                    <DialogFooter>
+                        <Button className="w-full rounded-xl h-auto shadow-lg shadow-purple-500/30 bg-purple-600 hover:bg-purple-700 font-black tracking-tight" onClick={() => {
+                            toast.success("WebSocket pulse emitted");
+                            setIsMessageOpen(false);
+                        }}>
+                           EMIT BROADCAST
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            
+            {/* Delete Confirmation */}
+            <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+                <DialogContent className="rounded-[2rem] border-border/50 max-w-[400px]">
+                    <DialogHeader className="flex flex-col items-center text-center">
+                        <div className="w-16 h-16 rounded-[1.5rem] bg-destructive/10 flex items-center justify-center mb-4">
+                            <Trash2 className="w-8 h-8 text-destructive" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black tracking-tighter">Purge Entity?</DialogTitle>
+                        <DialogDescription className="font-bold uppercase text-[10px] tracking-widest text-destructive">
+                           Critical Security Protocol Required
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="p-4 text-center">
+                        <p className="text-sm font-medium text-muted-foreground">This will permanently remove the record and all associated metadata. This action cannot be reversed.</p>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-muted-foreground">Role</label>
-                        <select 
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                            className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none"
+                    <DialogFooter className="flex-col sm:flex-col gap-2 pt-4">
+                        <Button 
+                            className="w-full bg-destructive hover:bg-destructive/90 rounded-xl h-auto font-black shadow-lg shadow-destructive/20"
+                            onClick={() => {
+                                if (deleteId) deleteUser(deleteId);
+                                setDeleteId(null);
+                            }}
                         >
-                            <option value="User">User</option>
-                            <option value="Editor">Editor</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Viewer">Viewer</option>
-                        </select>
-                    </div>
-                    <button type="submit" className="w-full py-3 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors mt-2">
-                        <Plus className="w-4 h-4" /> Create User
-                    </button>
-                </form>
-            </CustomDialog>
-
-            {/* Edit User Dialog */}
-            <CustomDialog 
-                isOpen={isEditOpen} 
-                onClose={() => setIsEditOpen(false)} 
-                title="Edit User"
-            >
-                {currentUser && (
-                    <form onSubmit={handleEditUser} className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-muted-foreground">Full Name</label>
-                            <input 
-                                required
-                                value={currentUser.name}
-                                onChange={(e) => setCurrentUser({...currentUser, name: e.target.value})}
-                                className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-muted-foreground">Email</label>
-                            <input 
-                                required
-                                type="email"
-                                value={currentUser.email}
-                                onChange={(e) => setCurrentUser({...currentUser, email: e.target.value})}
-                                className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                             <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-muted-foreground">Role</label>
-                                <select 
-                                    value={currentUser.role}
-                                    onChange={(e) => setCurrentUser({...currentUser, role: e.target.value})}
-                                    className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                >
-                                    <option value="User">User</option>
-                                    <option value="Editor">Editor</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Viewer">Viewer</option>
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-muted-foreground">Status</label>
-                                <select 
-                                    value={currentUser.status}
-                                    onChange={(e) => setCurrentUser({...currentUser, status: e.target.value})}
-                                    className="w-full bg-card border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                >
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                    <option value="Suspended">Suspended</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="pt-2 flex gap-2">
-                            <button 
-                                type="button" 
-                                onClick={() => setIsEditOpen(false)}
-                                className="flex-1 py-3 bg-muted hover:bg-muted/80 text-foreground rounded-xl font-bold transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                type="submit" 
-                                className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-                            >
-                                Save Changes
-                            </button>
-                        </div>
-                    </form>
-                )}
-            </CustomDialog>
-
+                            CONFIRM PURGE
+                        </Button>
+                        <Button variant="ghost" className="w-full rounded-xl h-11 font-bold" onClick={() => setDeleteId(null)}>ABORT MISSION</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -1,478 +1,797 @@
-"use client";
-
+"use client"
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-    Search, Plus, Paperclip, Smile, Send, MoreVertical, 
-    Phone, Video, Info, CheckCheck, X, User, Mic, MicOff, VideoOff, Upload
+import { motion } from "framer-motion";
+import {
+  Search,
+  Plus,
+  Send,
+  Phone,
+  Video,
+  Info,
+  CheckCheck,
+  User,
+  Mic,
+  MicOff,
+  VideoOff,
+  Upload,
+  ArrowLeft,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Mock Data
-const INITIAL_CONVERSATIONS = [
-    { id: 1, name: "Sarah Jenkins", role: "Design Lead", email: "sarah@design.co", avatar: "SJ", status: "online", lastMsg: "The new mockups are ready!", time: "10:30 AM", unread: 2, color: "bg-pink-500" },
-    { id: 2, name: "Mike Thompson", role: "DevOps", email: "mike@devops.io", avatar: "MT", status: "offline", lastMsg: "Server migration complete.", time: "Yesterday", unread: 0, color: "bg-purple-500" },
-    { id: 3, name: "Proj: E-commerce", role: "Team Channel", email: "team@ecommerce.prj", avatar: "#", status: "online", lastMsg: "Alex: I'll check the API docs.", time: "2 days ago", unread: 5, color: "bg-blue-500" },
-];
-
-const INITIAL_MESSAGES = [
-    { id: 1, sender: "Sarah Jenkins", text: "Hey! Did you get a chance to review the new dashboard designs?", time: "10:25 AM", isMe: false, chatId: 1 },
-    { id: 2, sender: "Me", text: "Yes! They look amazing. The dark mode contrast is perfect.", time: "10:28 AM", isMe: true, chatId: 1 },
-    { id: 3, sender: "Sarah Jenkins", text: "Great! I've uploaded the final assets to the drive. Let me know if you need anything else.", time: "10:30 AM", isMe: false, chatId: 1 },
-    { id: 4, sender: "Mike Thompson", text: "Migration started.", time: "Yesterday", isMe: false, chatId: 2 },
-    { id: 5, sender: "Me", text: "Thanks Mike.", time: "Yesterday", isMe: true, chatId: 2 },
-];
-
-// --- Components ---
-
-const CustomDialog = ({ isOpen, onClose, title, children }: { isOpen: boolean, onClose: () => void, title: string, children: React.ReactNode }) => {
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-                    />
-                    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="bg-card border border-border w-full max-w-md rounded-xl shadow-2xl pointer-events-auto overflow-hidden"
-                        >
-                            <div className="flex justify-between items-center p-6 border-b border-border">
-                                <h3 className="font-bold text-lg">{title}</h3>
-                                <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                    <X size={18} />
-                                </button>
-                            </div>
-                            <div className="p-6">
-                                {children}
-                            </div>
-                        </motion.div>
-                    </div>
-                </>
-            )}
-        </AnimatePresence>
-    );
-};
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useMessages } from "@/hooks/useMessages";
+import { useUsers } from "@/hooks/useUsers";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useCalling } from "@/hooks/useCalling";
 
 export default function MessagesPage() {
-    const [conversations, setConversations] = useState(INITIAL_CONVERSATIONS);
-    const [messages, setMessages] = useState(INITIAL_MESSAGES);
-    const [selectedChat, setSelectedChat] = useState(INITIAL_CONVERSATIONS[0]);
-    const [input, setInput] = useState("");
-    const [search, setSearch] = useState("");
+  const { conversations, messages, selectedChat, setSelectedChat, isLoading, sendMessage, startConversation, refreshConversations } = useMessages();
+  const { users, fetchUsers, isLoading: isUsersLoading } = useUsers();
+  const { user: currentUser } = useAuth();
+  
+  // Calling Hook
+  const { 
+      startCall, endCall, answerCall, rejectCall, 
+      activeCall, incomingCall, localStream, remoteStream 
+  } = useCalling();
+  
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
-    const [isNewChatOpen, setIsNewChatOpen] = useState(false);
-    const [newChatName, setNewChatName] = useState("");
+  // Effect to attach streams
+  useEffect(() => {
+      if (localVideoRef.current && localStream) {
+          localVideoRef.current.srcObject = localStream;
+      }
+      if (remoteVideoRef.current && remoteStream) {
+          remoteVideoRef.current.srcObject = remoteStream;
+      }
+  }, [localStream, remoteStream, activeCall]);
 
-    // Feature Dialog States
-    const [isAudioCallOpen, setIsAudioCallOpen] = useState(false);
-    const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
-    const [isInfoOpen, setIsInfoOpen] = useState(false);
-    const [isAttachOpen, setIsAttachOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [showChatView, setShowChatView] = useState(false);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isNewChatOpen, setIsNewChatOpen] = useState(false);
+  const [newChatSearch, setNewChatSearch] = useState("");
 
-    const activeMessages = messages.filter(m => m.chatId === selectedChat.id);
-    const filteredConversations = conversations.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+  const [isAudioCallOpen, setIsAudioCallOpen] = useState(false);
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isAttachOpen, setIsAttachOpen] = useState(false);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        scrollToBottom();
-    }, [activeMessages, selectedChat]);
+  const filteredConversations = conversations.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
 
-    const handleSendMessage = (e?: React.FormEvent) => {
-        e?.preventDefault();
-        if (!input.trim()) return;
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-        const newMsg = {
-            id: Date.now(),
-            sender: "Me",
-            text: input,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isMe: true,
-            chatId: selectedChat.id
-        };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, selectedChat]);
 
-        setMessages([...messages, newMsg]);
-        
-        // Update last message in conversation
-        setConversations(conversations.map(c => 
-            c.id === selectedChat.id ? { ...c, lastMsg: "You: " + input, time: "Just now", unread: 0 } : c
-        ));
-        
+  // Fetch users when new chat dialog opens
+  useEffect(() => {
+    if (isNewChatOpen) {
+        fetchUsers();
+    }
+  }, [isNewChatOpen, fetchUsers]);
+
+  const handleSelectChat = (chat: any) => {
+    setSelectedChat(chat);
+    setShowChatView(true);
+  };
+
+  const handleBackToList = () => {
+    setShowChatView(false);
+  };
+
+  const handleSendMessage = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!input.trim() || !selectedChat) return;
+    
+    const success = await sendMessage(input);
+    if (success) {
         setInput("");
-    };
+    }
+  };
 
-    const handleNewChat = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newChatName.trim()) return;
-
-        const newChat = {
-            id: Date.now(),
-            name: newChatName,
-            role: "New Contact",
-            email: "new@contact.com",
-            avatar: newChatName.substring(0, 2).toUpperCase(),
-            status: "offline",
-            lastMsg: "Start a conversation",
-            time: "New",
-            unread: 0,
-            color: "bg-green-500"
-        };
-
-        setConversations([newChat, ...conversations]);
-        setSelectedChat(newChat);
-        setNewChatName("");
+  const handleStartNewChat = async (recipientId: string) => {
+    const existing = conversations.find(c => c.recipientId === recipientId);
+    if (existing) {
+        handleSelectChat(existing);
         setIsNewChatOpen(false);
-    };
+        return;
+    }
+    
+    // Start new conversation API call
+    const newChat = await startConversation(recipientId);
+    if (newChat) {
+        // Optimistic refresh or wait for effect
+        setIsNewChatOpen(false);
+        // We might need to manually set selected chat if the hook logic doesn't cover this instantly
+    }
+  };
 
-    return (
-        <div className="h-[calc(100vh-8rem)] flex gap-6">
-            
-            {/* Sidebar List */}
-            <div className="w-80 flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-sm shrink-0">
-                <div className="p-4 border-b border-border">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold">Messages</h2>
-                        <button 
-                            onClick={() => setIsNewChatOpen(true)}
-                            className="p-2 hover:bg-muted rounded-full transition-colors text-primary"
-                        >
-                            <Plus className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <input 
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search chats..." 
-                            className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                    </div>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                    {filteredConversations.map((chat) => (
-                        <button
-                            key={chat.id}
-                            onClick={() => setSelectedChat(chat)}
-                            className={cn(
-                                "w-full p-3 rounded-2xl flex items-center gap-3 transition-all hover:bg-muted/50 text-left relative group",
-                                selectedChat.id === chat.id ? "bg-primary/5 border border-primary/10" : "bg-transparent border border-transparent"
-                            )}
-                        >
-                            <div className="relative">
-                                <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shadow-md", chat.color)}>
-                                    {chat.avatar}
-                                </div>
-                                {chat.status === "online" && (
-                                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-card rounded-full" />
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-center mb-0.5">
-                                    <span className="font-bold truncate">{chat.name}</span>
-                                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">{chat.time}</span>
-                                </div>
-                                <p className={cn("text-xs truncate", chat.unread > 0 ? "text-foreground font-bold" : "text-muted-foreground")}>
-                                    {chat.lastMsg}
-                                </p>
-                            </div>
-                            {chat.unread > 0 && (
-                                <span className="w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                                    {chat.unread}
-                                </span>
-                            )}
-                        </button>
-                    ))}
-                    {filteredConversations.length === 0 && (
-                        <div className="p-4 text-center text-sm text-muted-foreground">
-                            No chats found.
-                        </div>
-                    )}
-                </div>
-            </div>
+  const filteredUsers = users.filter(u => 
+    u.id !== currentUser?.id && 
+    (u.name.toLowerCase().includes(newChatSearch.toLowerCase()) || 
+     u.email.toLowerCase().includes(newChatSearch.toLowerCase()))
+  );
 
-            {/* Chat Area */}
-            <div className="flex-1 bg-card border border-border rounded-3xl overflow-hidden shadow-sm flex flex-col">
-                
-                {/* Chat Header */}
-                <div className="p-4 border-b border-border flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm", selectedChat.color)}>
-                            {selectedChat.avatar}
-                        </div>
-                        <div>
-                            <h3 className="font-bold leading-none">{selectedChat.name}</h3>
-                            <p className="text-xs text-green-500 font-medium flex items-center gap-1 mt-1">
-                                {selectedChat.status === 'online' ? (
-                                    <><span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" /> Active Now</>
-                                ) : (
-                                    <span className="text-muted-foreground">Offline</span>
-                                )}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <button 
-                            onClick={() => setIsAudioCallOpen(true)}
-                            className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary transition-colors"
-                            title="Start Audio Call"
-                        >
-                            <Phone className="w-5 h-5" />
-                        </button>
-                        <button 
-                            onClick={() => setIsVideoCallOpen(true)}
-                            className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary transition-colors"
-                            title="Start Video Call"
-                        >
-                            <Video className="w-5 h-5" />
-                        </button>
-                        <button 
-                            onClick={() => setIsInfoOpen(true)}
-                            className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary transition-colors"
-                            title="View Info"
-                        >
-                            <Info className="w-5 h-5" />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Messages Feed */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-muted/5">
-                    {activeMessages.map((msg) => (
-                        <motion.div 
-                            key={msg.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className={cn("flex gap-3 max-w-[80%]", msg.isMe ? "ml-auto flex-row-reverse" : "")}
-                        >
-                            {!msg.isMe && (
-                                <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 mt-auto", selectedChat.color)}>
-                                    {selectedChat.avatar}
-                                </div>
-                            )}
-                            <div className={cn(
-                                "space-y-1 p-4 rounded-3xl shadow-sm text-sm",
-                                msg.isMe 
-                                    ? "bg-primary text-white rounded-br-none" 
-                                    : "bg-background border border-border rounded-bl-none"
-                            )}>
-                                <p>{msg.text}</p>
-                                <div className={cn("text-[10px] flex items-center gap-1 opacity-70 justify-end", msg.isMe ? "text-primary-foreground" : "text-muted-foreground")}>
-                                    {msg.time}
-                                    {msg.isMe && <CheckCheck className="w-3 h-3" />}
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                </div>
-
-                {/* Input Area */}
-                <div className="p-4 bg-background border-t border-border">
-                    <div className="flex items-end gap-2 bg-muted/30 border border-border rounded-3xl p-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                        <button 
-                            onClick={() => setIsAttachOpen(true)}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                            title="Add Attachment"
-                        >
-                            <Plus className="w-5 h-5" />
-                        </button>
-                        <textarea 
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSendMessage();
-                                }
-                            }}
-                            placeholder="Type a message..." 
-                            className="flex-1 bg-transparent border-none focus:outline-none resize-none max-h-32 py-2 text-sm"
-                            rows={1}
-                        />
-                        <button 
-                            onClick={() => setInput(prev => prev + "😊")}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                            title="Add Emoji"
-                        >
-                            <Smile className="w-5 h-5" />
-                        </button>
-                        <button 
-                            onClick={() => handleSendMessage()}
-                            disabled={!input.trim()}
-                            className="p-2 bg-primary text-white rounded-full shadow-lg shadow-primary/25 hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                            <Send className="w-4 h-4 ml-0.5" />
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-             {/* New Chat Dialog */}
-             <CustomDialog 
-                isOpen={isNewChatOpen} 
-                onClose={() => setIsNewChatOpen(false)} 
-                title="Start New Conversation"
-            >
-                <form onSubmit={handleNewChat} className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase text-muted-foreground">Recipient Name</label>
-                        <div className="relative">
-                            <input 
-                                required
-                                value={newChatName}
-                                onChange={(e) => setNewChatName(e.target.value)}
-                                placeholder="e.g. David Wilson"
-                                className="w-full bg-card border border-border rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                            />
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        </div>
-                    </div>
-               
-                    <button type="submit" className="w-full py-3 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors mt-2">
-                         Start Chat
-                    </button>
-                </form>
-            </CustomDialog>
-
-            {/* Audio Call Dialog */}
-            <CustomDialog
-                isOpen={isAudioCallOpen}
-                onClose={() => setIsAudioCallOpen(false)}
-                title="Audio Call"
-            >
-                <div className="flex flex-col items-center justify-center space-y-6 py-6">
-                    <div className={cn("w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-xl", selectedChat.color)}>
-                        {selectedChat.avatar}
-                    </div>
-                    <div className="text-center space-y-1">
-                        <h3 className="text-2xl font-bold">{selectedChat.name}</h3>
-                        <p className="text-primary font-medium animate-pulse">Calling...</p>
-                    </div>
-                    <div className="flex items-center gap-4 mt-4">
-                        <button className="p-4 bg-muted hover:bg-muted/80 rounded-full transition-colors"><Mic className="w-6 h-6" /></button>
-                        <button 
-                            onClick={() => setIsAudioCallOpen(false)}
-                            className="p-4 bg-red-500 text-white hover:bg-red-600 rounded-full transition-colors shadow-lg shadow-red-500/20"
-                        >
-                            <Phone className="w-6 h-6 rotate-[135deg]" />
-                        </button>
-                    </div>
-                </div>
-            </CustomDialog>
-
-             {/* Video Call Dialog */}
-             <CustomDialog
-                isOpen={isVideoCallOpen}
-                onClose={() => setIsVideoCallOpen(false)}
-                title="Video Call"
-            >
-                <div className="flex flex-col items-center justify-center space-y-6 py-6">
-                    <div className={cn("w-32 h-32 rounded-3xl flex items-center justify-center text-white text-4xl font-bold shadow-xl aspect-square", selectedChat.color)}>
-                        {selectedChat.avatar}
-                    </div>
-                    <div className="text-center space-y-1">
-                        <h3 className="text-2xl font-bold">{selectedChat.name}</h3>
-                        <p className="text-primary font-medium animate-pulse">Connecting video...</p>
-                    </div>
-                     <div className="flex items-center gap-4 mt-4">
-                        <button className="p-4 bg-muted hover:bg-muted/80 rounded-full transition-colors"><MicOff className="w-6 h-6" /></button>
-                        <button 
-                            onClick={() => setIsVideoCallOpen(false)}
-                            className="p-4 bg-red-500 text-white hover:bg-red-600 rounded-full transition-colors shadow-lg shadow-red-500/20"
-                        >
-                            <Phone className="w-6 h-6 rotate-[135deg]" />
-                        </button>
-                         <button className="p-4 bg-muted hover:bg-muted/80 rounded-full transition-colors"><VideoOff className="w-6 h-6" /></button>
-                    </div>
-                </div>
-            </CustomDialog>
-
-             {/* User Info Dialog */}
-             <CustomDialog
-                isOpen={isInfoOpen}
-                onClose={() => setIsInfoOpen(false)}
-                title="Contact Info"
-            >
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-2xl border border-border">
-                         <div className={cn("w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md", selectedChat.color)}>
-                            {selectedChat.avatar}
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-bold">{selectedChat.name}</h3>
-                            <p className="text-sm text-muted-foreground">{selectedChat.role}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                                <div className={cn("w-2 h-2 rounded-full", selectedChat.status === 'online' ? "bg-green-500" : "bg-gray-400")} />
-                                <span className="text-xs uppercase font-bold text-muted-foreground">{selectedChat.status}</span>
-                            </div>
-                        </div>
-                    </div>
-                   
-                   <div className="space-y-3">
-                        <div className="flex justify-between items-center p-3 hover:bg-muted/50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-border">
-                            <span className="text-sm font-medium text-muted-foreground">Email</span>
-                            <span className="text-sm font-bold">{(selectedChat as any).email || "user@oftisoft.com"}</span>
-                        </div>
-                        <div className="flex justify-between items-center p-3 hover:bg-muted/50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-border">
-                            <span className="text-sm font-medium text-muted-foreground">Shared Files</span>
-                            <span className="text-sm font-bold">12</span>
-                        </div>
-                   </div>
-
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                        <button className="py-2.5 border border-border rounded-xl font-bold hover:bg-muted transition-colors text-sm">
-                            Block User
-                        </button>
-                         <button className="py-2.5 bg-red-500/10 text-red-600 border border-red-500/20 rounded-xl font-bold hover:bg-red-500/20 transition-colors text-sm">
-                            Report
-                        </button>
-                    </div>
-                </div>
-            </CustomDialog>
-
-            {/* Attach File Dialog */}
-            <CustomDialog
-                isOpen={isAttachOpen}
-                onClose={() => setIsAttachOpen(false)}
-                title="Send Attachment"
-            >
-                <div className="space-y-4">
-                     <div className="border-2 border-dashed border-border rounded-2xl p-8 flex flex-col items-center justify-center text-center gap-2 hover:bg-muted/30 transition-colors cursor-pointer group">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Upload className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-sm">Click to upload</p>
-                            <p className="text-xs text-muted-foreground">or drag and drop files here</p>
-                        </div>
-                     </div>
-                     <div className="text-xs text-muted-foreground text-center">
-                        Supported: JPG, PNG, PDF, DOCX (Max 10MB)
-                     </div>
-                     <button 
-                        onClick={() => setIsAttachOpen(false)}
-                        className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
-                     >
-                        Upload & Send
-                     </button>
-                </div>
-            </CustomDialog>
-
+  const chatArea = (
+    <Card className="flex-1 flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl border min-h-0">
+      {/* Chat Header */}
+      <CardHeader className="p-4 border-b border-border flex flex-row items-center justify-between gap-3 shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden shrink-0 h-9 w-9"
+            onClick={handleBackToList}
+            aria-label="Back to conversations"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          {selectedChat && (
+            <>
+              <Avatar
+                className={cn(
+                  "h-10 w-10 rounded-full shrink-0",
+                  selectedChat.color || "bg-primary"
+                )}
+              >
+                <AvatarFallback
+                  className={cn("rounded-full text-white font-bold", selectedChat.color || "bg-primary")}
+                >
+                  {selectedChat.avatar}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <h3 className="font-bold leading-none truncate">
+                  {selectedChat.name}
+                </h3>
+                <p
+                  className={cn(
+                    "text-xs font-medium flex items-center gap-1 mt-0.5",
+                    selectedChat.status === "online"
+                      ? "text-green-500"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {selectedChat.status === "online" ? (
+                    <>
+                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shrink-0" />
+                      Active Now
+                    </>
+                  ) : (
+                    "Offline"
+                  )}
+                </p>
+              </div>
+            </>
+          )}
         </div>
-    );
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => {
+                if(selectedChat?.recipientId) {
+                    startCall(selectedChat.recipientId, 'audio');
+                    setIsAudioCallOpen(true);
+                }
+            }}
+            title="Start Audio Call"
+          >
+            <Phone className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => {
+                if(selectedChat?.recipientId) {
+                    startCall(selectedChat.recipientId, 'video');
+                    setIsVideoCallOpen(true);
+                }
+            }}
+            title="Start Video Call"
+          >
+            <Video className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => setIsInfoOpen(true)}
+            title="View Info"
+          >
+            <Info className="w-5 h-5" />
+          </Button>
+        </div>
+      </CardHeader>
+
+      {/* Messages Feed */}
+      <ScrollArea className="flex-1 p-4 sm:p-6 bg-muted/5">
+        <div className="space-y-4 sm:space-y-6">
+          {selectedChat &&
+            messages.map((msg) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={cn(
+                  "flex gap-2 sm:gap-3 max-w-[95%] sm:max-w-[80%]",
+                  msg.isMe ? "ml-auto flex-row-reverse" : ""
+                )}
+              >
+                {!msg.isMe && (
+                  <Avatar
+                    className={cn(
+                      "h-8 w-8 rounded-full shrink-0 mt-auto",
+                      selectedChat.color || "bg-primary"
+                    )}
+                  >
+                    <AvatarFallback
+                      className={cn(
+                        "rounded-full text-white text-xs font-bold",
+                        selectedChat.color || "bg-primary"
+                      )}
+                    >
+                      {selectedChat.avatar}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div
+                  className={cn(
+                    "space-y-1 p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-sm text-sm",
+                    msg.isMe
+                      ? "bg-primary text-primary-foreground rounded-br-md sm:rounded-br-none"
+                      : "bg-card border border-border rounded-bl-md sm:rounded-bl-none"
+                  )}
+                >
+                  <p className="break-words">{msg.text}</p>
+                  <div
+                    className={cn(
+                      "text-[10px] flex items-center gap-1 opacity-80 justify-end",
+                      msg.isMe ? "text-primary-foreground/90" : "text-muted-foreground"
+                    )}
+                  >
+                    {msg.time}
+                    {msg.isMe && <CheckCheck className="w-3 h-3 shrink-0" />}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            {messages.length === 0 && (
+                <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+                    No messages yet. Say hello!
+                </div>
+            )}
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
+
+      {/* Input Area */}
+      <div className="p-3 sm:p-4 bg-background border-t border-border shrink-0">
+        <form
+          onSubmit={handleSendMessage}
+          className="flex items-end gap-2 bg-muted/30 border border-border rounded-2xl sm:rounded-3xl p-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 shrink-0"
+            onClick={() => setIsAttachOpen(true)}
+            title="Add Attachment"
+          >
+            <Plus className="w-5 h-5" />
+          </Button>
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            placeholder="Type a message..."
+            className="flex-1 min-h-[40px] max-h-32 border-0 focus-visible:ring-0 resize-none bg-transparent py-2 text-sm"
+            rows={1}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 shrink-0"
+            onClick={() => setInput((prev) => prev + "😊")}
+            title="Add Emoji"
+          >
+            <span className="text-lg">😊</span>
+          </Button>
+          <Button
+            type="submit"
+            disabled={!input.trim()}
+            size="icon"
+            className="h-9 w-9 shrink-0 rounded-full"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </form>
+      </div>
+    </Card>
+  );
+
+  const sidebar = (
+    <Card className="w-full lg:w-80 flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl border shrink-0 h-full min-h-0">
+      <div className="p-3 sm:p-4 border-b border-border shrink-0">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h2 className="text-lg sm:text-xl font-bold">Messages</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 shrink-0"
+            onClick={() => setIsNewChatOpen(true)}
+          >
+            <Plus className="w-5 h-5 text-primary" />
+          </Button>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search chats..."
+            className="pl-9 h-9 sm:h-10"
+          />
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="p-2 space-y-1">
+          {conversations.length === 0 && !isLoading && (
+             <div className="p-4 text-center text-sm text-muted-foreground">
+               No conversations yet. Start one!
+             </div>
+          )}
+          {filteredConversations.map((chat) => (
+            <Button
+              key={chat.id}
+              variant="ghost"
+              onClick={() => handleSelectChat(chat)}
+              className={cn(
+                "w-full justify-start h-auto p-3 rounded-xl sm:rounded-2xl gap-3 text-left font-normal",
+                selectedChat?.id === chat.id
+                  ? "bg-primary/10 border border-primary/20"
+                  : "hover:bg-muted/50"
+              )}
+            >
+              <div className="relative shrink-0">
+                <Avatar
+                  className={cn("h-12 w-12 rounded-full", chat.color || "bg-primary")}
+                >
+                  <AvatarFallback
+                    className={cn("rounded-full text-white font-bold", chat.color || "bg-primary")}
+                  >
+                    {chat.avatar}
+                  </AvatarFallback>
+                </Avatar>
+                {chat.status === "online" && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-card rounded-full" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center mb-0.5 gap-2">
+                  <span className="font-bold truncate text-sm">{chat.name}</span>
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+                    {chat.time}
+                  </span>
+                </div>
+                <p
+                  className={cn(
+                    "text-xs truncate",
+                    chat.unread > 0 ? "text-foreground font-semibold" : "text-muted-foreground"
+                  )}
+                >
+                  {chat.lastMsg}
+                </p>
+              </div>
+              {chat.unread > 0 && (
+                <Badge className="h-5 min-w-5 px-1.5 text-[10px] shrink-0">
+                  {chat.unread}
+                </Badge>
+              )}
+            </Button>
+          ))}
+          {filteredConversations.length === 0 && search && (
+            <div className="p-4 text-center text-sm text-muted-foreground">
+              No chats found for "{search}".
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+    </Card>
+  );
+
+  return (
+    <div className="h-[calc(100vh-7rem)] sm:h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-4 sm:gap-6">
+      {/* Sidebar - hidden on mobile when chat is open */}
+      <div
+        className={cn(
+          "flex flex-col h-full min-h-[250px] lg:min-h-0",
+          showChatView ? "hidden lg:flex" : "flex",
+          "lg:w-80"
+        )}
+      >
+        {sidebar}
+      </div>
+
+      {/* Chat Area - hidden on mobile when list is shown */}
+      <div
+        className={cn(
+          "flex-1 flex flex-col min-h-0",
+          showChatView ? "flex" : "hidden lg:flex"
+        )}
+      >
+        {selectedChat ? (
+          chatArea
+        ) : (
+          <Card className="flex-1 flex items-center justify-center rounded-2xl sm:rounded-3xl border">
+            <p className="text-muted-foreground text-sm px-4">
+              Select a conversation to start messaging
+            </p>
+          </Card>
+        )}
+      </div>
+
+      {/* New Chat Dialog */}
+      <Dialog open={isNewChatOpen} onOpenChange={setIsNewChatOpen}>
+        <DialogContent className="sm:max-w-md h-[400px] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Start New Conversation</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 flex-1 flex flex-col min-h-0">
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={newChatSearch}
+                  onChange={(e) => setNewChatSearch(e.target.value)}
+                  placeholder="Search users..."
+                  className="pl-9"
+                />
+            </div>
+            <ScrollArea className="flex-1 border rounded-md">
+                <div className="p-2 space-y-1">
+                    {filteredUsers.length === 0 && (
+                         <div className="p-4 text-center text-sm text-muted-foreground">
+                            {newChatSearch ? "No users found." : "Type to search users."}
+                         </div>
+                    )}
+                    {filteredUsers.map(u => (
+                        <Button 
+                            key={u.id} 
+                            variant="ghost" 
+                            className="w-full justify-start gap-3 h-14"
+                            onClick={() => handleStartNewChat(u.id)}
+                        >
+                             <Avatar className="h-8 w-8">
+                                <AvatarFallback>{u.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                             </Avatar>
+                             <div className="flex flex-col items-start">
+                                 <span className="font-bold text-sm">{u.name}</span>
+                                 <span className="text-xs text-muted-foreground">{u.email}</span>
+                             </div>
+                        </Button>
+                    ))}
+                </div>
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Audio Call Dialog */}
+      <Dialog open={isAudioCallOpen} onOpenChange={setIsAudioCallOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Audio Call</DialogTitle>
+          </DialogHeader>
+          {selectedChat && (
+            <div className="flex flex-col items-center justify-center space-y-6 py-6">
+              <Avatar
+                className={cn(
+                  "h-24 w-24 rounded-full",
+                  selectedChat.color || "bg-primary"
+                )}
+              >
+                <AvatarFallback
+                  className={cn(
+                    "rounded-full text-white text-3xl font-bold",
+                    selectedChat.color || "bg-primary"
+                  )}
+                >
+                  {selectedChat.avatar}
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-center space-y-1">
+                <h3 className="text-xl sm:text-2xl font-bold">
+                  {selectedChat.name}
+                </h3>
+                <p className="text-primary font-medium animate-pulse">
+                  Calling...
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button variant="outline" size="icon" className="h-14 w-14 rounded-full">
+                  <Mic className="w-6 h-6" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="destructive"
+                  className="h-14 w-14 rounded-full"
+                  onClick={() => setIsAudioCallOpen(false)}
+                >
+                  <Phone className="w-6 h-6 rotate-[135deg]" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Video Call Dialog */}
+      <Dialog open={isVideoCallOpen} onOpenChange={setIsVideoCallOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Video Call</DialogTitle>
+          </DialogHeader>
+            {activeCall && activeCall.status === 'connected' ? (
+                <div className="flex flex-col items-center justify-center space-y-6 py-6 h-full w-full">
+                     <div className="relative w-full h-[300px] bg-black rounded-xl overflow-hidden">
+                        <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                        <div className="absolute bottom-4 right-4 w-24 h-32 bg-gray-800 rounded-lg overflow-hidden border-2 border-white shadow-lg">
+                           <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-4">
+                        <Button variant="outline" size="icon" className="h-12 w-12 rounded-full">
+                          <MicOff className="w-6 h-6" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="h-12 w-12 rounded-full"
+                          onClick={() => {
+                              endCall();
+                              setIsVideoCallOpen(false);
+                          }}
+                        >
+                          <Phone className="w-6 h-6 rotate-[135deg]" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-12 w-12 rounded-full">
+                          <VideoOff className="w-6 h-6" />
+                        </Button>
+                     </div>
+                </div>
+            ) : (
+            <div className="flex flex-col items-center justify-center space-y-6 py-6">
+              <Avatar
+                className={cn(
+                  "h-28 w-28 sm:h-32 sm:w-32 rounded-2xl sm:rounded-3xl",
+                  selectedChat?.color || "bg-primary"
+                )}
+              >
+                <AvatarFallback
+                  className={cn(
+                    "rounded-2xl sm:rounded-3xl text-white text-3xl sm:text-4xl font-bold",
+                    selectedChat?.color || "bg-primary"
+                  )}
+                >
+                  {selectedChat?.avatar}
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-center space-y-1">
+                <h3 className="text-xl sm:text-2xl font-bold">
+                  {selectedChat?.name}
+                </h3>
+                <p className="text-primary font-medium animate-pulse">
+                  {activeCall?.status === 'offering' ? 'Calling...' : 'Connecting...'}
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button variant="outline" size="icon" className="h-12 w-12 rounded-full">
+                  <MicOff className="w-6 h-6" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="destructive"
+                  className="h-12 w-12 rounded-full"
+                  onClick={() => {
+                      endCall();
+                      setIsVideoCallOpen(false);
+                  }}
+                >
+                  <Phone className="w-6 h-6 rotate-[135deg]" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-12 w-12 rounded-full">
+                  <VideoOff className="w-6 h-6" />
+                </Button>
+              </div>
+            </div>
+            )}
+        </DialogContent>
+      </Dialog>
+
+      {/* User Info Dialog */}
+      <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contact Info</DialogTitle>
+          </DialogHeader>
+          {selectedChat && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-2xl border border-border">
+                <Avatar
+                  className={cn("h-16 w-16 rounded-full shrink-0", selectedChat.color || "bg-primary")}
+                >
+                  <AvatarFallback
+                    className={cn(
+                      "rounded-full text-white text-xl font-bold",
+                      selectedChat.color || "bg-primary"
+                    )}
+                  >
+                    {selectedChat.avatar}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-lg font-bold">{selectedChat.name}</h3>
+                  <p className="text-sm text-muted-foreground">{selectedChat.role}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div
+                      className={cn(
+                        "w-2 h-2 rounded-full shrink-0",
+                        selectedChat.status === "online" ? "bg-green-500" : "bg-muted-foreground"
+                      )}
+                    />
+                    <span className="text-xs uppercase font-bold text-muted-foreground">
+                      {selectedChat.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 rounded-xl border border-transparent hover:bg-muted/50 hover:border-border transition-colors">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Email
+                  </span>
+                  <span className="text-sm font-bold truncate ml-2">
+                    {selectedChat.email}
+                  </span>
+                </div>
+                {/* <div className="flex justify-between items-center p-3 rounded-xl border border-transparent hover:bg-muted/50 hover:border-border transition-colors">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Shared Files
+                  </span>
+                  <span className="text-sm font-bold">12</span>
+                </div> */}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" size="sm" className="w-full">
+                  Block User
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-destructive border-destructive/50 hover:bg-destructive/10"
+                >
+                  Report
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Attach File Dialog */}
+      <Dialog open={isAttachOpen} onOpenChange={setIsAttachOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Attachment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-border rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center gap-2 hover:bg-muted/30 transition-colors cursor-pointer">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <Upload className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">Click to upload</p>
+                <p className="text-xs text-muted-foreground">
+                  or drag and drop files here
+                </p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              Supported: JPG, PNG, PDF, DOCX (Max 10MB)
+            </p>
+            <Button
+              className="w-full"
+              onClick={() => setIsAttachOpen(false)}
+            >
+              Upload & Send
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={!!incomingCall} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Incoming {incomingCall?.type === 'video' ? 'Video' : 'Audio'} Call</DialogTitle>
+          </DialogHeader>
+            <div className="flex flex-col items-center justify-center space-y-6 py-6">
+              <Avatar
+                className="h-24 w-24 sm:h-28 sm:w-28 rounded-full"
+              >
+                <AvatarFallback className="rounded-full text-white text-3xl font-bold bg-blue-500">
+                  {incomingCall?.callerName?.slice(0, 2).toUpperCase() || "??"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-center space-y-1">
+                <h3 className="text-xl sm:text-2xl font-bold">
+                  {incomingCall?.callerName || "Unknown Caller"}
+                </h3>
+                <p className="text-muted-foreground animate-pulse">
+                  Incoming call...
+                </p>
+              </div>
+              <div className="flex items-center gap-8">
+                <Button
+                  size="icon"
+                  variant="destructive"
+                  className="h-14 w-14 rounded-full"
+                  onClick={rejectCall}
+                >
+                  <Phone className="w-6 h-6 rotate-[135deg]" />
+                </Button>
+                <Button 
+                   size="icon" 
+                   className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 animate-bounce"
+                   onClick={() => {
+                       answerCall();
+                       if(incomingCall?.type === 'video') setIsVideoCallOpen(true);
+                       else setIsAudioCallOpen(true);
+                   }}
+                >
+                  <Phone className="w-6 h-6" />
+                </Button>
+              </div>
+            </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

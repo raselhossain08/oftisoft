@@ -3,8 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, CheckCircle2, Zap, Layout, Layers, Box, Globe, Code, Cpu, Server, Smartphone, Shield, Database } from "lucide-react";
+import { 
+    ArrowLeft, ArrowRight, CheckCircle2, Zap, Layout, Layers, Box, Globe, 
+    Code, Cpu, Server, Smartphone, Shield, Database, Sparkles, Code2, 
+    ClipboardCheck, Rocket, HeartPulse, ShieldCheck, Plus, Save, Trash2, 
+    LayoutTemplate, Grid, HelpCircle, Crown, Cloud
+} from "lucide-react";
 import CTA from "@/components/sections/cta";
+import { Button } from "@/components/ui/button";
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,69 +20,21 @@ import "swiper/css/pagination";
 import "swiper/css/effect-creative";
 
 import { cn } from "@/lib/utils";
+import { useServicesContentStore } from "@/lib/store/services-content";
 
-// --- Mock Data Service ---
-const getServiceData = (slug: string) => {
-    // In a real app, fetch data based on slug
-    const defaultData = {
-        title: "High-Performance Next.js Development",
-        subtitle: "Future-Proof Web Architecture",
-        category: "Modern Web",
-        description: "In the digital age, speed is currency. Our web development service focuses on delivering lightning-fast, secure, and scalable applications using the latest Next.js 15 features including Server Actions, Partial Prerendering, and Edge Caching.",
-        features: [
-            {
-                title: "Core Web Vitals 100",
-                desc: "We optimize for interaction to next paint (INP) and LCP to ensure Google loves your site as much as users do.",
-                icon: Zap,
-                color: "text-yellow-500",
-                bg: "bg-yellow-500/10"
-            },
-            {
-                title: "Edge Scalability",
-                desc: "Your application logic runs on the edge, closest to your users, reducing latency to near zero.",
-                icon: Globe,
-                color: "text-blue-500",
-                bg: "bg-blue-500/10"
-            },
-            {
-                title: "Modular Architecture",
-                desc: "Built with domain-driven design principles, ensuring your codebase remains maintainable as you scale.",
-                icon: Layers,
-                color: "text-purple-500",
-                bg: "bg-purple-500/10"
-            },
-            {
-                title: "SEO Baked In",
-                desc: "Dynamic metadata, structured data (JSON-LD), and semantic HTML5 implemented by default.",
-                icon: Layout,
-                color: "text-green-500",
-                bg: "bg-green-500/10"
-            }
-        ],
-        process: [
-            { step: "01", title: "Discovery", desc: "We deep dive into your business goals, user personas, and technical requirements." },
-            { step: "02", title: "Architecture", desc: "Planning the system design, database schema, and API contracts." },
-            { step: "03", title: "Development", desc: "Agile sprints with bi-weekly demos and continuous feedback loops." },
-            { step: "04", title: "Testing", desc: "Automated E2E testing, load testing, and security audits." },
-            { step: "05", title: "Launch", desc: "Zero-downtime deployment pipelines and production monitoring setup." }
-        ],
-        techStack: [
-            { name: "Next.js 15", icon: Globe },
-            { name: "React Server Components", icon: Code },
-            { name: "TypeScript", icon: Box },
-            { name: "Tailwind CSS", icon: Layout },
-            { name: "Framer Motion", icon: Zap },
-            { name: "Vercel Edge", icon: Server },
-            { name: "PostgreSQL", icon: Database },
-            { name: "Redis", icon: Layers }
-        ]
-    };
-
-    return defaultData; 
+// Icon mapping matching the CMS
+const iconMap: any = {
+    Plus, Save, Trash2, LayoutTemplate, Grid, HelpCircle, Server, Database, Cloud: Globe, 
+    Brain: Cpu, Smartphone, Layout, Video: Code, FileText: Box, Code2, 
+    ClipboardCheck, Rocket, HeartPulse, Globe, Zap, Code, ShieldCheck, 
+    Sparkles, Layers, Crown, ArrowRight, Box, Cpu
 };
 
 export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
-    const serviceData = getServiceData(params.slug);
+    const { content } = useServicesContentStore();
+    const service = content?.overview.find(s => s.id === params.slug);
+    const globalProcess = content?.process || [];
+    
     const [isMounted, setIsMounted] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({ target: containerRef });
@@ -90,6 +48,19 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     }, []);
 
     if (!isMounted) return null;
+
+    // Handle 404
+    if (!service) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+                <h1 className="text-4xl font-bold mb-4">Service Not Found</h1>
+                <p className="text-muted-foreground mb-8">The service you're looking for doesn't exist or has been moved.</p>
+                <Button asChild>
+                    <Link href="/services">Back to Services</Link>
+                </Button>
+            </div>
+        );
+    }
 
     return (
         <main ref={containerRef} className="min-h-screen bg-background relative overflow-hidden">
@@ -114,9 +85,8 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <section className="relative min-h-[85vh] flex items-center pt-32 pb-20 overflow-hidden">
                 {/* Background Elements */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
-                     <div className="absolute top-[-10%] right-[-5%] w-[60vw] h-[60vw] bg-primary/10 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow" />
-                     <div className="absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-500/10 rounded-full blur-[100px] mix-blend-screen" />
-                     <div className="absolute inset-0 opacity-[0.04] bg-[url('https://grain-texture-url-here.png')] mix-blend-overlay" />
+                     <div className={cn("absolute top-[-10%] right-[-5%] w-[60vw] h-[60vw] rounded-full blur-[120px] mix-blend-screen animate-pulse-slow opacity-20 bg-gradient-to-br", service.gradient)} />
+                     <div className="absolute inset-0 opacity-[0.04] bg-grain mix-blend-overlay" />
                      {/* Grid pattern overlay */}
                      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px]" />
                 </div>
@@ -130,20 +100,26 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                         style={{ y: yHero, opacity: opacityHero }}
                     >
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold uppercase tracking-wider mb-8 shadow-glow">
-                            <Box className="w-4 h-4" />
-                            <span>{serviceData.category}</span>
+                            <Sparkles className="w-4 h-4" />
+                            <span>{service.label}</span>
                         </div>
                         
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
-                            {serviceData.title.split(" ").map((word, i) => (
+                            {service.title.split(" ").map((word, i) => (
                                 <span key={i} className="inline-block mr-4 bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground/90 to-foreground/50">
                                     {word}
                                 </span>
                             ))}
                         </h1>
 
+                        {service.subtitle && (
+                            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground/80 tracking-tight">
+                                {service.subtitle}
+                            </h2>
+                        )}
+
                         <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-12 max-w-3xl mx-auto">
-                            {serviceData.description}
+                            {service.description}
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -159,31 +135,34 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <section className="py-24 relative z-10">
                 <div className="container px-4 mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {serviceData.features.map((feature, i) => (
-                            <motion.div 
-                                key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: i * 0.1 }}
-                                whileHover={{ y: -5 }}
-                                className={cn(
-                                    "p-8 rounded-[2rem] bg-card/50 backdrop-blur-md border border-border/50 hover:border-primary/30 transition-all hover:shadow-2xl hover:shadow-primary/5 group",
-                                    i === 0 || i === 3 ? "lg:col-span-2" : "lg:col-span-1"
-                                )}
-                            >
-                                <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all group-hover:scale-110 shadow-lg", feature.bg)}>
-                                    <feature.icon className={cn("w-7 h-7", feature.color)} />
-                                </div>
-                                <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
-                                <p className="text-muted-foreground leading-relaxed">{feature.desc}</p>
-                            </motion.div>
-                        ))}
+                        {service.features.map((feature, i) => {
+                            const FeatureIcon = iconMap[feature.iconName] || Zap;
+                            return (
+                                <motion.div 
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                    whileHover={{ y: -5 }}
+                                    className={cn(
+                                        "p-8 rounded-[2rem] bg-card/50 backdrop-blur-md border border-border/50 hover:border-primary/30 transition-all hover:shadow-2xl hover:shadow-primary/5 group",
+                                        i % 3 === 0 ? "lg:col-span-2" : "lg:col-span-1"
+                                    )}
+                                >
+                                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all group-hover:scale-110 shadow-lg bg-muted")}>
+                                        <FeatureIcon className={cn("w-7 h-7 text-primary")} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                                    <p className="text-muted-foreground leading-relaxed">{feature.desc}</p>
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
 
-            {/* Process Carousel (Mobile) / Timeline (Desktop) */}
+            {/* Methodology (Global Process) */}
             <section className="py-24 bg-card/20 border-y border-border/50 relative overflow-hidden">
                 <div className="container px-4 mx-auto">
                     <div className="text-center mb-16">
@@ -208,11 +187,11 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                             centeredSlides={true}
                             className="!pb-12"
                         >
-                            {serviceData.process.map((step, i) => (
+                            {globalProcess.map((step, i) => (
                                 <SwiperSlide key={i}>
                                     <div className="bg-background border border-border rounded-3xl p-8 h-full min-h-[300px] flex flex-col items-center text-center shadow-lg">
                                         <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-xl font-black text-primary-foreground mb-6 shadow-xl shadow-primary/20">
-                                            {step.step}
+                                            {i + 1}
                                         </div>
                                         <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
                                         <p className="text-muted-foreground">{step.desc}</p>
@@ -223,8 +202,8 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                     </div>
 
                     {/* Desktop Timeline */}
-                    <div className="hidden lg:grid grid-cols-5 gap-8">
-                        {serviceData.process.map((step, i) => (
+                    <div className="hidden lg:grid grid-cols-6 gap-8 px-4">
+                        {globalProcess.map((step, i) => (
                             <motion.div 
                                 key={i}
                                 initial={{ opacity: 0, y: 20 }}
@@ -234,7 +213,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                                 className="relative flex flex-col items-center text-center group"
                             >
                                 {/* Connector Line */}
-                                {i !== serviceData.process.length - 1 && (
+                                {i !== globalProcess.length - 1 && (
                                     <div className="absolute top-8 left-[50%] w-full h-[2px] bg-border -z-10 bg-gradient-to-r from-border to-border overflow-hidden">
                                         <motion.div 
                                             initial={{ x: "-100%" }}
@@ -246,56 +225,58 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                                 )}
                                 
                                 <div className="w-16 h-16 rounded-full bg-background border-4 border-border flex items-center justify-center text-xl font-black text-muted-foreground mb-8 group-hover:border-primary group-hover:text-primary group-hover:scale-110 transition-all duration-500 shadow-xl z-10 relative overflow-hidden">
-                                    <span className="relative z-10">{step.step}</span>
+                                    <span className="relative z-10">{i + 1}</span>
                                     <div className="absolute inset-0 bg-primary/10 scale-0 group-hover:scale-125 transition-transform duration-300 rounded-full" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{step.title}</h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
                             </motion.div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Tech Stack Infinite Carousel */}
-            <section className="py-24 relative overflow-hidden">
-                <div className="text-center mb-12">
-                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground text-xs font-bold uppercase tracking-wider mb-4">
-                        <Cpu className="w-3 h-3" />
-                         <span>Powered By</span>
-                     </div>
-                     <h2 className="text-3xl font-bold">Technology Stack</h2>
-                </div>
-                
-                <div className="relative w-full max-w-7xl mx-auto px-4">
-                    <Swiper
-                        modules={[Autoplay]}
-                        spaceBetween={30}
-                        slidesPerView={2}
-                        breakpoints={{
-                            640: { slidesPerView: 3 },
-                            1024: { slidesPerView: 5 }
-                        }}
-                        loop={true}
-                        autoplay={{
-                            delay: 2000,
-                            disableOnInteraction: false,
-                        }}
-                        className="py-10"
-                    >
-                        {serviceData.techStack.map((tech, i) => (
-                            <SwiperSlide key={i}>
-                                <div className="flex flex-col items-center justify-center gap-4 p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/20 transition-all hover:-translate-y-1">
-                                    <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center">
-                                        <tech.icon className="w-6 h-6 text-foreground" />
+            {/* Tech Stack Horizontal Scroll */}
+            {service.techs && service.techs.length > 0 && (
+                <section className="py-24 relative overflow-hidden">
+                    <div className="text-center mb-12">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground text-xs font-bold uppercase tracking-wider mb-4">
+                            <Cpu className="w-3 h-3" />
+                            <span>Powered By</span>
+                        </div>
+                        <h2 className="text-3xl font-bold">Technology Stack</h2>
+                    </div>
+                    
+                    <div className="relative w-full max-w-7xl mx-auto px-4">
+                        <Swiper
+                            modules={[Autoplay]}
+                            spaceBetween={20}
+                            slidesPerView={2}
+                            breakpoints={{
+                                640: { slidesPerView: 3 },
+                                1024: { slidesPerView: 6 }
+                            }}
+                            loop={true}
+                            autoplay={{
+                                delay: 2000,
+                                disableOnInteraction: false,
+                            }}
+                            className="py-10"
+                        >
+                            {service.techs.map((tech, i) => (
+                                <SwiperSlide key={i}>
+                                    <div className="flex flex-col items-center justify-center gap-4 p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/20 transition-all hover:-translate-y-1">
+                                        <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center">
+                                            <span className="text-xl font-bold text-primary">{tech.charAt(0)}</span>
+                                        </div>
+                                        <span className="font-bold text-sm text-muted-foreground truncate w-full text-center">{tech}</span>
                                     </div>
-                                    <span className="font-bold text-sm text-muted-foreground">{tech.name}</span>
-                                </div>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </div>
-            </section>
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </div>
+                </section>
+            )}
 
             {/* Project CTA */}
             <div className="sticky bottom-6 z-40 flex justify-center lg:hidden pointer-events-none">
@@ -309,3 +290,5 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
         </main>
     );
 }
+
+

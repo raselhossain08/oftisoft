@@ -15,46 +15,26 @@ import {
     Code2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { useAboutContentStore } from "@/lib/store/about-content";
 
-const timelineData = [
-    {
-        year: "2018",
-        title: "The Genesis",
-        desc: "Founded in a garage with a single laptop and a vision to simplify complex software.",
-        icon: Building2,
-        gradient: "from-blue-500 to-indigo-500"
-    },
-    {
-        year: "2020",
-        title: "First Major Pivot",
-        desc: "Transitioned from general web dev to Specialized Enterprise SaaS engineering.",
-        icon: Briefcase,
-        gradient: "from-purple-500 to-pink-500"
-    },
-    {
-        year: "2022",
-        title: "Scale & Expansion",
-        desc: "Doubled the team size and opened our first international office in Singapore.",
-        icon: Globe,
-        gradient: "from-cyan-500 to-teal-500"
-    },
-    {
-        year: "2024",
-        title: "AI Integration",
-        desc: "launched 'OfitAI', our proprietary engine for automating frontend workflows.",
-        icon: Zap,
-        gradient: "from-amber-500 to-orange-500"
-    },
-    {
-        year: "2026",
-        title: "Industry Leader",
-        desc: "Recognized as a Top 10 Global Tech Partner with 500+ successful deployments.",
-        icon: Rocket,
-        gradient: "from-green-500 to-emerald-500"
-    }
-];
+const iconMap: any = {
+    Building2,
+    Briefcase,
+    Globe,
+    Zap,
+    Rocket,
+    Clock,
+    Award,
+    Code2,
+    Users
+};
 
 export default function CompanyTimeline() {
+    const { content } = useAboutContentStore();
+    const timelineData = content?.timeline || [];
+    
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -74,13 +54,13 @@ export default function CompanyTimeline() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                         <h2 className="text-sm font-bold text-primary tracking-[0.2em] uppercase mb-4">
-                            Our Origins
-                        </h2>
+                        <Badge variant="outline" className="mb-4 border-primary/20 text-primary uppercase tracking-[0.2em] font-bold px-4 py-1.5 bg-primary/5 rounded-full">
+                            {content?.timelineBadge || "Our Origins"}
+                        </Badge>
                         <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                            Evolution of <br />
+                            {content?.timelineTitle || "Evolution of"} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                Innovation.
+                                {content?.timelineTitleHighlight || "Innovation."}
                             </span>
                         </h3>
                     </motion.div>
@@ -106,8 +86,9 @@ export default function CompanyTimeline() {
     );
 }
 
-function TimelineNode({ item, index }: { item: typeof timelineData[0], index: number }) {
+function TimelineNode({ item, index }: { item: any, index: number }) {
     const isEven = index % 2 === 0;
+    const Icon = iconMap[item.icon] || Rocket;
 
     return (
         <motion.div 
@@ -125,21 +106,23 @@ function TimelineNode({ item, index }: { item: typeof timelineData[0], index: nu
                 "w-full md:w-1/2 pl-20 md:pl-0",
                 isEven ? "md:text-right md:pr-16" : "md:text-left md:pl-16"
             )}>
-                 <div className="group relative">
-                    <div className={cn(
-                        "text-5xl font-black text-white/5 absolute -top-10 -z-10 transition-colors duration-500 group-hover:text-white/10",
-                        isEven ? "right-0" : "left-0"
-                    )}>
-                        {item.year}
-                    </div>
-                    
-                    <h4 className="text-2xl font-bold text-white mb-2 group-hover:text-primary transition-colors duration-300">
-                        {item.title}
-                    </h4>
-                    <p className="text-muted-foreground leading-relaxed">
-                        {item.desc}
-                    </p>
-                 </div>
+                 <Card className="group relative bg-white/5 border-white/5 hover:border-white/10 overflow-hidden transition-all duration-300 backdrop-blur-sm">
+                    <CardContent className="p-8">
+                        <div className={cn(
+                            "text-5xl font-black text-white/5 absolute -top-4 -z-10 transition-colors duration-500 group-hover:text-white/10",
+                            isEven ? "right-4" : "left-4"
+                        )}>
+                            {item.year}
+                        </div>
+                        
+                        <h4 className="text-2xl font-bold text-white mb-2 group-hover:text-primary transition-colors duration-300 relative z-10">
+                            {item.title}
+                        </h4>
+                        <p className="text-muted-foreground leading-relaxed relative z-10">
+                            {item.desc}
+                        </p>
+                    </CardContent>
+                 </Card>
             </div>
 
             {/* Central Node */}
@@ -151,7 +134,7 @@ function TimelineNode({ item, index }: { item: typeof timelineData[0], index: nu
                         "absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-300 bg-gradient-to-r",
                         item.gradient
                     )} />
-                    <item.icon className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />
+                    <Icon className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />
                 </div>
             </div>
 

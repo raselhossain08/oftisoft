@@ -12,41 +12,9 @@ import "swiper/css";
 import "swiper/css/effect-cards";
 import "swiper/css/pagination";
 
-// --- Mock Data ---
-const awards = [
-    {
-        id: 1,
-        title: "Global Tech Innovator",
-        org: "Web3 Summit",
-        year: "2025",
-        description: "Awarded for breakthrough architecture in decentralized finance platforms.",
-        gradient: "from-blue-500 to-cyan-500"
-    },
-    {
-        id: 2,
-        title: "Best UX/UI Design",
-        org: "Awwwards",
-        year: "2025",
-        description: "Recognized for setting new standards in user-centric digital experiences.",
-        gradient: "from-purple-500 to-pink-500"
-    },
-    {
-        id: 3,
-        title: "Enterprise Solution",
-        org: "SaaS Awards",
-        year: "2024",
-        description: "Top-tier reliability and scalability for high-traffic enterprise systems.",
-        gradient: "from-orange-500 to-amber-500"
-    },
-    {
-        id: 4,
-        title: "Fastest Growing Agency",
-        org: "Inc. 5000",
-        year: "2024",
-        description: "Ranked among the top 100 fastest growing software agencies globally.",
-        gradient: "from-green-500 to-emerald-500"
-    }
-];
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { useAboutContentStore } from "@/lib/store/about-content";
 
 const partners = [
     { name: "Google Cloud Partner", icon: Zap },
@@ -56,16 +24,20 @@ const partners = [
 ];
 
 export default function Awards() {
+    const { content } = useAboutContentStore();
+    const awards = content?.awards || [];
+    
     const [activeCard, setActiveCard] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Auto-cycle for Desktop Stack
     useEffect(() => {
+        if (!awards.length) return;
         const interval = setInterval(() => {
             setActiveCard((prev) => (prev + 1) % awards.length);
         }, 4000);
         return () => clearInterval(interval);
-    }, []);
+    }, [awards.length]);
 
     return (
         <section ref={containerRef} className="py-24 md:py-32 bg-transparent relative overflow-hidden">
@@ -81,10 +53,11 @@ export default function Awards() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-primary mb-6"
                         >
-                            <Trophy className="w-3 h-3 fill-current" />
-                            <span>Hall of Fame</span>
+                            <Badge variant="outline" className="gap-2 px-3 py-1.5 rounded-full bg-white/5 border-white/10 text-xs font-medium text-primary mb-6 hover:bg-white/10 transition-colors">
+                                <Trophy className="w-3 h-3 fill-current" />
+                                {content?.awardsBadge || "Hall of Fame"}
+                            </Badge>
                         </motion.div>
 
                         <motion.h2 
@@ -94,9 +67,9 @@ export default function Awards() {
                             transition={{ delay: 0.1 }}
                             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
                         >
-                            Recognized for <br />
+                            {content?.awardsTitle || "Recognized for"} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                Digital Excellence.
+                                {content?.awardsTitleHighlight || "Digital Excellence."}
                             </span>
                         </motion.h2>
 
@@ -107,11 +80,11 @@ export default function Awards() {
                             transition={{ delay: 0.2 }}
                             className="text-lg text-muted-foreground/80 mb-10 max-w-lg leading-relaxed"
                         >
-                            Our relentless pursuit of perfection has earned us accolades from the industry's most prestigious bodies.
+                            {content?.awardsDescription || "Our relentless pursuit of perfection has earned us accolades from the industry's most prestigious bodies."}
                         </motion.p>
 
                         {/* Partners Grid */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {partners.map((partner, idx) => (
                                 <motion.div 
                                     key={idx}
@@ -120,12 +93,13 @@ export default function Awards() {
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.3 + (idx * 0.1) }}
                                     whileHover={{ scale: 1.02 }}
-                                    className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all cursor-default group"
                                 >
-                                    <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-primary transition-colors">
-                                        <partner.icon className="w-4 h-4" />
-                                    </div>
-                                    <span className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">{partner.name}</span>
+                                    <Card className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10 transition-all cursor-default group h-full">
+                                        <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-primary transition-colors">
+                                            <partner.icon className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">{partner.name}</span>
+                                    </Card>
                                 </motion.div>
                             ))}
                         </div>
@@ -213,44 +187,46 @@ export default function Awards() {
 }
 
 // Reusable Card Component to keep code DRY
-function AwardCard({ award }: { award: typeof awards[0] }) {
+function AwardCard({ award }: { award: any }) {
     return (
-        <div className="relative h-full overflow-hidden rounded-[2rem] bg-[#0a0a0a] border border-white/10 p-8 shadow-2xl flex flex-col justify-between">
-            {/* Gradient Background Glow */}
-            <div className={cn(
-                "absolute inset-0 opacity-[0.15] bg-gradient-to-br transition-opacity duration-500",
-                award.gradient
-            )} />
-            
-            <div className="relative z-10">
-                <div className="flex justify-between items-start mb-8">
-                    <div className={cn(
-                        "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br shadow-lg text-white",
-                        award.gradient
-                    )}>
-                        <Award className="w-7 h-7" />
+        <Card className="relative h-full overflow-hidden rounded-[2rem] bg-[#0a0a0a] border-white/10 border shadow-2xl flex flex-col justify-between group">
+            <CardContent className="h-full flex flex-col justify-between p-8 relative z-10">
+                {/* Gradient Background Glow */}
+                <div className={cn(
+                    "absolute inset-0 opacity-[0.15] bg-gradient-to-br transition-opacity duration-500",
+                    award.gradient
+                )} />
+                
+                <div className="relative z-10">
+                    <div className="flex justify-between items-start mb-8">
+                        <div className={cn(
+                            "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br shadow-lg text-white",
+                            award.gradient
+                        )}>
+                            <Award className="w-7 h-7" />
+                        </div>
+                        <Badge variant="secondary" className="px-3 py-1 bg-white/5 border-white/10 text-white/90 font-mono text-xs font-bold hover:bg-white/10">
+                            {award.year}
+                        </Badge>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/90 font-mono text-xs font-bold">
-                        {award.year}
-                    </span>
+
+                    <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
+                        {award.title}
+                    </h3>
+                    <div className="text-xs font-bold text-primary uppercase tracking-widest mb-4">
+                        {award.org}
+                    </div>
+                    <p className="text-muted-foreground/90 text-sm leading-relaxed">
+                        {award.description}
+                    </p>
                 </div>
 
-                <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
-                    {award.title}
-                </h3>
-                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-4">
-                    {award.org}
-                </div>
-                <p className="text-muted-foreground/90 text-sm leading-relaxed">
-                    {award.description}
-                </p>
-            </div>
-
-            {/* Bottom Glow */}
-            <div className={cn(
-                "absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-[60px] opacity-20 pointer-events-none",
-                award.gradient
-            )} />
-        </div>
+                {/* Bottom Glow */}
+                <div className={cn(
+                    "absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-[60px] opacity-20 pointer-events-none",
+                    award.gradient
+                )} />
+            </CardContent>
+        </Card>
     );
 }

@@ -7,15 +7,10 @@ import { Github, Linkedin, Twitter, ArrowUpRight, Grid, Code, Palette, Zap, Spar
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-// --- Mock Data ---
-const teamMembers = [
-    { id: 1, name: "Rasel Hossain", role: "Founder & CEO", category: "Leadership", image: "bg-[#1a1a1a]", gradient: "from-blue-600 to-indigo-600" },
-    { id: 2, name: "Alex Morgan", role: "CTO", category: "Leadership", image: "bg-[#1a1a1a]", gradient: "from-purple-600 to-pink-600" },
-    { id: 3, name: "Sarah Chen", role: "Lead Designer", category: "Design", image: "bg-[#1a1a1a]", gradient: "from-orange-600 to-amber-600" },
-    { id: 4, name: "David Kim", role: "Senior Engineer", category: "Development", image: "bg-[#1a1a1a]", gradient: "from-cyan-600 to-teal-600" },
-    { id: 5, name: "Emily Watson", role: "Product Manager", category: "Product", image: "bg-[#1a1a1a]", gradient: "from-green-600 to-emerald-600" },
-    { id: 6, name: "Lucas Silva", role: "DevOps Engineer", category: "Development", image: "bg-[#1a1a1a]", gradient: "from-red-600 to-rose-600" },
-];
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useAboutContentStore } from "@/lib/store/about-content";
 
 const categories = [
     { label: "All", icon: Grid },
@@ -25,6 +20,10 @@ const categories = [
 ];
 
 export default function TeamShowcase() {
+    const { content } = useAboutContentStore();
+    const team = content?.team;
+    const teamMembers = team?.members || [];
+
     const [filter, setFilter] = useState("All");
 
     const filteredTeam = teamMembers.filter(member =>
@@ -40,13 +39,13 @@ export default function TeamShowcase() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                         <h2 className="text-sm font-bold text-primary tracking-[0.2em] uppercase mb-4">
-                            The Collective
-                        </h2>
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5 rounded-full">
+                            {team?.badge || "The Collective"}
+                        </Badge>
                         <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                            Architects of the <br />
+                            {team?.titleLine1 || "Architects of the"} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                Impossible.
+                                {team?.titleLine2 || "Impossible."}
                             </span>
                         </h3>
                     </motion.div>
@@ -94,14 +93,25 @@ export default function TeamShowcase() {
                                     {/* Gradient Background */}
                                     <div className={cn("absolute inset-0 opacity-20 bg-gradient-to-br transition-all duration-700 group-hover:opacity-40", member.gradient)} />
                                     
-                                    {/* Placeholder Image Logic */}
+                                    {/* Profile Image Logic */}
                                     <div className="absolute inset-4 rounded-2xl bg-[#111] overflow-hidden">
-                                        <div className={cn("w-full h-full opacity-50 mix-blend-overlay", member.gradient.replace("from-", "bg-"))} />
-                                        
-                                        {/* Fallback Initials */}
-                                        <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/5 group-hover:scale-110 transition-transform duration-700">
-                                            {member.name.split(" ").map(n => n[0]).join("")}
-                                        </div>
+                                        {member.image && (member.image.startsWith('data:') || member.image.startsWith('http') || member.image.startsWith('/')) ? (
+                                            <Image 
+                                                src={member.image} 
+                                                alt={member.name} 
+                                                fill 
+                                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <>
+                                                <div className={cn("w-full h-full opacity-50 mix-blend-overlay", (member.image && !member.image.includes(' ')) ? member.image : member.gradient?.replace("from-", "bg-"))} />
+                                                
+                                                {/* Fallback Initials */}
+                                                <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/5 group-hover:scale-110 transition-transform duration-700">
+                                                    {member.name.split(" ").map(n => n[0]).join("")}
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
 
                                     {/* Overlay Gradient */}
@@ -111,9 +121,9 @@ export default function TeamShowcase() {
                                     <div className="absolute inset-0 p-8 flex flex-col justify-end">
                                         <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                             <div className="flex items-center gap-3 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                                                <SocialIcon icon={Github} />
-                                                <SocialIcon icon={Linkedin} />
-                                                <SocialIcon icon={Twitter} />
+                                                <SocialIcon icon={Github} href={member.socials?.github} />
+                                                <SocialIcon icon={Linkedin} href={member.socials?.linkedin} />
+                                                <SocialIcon icon={Twitter} href={member.socials?.twitter} />
                                             </div>
 
                                             <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-primary transition-colors duration-300">
@@ -139,10 +149,17 @@ export default function TeamShowcase() {
     );
 }
 
-function SocialIcon({ icon: Icon }: { icon: any }) {
+function SocialIcon({ icon: Icon, href }: { icon: any, href?: string }) {
     return (
-        <a href="#" className="p-2 rounded-full bg-white/10 hover:bg-white hover:text-black transition-colors duration-300 border border-white/5">
-            <Icon className="w-4 h-4" />
-        </a>
+        <Button 
+            variant="outline" 
+            size="icon" 
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white hover:text-black transition-all border-white/5"
+            asChild
+        >
+            <a href={href || "#"}>
+                <Icon className="w-4 h-4" />
+            </a>
+        </Button>
     );
 }

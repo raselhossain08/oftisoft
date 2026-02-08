@@ -8,8 +8,15 @@ import { Code2, Brain, Sparkles, Send, Github, Linkedin, Twitter } from "lucide-
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useAboutContentStore } from "@/lib/store/about-content";
 
-export default function FounderIntro() {
+export default function FounderIntro({ data }: { data?: any }) {
+    const { content: storeContent } = useAboutContentStore();
+    const founder = data || storeContent?.founder;
+
     // 3D Tilt Logic
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -64,13 +71,24 @@ export default function FounderIntro() {
                             
                             {/* Profile Image Container */}
                             <div className="relative w-full h-full rounded-2xl overflow-hidden bg-neutral-900 border border-white/5">
-                                {/* Placeholder gradient if no image */}
-                                <div className="absolute inset-0 bg-gradient-to-b from-neutral-800 to-black" />
-                                
-                                {/* Image (replace with actual src) */}
-                                <div className="absolute inset-0 flex items-center justify-center text-neutral-700 font-bold text-6xl opacity-20">
-                                    RH
-                                </div>
+                                {founder?.image ? (
+                                    <Image 
+                                        src={founder.image} 
+                                        alt={founder.name} 
+                                        fill 
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <>
+                                        {/* Placeholder gradient if no image */}
+                                        <div className="absolute inset-0 bg-gradient-to-b from-neutral-800 to-black" />
+                                        
+                                        {/* Image (replace with actual src) */}
+                                        <div className="absolute inset-0 flex items-center justify-center text-neutral-700 font-bold text-6xl opacity-20">
+                                            RH
+                                        </div>
+                                    </>
+                                )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
                             </div>
 
@@ -80,23 +98,31 @@ export default function FounderIntro() {
                                 className="absolute bottom-8 left-8 right-8"
                             >
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-3 py-1 rounded-full bg-primary/20 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-                                        Founder & CEO
-                                    </span>
+                                    <Badge variant="secondary" className="px-3 py-1 bg-primary/20 border-primary/20 text-primary text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                                        {founder?.role || "Founder & CEO"}
+                                    </Badge>
                                 </div>
-                                <h3 className="text-3xl font-bold text-white mb-1">Rasel Hossain</h3>
-                                <p className="text-white/60 text-sm mb-6">Visionary . Engineer . Consultant</p>
+                                <h3 className="text-3xl font-bold text-white mb-1">{founder?.name || "Rasel Hossain"}</h3>
+                                <p className="text-white/60 text-sm mb-6">{founder?.tagline || "Visionary . Engineer . Consultant"}</p>
                                 
                                 {/* Socials */}
                                 <div className="flex gap-3">
-                                    {[Github, Linkedin, Twitter].map((Icon, i) => (
-                                        <Link 
+                                    {[
+                                        { Icon: Github, href: founder?.socials.github },
+                                        { Icon: Linkedin, href: founder?.socials.linkedin },
+                                        { Icon: Twitter, href: founder?.socials.twitter }
+                                    ].map(({ Icon, href }, i) => (
+                                        <Button
                                             key={i} 
-                                            href="#" 
-                                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white hover:text-black flex items-center justify-center transition-all duration-300 border border-white/5"
+                                            variant="outline"
+                                            size="icon"
+                                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white hover:text-black border-white/5 transition-all duration-300"
+                                            asChild
                                         >
-                                            <Icon className="w-5 h-5" />
-                                        </Link>
+                                            <Link href={href || '#'}>
+                                                <Icon className="w-5 h-5" />
+                                            </Link>
+                                        </Button>
                                     ))}
                                 </div>
                             </motion.div>
@@ -122,34 +148,36 @@ export default function FounderIntro() {
                                 initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
-                                className="inline-flex items-center gap-2 mb-4"
+                                className="mb-4"
                             >
-                                <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                                <span className="text-sm font-bold text-primary tracking-widest uppercase">The Architect</span>
+                                <Badge variant="outline" className="gap-2 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5">
+                                    <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                                    {founder?.badgeTitle || "The Architect"}
+                                </Badge>
                             </motion.div>
                             
                             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                                Coding the Future, <br />
+                                {founder?.titleLine1 || "Coding the Future,"} <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                    One Line at a Time.
+                                    {founder?.titleLine2 || "One Line at a Time."}
                                 </span>
                             </h2>
                         </div>
 
                         <div className="prose prose-invert prose-lg text-muted-foreground/80 leading-relaxed">
                             <p>
-                                I am a passionate software engineer and technology consultant dedicated to building modern, scalable, and high-performance digital solutions.
+                                {founder?.bioPar1 || "I am a passionate software engineer and technology consultant dedicated to building modern, scalable, and high-performance digital solutions."}
                             </p>
                             <p>
-                                With a vision to bridge the gap between complex engineering and intuitive design, I founded <strong className="text-white">Ofitsoft</strong>. We don't just write code; we architect digital ecosystems that empower businesses to scale effortlessly in the AI era.
+                                {founder?.bioPar2 || "With a vision to bridge the gap between complex engineering and intuitive design, I founded Ofitsoft. We don't just write code; we architect digital ecosystems that empower businesses to scale effortlessly in the AI era."}
                             </p>
                         </div>
 
                         {/* Interactive Stats */}
-                        <div className="grid grid-cols-3 gap-8 py-8 border-y border-white/5">
-                            <StatBlock num={150} label="Projects Delivered" suffix="+" delay={0} />
-                            <StatBlock num={50} label="Happy Clients" suffix="+" delay={0.1} />
-                            <StatBlock num={6} label="Years Experience" suffix="Y" delay={0.2} />
+                        <div className="grid grid-cols-3 gap-4 md:gap-8 py-8 border-y border-white/5 text-center md:text-left">
+                            {(founder?.stats || []).map((stat: any, idx: number) => (
+                                <StatBlock key={idx} num={stat.num} label={stat.label} suffix={stat.suffix} delay={idx * 0.1} />
+                            ))}
                         </div>
 
                         {/* Signature / CTA */}

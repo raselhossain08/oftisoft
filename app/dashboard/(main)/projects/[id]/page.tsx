@@ -1,141 +1,272 @@
-
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import {
-    motion, AnimatePresence, useScroll, useSpring
-} from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     ChevronLeft, MoreVertical, Calendar, Flag, PieChart,
-    MessageSquare, FolderOpen, Clock, Settings, User,
-    Plus, Search, Filter, LayoutGrid, List, Download,
-    Paperclip, Send, Smile, Play, Pause, DollarSign,
-    CheckCircle2, AlertCircle, Trash2, Edit3, Share2,
-    FileText, FileImage, FileCode, Search as SearchIcon,
-    TrendingUp, UploadCloud, Eye, Wallet, RotateCcw, X, ExternalLink
+    MessageSquare, FolderOpen, Clock, Settings,
+    Plus, DollarSign, CheckCircle2, AlertCircle, Trash2,
+    Share2, TrendingUp, Wallet, Edit3, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import {
-    AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-    PieChart as RePie, Pie, Cell
-} from "recharts";
-
-// --- Mock Data ---
-
-const PROJECT_DETAILS = {
-    id: "1",
-    title: "E-commerce Redesign",
-    client: "EcoLife Inc",
-    status: "In Progress",
-    dueDate: "Oct 24, 2026",
-    budget: "$12,000",
-    spent: "$7,200",
-    description: "Complete redesign of the e-commerce platform with focus on mobile UX and performance.",
-    team: [
-        { name: "Alex M.", role: "Lead", color: "bg-blue-500", avatar: "AM" },
-        { name: "Sarah J.", role: "Design", color: "bg-pink-500", avatar: "SJ" },
-        { name: "Mike T.", role: "Dev", color: "bg-orange-500", avatar: "MT" },
-    ],
-    milestones: [
-        { title: "Design System", date: "Sep 15", status: "completed" },
-        { title: "Frontend Implementation", date: "Oct 01", status: "current" },
-        { title: "Backend Integration", date: "Oct 15", status: "pending" },
-    ]
-};
-
-const KANBAN_COLS = [
-    { id: "todo", title: "To Do", count: 3 },
-    { id: "inprogress", title: "In Progress", count: 2 },
-    { id: "review", title: "Review", count: 1 },
-    { id: "done", title: "Done", count: 8 },
-];
-
-const TASKS = [
-    { id: 1, title: "Home Page UI", col: "inprogress", priority: "High", assignee: "SJ" },
-    { id: 2, title: "API Integration", col: "inprogress", priority: "Medium", assignee: "MT" },
-    { id: 3, title: "Auth Flow", col: "todo", priority: "High", assignee: "MT" },
-    { id: 4, title: "Settings Page", col: "todo", priority: "Low", assignee: "AM" },
-    { id: 5, title: "Design Feedback", col: "review", priority: "Medium", assignee: "SJ" },
-];
-
-const FILES = [
-    { name: "branding-guide.pdf", type: "pdf", size: "2.4 MB", date: "Oct 12", icon: FileText },
-    { name: "homepage-v2.fig", type: "design", size: "12.8 MB", date: "Oct 10", icon: LayoutGrid },
-    { name: "hero-section.png", type: "image", size: "1.1 MB", date: "Oct 08", icon: FileImage },
-    { name: "api-specs.yaml", type: "code", size: "0.5 MB", date: "Oct 05", icon: FileCode },
-];
+import { useParams, useRouter } from "next/navigation";
+import { useProjects } from "@/hooks/useProjects";
+import { toast } from "sonner";
 
 const TABS = [
     { id: "overview", label: "Overview", icon: PieChart },
-    { id: "tasks", label: "Tasks", icon: Flag },
-    { id: "files", label: "Files", icon: FolderOpen },
-    { id: "chat", label: "Messages", icon: MessageSquare, badge: 2 },
-    { id: "time", label: "Time", icon: Clock },
+    { id: "details", label: "Details", icon: Flag },
     { id: "budget", label: "Budget", icon: DollarSign },
     { id: "settings", label: "Settings", icon: Settings },
 ];
 
+// Delete Confirmation Dialog
+const DeleteDialog = ({ isOpen, onClose, onConfirm, projectTitle }: any) => {
+    if (!isOpen) return null;
+    
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="bg-card w-full max-w-md rounded-3xl border border-border shadow-2xl overflow-hidden"
+            >
+                <div className="p-6 border-b border-border bg-red-500/5">
+                    <div className="flex items-center gap-3 text-red-500">
+                        <AlertCircle className="w-6 h-6" />
+                        <h3 className="text-xl font-bold">Delete Project</h3>
+                    </div>
+                </div>
+                <div className="p-6 space-y-4">
+                    <p className="text-muted-foreground">
+                        Are you sure you want to delete <strong>{projectTitle}</strong>? This action cannot be undone.
+                    </p>
+                    <div className="flex gap-3 pt-4">
+                        <button
+                            onClick={onClose}
+                            className="flex-1 px-4 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={onConfirm}
+                            className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors"
+                        >
+                            Delete Project
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+// Edit Dialog
+const EditDialog = ({ isOpen, onClose, project, onSave }: any) => {
+    const [title, setTitle] = useState(project?.title || "");
+    const [client, setClient] = useState(project?.client || "");
+    const [description, setDescription] = useState(project?.description || "");
+    const [status, setStatus] = useState(project?.status || "Planning");
+    const [progress, setProgress] = useState(project?.progress || 0);
+    const [budget, setBudget] = useState(project?.budget || "");
+    const [dueDate, setDueDate] = useState(project?.dueDate ? new Date(project.dueDate).toISOString().split('T')[0] : "");
+    const [members, setMembers] = useState(project?.members || 1);
+
+    if (!isOpen) return null;
+
+    const handleSave = () => {
+        onSave({
+            title,
+            client,
+            description,
+            status,
+            progress: parseFloat(progress.toString()),
+            budget: budget ? parseFloat(budget.toString()) : undefined,
+            dueDate: dueDate || undefined,
+            members: parseInt(members.toString()),
+        });
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="bg-card w-full max-w-2xl rounded-3xl border border-border shadow-2xl overflow-hidden my-8"
+            >
+                <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
+                    <h3 className="text-xl font-bold">Edit Project</h3>
+                    <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
+                        <X size={18} />
+                    </button>
+                </div>
+                <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold">Project Title</label>
+                            <input
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold">Client</label>
+                            <input
+                                value={client}
+                                onChange={(e) => setClient(e.target.value)}
+                                className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold">Description</label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={3}
+                            className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold">Status</label>
+                            <select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                            >
+                                {["Planning", "In Progress", "Review", "Completed", "Delayed", "On Hold"].map(s => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold">Progress (%)</label>
+                            <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={progress}
+                                onChange={(e) => setProgress(parseFloat(e.target.value) || 0)}
+                                className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold">Budget</label>
+                            <input
+                                type="number"
+                                value={budget}
+                                onChange={(e) => setBudget(e.target.value)}
+                                className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold">Team Members</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={members}
+                                onChange={(e) => setMembers(parseInt(e.target.value) || 1)}
+                                className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold">Due Date</label>
+                        <input
+                            type="date"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
+                        />
+                    </div>
+                </div>
+                <div className="p-6 border-t border-border flex gap-3">
+                    <button
+                        onClick={onClose}
+                        className="flex-1 px-4 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors"
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
 export default function ProjectDetailsPage() {
     const params = useParams();
+    const router = useRouter();
+    const projectId = params.id as string;
+    
+    const { project, isLoading, updateProject, deleteProject, isUpdating, isDeleting } = useProjects(projectId);
+    
     const [activeTab, setActiveTab] = useState("overview");
-    const [isTiming, setIsTiming] = useState(false);
-    const [time, setTime] = useState(0);
-    const [previewFile, setPreviewFile] = useState<any>(null);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
 
-    // --- Interaction State ---
-    const [messages, setMessages] = useState([
-        { id: 1, user: "SJ", text: "I've just uploaded the new Figma designs. Can someone check the hero section?", time: "10:05 AM", color: "bg-pink-500", self: false },
-        { id: 2, user: "AM", text: "Looks great, Sarah! I'll take a look right now.", time: "10:12 AM", color: "bg-blue-500", self: true },
-    ]);
-    const [chatInput, setChatInput] = useState("");
-    const chatScrollRef = useRef<HTMLDivElement>(null);
-
-    const [tasks, setTasks] = useState(TASKS);
-
-    const handleSendMessage = () => {
-        if (!chatInput.trim()) return;
-        setMessages([...messages, {
-            id: Date.now(),
-            user: "AM",
-            text: chatInput,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            color: "bg-blue-500",
-            self: true
-        }]);
-        setChatInput("");
-        setTimeout(() => chatScrollRef.current?.scrollTo({ top: chatScrollRef.current.scrollHeight, behavior: 'smooth' }), 100);
+    const handleDelete = () => {
+        deleteProject(projectId);
+        setTimeout(() => {
+            router.push("/dashboard/projects");
+        }, 1000);
     };
 
-    const handleAddTask = (limitColId?: string) => {
-        const title = prompt("Enter task title:");
-        if (title) {
-            setTasks([...tasks, {
-                id: Date.now(),
-                title,
-                col: limitColId || "todo",
-                priority: "Medium",
-                assignee: "AM"
-            }]);
-        }
+    const handleUpdate = (data: any) => {
+        updateProject(projectId, data);
+        setShowEditDialog(false);
     };
 
-    // Timer Logic
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isTiming) {
-            interval = setInterval(() => setTime(prev => prev + 1), 1000);
-        }
-        return () => clearInterval(interval);
-    }, [isTiming]);
-
-    const formatTime = (s: number) => {
-        const hrs = Math.floor(s / 3600);
-        const mins = Math.floor((s % 3600) / 60);
-        const secs = s % 60;
-        return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
+
+    const STATUS_COLORS: any = {
+        "In Progress": "bg-blue-500/10 text-blue-500 border-blue-500/20",
+        "Completed": "bg-green-500/10 text-green-500 border-green-500/20",
+        "Review": "bg-purple-500/10 text-purple-500 border-purple-500/20",
+        "Delayed": "bg-red-500/10 text-red-500 border-red-500/20",
+        "Planning": "bg-orange-500/10 text-orange-500 border-orange-500/20",
+        "On Hold": "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    if (!project) {
+        return (
+            <div className="text-center py-20">
+                <AlertCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-2xl font-bold mb-2">Project Not Found</h3>
+                <p className="text-muted-foreground mb-6">The project you're looking for doesn't exist.</p>
+                <Link href="/dashboard/projects" className="px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all inline-block">
+                    Back to Projects
+                </Link>
+            </div>
+        );
+    }
+
+    const budgetSpent = project.budget ? (project.budget * (project.progress / 100)) : 0;
+    const budgetRemaining = project.budget ? (project.budget - budgetSpent) : 0;
 
     return (
         <div className="space-y-6 pb-20">
@@ -152,37 +283,29 @@ export default function ProjectDetailsPage() {
                             animate={{ scale: 1, opacity: 1 }}
                             className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-bold text-2xl border border-primary/20 shadow-lg shadow-primary/5"
                         >
-                            ER
+                            {project.title.substring(0, 2).toUpperCase()}
                         </motion.div>
                         <div>
                             <h1 className="text-2xl font-bold flex items-center gap-3">
-                                {PROJECT_DETAILS.title}
-                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-500/10 text-blue-500 border border-blue-500/20 animate-pulse">
-                                    {PROJECT_DETAILS.status}
+                                {project.title}
+                                <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border", STATUS_COLORS[project.status])}>
+                                    {project.status}
                                 </span>
                             </h1>
-                            <p className="text-muted-foreground text-sm">Client: {PROJECT_DETAILS.client}</p>
+                            <p className="text-muted-foreground text-sm">Client: {project.client}</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <div className="flex -space-x-2 mr-2">
-                            {PROJECT_DETAILS.team.map((member, i) => (
-                                <div
-                                    key={i}
-                                    className={`w-9 h-9 rounded-full border-2 border-background flex items-center justify-center text-xs font-bold text-white shadow-sm ${member.color}`}
-                                    title={`${member.name} - ${member.role}`}
-                                >
-                                    {member.avatar}
-                                </div>
-                            ))}
-                        </div>
                         <button className="p-2.5 border border-border rounded-xl hover:bg-muted transition-colors">
                             <Share2 className="w-4 h-4" />
                         </button>
-                        <Link href={`/dashboard/projects/${params.id}/edit`} className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 text-center">
-                            Edit Project
-                        </Link>
+                        <button
+                            onClick={() => setShowEditDialog(true)}
+                            className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 text-center flex items-center gap-2"
+                        >
+                            <Edit3 className="w-4 h-4" /> Edit Project
+                        </button>
                     </div>
                 </div>
             </div>
@@ -203,11 +326,6 @@ export default function ProjectDetailsPage() {
                             >
                                 <tab.icon className={cn("w-4 h-4 transition-transform", isActive && "scale-110")} />
                                 {tab.label}
-                                {tab.badge && (
-                                    <span className="bg-primary text-white text-[10px] px-1.5 rounded-full animate-bounce">
-                                        {tab.badge}
-                                    </span>
-                                )}
                                 {isActive && (
                                     <motion.div
                                         layoutId="tab-underline-project"
@@ -237,48 +355,36 @@ export default function ProjectDetailsPage() {
                                 <section className="bg-card border border-border rounded-3xl p-8 shadow-sm">
                                     <h3 className="font-bold text-lg mb-4">About Project</h3>
                                     <p className="text-muted-foreground leading-relaxed text-lg">
-                                        {PROJECT_DETAILS.description}
+                                        {project.description || "No description provided."}
                                     </p>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-border">
                                         <div>
-                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Start Date</p>
-                                            <p className="font-bold">Aug 12, 2026</p>
+                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Created</p>
+                                            <p className="font-bold">{formatDate(project.createdAt)}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Deadline</p>
-                                            <p className="font-bold text-red-500">{PROJECT_DETAILS.dueDate}</p>
+                                            <p className="font-bold text-red-500">{formatDate(project.dueDate)}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Budget</p>
-                                            <p className="font-bold text-green-500">{PROJECT_DETAILS.budget}</p>
+                                            <p className="font-bold text-green-500">${project.budget?.toLocaleString() || 'N/A'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Category</p>
-                                            <p className="font-bold">Web Dev</p>
+                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Team Size</p>
+                                            <p className="font-bold">{project.members} members</p>
                                         </div>
                                     </div>
                                 </section>
 
-                                <section className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                                    <h3 className="font-bold text-lg mb-6">Milestone Progress</h3>
-                                    <div className="space-y-8 relative pl-6 border-l-2 border-dashed border-border ml-2">
-                                        {PROJECT_DETAILS.milestones.map((m, i) => (
-                                            <div key={i} className="relative">
-                                                <div className={cn(
-                                                    "absolute -left-[31px] top-1 w-4 h-4 rounded-full border-4 border-card z-10",
-                                                    m.status === "completed" ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]" :
-                                                        m.status === "current" ? "bg-blue-500 animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "bg-muted"
-                                                )} />
-                                                <div className="bg-muted/10 p-4 rounded-2xl border border-border/50 group hover:border-primary/30 transition-colors">
-                                                    <h4 className={cn("font-bold", m.status === "completed" && "line-through opacity-50")}>{m.title}</h4>
-                                                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                                                        <Calendar className="w-3 h-3" /> {m.date}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </section>
+                                {project.notes && (
+                                    <section className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+                                        <h3 className="font-bold text-lg mb-4">Notes</h3>
+                                        <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                            {project.notes}
+                                        </p>
+                                    </section>
+                                )}
                             </div>
 
                             <div className="space-y-6">
@@ -288,26 +394,13 @@ export default function ProjectDetailsPage() {
                                         <div>
                                             <div className="flex justify-between text-sm mb-2 font-bold">
                                                 <span className="text-muted-foreground">Completion</span>
-                                                <span>65%</span>
+                                                <span>{project.progress}%</span>
                                             </div>
                                             <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                                                 <motion.div
                                                     initial={{ width: 0 }}
-                                                    animate={{ width: "65%" }}
+                                                    animate={{ width: `${project.progress}%` }}
                                                     className="bg-primary h-full rounded-full shadow-[0_0_10px_rgba(var(--primary),0.3)]"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="flex justify-between text-sm mb-2 font-bold">
-                                                <span className="text-muted-foreground">Resources Used</span>
-                                                <span>82%</span>
-                                            </div>
-                                            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                                                <motion.div
-                                                    initial={{ width: 0 }}
-                                                    animate={{ width: "82%" }}
-                                                    className="bg-orange-500 h-full rounded-full shadow-[0_0_10px_rgba(249,115,22,0.3)]"
                                                 />
                                             </div>
                                         </div>
@@ -318,8 +411,8 @@ export default function ProjectDetailsPage() {
                                                 <TrendingUp size={24} />
                                             </div>
                                             <div>
-                                                <p className="text-xs text-muted-foreground font-bold">Health Score</p>
-                                                <p className="font-bold text-lg">Great (94/100)</p>
+                                                <p className="text-xs text-muted-foreground font-bold">Payment Status</p>
+                                                <p className="font-bold text-lg">{project.paymentStatus}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -328,212 +421,45 @@ export default function ProjectDetailsPage() {
                         </div>
                     )}
 
-                    {/* Tab: TASKS (Kanban Board) */}
-                    {activeTab === "tasks" && (
-                        <div className="flex flex-col space-y-6">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-3">
-                                    <div className="relative">
-                                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                        <input className="pl-9 pr-4 py-2.5 bg-card border border-border rounded-xl text-sm w-64" placeholder="Search tasks..." />
-                                    </div>
-                                    <button className="p-2.5 border border-border rounded-xl hover:bg-muted transition-colors"><Filter className="w-4 h-4" /></button>
-                                </div>
-                                <button onClick={() => handleAddTask()} className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
-                                    <Plus className="w-4 h-4" /> Add Task
-                                </button>
-                            </div>
-
-                            <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-thin">
-                                {KANBAN_COLS.map((col) => (
-                                    <div key={col.id} className="min-w-[320px] bg-muted/20 rounded-3xl p-4 border border-border/50">
-                                        <div className="flex justify-between items-center mb-4 px-2">
-                                            <h4 className="font-bold text-sm flex items-center gap-2">
-                                                {col.title}
-                                                <span className="bg-card border border-border text-[10px] px-2 py-0.5 rounded-full">{col.count}</span>
-                                            </h4>
-                                            <button className="p-1 hover:bg-muted rounded"><MoreVertical className="w-4 h-4" /></button>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            {tasks.filter(t => t.col === col.id).map((task) => (
-                                                <div key={task.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm hover:border-primary/50 transition-all cursor-grab group relative">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <span className={cn(
-                                                            "text-[10px] px-2 py-0.5 rounded font-extrabold uppercase",
-                                                            task.priority === 'High' ? 'bg-red-500/10 text-red-500' :
-                                                                task.priority === 'Medium' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-blue-500/10 text-blue-500'
-                                                        )}>
-                                                            {task.priority}
-                                                        </span>
-                                                        <button 
-                                                            onClick={() => setTasks(tasks.filter(t => t.id !== task.id))}
-                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                    <h5 className="font-bold text-sm mb-4">{task.title}</h5>
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase font-bold">
-                                                            <Clock className="w-3 h-3" /> Oct 20
-                                                        </div>
-                                                        <div className="w-7 h-7 bg-muted rounded-full flex items-center justify-center text-[8px] font-bold border border-border">
-                                                            {task.assignee}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <button 
-                                                onClick={() => handleAddTask(col.id)}
-                                                className="w-full py-2 border-2 border-dashed border-border rounded-2xl text-xs font-bold text-muted-foreground hover:bg-muted hover:border-primary/30 transition-all"
-                                            >
-                                                + New Task
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Tab: FILES */}
-                    {activeTab === "files" && (
-                        <div className="space-y-8">
-                            <div className="flex justify-between items-center">
-                                <h3 className="text-xl font-bold">Project Assets</h3>
-                                <div className="flex items-center gap-2">
-                                    <div className="bg-muted p-1 rounded-xl flex gap-1">
-                                        <button className="p-1.5 bg-card rounded-lg shadow-sm"><LayoutGrid className="w-4 h-4" /></button>
-                                        <button className="p-1.5 text-muted-foreground"><List className="w-4 h-4" /></button>
-                                    </div>
-                                    <button className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
-                                        <UploadCloud className="w-4 h-4" /> Upload
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                                {FILES.map((file, i) => (
-                                    <div key={i} className="bg-card border border-border rounded-3xl p-5 group hover:border-primary transition-all cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1">
-                                        <div className="relative aspect-square bg-muted/30 rounded-2xl flex items-center justify-center mb-4 overflow-hidden">
-                                            <file.icon className="w-12 h-12 text-muted-foreground group-hover:text-primary transition-colors" />
-                                            {/* Preview Overlay */}
-                                            <div className="absolute inset-0 bg-primary/95 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={() => setPreviewFile(file)}
-                                                    className="p-2 bg-white/20 rounded-full text-white hover:bg-white/30"
-                                                >
-                                                    <Eye size={18} />
-                                                </button>
-                                                <button className="p-2 bg-white/20 rounded-full text-white hover:bg-white/30"><Download size={18} /></button>
-                                            </div>
-                                        </div>
-                                        <h5 className="font-bold text-sm truncate">{file.name}</h5>
-                                        <p className="text-[10px] text-muted-foreground mt-1">{file.size} • {file.date}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Tab: CHAT */}
-                    {activeTab === "chat" && (
-                        <div className="h-[500px] flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-2xl">
-                            <div ref={chatScrollRef} className="flex-1 p-6 space-y-6 overflow-y-auto">
-                                {messages.map((msg) => (
-                                    <motion.div 
-                                        key={msg.id} 
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className={cn("flex items-start gap-3", msg.self && "flex-row-reverse")}
-                                    >
-                                        <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0", msg.color)}>
-                                            {msg.user}
-                                        </div>
-                                        <div className={cn("space-y-1 flex flex-col", msg.self ? "items-end" : "items-start")}>
-                                            <p className={cn(
-                                                "px-4 py-2.5 rounded-2xl text-sm max-w-sm shadow-sm",
-                                                msg.self ? "bg-primary text-white rounded-br-none" : "bg-muted rounded-tl-none"
-                                            )}>
-                                                {msg.text}
-                                            </p>
-                                            <p className="text-[10px] text-muted-foreground">{msg.time}</p>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-                            <div className="p-4 border-t border-border bg-muted/10">
-                                <div className="flex items-center gap-2 bg-card border border-border rounded-2xl p-2 px-4 shadow-inner focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                                    <button className="p-2 text-muted-foreground hover:text-primary transition-colors"><Paperclip className="w-5 h-5" /></button>
-                                    <input 
-                                        value={chatInput}
-                                        onChange={(e) => setChatInput(e.target.value)}
-                                        onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                                        className="flex-1 bg-transparent border-none focus:outline-none text-sm py-2" 
-                                        placeholder="Send a message..." 
-                                    />
-                                    <button className="p-2 text-muted-foreground hover:text-primary transition-colors"><Smile className="w-5 h-5" /></button>
-                                    <button 
-                                        onClick={handleSendMessage}
-                                        className="p-2.5 bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
-                                    >
-                                        <Send className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Tab: TIME */}
-                    {activeTab === "time" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="bg-card border border-border rounded-3xl p-10 flex flex-col items-center justify-center text-center space-y-8 shadow-xl relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-muted">
-                                    {isTiming && <motion.div animate={{ x: ["-100%", "100%"] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-1/2 h-full bg-primary" />}
-                                </div>
-                                <h3 className="font-bold text-xl uppercase tracking-widest text-muted-foreground">Current Session</h3>
-                                <div className="text-7xl font-mono font-bold tracking-tighter transition-all tabular-nums">
-                                    {formatTime(time)}
-                                </div>
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => setIsTiming(!isTiming)}
-                                        className={cn(
-                                            "w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-2xl",
-                                            isTiming ? "bg-red-500 text-white shadow-red-500/30" : "bg-primary text-white shadow-primary/30"
-                                        )}
-                                    >
-                                        {isTiming ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
-                                    </button>
-                                    <button onClick={() => setTime(0)} className="w-20 h-20 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition-all">
-                                        <RotateCcw size={24} />
-                                    </button>
-                                </div>
-                                <p className="text-sm text-muted-foreground font-bold">Project: {PROJECT_DETAILS.title}</p>
-                            </div>
-
+                    {/* Tab: DETAILS */}
+                    {activeTab === "details" && (
+                        <div className="max-w-3xl space-y-6">
                             <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                                <h3 className="font-bold text-lg mb-6">Recent Logs</h3>
-                                <div className="space-y-4">
-                                    {[
-                                        { user: "Alex M.", date: "Today, 09:30 - 12:15", dur: "2h 45m" },
-                                        { user: "Mike T.", date: "Yesterday, 14:00 - 18:30", dur: "4h 30m" },
-                                        { user: "Sarah J.", date: "Oct 18, 11:00 - 13:00", dur: "2h 00m" },
-                                    ].map((log, i) => (
-                                        <div key={i} className="flex items-center justify-between p-4 bg-muted/20 border border-border/50 rounded-2xl">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">{log.user.charAt(0)}</div>
-                                                <div>
-                                                    <p className="text-xs font-bold text-muted-foreground">{log.date}</p>
-                                                    <p className="font-bold text-sm">Design Implementation</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-sm font-bold">{log.dur}</div>
-                                        </div>
-                                    ))}
+                                <h3 className="font-bold text-lg mb-6">Project Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Project ID</p>
+                                        <p className="font-mono text-sm bg-muted px-3 py-2 rounded-lg">{project.id}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Status</p>
+                                        <span className={cn("px-3 py-1.5 rounded-full text-xs font-bold border inline-block", STATUS_COLORS[project.status])}>
+                                            {project.status}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Created At</p>
+                                        <p className="font-bold">{formatDate(project.createdAt)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Last Updated</p>
+                                        <p className="font-bold">{formatDate(project.updatedAt)}</p>
+                                    </div>
                                 </div>
                             </div>
+
+                            {project.tags && project.tags.length > 0 && (
+                                <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+                                    <h3 className="font-bold text-lg mb-4">Tags</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {project.tags.map((tag, i) => (
+                                            <span key={i} className="px-3 py-1.5 bg-muted border border-border rounded-full text-sm font-medium">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -544,36 +470,32 @@ export default function ProjectDetailsPage() {
                                 <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
                                     <p className="text-sm text-muted-foreground font-bold mb-2">Total Budget</p>
                                     <h3 className="text-3xl font-bold flex items-center gap-2">
-                                        <Wallet className="text-primary" /> {PROJECT_DETAILS.budget}
+                                        <Wallet className="text-primary" /> ${project.budget?.toLocaleString() || 'N/A'}
                                     </h3>
                                 </div>
                                 <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                                    <p className="text-sm text-muted-foreground font-bold mb-2">Remaining</p>
-                                    <h3 className="text-3xl font-bold text-green-500">$4,800</h3>
+                                    <p className="text-sm text-muted-foreground font-bold mb-2">Estimated Spent</p>
+                                    <h3 className="text-3xl font-bold text-orange-500">${budgetSpent.toLocaleString()}</h3>
+                                    <p className="text-xs text-muted-foreground mt-2">Based on {project.progress}% completion</p>
                                 </div>
                                 <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                                    <p className="text-sm text-muted-foreground font-bold mb-2">Burn Rate</p>
-                                    <h3 className="text-3xl font-bold text-orange-500">$450/day</h3>
+                                    <p className="text-sm text-muted-foreground font-bold mb-2">Remaining</p>
+                                    <h3 className="text-3xl font-bold text-green-500">${budgetRemaining.toLocaleString()}</h3>
                                 </div>
                             </div>
 
-                            <div className="bg-card border border-border rounded-3xl p-10 shadow-sm">
-                                <h3 className="font-bold text-lg mb-8">Expense Distribution</h3>
-                                <div className="h-[300px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={[
-                                            { d: 'Week 1', a: 1500 }, { d: 'Week 2', a: 3200 }, { d: 'Week 3', a: 4500 }, { d: 'Week 4', a: 7200 }
-                                        ]}>
-                                            <defs>
-                                                <linearGradient id="colorBudget" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <Tooltip />
-                                            <Area type="monotone" dataKey="a" stroke="#6366f1" fill="url(#colorBudget)" strokeWidth={4} />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
+                            <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+                                <h3 className="font-bold text-lg mb-4">Budget Breakdown</h3>
+                                <div className="space-y-4">
+                                    <div>
+                                        <div className="flex justify-between text-sm mb-2">
+                                            <span className="font-medium">Progress-based Spending</span>
+                                            <span className="font-bold">{project.progress}%</span>
+                                        </div>
+                                        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                                            <div style={{ width: `${project.progress}%` }} className="bg-orange-500 h-full rounded-full" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -582,48 +504,20 @@ export default function ProjectDetailsPage() {
                     {/* Tab: SETTINGS */}
                     {activeTab === "settings" && (
                         <div className="max-w-2xl space-y-10">
-                            <div>
-                                <h3 className="text-xl font-bold mb-6">General Configuration</h3>
-                                <div className="space-y-6">
-                                    {[
-                                        { label: "Allow client access", desc: "Clients can view progress, order services, and comment.", active: true },
-                                        { label: "Auto-archive completed tasks", desc: "Moves and hides tasks in 'Done' column after 7 days.", active: false },
-                                        { label: "Slack Notifications", desc: "Sync all activity to the project channel.", active: true },
-                                    ].map((opt, i) => (
-                                        <div key={i} className="flex items-center justify-between p-4 bg-muted/10 border border-border rounded-2xl">
-                                            <div>
-                                                <h4 className="font-bold text-sm">{opt.label}</h4>
-                                                <p className="text-xs text-muted-foreground">{opt.desc}</p>
-                                                {opt.active && opt.label === "Allow client access" && (
-                                                    <div className="mt-2 flex items-center gap-2">
-                                                        <span className="text-[10px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded font-bold border border-green-500/20">Active</span>
-                                                        <Link href="#" className="text-[10px] text-primary hover:underline flex items-center gap-1">
-                                                            View Client Portal <ExternalLink size={10} />
-                                                        </Link>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className={cn(
-                                                "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
-                                                opt.active ? "bg-primary" : "bg-muted"
-                                            )}>
-                                                <span className={cn(
-                                                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                                                    opt.active ? "translate-x-5" : "translate-x-0"
-                                                )} />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
                             <div className="pt-10 border-t border-border">
                                 <h3 className="text-xl font-bold text-red-500 mb-6 font-bold flex items-center gap-2">
                                     <AlertCircle className="w-5 h-5" /> Danger Zone
                                 </h3>
                                 <div className="space-y-4">
-                                    <p className="text-sm text-muted-foreground mb-4">Deleting a project is irreversible. All task history, files, and chats will be permanently removed.</p>
-                                    <button onClick={() => { if(confirm("Are you sure?")) window.location.href = "/dashboard/projects" }} className="px-6 py-3 border-2 border-red-500/20 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 transition-all flex items-center gap-2">
-                                        <Trash2 className="w-4 h-4" /> Delete This Project
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        Deleting a project is irreversible. All project data will be permanently removed.
+                                    </p>
+                                    <button
+                                        onClick={() => setShowDeleteDialog(true)}
+                                        disabled={isDeleting}
+                                        className="px-6 py-3 border-2 border-red-500/20 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 transition-all flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        <Trash2 className="w-4 h-4" /> {isDeleting ? "Deleting..." : "Delete This Project"}
                                     </button>
                                 </div>
                             </div>
@@ -633,46 +527,25 @@ export default function ProjectDetailsPage() {
                 </motion.div>
             </AnimatePresence>
 
-            {/* File Preview Modal */}
+            {/* Dialogs */}
             <AnimatePresence>
-                {previewFile && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-xl"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            className="bg-card border border-border rounded-3xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl"
-                        >
-                            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
-                                <div className="flex items-center gap-3">
-                                    <previewFile.icon className="w-5 h-5 text-primary" />
-                                    <span className="font-bold">{previewFile.name}</span>
-                                </div>
-                                <button
-                                    onClick={() => setPreviewFile(null)}
-                                    className="p-2 hover:bg-muted rounded-full transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <div className="flex-1 overflow-auto p-12 flex flex-col items-center justify-center text-center bg-background/50">
-                                <previewFile.icon className="w-40 h-40 text-muted-foreground/20 mb-6" />
-                                <h4 className="text-xl font-bold mb-2">No preview available</h4>
-                                <p className="text-muted-foreground mb-8">This file type cannot be previewed in the browser.</p>
-                                <button className="px-8 py-3 bg-primary text-white rounded-xl font-bold flex items-center gap-2">
-                                    <Download size={18} /> Download Now
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
+                {showDeleteDialog && (
+                    <DeleteDialog
+                        isOpen={showDeleteDialog}
+                        onClose={() => setShowDeleteDialog(false)}
+                        onConfirm={handleDelete}
+                        projectTitle={project.title}
+                    />
+                )}
+                {showEditDialog && (
+                    <EditDialog
+                        isOpen={showEditDialog}
+                        onClose={() => setShowEditDialog(false)}
+                        project={project}
+                        onSave={handleUpdate}
+                    />
                 )}
             </AnimatePresence>
         </div>
     );
 }
-

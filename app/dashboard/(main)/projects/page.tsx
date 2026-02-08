@@ -9,18 +9,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-
-// --- Mock Data ---
-
-const PROJECTS = [
-    { id: 1, title: "E-commerce Redesign", client: "EcoLife Inc", status: "In Progress", progress: 65, due: "Oct 24", members: 4, budget: "$12,000", paymentStatus: "Unpaid" },
-    { id: 2, title: "FinTech Dashboard", client: "FinanceFlow", status: "Completed", progress: 100, due: "Sep 12", members: 6, budget: "$45,000", paymentStatus: "Paid" },
-    { id: 3, title: "AI Chat Integration", client: "TechHelp", status: "Review", progress: 90, due: "Oct 30", members: 3, budget: "$8,500", paymentStatus: "Paid" },
-    { id: 4, title: "Mobile App MVP", client: "StartUp X", status: "Delayed", progress: 30, due: "Nov 15", members: 5, budget: "$22,000", paymentStatus: "Unpaid" },
-    { id: 5, title: "Cloud Migration", client: "Enterprise Corp", status: "In Progress", progress: 45, due: "Dec 01", members: 8, budget: "$120,000", paymentStatus: "Pending" },
-    { id: 6, title: "Marketing Website", client: "BrandNew", status: "Planning", progress: 10, due: "Jan 10", members: 2, budget: "$5,000", paymentStatus: "Unpaid" },
-];
+import { useProjects } from "@/hooks/useProjects";
+import { Project } from "@/lib/api";
+import { toast } from "sonner";
 
 const STATUS_COLORS = {
     "In Progress": "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -28,16 +19,18 @@ const STATUS_COLORS = {
     "Review": "bg-purple-500/10 text-purple-500 border-purple-500/20",
     "Delayed": "bg-red-500/10 text-red-500 border-red-500/20",
     "Planning": "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    "On Hold": "bg-gray-500/10 text-gray-500 border-gray-500/20",
 };
 
 const PAYMENT_STATUS_COLORS = {
     "Paid": "text-green-500 bg-green-500/10 border-green-500/20",
     "Unpaid": "text-red-500 bg-red-500/10 border-red-500/20",
     "Pending": "text-orange-500 bg-orange-500/10 border-orange-500/20",
+    "Partial": "text-blue-500 bg-blue-500/10 border-blue-500/20",
 };
 
 // --- Payment Modal Component ---
-const PaymentModal = ({ project, onClose }: { project: any, onClose: () => void }) => {
+const PaymentModal = ({ project, onClose, onPaymentComplete }: { project: Project, onClose: () => void, onPaymentComplete: (id: string) => void }) => {
     const [method, setMethod] = useState<"stripe" | "paypal">("stripe");
     const [processing, setProcessing] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -48,6 +41,7 @@ const PaymentModal = ({ project, onClose }: { project: any, onClose: () => void 
         setTimeout(() => {
             setProcessing(false);
             setSuccess(true);
+            onPaymentComplete(project.id);
             setTimeout(onClose, 2000);
         }, 2000);
     };
@@ -99,7 +93,7 @@ const PaymentModal = ({ project, onClose }: { project: any, onClose: () => void 
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center pb-4 border-b border-border">
                                     <span className="text-muted-foreground font-medium">Total Amount</span>
-                                    <span className="text-2xl font-bold">{project.budget}</span>
+                                    <span className="text-2xl font-bold">${project.budget?.toLocaleString()}</span>
                                 </div>
 
                                 {method === "stripe" && (
@@ -122,7 +116,7 @@ const PaymentModal = ({ project, onClose }: { project: any, onClose: () => void 
                                             </div>
                                         </div>
                                         <button disabled={processing} className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/25 disabled:opacity-50 flex items-center justify-center gap-2 mt-4">
-                                            {processing ? "Processing..." : `Pay ${project.budget}`}
+                                            {processing ? "Processing..." : `Pay $${project.budget?.toLocaleString()}`}
                                         </button>
                                          <div className="flex justify-center items-center gap-2 text-[10px] text-muted-foreground">
                                             <Lock size={10} /> Powered by Stripe
@@ -156,12 +150,25 @@ export default function ProjectsOverview() {
     const [view, setView] = useState<"grid" | "table">("grid");
     const [filter, setFilter] = useState("All");
     const [search, setSearch] = useState("");
-    const [selectedProject, setSelectedProject] = useState<any>(null);
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-    const filteredProjects = PROJECTS.filter(p =>
-        (filter === "All" || p.status === filter) &&
+    const { projects, isLoading, updatePaymentStatus } = useProjects(undefined, filter === "All" ? undefined : filter);
+
+    const handlePaymentComplete = (projectId: string) => {
+        updatePaymentStatus(projectId, "Paid");
+    };
+
+    const filteredProjects = projects?.filter(p =>
         (p.title.toLowerCase().includes(search.toLowerCase()) || p.client.toLowerCase().includes(search.toLowerCase()))
-    );
+    ) || [];
+
+    const urgentProjects = projects?.filter(p => p.progress < 50 && p.status === 'In Progress') || [];
+
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    };
 
     return (
         <div className="space-y-8 relative">
@@ -190,7 +197,7 @@ export default function ProjectsOverview() {
                     <AlertCircle className="w-4 h-4 text-orange-500" /> Urgent Attention
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                    {PROJECTS.filter(p => p.progress < 50 && p.status === 'In Progress').map((p, i) => (
+                    {urgentProjects.map((p, i) => (
                          <motion.div
                             key={p.id}
                             initial={{ opacity: 0, x: 20 }}
@@ -202,7 +209,7 @@ export default function ProjectsOverview() {
                                 <div className="p-2 bg-orange-500/10 rounded-xl text-orange-500">
                                     <Clock className="w-5 h-5" />
                                 </div>
-                                <span className="text-[10px] font-bold bg-background border border-border px-2 py-1 rounded-full">{p.due}</span>
+                                <span className="text-[10px] font-bold bg-background border border-border px-2 py-1 rounded-full">{formatDate(p.dueDate)}</span>
                             </div>
                             <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
                                 <Link href={`/dashboard/projects/${p.id}`}>{p.title}</Link>
@@ -224,7 +231,7 @@ export default function ProjectsOverview() {
                          </motion.div>
                     ))}
                     {/* Add Placeholder if no urgent projects */}
-                    {PROJECTS.filter(p => p.progress < 50 && p.status === 'In Progress').length === 0 && (
+                    {urgentProjects.length === 0 && (
                         <div className="w-full p-8 text-center border border-dashed border-border rounded-3xl text-muted-foreground">
                             No urgent projects right now. Good job! 🎉
                         </div>
@@ -288,188 +295,198 @@ export default function ProjectsOverview() {
                 </div>
             </div>
 
+            {/* Loading State */}
+            {isLoading && (
+                <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+            )}
+
             {/* Content Area */}
-            <AnimatePresence mode="wait">
+            {!isLoading && (
+                <AnimatePresence mode="wait">
 
-                {/* Grid View */}
-                {view === "grid" && (
-                    <motion.div
-                        key="grid"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    >
-                        {filteredProjects.map((project, i) => (
-                            <motion.div
-                                key={project.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.2 }}
-                                whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                                className="bg-card border border-border rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group relative overflow-hidden flex flex-col"
-                            >
-                                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {/* Grid View */}
+                    {view === "grid" && (
+                        <motion.div
+                            key="grid"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        >
+                            {filteredProjects.map((project, i) => (
+                                <motion.div
+                                    key={project.id}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    transition={{ duration: 0.2 }}
+                                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                                    className="bg-card border border-border rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all group relative overflow-hidden flex flex-col"
+                                >
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className={cn("px-2.5 py-1 rounded-full text-xs font-bold border", STATUS_COLORS[project.status as keyof typeof STATUS_COLORS])}>
-                                        {project.status}
-                                    </div>
-                                    <Link href={`/dashboard/projects/${project.id}`} className="text-muted-foreground hover:text-foreground">
-                                        <MoreVertical className="w-4 h-4" />
-                                    </Link>
-                                </div>
-
-                                <h3 className="text-lg font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
-                                    <Link href={`/dashboard/projects/${project.id}`}>{project.title}</Link>
-                                </h3>
-                                <p className="text-sm text-muted-foreground mb-6 flex-1">{project.client}</p>
-
-                                <div className="space-y-4 mt-auto">
-                                    {/* Payment Status Action */}
-                                    {project.paymentStatus === "Unpaid" && (
-                                        <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-3 flex justify-between items-center">
-                                            <span className="text-xs font-bold text-red-500 flex items-center gap-1">
-                                                <AlertCircle size={12} /> Unpaid Invoice
-                                            </span>
-                                            <button 
-                                                onClick={() => setSelectedProject(project)}
-                                                className="text-xs font-bold bg-white text-black px-3 py-1.5 rounded-lg hover:alpha-90 transition-opacity"
-                                            >
-                                                Pay Now
-                                            </button>
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className={cn("px-2.5 py-1 rounded-full text-xs font-bold border", STATUS_COLORS[project.status as keyof typeof STATUS_COLORS])}>
+                                            {project.status}
                                         </div>
-                                    )}
-
-                                    <div>
-                                        <div className="flex justify-between text-xs mb-1">
-                                            <span className="text-muted-foreground">Progress</span>
-                                            <span className="font-bold">{project.progress}%</span>
-                                        </div>
-                                        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${project.progress}%` }}
-                                                transition={{ duration: 1, delay: 0.5 }}
-                                                className={cn("h-full rounded-full", project.progress === 100 ? "bg-green-500" : "bg-primary")}
-                                            />
-                                        </div>
+                                        <Link href={`/dashboard/projects/${project.id}`} className="text-muted-foreground hover:text-foreground">
+                                            <MoreVertical className="w-4 h-4" />
+                                        </Link>
                                     </div>
 
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                                        <div className="flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" />
-                                            <span>{project.due}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <Users className="w-3 h-3" />
-                                            <span>{project.members} Team</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                )}
+                                    <h3 className="text-lg font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
+                                        <Link href={`/dashboard/projects/${project.id}`}>{project.title}</Link>
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground mb-6 flex-1">{project.client}</p>
 
-                {/* Table View */}
-                {view === "table" && (
-                    <motion.div
-                        key="table"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm"
-                    >
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-muted/50 border-b border-border text-muted-foreground">
-                                <tr>
-                                    <th className="p-4 font-medium">Project Name</th>
-                                    <th className="p-4 font-medium">Status</th>
-                                    <th className="p-4 font-medium">Payment</th>
-                                    <th className="p-4 font-medium">Progress</th>
-                                    <th className="p-4 font-medium hidden md:table-cell">Due Date</th>
-                                    <th className="p-4 font-medium hidden md:table-cell">Budget</th>
-                                    <th className="p-4 font-medium"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredProjects.map((project, i) => (
-                                    <motion.tr
-                                        key={project.id}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: i * 0.05 }}
-                                        className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
-                                    >
-                                        <td className="p-4">
-                                            <div>
-                                                <div className="font-bold hover:text-primary cursor-pointer">
-                                                    <Link href={`/dashboard/projects/${project.id}`}>{project.title}</Link>
-                                                </div>
-                                                <div className="text-xs text-muted-foreground">{project.client}</div>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={cn("px-2.5 py-1 rounded-full text-xs font-bold border", STATUS_COLORS[project.status as keyof typeof STATUS_COLORS])}>
-                                                {project.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                             <div className="flex items-center gap-2">
-                                                <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase border", PAYMENT_STATUS_COLORS[project.paymentStatus as keyof typeof PAYMENT_STATUS_COLORS])}>
-                                                    {project.paymentStatus}
+                                    <div className="space-y-4 mt-auto">
+                                        {/* Payment Status Action */}
+                                        {project.paymentStatus === "Unpaid" && (
+                                            <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-3 flex justify-between items-center">
+                                                <span className="text-xs font-bold text-red-500 flex items-center gap-1">
+                                                    <AlertCircle size={12} /> Unpaid Invoice
                                                 </span>
-                                                {project.paymentStatus === "Unpaid" && (
-                                                    <button 
-                                                        onClick={() => setSelectedProject(project)}
-                                                        className="text-xs text-primary font-bold hover:underline"
-                                                    >
-                                                        Pay
-                                                    </button>
-                                                )}
-                                             </div>
-                                        </td>
-                                        <td className="p-4 w-48">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                                                    <div style={{ width: `${project.progress}%` }} className={cn("h-full rounded-full", project.progress === 100 ? "bg-green-500" : "bg-primary")} />
-                                                </div>
-                                                <span className="text-xs font-medium w-8">{project.progress}%</span>
+                                                <button 
+                                                    onClick={() => setSelectedProject(project)}
+                                                    className="text-xs font-bold bg-white text-black px-3 py-1.5 rounded-lg hover:alpha-90 transition-opacity"
+                                                >
+                                                    Pay Now
+                                                </button>
                                             </div>
-                                        </td>
-                                        <td className="p-4 hidden md:table-cell text-muted-foreground">
-                                            {project.due}
-                                        </td>
-                                        <td className="p-4 hidden md:table-cell font-medium">
-                                            {project.budget}
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            <Link href={`/dashboard/projects/${project.id}`} className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground inline-block">
-                                                <MoreVertical className="w-4 h-4" />
-                                            </Link>
-                                        </td>
-                                    </motion.tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                                        )}
+
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-1">
+                                                <span className="text-muted-foreground">Progress</span>
+                                                <span className="font-bold">{project.progress}%</span>
+                                            </div>
+                                            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${project.progress}%` }}
+                                                    transition={{ duration: 1, delay: 0.5 }}
+                                                    className={cn("h-full rounded-full", project.progress === 100 ? "bg-green-500" : "bg-primary")}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
+                                            <div className="flex items-center gap-1">
+                                                <Calendar className="w-3 h-3" />
+                                                <span>{formatDate(project.dueDate)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Users className="w-3 h-3" />
+                                                <span>{project.members} Team</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    )}
+
+                    {/* Table View */}
+                    {view === "table" && (
+                        <motion.div
+                            key="table"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm"
+                        >
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-muted/50 border-b border-border text-muted-foreground">
+                                    <tr>
+                                        <th className="p-4 font-medium">Project Name</th>
+                                        <th className="p-4 font-medium">Status</th>
+                                        <th className="p-4 font-medium">Payment</th>
+                                        <th className="p-4 font-medium">Progress</th>
+                                        <th className="p-4 font-medium hidden md:table-cell">Due Date</th>
+                                        <th className="p-4 font-medium hidden md:table-cell">Budget</th>
+                                        <th className="p-4 font-medium"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredProjects.map((project, i) => (
+                                        <motion.tr
+                                            key={project.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.05 }}
+                                            className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                                        >
+                                            <td className="p-4">
+                                                <div>
+                                                    <div className="font-bold hover:text-primary cursor-pointer">
+                                                        <Link href={`/dashboard/projects/${project.id}`}>{project.title}</Link>
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">{project.client}</div>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className={cn("px-2.5 py-1 rounded-full text-xs font-bold border", STATUS_COLORS[project.status as keyof typeof STATUS_COLORS])}>
+                                                    {project.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                 <div className="flex items-center gap-2">
+                                                    <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase border", PAYMENT_STATUS_COLORS[project.paymentStatus as keyof typeof PAYMENT_STATUS_COLORS])}>
+                                                        {project.paymentStatus}
+                                                    </span>
+                                                    {project.paymentStatus === "Unpaid" && (
+                                                        <button 
+                                                            onClick={() => setSelectedProject(project)}
+                                                            className="text-xs text-primary font-bold hover:underline"
+                                                        >
+                                                            Pay
+                                                        </button>
+                                                    )}
+                                                 </div>
+                                            </td>
+                                            <td className="p-4 w-48">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                                                        <div style={{ width: `${project.progress}%` }} className={cn("h-full rounded-full", project.progress === 100 ? "bg-green-500" : "bg-primary")} />
+                                                    </div>
+                                                    <span className="text-xs font-medium w-8">{project.progress}%</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 hidden md:table-cell text-muted-foreground">
+                                                {formatDate(project.dueDate)}
+                                            </td>
+                                            <td className="p-4 hidden md:table-cell font-medium">
+                                                ${project.budget?.toLocaleString()}
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                <Link href={`/dashboard/projects/${project.id}`} className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground inline-block">
+                                                    <MoreVertical className="w-4 h-4" />
+                                                </Link>
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            )}
 
             {/* Payment Modal Render */}
             <AnimatePresence>
                 {selectedProject && (
                     <PaymentModal 
                         project={selectedProject} 
-                        onClose={() => setSelectedProject(null)} 
+                        onClose={() => setSelectedProject(null)}
+                        onPaymentComplete={handlePaymentComplete}
                     />
                 )}
             </AnimatePresence>
 
-            {filteredProjects.length === 0 && (
+            {filteredProjects.length === 0 && !isLoading && (
                 <div className="text-center py-20 bg-card border border-border rounded-2xl border-dashed">
                     <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-bold mb-2">No Projects Found</h3>

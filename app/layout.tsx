@@ -14,6 +14,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import SmoothScroller from "@/components/smooth-scroller";
+import { QueryProvider } from "@/lib/api/queries";
+import { AuthProvider } from "@/components/auth-provider";
+
+// ... existing imports
+
 export const metadata: Metadata = {
   title: "Ofitsoft - Premium Software Solutions",
   description: "Transforming digital visions into reality with modern high-performance software.",
@@ -29,8 +35,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        {children}
-        <Toaster richColors position="top-right" />
+        <QueryProvider>
+          <AuthProvider>
+            <SmoothScroller>{children}</SmoothScroller>
+          </AuthProvider>
+          <Toaster richColors position="top-right" />
+        </QueryProvider>
       </body>
     </html>
   );

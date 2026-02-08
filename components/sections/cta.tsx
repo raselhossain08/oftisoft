@@ -7,7 +7,23 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+// ... imports
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { useHomeContentStore } from "@/lib/store/home-content";
+
 export default function CTA() {
+    // Get content from CMS store
+    const { content } = useHomeContentStore();
+    const ctaContent = content?.cta || {
+        title: "Let's Build the Next Big Thing.",
+        description: "Have a project in mind? We'd love to hear about it. Schedule a free 15-min discovery call to discuss your vision.",
+        buttonText: "Start Conversation",
+        buttonLink: "/contact"
+    };
+
     const [formState, setFormState] = useState<'idle' | 'submitting' | 'success'>('idle');
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -21,27 +37,27 @@ export default function CTA() {
     };
 
     return (
-        <section id="contact" className="py-24 bg-transparent relative overflow-hidden z-10">
+        <section id="contact" className="py-16 md:py-24 bg-transparent relative overflow-hidden z-10">
             <div className="container px-4 mx-auto">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-start">
                     
                     {/* Left: Content Info */}
-                    <div className="max-w-xl pt-8">
+                    <div className="max-w-xl pt-8 order-2 lg:order-1">
                         <motion.h2 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
                         >
-                            Let's Build the <br />
+                            {ctaContent.title.split(' ').slice(0, -3).join(' ')}{' '}
+                            <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                Next Big Thing.
+                                {ctaContent.title.split(' ').slice(-3).join(' ')}
                             </span>
                         </motion.h2>
 
-                        <p className="text-xl text-muted-foreground/80 mb-12 leading-relaxed">
-                            Have a project in mind? We'd love to hear about it. 
-                            Schedule a free 15-min discovery call to discuss your vision.
+                        <p className="text-lg md:text-xl text-muted-foreground/80 mb-12 leading-relaxed">
+                            {ctaContent.description}
                         </p>
 
                         <div className="space-y-6">
@@ -57,14 +73,14 @@ export default function CTA() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
-                        className="relative"
+                        className="relative order-1 lg:order-2"
                     >
                         {/* Glow Behind Form */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-[2rem] blur-2xl transform rotate-3 scale-95 -z-10" />
 
-                        <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-[2rem] shadow-2xl overflow-hidden relative">
+                        <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-3xl md:rounded-[2rem] shadow-2xl overflow-hidden relative">
                              {/* Decorative noise */}
-                            <div className="absolute inset-0 bg-[url('https://grain-texture-url-here.png')] opacity-[0.05] pointer-events-none" />
+                            <div className="absolute inset-0 bg-grain opacity-[0.05] pointer-events-none" />
 
                             <AnimatePresence mode="wait">
                                 {formState === 'success' ? (
@@ -82,12 +98,13 @@ export default function CTA() {
                                         <p className="text-muted-foreground mb-8 text-lg">
                                             We've sent a confirmation email to your inbox. Expect a reply within 24 hours.
                                         </p>
-                                        <button
+                                        <Button
                                             onClick={() => setFormState('idle')}
-                                            className="px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 text-white font-medium transition-colors"
+                                            variant="outline"
+                                            className="px-6 py-3 rounded-full border-white/10 hover:bg-white/10 text-white font-medium transition-colors h-auto"
                                         >
                                             Send another message
-                                        </button>
+                                        </Button>
                                     </motion.div>
                                 ) : (
                                     <motion.form
@@ -99,24 +116,36 @@ export default function CTA() {
                                         className="space-y-5"
                                     >
                                         <div className="grid grid-cols-2 gap-5">
-                                            <InputGroup label="First Name" placeholder="Jane" />
-                                            <InputGroup label="Last Name" placeholder="Doe" />
+                                            <div className="space-y-2">
+                                                <Label htmlFor="firstName" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">First Name</Label>
+                                                <Input id="firstName" placeholder="Jane" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="lastName" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Last Name</Label>
+                                                <Input id="lastName" placeholder="Doe" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
+                                            </div>
                                         </div>
-                                        <InputGroup label="Email" type="email" placeholder="jane@example.com" />
                                         
                                         <div className="space-y-2">
-                                            <label className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Project Details</label>
-                                            <textarea 
+                                            <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Email</Label>
+                                            <Input id="email" type="email" placeholder="jane@example.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <Label htmlFor="details" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Project Details</Label>
+                                            <Textarea 
+                                                id="details"
                                                 required 
                                                 rows={4} 
-                                                className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all resize-none"
+                                                className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-xl focus-visible:ring-primary/50 resize-none"
                                                 placeholder="Tell us a bit about your goals..."
                                             />
                                         </div>
 
-                                        <button
+                                        <Button
+                                            type="submit"
                                             disabled={formState === 'submitting'}
-                                            className="w-full group mt-4 py-4 bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]"
+                                            className="w-full h-auto py-4 bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]"
                                         >
                                             {formState === 'submitting' ? (
                                                 <span className="flex items-center gap-2">
@@ -125,11 +154,11 @@ export default function CTA() {
                                                 </span>
                                             ) : (
                                                 <>
-                                                    Start Conversation
+                                                    {ctaContent.buttonText}
                                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                                 </>
                                             )}
-                                        </button>
+                                        </Button>
                                         
                                         <p className="text-xs text-center text-muted-foreground mt-4">
                                             By submitting, you agree to our <a href="#" className="underline hover:text-white">Privacy Policy</a>.
@@ -165,16 +194,4 @@ function ContactItem({ icon: Icon, title, value, delay }: { icon: any, title: st
     );
 }
 
-function InputGroup({ label, type = "text", placeholder }: { label: string, type?: string, placeholder: string }) {
-    return (
-        <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">{label}</label>
-            <input 
-                required 
-                type={type} 
-                className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all"
-                placeholder={placeholder}
-            />
-        </div>
-    );
-}
+
