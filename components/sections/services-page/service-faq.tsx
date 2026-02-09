@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Search, HelpCircle, MessageCircle, ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,10 +100,10 @@ export default function ServiceFAQ() {
                                                 {faq.answer}
                                             </p>
                                             {/* Optional: Add related link or subtle action */}
-                                            <div className="mt-4 pt-4 border-t border-dashed border-border flex items-center gap-2 text-sm font-medium text-primary cursor-pointer hover:underline">
+                                            <Link href="/docs" className="mt-4 pt-4 border-t border-dashed border-border flex items-center gap-2 text-sm font-medium text-primary cursor-pointer hover:underline">
                                                 <Sparkles className="w-3.5 h-3.5" />
                                                 <span>Learn more in our documentation</span>
-                                            </div>
+                                            </Link>
                                         </AccordionContent>
                                     </AccordionItem>
                                 ))}
@@ -137,11 +138,14 @@ export default function ServiceFAQ() {
                         Can't find the answer you're looking for? Please chat to our friendly team.
                     </p>
                     <Button 
+                        asChild
                         size="lg" 
                         className="rounded-full font-bold shadow-lg shadow-primary/25 hover:scale-105 active:scale-95 transition-all"
                     >
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        Chat with Support
+                        <Link href="/contact">
+                            <MessageCircle className="w-5 h-5 mr-2" />
+                            Chat with Support
+                        </Link>
                     </Button>
                 </motion.div>
             </div>

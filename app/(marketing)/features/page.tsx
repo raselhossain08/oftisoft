@@ -1,5 +1,6 @@
 "use client";
-
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -27,7 +28,27 @@ const iconMap: any = {
 };
 
 export default function FeaturesPage() {
+    const { pageContent, isLoading } = usePageContent('features');
+    const setContent = useFeaturesContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useFeaturesContentStore();
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Calibrating Feature Matrix...
+                </div>
+            </div>
+        );
+    }
+
     const features = content?.features || [];
     const header = content?.header;
     const showcase = content?.showcase;

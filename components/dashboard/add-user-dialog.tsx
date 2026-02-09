@@ -63,103 +63,103 @@ export function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogPr
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px] rounded-2xl border-border/50">
-                <DialogHeader>
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                        <UserPlus className="w-6 h-6 text-primary" />
+            <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-border/40 bg-card/60 backdrop-blur-xl shadow-2xl p-0 overflow-hidden">
+                <DialogHeader className="p-8 pb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                        <UserPlus className="w-7 h-7 text-primary" />
                     </div>
-                    <DialogTitle className="text-2xl font-bold tracking-tight">Add New User</DialogTitle>
-                    <DialogDescription>
-                        Create a new user account and assign them a role.
-                    </DialogDescription>
+                    <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Inject New Entity</DialogTitle>
+                    <DialogDescription className="text-[10px] font-black uppercase tracking-widest opacity-60 mt-1">Initialize direct ledger record for a new network participant.</DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input 
-                            id="name" 
-                            placeholder="John Doe" 
-                            className="rounded-xl"
-                            required
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email Address</Label>
-                        <Input 
-                            id="email" 
-                            type="email" 
-                            placeholder="john@example.com" 
-                            className="rounded-xl"
-                            required
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Initial Password</Label>
-                        <Input 
-                            id="password" 
-                            type="password" 
-                            placeholder="••••••••" 
-                            className="rounded-xl"
-                            required
-                            minLength={8}
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="p-8 pt-0 space-y-6">
+                    <div className="grid gap-6">
                         <div className="space-y-2">
-                            <Label htmlFor="role">Role</Label>
-                            <Select 
-                                value={formData.role} 
-                                onValueChange={(value) => setFormData({ ...formData, role: value })}
-                            >
-                                <SelectTrigger className="rounded-xl">
-                                    <SelectValue placeholder="Select role" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl">
-                                    <SelectItem value="User">User</SelectItem>
-                                    <SelectItem value="Support">Support</SelectItem>
-                                    <SelectItem value="Editor">Editor</SelectItem>
-                                    <SelectItem value="Admin">Admin</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="phone">Phone (Optional)</Label>
+                            <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-70">Identity Name</Label>
                             <Input 
-                                id="phone" 
-                                placeholder="+1..." 
-                                className="rounded-xl"
-                                value={formData.phone}
-                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                id="name" 
+                                placeholder="ALEX_REED_01" 
+                                className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
+                                required
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
                         </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-70">Signal Address (Email)</Label>
+                            <Input 
+                                id="email" 
+                                type="email" 
+                                placeholder="signal@oftisoft.network" 
+                                className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
+                                required
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-70">Access Credential</Label>
+                            <Input 
+                                id="password" 
+                                type="password" 
+                                placeholder="••••••••••••" 
+                                className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
+                                required
+                                minLength={8}
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="role" className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-70">Privilege level</Label>
+                                <Select 
+                                    value={formData.role} 
+                                    onValueChange={(value) => setFormData({ ...formData, role: value })}
+                                >
+                                    <SelectTrigger className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black text-[10px] tracking-widest uppercase italic">
+                                        <SelectValue placeholder="Select role" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-2xl p-1">
+                                        <SelectItem value="Viewer" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 italic">Viewer_Node</SelectItem>
+                                        <SelectItem value="Support" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 italic">Support_Agent</SelectItem>
+                                        <SelectItem value="Editor" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 italic">Manager_Editor</SelectItem>
+                                        <SelectItem value="Admin" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 italic">Admin_Protocol</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-70">Comm_Link (Optional)</Label>
+                                <Input 
+                                    id="phone" 
+                                    placeholder="+1 800..." 
+                                    className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <DialogFooter className="pt-4">
+                    <DialogFooter className="pt-4 flex gap-3">
                         <Button 
                             type="button" 
-                            variant="outline" 
-                            className="rounded-xl"
+                            variant="ghost" 
+                            className="rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest uppercase italic opacity-60 hover:opacity-100"
                             onClick={() => onOpenChange(false)}
                         >
-                            Cancel
+                            ABORT_INJECTION
                         </Button>
                         <Button 
                             type="submit" 
-                            className="rounded-xl px-8 shadow-lg shadow-primary/20"
+                            className="rounded-[1.2rem] h-12 px-10 font-black text-[10px] tracking-widest uppercase italic shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform"
                             disabled={isLoading}
                         >
                             {isLoading ? (
                                 <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Creating...
+                                    INITIALIZING...
                                 </>
                             ) : (
-                                "Create User"
+                                "EXECUTE_INJECTION"
                             )}
                         </Button>
                     </DialogFooter>

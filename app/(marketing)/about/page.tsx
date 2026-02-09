@@ -145,11 +145,11 @@ export default function AboutPage() {
 
                 {/* Integrated Sections */}
                 <FounderIntro data={content?.founder} />
-                <MissionValues />
-                <CompanyTimeline />
-                <OfficeCulture />
-                <Awards />
-                <TeamShowcase />
+                <MissionValues data={content} />
+                <CompanyTimeline data={content} />
+                <OfficeCulture data={content?.culture} />
+                <Awards data={content} />
+                <TeamShowcase data={content?.team} />
 
                 {/* Infrastructure Footer */}
                 <div className="p-12 md:p-20 rounded-[60px] bg-primary/[0.03] border-2 border-primary/10 text-center space-y-8 relative overflow-hidden group">

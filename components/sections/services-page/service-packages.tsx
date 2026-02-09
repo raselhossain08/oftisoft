@@ -11,13 +11,15 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, EffectCreative } from "swiper/modules";
+import { Pagination, EffectCreative, Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-creative";
+import "swiper/css/navigation";
 import { motion } from "framer-motion";
 
 import { useServicesContentStore } from "@/lib/store/services-content";
+import { useCart } from "@/hooks/use-cart";
 
 // Icon mapping
 const iconMap: any = {
@@ -71,46 +73,41 @@ export default function ServicePackages() {
                     </div>
                 </div>
 
-                {/* Mobile Slider */}
-                <div className="lg:hidden">
+                {/* Responsive Carousel */}
+                <div className="relative group/swiper">
                     <Swiper
-                        modules={[Pagination, EffectCreative]}
-                        effect={'creative'}
-                        creativeEffect={{
-                            prev: { shadow: true, translate: [0, 0, -400] },
-                            next: { translate: ['100%', 0, 0] },
+                        modules={[Pagination, EffectCreative, Autoplay, Navigation]}
+                        navigation={{
+                            prevEl: '.pricing-prev',
+                            nextEl: '.pricing-next',
                         }}
+                        autoplay={{ delay: 5000, disableOnInteraction: true }}
                         grabCursor={true}
-                        centeredSlides={true}
-                        slidesPerView={1.1}
-                        spaceBetween={20}
-                        pagination={{ clickable: true }}
-                        className="pb-12"
+                        centeredSlides={false}
+                        breakpoints={{
+                            320: { slidesPerView: 1.1, spaceBetween: 20 },
+                            768: { slidesPerView: 2.2, spaceBetween: 30 },
+                            1024: { slidesPerView: 3, spaceBetween: 40 }
+                        }}
+                        pagination={{ clickable: true, dynamicBullets: true }}
+                        className="!pb-16 !px-4"
                     >
                         {packages.map((pkg) => (
-                            <SwiperSlide key={pkg.id}>
-                                <div className="h-full">
-                                    <PricingCard pkg={pkg} billing={billing} />
-                                </div>
+                            <SwiperSlide key={pkg.id} className="h-auto">
+                                <PricingCard pkg={pkg} billing={billing} />
                             </SwiperSlide>
                         ))}
                     </Swiper>
-                </div>
 
-                {/* Desktop Grid */}
-                <div className="hidden lg:grid grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    {packages.map((pkg, index) => (
-                        <motion.div
-                            key={pkg.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                            className="h-full"
-                        >
-                            <PricingCard pkg={pkg} billing={billing} />
-                        </motion.div>
-                    ))}
+                    {/* Desktop Navigation Buttons */}
+                    <div className="hidden lg:block">
+                        <button className="pricing-prev absolute left-[-60px] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border border-border bg-background/80 backdrop-blur-md flex items-center justify-center hover:bg-primary hover:text-white transition-all z-20 shadow-xl opacity-0 group-hover/swiper:opacity-100 -translate-x-4 group-hover/swiper:translate-x-0">
+                            <ArrowRight className="w-5 h-5 rotate-180" />
+                        </button>
+                        <button className="pricing-next absolute right-[-60px] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border border-border bg-background/80 backdrop-blur-md flex items-center justify-center hover:bg-primary hover:text-white transition-all z-20 shadow-xl opacity-0 group-hover/swiper:opacity-100 translate-x-4 group-hover/swiper:translate-x-0">
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
             </div>
@@ -119,10 +116,25 @@ export default function ServicePackages() {
 }
 
 function PricingCard({ pkg, billing }: { pkg: any, billing: 'one-time' | 'monthly' }) {
+    const cart = useCart();
     const isCustom = typeof pkg.price === 'string' && isNaN(Number(pkg.price));
+    const numericPrice = isCustom ? 0 : (billing === 'one-time' ? Number(pkg.price) : Number(pkg.monthlyPrice));
     const priceDisplay = isCustom ? pkg.price : (billing === 'one-time' ? `$${Number(pkg.price).toLocaleString()}` : `$${pkg.monthlyPrice}`);
     const Icon = iconMap[pkg.iconName] || Rocket;
     const period = isCustom ? '' : (billing === 'one-time' ? '' : '/mo');
+
+    const handleAddToCart = () => {
+        if (!isCustom) {
+            cart.addItem({
+                id: `${pkg.id}-${billing}`,
+                name: `${pkg.name} (${billing === 'one-time' ? 'One-time' : 'Monthly'})`,
+                price: numericPrice,
+                image: '', // No image for service packages usually
+                quantity: 1,
+                type: 'service'
+            });
+        }
+    };
 
     return (
         <Card className={cn(
@@ -183,18 +195,31 @@ function PricingCard({ pkg, billing }: { pkg: any, billing: 'one-time' | 'monthl
             </CardContent>
 
             <CardFooter className="relative z-10 pt-2">
-                <Button 
-                    asChild 
-                    className={cn(
-                        "w-full rounded-xl font-bold shadow-sm transition-all duration-300 h-12",
-                        pkg.highlight ? "shadow-lg shadow-primary/25 hover:scale-[1.02]" : ""
-                    )}
-                    variant={pkg.highlight ? "default" : "outline"}
-                >
-                    <Link href="/#contact">
-                        Get Started <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                </Button>
+                {isCustom ? (
+                    <Button 
+                        asChild 
+                        className={cn(
+                            "w-full rounded-xl font-bold shadow-sm transition-all duration-300 h-12",
+                            pkg.highlight ? "shadow-lg shadow-primary/25 hover:scale-[1.02]" : ""
+                        )}
+                        variant={pkg.highlight ? "default" : "outline"}
+                    >
+                        <Link href="#contact">
+                            Contact Us <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </Button>
+                ) : (
+                    <Button 
+                        onClick={handleAddToCart}
+                        className={cn(
+                            "w-full rounded-xl font-bold shadow-sm transition-all duration-300 h-12",
+                            pkg.highlight ? "shadow-lg shadow-primary/25 hover:scale-[1.02]" : ""
+                        )}
+                        variant={pkg.highlight ? "default" : "outline"}
+                    >
+                        Add to Cart <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     );

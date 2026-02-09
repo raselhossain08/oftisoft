@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { useStatusContentStore } from "@/lib/store/status-content";
 
 const iconMap: any = {
@@ -36,7 +38,26 @@ const iconMap: any = {
 };
 
 export default function StatusPage() {
+    const { pageContent, isLoading } = usePageContent('status');
+    const setContent = useStatusContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useStatusContentStore();
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Pinging Cloud Proxies...
+                </div>
+            </div>
+        );
+    }
 
     if (!content) return null;
 

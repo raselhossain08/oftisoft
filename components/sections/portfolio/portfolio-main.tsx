@@ -87,7 +87,7 @@ export default function PortfolioMain() {
                     transition={{ delay: 0.3 }}
                     className="sticky top-4 z-40 mb-12"
                 >
-                    <div className="mx-auto max-w-5xl bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-2 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="mx-auto  bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-2 flex flex-col md:flex-row gap-4 items-center justify-between">
                         
                         {/* Scrollable Categories */}
                         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0 mask-gradient-right px-2">
@@ -215,7 +215,7 @@ export default function PortfolioMain() {
                             
                             <motion.div
                                 layoutId={`project-${selectedProject.id}`} 
-                                className="relative w-full max-w-5xl h-[85vh] md:max-h-[90vh] overflow-y-auto bg-background rounded-t-[2rem] md:rounded-[2rem] shadow-2xl border border-border/50 no-scrollbar"
+                                className="relative w-full  h-[85vh] md:max-h-[90vh] overflow-y-auto bg-background rounded-t-[2rem] md:rounded-[2rem] shadow-2xl border border-border/50 no-scrollbar"
                                 initial={{ opacity: 0, scale: 0.95, y: 100 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 100 }}

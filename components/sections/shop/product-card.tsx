@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Star, ShoppingCart, Heart, Eye } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { Product } from "@/lib/shop-data";
+import { Product } from "@/lib/store/shop-content";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useCart } from "@/hooks/use-cart";
 
 interface ProductCardProps {
     product: Product;
@@ -19,8 +20,17 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
     const [isWishlisted, setIsWishlisted] = useState(false);
+    const cart = useCart();
 
     const handleAddToCart = () => {
+        cart.addItem({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            quantity: 1,
+            type: 'product'
+        });
         toast.success(`${product.name} added to cart!`);
     };
 
@@ -39,7 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
             whileHover={{ y: -5 }}
             transition={{ duration: 0.3 }}
         >
-            <Card className="h-full group relative overflow-hidden bg-card/50 backdrop-blur-sm border-white/5 hover:border-primary/50 transition-colors">
+            <Card className="h-full group relative overflow-hidden bg-card/50 backdrop-blur-sm border-white/5 hover:border-primary/50 transition-colors pt-0">
                 <CardHeader className="p-0 relative aspect-[4/3] overflow-hidden">
                     <div className="absolute inset-0 bg-muted animate-pulse" /> {/* Placeholder */}
                     <Image

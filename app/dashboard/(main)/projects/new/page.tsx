@@ -18,7 +18,7 @@ const PROJECT_TYPES = [
     { id: "ai", title: "AI Solution", desc: "Machine learning & automation", icon: Wand2, color: "bg-purple-500" },
 ];
 
-const STATUS_OPTIONS = ["Planning", "In Progress", "Review", "Completed", "Delayed", "On Hold"];
+import { STATUS_OPTIONS } from "@/lib/projects";
 
 export default function CreateProjectPage() {
     const router = useRouter();
@@ -78,7 +78,7 @@ export default function CreateProjectPage() {
     };
 
     return (
-        <div className="max-w-5xl mx-auto py-8">
+        <div className=" mx-auto py-8">
             {/* Step Indicator */}
             <div className="mb-12">
                 <div className="flex items-center justify-between relative">

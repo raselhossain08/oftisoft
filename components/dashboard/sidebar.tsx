@@ -29,6 +29,7 @@ import {
   FileText,
   Layout,
   ShoppingCart,
+  HomeIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -40,6 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Logo } from "@/components/ui/logo";
 import {
   Sheet,
   SheetContent,
@@ -48,45 +50,58 @@ import {
 } from "@/components/ui/sheet";
 import { useDashboard } from "@/lib/dashboard-context";
 import { useAuth } from "@/hooks/useAuth";
+import { useBadgeCounts } from "@/hooks/useBadgeCounts";
 
 const NAV_GROUPS = [
   {
-    label: "Matrix Core",
+    label: "Overview",
     items: [
-      { icon: LayoutDashboard, label: "Mainframe", href: "/dashboard", roles: ["Viewer", "Editor", "Support", "Admin"] },
-      { icon: PieChart, label: "Neural Analytics", href: "/dashboard/analytics", roles: ["Editor", "Admin"] },
-      { icon: MessageSquare, label: "Signal Center", href: "/dashboard/messages", badge: 3, roles: ["Viewer", "Editor", "Support", "Admin"] },
-      { icon: FolderKanban, label: "Active Nodes", href: "/dashboard/projects", roles: ["Editor", "Admin"] },
+    { icon: HomeIcon, label: "Home", href: "/", roles: ["Viewer", "Editor", "Support", "Admin"] },
+      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", roles: ["Viewer", "Editor", "Support", "Admin"] },
+      { icon: PieChart, label: "Analytics", href: "/dashboard/analytics", roles: ["Editor", "Admin"] },
+      { icon: MessageSquare, label: "Messages", href: "/dashboard/messages", badgeKey: "messages", roles: ["Viewer", "Editor", "Support", "Admin"] },
+      { icon: FolderKanban, label: "Projects", href: "/dashboard/projects", roles: ["Editor", "Admin"] },
     ]
   },
   {
-    label: "Commerce Control",
+    label: "Commerce",
     items: [
-      { icon: ShoppingCart, label: "Grid Orders", href: "/dashboard/orders", badge: 42, roles: ["Admin", "Support"] },
-      { icon: Package, label: "Asset Library", href: "/dashboard/products", roles: ["Admin", "Editor"] },
-      { icon: Briefcase, label: "Service Flux", href: "/dashboard/services", roles: ["Admin", "Support"] },
-      { icon: ShoppingBag, label: "Acquisitions", href: "/dashboard/purchases", roles: ["Viewer", "Editor", "Admin"] },
+      { icon: ShoppingCart, label: "Orders", href: "/dashboard/orders", badgeKey: "orders", roles: ["Admin", "Support"] },
+      { icon: Package, label: "Products", href: "/dashboard/products", roles: ["Admin", "Editor"] },
+      { icon: Briefcase, label: "Services", href: "/dashboard/services", roles: ["Admin", "Support"] },
+      { icon: FileText, label: "Quotes", href: "/dashboard/quotes", roles: ["Viewer", "Editor", "Admin"] },
+      { icon: ShoppingBag, label: "Purchases", href: "/dashboard/purchases", roles: ["Viewer", "Editor", "Admin"] },
+    ]
+
+  },
+  {
+    label: "Marketing",
+    items: [
+      { icon: Megaphone, label: "Campaigns", href: "/dashboard/marketing/campaigns", roles: ["Admin", "Editor"] },
+      { icon: Layout, label: "Ads", href: "/dashboard/marketing/ads", roles: ["Admin", "Editor"] },
+      { icon: Users, label: "Leads", href: "/dashboard/marketing/leads", badgeKey: "leads", roles: ["Admin", "Editor", "Support"] },
     ]
   },
   {
-    label: "Personal Ledger",
+    label: "Personal",
+
     items: [
-      { icon: Library, label: "Local Cache", href: "/dashboard/downloads", roles: ["Viewer", "Editor", "Admin"] },
-      { icon: Heart, label: "Watchlist", href: "/dashboard/favorites", roles: ["Viewer", "Editor", "Admin"] },
-      { icon: Star, label: "Reputation", href: "/dashboard/reviews", roles: ["Viewer", "Editor", "Admin"] },
-      { icon: TrendingUp, label: "Growth Link", href: "/dashboard/affiliate", roles: ["Viewer", "Editor", "Admin"] },
+      { icon: Library, label: "Downloads", href: "/dashboard/downloads", roles: ["Viewer", "Editor", "Admin"] },
+      { icon: Heart, label: "Favorites", href: "/dashboard/favorites", roles: ["Viewer", "Editor", "Admin"] },
+      { icon: Star, label: "Reviews", href: "/dashboard/reviews", roles: ["Viewer", "Editor", "Admin"] },
+      { icon: TrendingUp, label: "Affiliate", href: "/dashboard/affiliate", roles: ["Viewer", "Editor", "Admin"] },
     ]
   },
   {
-    label: "Infrastructure",
+    label: "Management",
     items: [
-      { icon: Users, label: "Personnel", href: "/dashboard/admin/users", roles: ["Admin"] },
-      { icon: Wallet, label: "Financial Engine", href: "/dashboard/admin/finance", roles: ["Admin"] },
-      { icon: Layout, label: "Content Forge", href: "/dashboard/admin/content", roles: ["Admin", "Editor"] },
-      { icon: ShieldCheck, label: "Core Settings", href: "/dashboard/settings/system", roles: ["Admin"] },
-      { icon: CreditCard, label: "Billing Logic", href: "/dashboard/billing", roles: ["Admin", "Viewer", "Editor"] },
-      { icon: Settings, label: "Configuration", href: "/dashboard/settings", roles: ["Viewer", "Editor", "Admin"] },
-      { icon: MessageCircle, label: "Direct Link", href: "/dashboard/support", roles: ["Viewer", "Editor", "Admin", "Support"] },
+      { icon: Users, label: "Users", href: "/dashboard/admin/users", roles: ["Admin"] },
+      { icon: Wallet, label: "Finance", href: "/dashboard/admin/finance", roles: ["Admin"] },
+      { icon: Layout, label: "Content", href: "/dashboard/admin/content", roles: ["Admin", "Editor"] },
+      { icon: ShieldCheck, label: "System", href: "/dashboard/settings/system", roles: ["Admin"] },
+      { icon: CreditCard, label: "Billing", href: "/dashboard/billing", roles: ["Admin", "Viewer", "Editor"] },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings", roles: ["Viewer", "Editor", "Admin"] },
+      { icon: MessageCircle, label: "Support", href: "/dashboard/support", roles: ["Viewer", "Editor", "Admin", "Support"] },
     ]
   }
 ];
@@ -99,14 +114,14 @@ type SidebarContentProps = {
 function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const [simulatedRole, setSimulatedRole] = useState<string | null>(null);
+  const badgeCounts = useBadgeCounts();
 
-  const activeRole = simulatedRole || user?.role || "Viewer";
+  const activeRole = user?.role || "Viewer";
 
   return (
     <>
-      <ScrollArea className="flex-1 px-3">
-        <div className="space-y-6 py-4">
+      <ScrollArea className="flex-1 px-3 max-h-[100vh] overflow-y-auto">
+        <div className="space-y-6 py-4 ">
           {NAV_GROUPS.map((group) => {
             const filteredItems = group.items.filter((item) => item.roles.includes(activeRole));
             if (filteredItems.length === 0) return null;
@@ -121,6 +136,9 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
                 <nav className="space-y-1">
                   {filteredItems.map((item) => {
                     const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                    // Get badge count from badgeKey if it exists
+                    const badgeCount = (item as any).badgeKey ? badgeCounts[(item as any).badgeKey as keyof typeof badgeCounts] : 0;
+                    const hasBadge = badgeCount > 0;
 
                     return (
                       <Link
@@ -151,18 +169,18 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
                           </motion.span>
                         )}
 
-                        {item.badge && !collapsed && (
+                        {hasBadge && !collapsed && (
                           <Badge
                             className={cn(
                               "text-[9px] font-black px-1.5 py-0 h-4 min-w-[16px] flex items-center justify-center rounded-full border-none",
                               isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground"
                             )}
                           >
-                            {item.badge}
+                            {badgeCount}
                           </Badge>
                         )}
                         
-                        {item.badge && collapsed && (
+                        {hasBadge && collapsed && (
                           <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border border-card shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
                         )}
                       </Link>
@@ -172,11 +190,8 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
               </div>
             );
           })}
-        </div>
-      </ScrollArea>
-
-      <div className="p-4 border-t border-border/40 bg-muted/5 space-y-2">
-        {!collapsed && (
+                        <div className="p-4 border-t border-border/40 bg-muted/5 space-y-2">
+        {!collapsed && !["Admin", "Super Admin"].includes(activeRole) && (
           <div className="mb-4 p-5 rounded-3xl bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent border border-primary/10 relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-[40px] rounded-full group-hover:bg-primary/20 transition-colors" />
             <p className="font-black text-xs mb-1 tracking-tight">Expansion Protocol</p>
@@ -192,34 +207,6 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {
-            const roles = ["Admin", "Editor", "Support", "Viewer"];
-            const currentIndex = roles.indexOf(activeRole);
-            const nextIndex = (currentIndex + 1) % roles.length;
-            setSimulatedRole(roles[nextIndex]);
-            toast.info(`Simulation Role: ${roles[nextIndex]}`, {
-              description: "Dashboard view updated for specific clearance level."
-            });
-          }}
-          className={cn(
-            "w-full justify-start gap-4 h-12 rounded-2xl font-bold text-muted-foreground hover:text-foreground hover:bg-white/5",
-            collapsed && "justify-center px-0"
-          )}
-        >
-          <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
-            <Users className="w-4 h-4" />
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col items-start leading-none gap-0.5">
-              <span className="text-xs">Simulate Clearance</span>
-              <span className="text-[10px] text-orange-500 font-black uppercase tracking-widest">{activeRole}</span>
-            </div>
-          )}
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
           onClick={() => void logout()}
           className={cn(
             "w-full justify-start gap-4 h-12 rounded-2xl font-bold text-red-500 hover:bg-red-500/10 hover:text-red-500",
@@ -229,9 +216,14 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
           <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
             <LogOut className="w-4 h-4" />
           </div>
-          {!collapsed && <span className="text-xs">Terminated Node</span>}
+          {!collapsed && <span className="text-xs">Logout</span>}
         </Button>
       </div>
+        </div>
+
+      </ScrollArea>
+
+
     </>
   );
 }
@@ -258,17 +250,10 @@ export default function Sidebar() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-4 font-black overflow-hidden"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] shrink-0">
-                <Code2 className="w-5 h-5" />
-              </div>
-              <span className="text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
-                OFTISOFT
-              </span>
+              <Logo variant="white" size="lg" />
             </motion.div>
           ) : (
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto shadow-[0_0_20px_rgba(37,99,235,0.3)] shrink-0">
-              <Code2 className="w-5 h-5" />
-            </div>
+            <Logo showText={false} size="lg" className="mx-auto" />
           )}
 
           <Button
@@ -289,11 +274,9 @@ export default function Sidebar() {
         <SheetContent side="left" className="w-[300px] p-0 border-none bg-[#050505]/95 backdrop-blur-3xl flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.5)]">
           <SheetHeader className="p-8 border-b border-white/5 shrink-0 relative">
              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] shrink-0">
-                <Code2 className="w-5 h-5" />
-              </div>
-              <SheetTitle className="text-2xl font-black tracking-tighter text-white !mt-0">OFTISOFT</SheetTitle>
+              <Logo variant="white" size="lg" />
             </div>
           </SheetHeader>
           <div className="flex-1 flex flex-col min-h-0">

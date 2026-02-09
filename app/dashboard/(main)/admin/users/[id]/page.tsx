@@ -46,12 +46,13 @@ import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useUsers } from "@/hooks/useUsers";
+import { cn } from "@/lib/utils";
 
 export default function UserDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const id = params?.id as string;
-    const { user, stats, isLoading, fetchUser, updateUser, toggleUserStatus, deleteUser } = useUsers();
+    const { user, stats, activities, isLoading, fetchUser, updateUser, toggleUserStatus, deleteUser } = useUsers();
 
     // Dialog States
     const [isEmailOpen, setIsEmailOpen] = useState(false);
@@ -65,13 +66,23 @@ export default function UserDetailsPage() {
     }, [id, fetchUser]);
 
     if (isLoading) return (
-        <div className="p-20 text-center flex flex-col items-center gap-4">
-            <div className="animate-spin rounded-full h-auto w-12 border-b-2 border-primary" />
-            <p className="font-bold text-muted-foreground">Loading user profile...</p>
+        <div className="p-40 text-center flex flex-col items-center justify-center gap-6">
+            <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+                <div className="h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin relative z-10" />
+            </div>
+            <p className="font-black text-primary uppercase tracking-[0.3em] animate-pulse">Reconstructing Identity...</p>
         </div>
     );
 
-    if (!user) return <div className="p-20 text-center font-bold">User profile not found.</div>;
+    if (!user) return (
+        <div className="p-40 text-center">
+            <h2 className="text-4xl font-black italic opacity-20">Entity Not Found</h2>
+            <Button asChild className="mt-8 rounded-xl font-black tracking-widest px-10 h-12 italic">
+                <Link href="/dashboard/admin/users">Return to Grid</Link>
+            </Button>
+        </div>
+    );
 
     const handleDelete = async () => {
         try {
@@ -99,26 +110,26 @@ export default function UserDetailsPage() {
     return (
         <div className="space-y-8 max-w-6xl mx-auto pb-20">
             {/* Header / Actions */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <Button asChild variant="ghost" size="icon" className="rounded-full">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-6">
+                    <Button asChild variant="ghost" size="icon" className="h-14 w-14 rounded-[1.5rem] bg-muted/20 hover:bg-primary/10 hover:text-primary transition-all">
                         <Link href="/dashboard/admin/users">
-                            <ArrowLeft className="w-5 h-5" />
+                            <ArrowLeft className="w-6 h-6" />
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-black tracking-tighter">User Profile</h1>
-                        <p className="text-muted-foreground text-sm">Managing account {user.id} since {new Date(user.createdAt).toLocaleDateString()}</p>
+                        <h1 className="text-4xl font-black tracking-[ -0.05em] italic uppercase">Entity Profile</h1>
+                        <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mt-1 opacity-70">Secured Record ID: {user.id.slice(0, 8)}... Linked {new Date(user.createdAt).toLocaleDateString()}</p>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" className="gap-2 rounded-xl h-11" onClick={() => setIsMessageOpen(true)}>
+                <div className="flex flex-wrap gap-3">
+                    <Button variant="outline" className="gap-3 rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest border-border/50 hover:bg-muted" onClick={() => setIsMessageOpen(true)}>
                         <MessageSquare className="w-4 h-4" />
-                        Message
+                        WS_BROADCAST
                     </Button>
-                    <Button className="gap-2 rounded-xl h-11 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 px-6" onClick={() => setIsEmailOpen(true)}>
+                    <Button className="gap-3 rounded-[1.2rem] h-12 px-8 font-black text-[10px] tracking-widest shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform" onClick={() => setIsEmailOpen(true)}>
                         <Mail className="w-4 h-4" />
-                        Send Email
+                        COMMUNIQUE_DISPATCH
                     </Button>
                 </div>
             </div>
@@ -126,82 +137,104 @@ export default function UserDetailsPage() {
             <div className="grid lg:grid-cols-3 gap-8">
                 {/* Profile Card */}
                 <div className="space-y-6">
-                    <Card className="border-border/50 overflow-hidden">
-                        <div className="h-24 bg-gradient-to-r from-primary/20 to-purple-500/20" />
-                        <CardContent className="relative pt-0 px-6 pb-6">
-                            <div className="flex flex-col items-center -mt-12 text-center">
-                                <Avatar className="h-24 w-24 border-4 border-background shadow-xl">
-                                    <AvatarImage src={user.avatarUrl} />
-                                    <AvatarFallback className="text-2xl font-black bg-primary/10 text-primary">
-                                        {user.name.split(" ").map(n => n[0]).join("")}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="mt-4">
-                                    <h3 className="text-xl font-black">{user.name}</h3>
-                                    <p className="text-sm text-primary font-medium">{user.email}</p>
-                                    <div className="flex items-center justify-center gap-2 mt-2">
-                                        <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-1.5 h-6">
-                                            <Star className="w-3 h-3 fill-amber-500" /> {user.role}
+                    <Card className="border-border/40 overflow-hidden rounded-[2.5rem] bg-card/40 backdrop-blur-md shadow-sm">
+                        <div className="h-28 bg-gradient-to-br from-primary/30 to-purple-600/30 relative">
+                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+                        </div>
+                        <CardContent className="relative pt-0 px-8 pb-8">
+                            <div className="flex flex-col items-center -mt-14 text-center">
+                                <div className="relative">
+                                    <Avatar className="h-28 w-28 border-[6px] border-background shadow-2xl">
+                                        <AvatarImage src={user.avatarUrl} />
+                                        <AvatarFallback className="text-3xl font-black bg-primary/10 text-primary italic">
+                                            {user.name.split(" ").map(n => n[0]).join("")}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    {user.isActive && (
+                                        <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-green-500 border-4 border-background shadow-lg animate-pulse" />
+                                    )}
+                                </div>
+                                <div className="mt-6 uppercase">
+                                    <h3 className="text-2xl font-black italic tracking-tighter leading-tight">{user.name}</h3>
+                                    <p className="text-[10px] text-primary font-black tracking-widest opacity-80 mt-1">{user.email}</p>
+                                    <div className="flex items-center justify-center gap-2 mt-4">
+                                        <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic">
+                                            <Star className="w-3 h-3 fill-primary" /> {user.role}
                                         </Badge>
-                                        <Badge variant="outline" className={`h-6 ${user.isActive ? "border-green-500/30 text-green-500 bg-green-500/5" : "border-muted text-muted"}`}>
-                                            {user.isActive ? "Active" : "Inactive"}
+                                        <Badge variant="outline" className={cn(
+                                            "h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic border-2 transition-all",
+                                            user.isActive ? "border-green-500/20 text-green-500 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.1)]" : "border-muted text-muted italic opacity-50"
+                                        )}>
+                                            {user.isActive ? "NODE_ACTIVE" : "NODE_LOCKED"}
                                         </Badge>
                                     </div>
                                 </div>
                             </div>
 
-                            <Separator className="my-6 opacity-30" />
+                            <Separator className="my-8 opacity-20" />
 
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3 text-sm">
-                                    <MapPin className="w-4 h-4 text-muted-foreground" />
-                                    <span className="font-medium">{user.city || "No city"}, {user.state || "No state"}</span>
+                            <div className="space-y-5">
+                                <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest group">
+                                    <div className="w-8 h-8 rounded-xl bg-muted/30 flex items-center justify-center transition-colors group-hover:bg-primary/10">
+                                        <MapPin className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                                    </div>
+                                    <span className="opacity-70 italic">{user.city || "EXTERNAL"}, {user.state || "GW"}</span>
                                 </div>
-                                <div className="flex items-center gap-3 text-sm">
-                                    <Globe className="w-4 h-4 text-muted-foreground" />
-                                    <span className="font-medium">GMT +8 Timezone (Mock)</span>
+                                <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest group">
+                                    <div className="w-8 h-8 rounded-xl bg-muted/30 flex items-center justify-center transition-colors group-hover:bg-primary/10">
+                                        <Globe className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                                    </div>
+                                    <span className="opacity-70 italic">NET_PROTOCOL_TCPv4</span>
                                 </div>
-                                <div className="flex items-center gap-3 text-sm">
-                                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                                    <span className="font-medium">Joined {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                                <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest group">
+                                    <div className="w-8 h-8 rounded-xl bg-muted/30 flex items-center justify-center transition-colors group-hover:bg-primary/10">
+                                        <Calendar className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                                    </div>
+                                    <span className="opacity-70 italic">STREAMS_ESTABLISHED {new Date(user.createdAt).getFullYear()}</span>
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="bg-muted/5 p-4 flex gap-2">
-                            <Button variant="ghost" className="flex-1 text-xs h-9 rounded-lg gap-2 text-primary hover:bg-primary/5" onClick={() => toggleUserStatus(user.id)}>
-                                <ShieldAlert className="w-3.5 h-3.5" /> {user.isActive ? "Deactivate" : "Activate"}
+                        <CardFooter className="bg-muted/10 p-4 flex gap-3">
+                            <Button variant="ghost" className="flex-1 text-[10px] h-11 rounded-xl gap-3 font-black tracking-widest uppercase italic hover:bg-primary/10 hover:text-primary transition-all" onClick={() => toggleUserStatus(user.id)}>
+                                <ShieldAlert className="w-4 h-4" /> {user.isActive ? "LOCK_SIGNAL" : "BYPASS_ENCR"}
                             </Button>
-                            <Button variant="ghost" className="flex-1 text-xs h-9 rounded-lg gap-2 text-destructive hover:bg-destructive/10" onClick={() => setIsDeleteOpen(true)}>
-                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                            <Button variant="ghost" className="flex-1 text-[10px] h-11 rounded-xl gap-3 font-black tracking-widest uppercase italic text-destructive hover:bg-destructive/10 transition-all" onClick={() => setIsDeleteOpen(true)}>
+                                <Trash2 className="w-4 h-4" /> PURGE_ENTITY
                             </Button>
                         </CardFooter>
                     </Card>
 
-                    <Card className="border-border/50">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-black uppercase tracking-wider text-muted-foreground">User Stats</CardTitle>
+                    <Card className="border-border/40 bg-card/40 backdrop-blur-md rounded-[2.5rem] shadow-sm overflow-hidden">
+                        <CardHeader className="p-8 pb-4">
+                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Entity Ledger Status</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10">
-                                <div className="flex items-center gap-3">
-                                    <Wallet className="w-5 h-5 text-primary" />
-                                    <span className="text-sm font-bold">Lifetime Value</span>
+                        <CardContent className="p-4 pt-0 space-y-3">
+                            <div className="flex items-center justify-between p-6 rounded-[2rem] bg-primary/[0.03] border border-primary/10 group hover:bg-primary/[0.06] transition-all">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                        <Wallet className="w-6 h-6 text-primary" />
+                                    </div>
+                                    <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Lifetime Value</span>
                                 </div>
-                                <span className="text-xl font-black text-primary">${stats?.ltv || "0.00"}</span>
+                                <span className="text-2xl font-black text-primary italic leading-none">${stats?.ltv || "0.00"}</span>
                             </div>
-                            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border">
-                                <div className="flex items-center gap-3">
-                                    <ShoppingBag className="w-5 h-5 text-muted-foreground" />
-                                    <span className="text-sm font-bold">Total Orders</span>
+                            <div className="flex items-center justify-between p-6 rounded-[2rem] bg-muted/10 border border-border group hover:bg-muted/20 transition-all">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-muted/20 flex items-center justify-center">
+                                        <ShoppingBag className="w-6 h-6 text-muted-foreground" />
+                                    </div>
+                                    <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Total Orders</span>
                                 </div>
-                                <span className="text-xl font-black">{stats?.orderCount || 0}</span>
+                                <span className="text-2xl font-black italic leading-none">{stats?.orderCount || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border">
-                                <div className="flex items-center gap-3">
-                                    <MessageSquare className="w-5 h-5 text-muted-foreground" />
-                                    <span className="text-sm font-bold">Support Tickets</span>
+                            <div className="flex items-center justify-between p-6 rounded-[2rem] bg-muted/10 border border-border group hover:bg-muted/20 transition-all">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-muted/20 flex items-center justify-center">
+                                        <MessageSquare className="w-6 h-6 text-muted-foreground" />
+                                    </div>
+                                    <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Requests</span>
                                 </div>
-                                <span className="text-xl font-black">{stats?.ticketCount || 0}</span>
+                                <span className="text-2xl font-black italic leading-none">{stats?.ticketCount || 0}</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -210,69 +243,110 @@ export default function UserDetailsPage() {
                 {/* Main Content Tabs */}
                 <div className="lg:col-span-2 space-y-8">
                     <Tabs defaultValue="activity" className="w-full">
-                        <TabsList className="bg-muted/50 p-1 rounded-2xl h-14 w-fit border border-border mb-6">
-                            <TabsTrigger value="activity" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-6">
+                        <TabsList className="bg-muted/30 p-1.5 rounded-[1.5rem] h-16 w-fit border border-border/50 backdrop-blur-md mb-8">
+                            <TabsTrigger value="activity" className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all">
                                 <History className="w-4 h-4" /> Activity Log
                             </TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-6">
-                                <ShieldAlert className="w-4 h-4" /> Security
+                            <TabsTrigger value="settings" className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all">
+                                <ShieldAlert className="w-4 h-4" /> Security Ledger
                             </TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="activity" className="space-y-4">
-                            <div className="p-12 text-center rounded-[2rem] border-2 border-dashed border-border bg-muted/10">
-                                <History className="w-12 h-auto text-muted-foreground/30 mx-auto mb-4" />
-                                <h4 className="font-bold text-lg">No activity recorded</h4>
-                                <p className="text-sm text-muted-foreground max-w-[250px] mx-auto mt-2">The system hasn't captured any sessions or logs for this account yet.</p>
-                            </div>
+                        <TabsContent value="activity">
+                            {activities.length > 0 ? (
+                                <div className="space-y-4">
+                                    {activities.map((activity, idx) => (
+                                        <div key={idx} className="p-6 rounded-[2rem] border border-border/40 bg-card/40 backdrop-blur-md flex items-center justify-between group hover:border-primary/20 transition-all">
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
+                                                    <Globe className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="text-[11px] font-black uppercase tracking-widest text-foreground">VISITED_NODE: {activity.page}</div>
+                                                    <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-tighter text-muted-foreground opacity-60">
+                                                        <Clock className="w-3 h-3" /> {new Date(activity.timestamp).toLocaleString()} UTC
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-[9px] font-black text-primary uppercase tracking-[0.2em] italic">SIGNAL_STABLE</div>
+                                                <div className="text-[8px] font-mono text-muted-foreground opacity-40 uppercase mt-1">{activity.ip}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-32 text-center rounded-[3rem] border-2 border-dashed border-border/40 bg-muted/5 flex flex-col items-center justify-center gap-6">
+                                    <div className="w-20 h-20 rounded-[2rem] bg-muted/20 flex items-center justify-center">
+                                        <History className="w-10 h-10 text-muted-foreground/30" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-2xl italic tracking-tighter">Zero Signals Recorded</h4>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground max-w-[300px] mx-auto mt-3 opacity-60">The entity has not established any recorded sessions within the current terminal cycle.</p>
+                                    </div>
+                                </div>
+                            )}
                         </TabsContent>
 
                         <TabsContent value="settings">
-                            <Card className="border-border/50 rounded-2xl overflow-hidden">
-                                <CardHeader>
-                                    <CardTitle className="text-xl font-black">Security & Access</CardTitle>
-                                    <CardDescription>Manage administrative privileges and security compliance.</CardDescription>
+                            <Card className="border-border/40 rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md shadow-sm">
+                                <CardHeader className="p-8 pb-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <CardTitle className="text-2xl font-black italic uppercase">Security Keys & Role</CardTitle>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1 opacity-60">ADMINISTRATIVE_ENCRYPTION_PROTOCOL_v4</p>
+                                        </div>
+                                        <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+                                            <ShieldAlert className="w-6 h-6 text-amber-500" />
+                                        </div>
+                                    </div>
                                 </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <div className="p-5 rounded-2xl bg-muted/30 border border-border space-y-4">
+                                <CardContent className="p-8 space-y-8">
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="p-6 rounded-3xl bg-muted/20 border border-border/50 space-y-4">
                                             <div>
-                                                <p className="text-xs font-black text-muted-foreground uppercase mb-3">System Role</p>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">Authority Level</p>
                                                 <Select 
                                                     value={user.role} 
                                                     onValueChange={(value) => updateUser(user.id, { role: value })}
                                                 >
-                                                    <SelectTrigger className="rounded-xl h-11 font-bold">
+                                                    <SelectTrigger className="rounded-xl h-12 font-black text-xs uppercase tracking-widest border-border/50 bg-background/50">
                                                         <SelectValue />
                                                     </SelectTrigger>
-                                                    <SelectContent className="rounded-xl">
-                                                        <SelectItem value="Admin">Administrator</SelectItem>
-                                                        <SelectItem value="Editor">Content Editor</SelectItem>
-                                                        <SelectItem value="Support">Support Agent</SelectItem>
-                                                        <SelectItem value="Viewer">Regular Viewer</SelectItem>
+                                                    <SelectContent className="rounded-2xl p-1">
+                                                        <SelectItem value="Admin" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3">Administrator</SelectItem>
+                                                        <SelectItem value="Editor" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3">Content Editor</SelectItem>
+                                                        <SelectItem value="Support" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3">Support Agent</SelectItem>
+                                                        <SelectItem value="Viewer" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3">Regular Viewer</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </div>
                                         </div>
-                                        <div className="p-5 rounded-2xl bg-muted/30 border border-border flex flex-col justify-center gap-3">
-                                            <p className="text-xs font-black text-muted-foreground uppercase">Multi-Factor Auth</p>
-                                            <Badge variant={user.isTwoFactorEnabled ? "default" : "secondary"} className="w-fit rounded-lg h-7 font-black">
-                                                {user.isTwoFactorEnabled ? "ACTIVE PROTECTION" : "MF_DISABLED"}
-                                            </Badge>
+                                        <div className="p-6 rounded-3xl bg-muted/20 border border-border/50 flex flex-col justify-center gap-4">
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Multi-Factor Auth</p>
+                                            <div className="flex items-center gap-3">
+                                                <div className={cn("w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px]", user.isTwoFactorEnabled ? "bg-green-500 shadow-green-500/50" : "bg-muted shadow-muted-foreground/20")} />
+                                                <Badge variant={user.isTwoFactorEnabled ? "default" : "secondary"} className="rounded-lg h-8 px-4 font-black text-[9px] tracking-widest uppercase italic">
+                                                    {user.isTwoFactorEnabled ? "BIOMETRIC_ACTIVE" : "PROTECTION_DISABLED"}
+                                                </Badge>
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <div className="flex flex-col md:flex-row gap-4">
-                                        <div className="flex-1 p-5 rounded-2xl bg-muted/30 border border-border flex flex-col justify-center gap-3">
-                                            <p className="text-xs font-black text-muted-foreground uppercase">Verification Status</p>
-                                            <Badge variant={user.isEmailVerified ? "default" : "secondary"} className="w-fit rounded-lg h-7 font-black">
-                                                {user.isEmailVerified ? "EMAIL VERIFIED" : "PENDING_VERIFY"}
-                                            </Badge>
+                                    <div className="flex flex-col md:flex-row gap-6">
+                                        <div className="flex-1 p-6 rounded-3xl bg-muted/20 border border-border/50 flex flex-col justify-center gap-4">
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Identity Verification</p>
+                                            <div className="flex items-center gap-3">
+                                                <div className={cn("w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px]", user.isEmailVerified ? "bg-primary shadow-primary/50" : "bg-muted shadow-muted-foreground/20")} />
+                                                <Badge variant={user.isEmailVerified ? "default" : "secondary"} className="rounded-lg h-8 px-4 font-black text-[9px] tracking-widest uppercase italic">
+                                                    {user.isEmailVerified ? "EMAIL_VERIFIED" : "VERIFY_PENDING"}
+                                                </Badge>
+                                            </div>
                                         </div>
-                                        <div className="flex-1 p-5 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col justify-center gap-3">
-                                            <p className="text-xs font-black text-muted-foreground uppercase text-primary">Credential Management</p>
-                                            <Button variant="outline" className="h-10 rounded-xl font-bold border-primary/20 text-primary hover:bg-primary/5" onClick={() => setIsResetPwdOpen(true)}>
-                                                Reset Password
+                                        <div className="flex-1 p-6 rounded-3xl bg-primary/5 border border-primary/20 flex flex-col justify-center gap-4">
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Security Bypass</p>
+                                            <Button variant="outline" className="h-12 rounded-xl font-black text-[10px] tracking-widest uppercase border-primary/20 text-primary hover:bg-primary hover:text-white transition-all shadow-xl shadow-primary/5" onClick={() => setIsResetPwdOpen(true)}>
+                                                RESET_CREDENTIALS
                                             </Button>
                                         </div>
                                     </div>

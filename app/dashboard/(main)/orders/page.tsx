@@ -42,31 +42,19 @@ import { useOrders } from "@/hooks/useOrders";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function OrdersPage() {
+import { StatusBadge } from "@/components/orders/status-badge";
+
+const OrdersPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
     const { orders, isLoading, exportReport, isExportingReport, downloadInvoice } = useOrders();
 
-    const filteredOrders = orders?.filter(o => 
-        o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.status.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "completed":
-                return <Badge className="bg-green-500/10 text-green-500 border-green-500/20 gap-1.5"><CheckCircle2 className="w-3 h-3" /> Completed</Badge>;
-            case "processing":
-                return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 gap-1.5"><Clock className="w-3 h-3" /> Processing</Badge>;
-            case "pending":
-                return <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 gap-1.5"><Clock className="w-3 h-3" /> Pending</Badge>;
-            case "cancelled":
-                return <Badge className="bg-destructive/10 text-destructive border-destructive/20 gap-1.5"><XCircle className="w-3 h-3" /> Cancelled</Badge>;
-            case "refunded":
-                return <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20 gap-1.5"><RotateCcw className="w-3 h-3" /> Refunded</Badge>;
-            default:
-                return <Badge variant="outline">{status}</Badge>;
-        }
-    };
+    const filteredOrders = orders?.filter(o => {
+        const matchesStatus = statusFilter === 'all' || o.status.toLowerCase() === statusFilter.toLowerCase();
+        const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              o.status.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesStatus && matchesSearch;
+    }) || [];
 
     // Calculate Stats
     const totalOrders = orders.length;
@@ -153,13 +141,22 @@ export default function OrdersPage() {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" className="gap-2 rounded-lg">
-                                <Filter className="h-4 w-4" />
-                                Filter
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-lg">
-                                Status: All
-                            </Button>
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm" className="gap-2 rounded-lg">
+                                        <Filter className="h-4 w-4" />
+                                        Status: {statusFilter === 'all' ? 'All' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => setStatusFilter("all")}>All</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setStatusFilter("pending")}>Pending</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setStatusFilter("processing")}>Processing</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setStatusFilter("completed")}>Completed</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setStatusFilter("cancelled")}>Cancelled</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setStatusFilter("refunded")}>Refunded</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
                 </CardHeader>
@@ -215,7 +212,7 @@ export default function OrdersPage() {
                                                 {format(new Date(o.createdAt), 'MMM d, yyyy')}
                                             </div>
                                         </TableCell>
-                                        <TableCell>{getStatusBadge(o.status)}</TableCell>
+                                        <TableCell><StatusBadge status={o.status} /></TableCell>
                                         <TableCell className="font-black text-primary">${Number(o.total).toFixed(2)}</TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
@@ -254,3 +251,5 @@ export default function OrdersPage() {
         </div>
     );
 }
+
+export default OrdersPage;

@@ -93,7 +93,7 @@ export default function FeaturedPost() {
                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                         exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="max-w-5xl mx-auto"
+                        className=" mx-auto"
                     >
                         {/* Meta Tags */}
                         <div className="flex flex-wrap gap-3 mb-6">

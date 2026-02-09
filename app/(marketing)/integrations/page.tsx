@@ -1,5 +1,6 @@
 "use client";
-
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +29,27 @@ const iconMap: any = {
 };
 
 export default function IntegrationsPage() {
+    const { pageContent, isLoading } = usePageContent('integrations');
+    const setContent = useIntegrationsContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useIntegrationsContentStore();
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-blue-500 font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Initializing Interop Hub...
+                </div>
+            </div>
+        );
+    }
+
     const integrations = content?.integrations || [];
     const header = content?.header;
     const cta = content?.cta;

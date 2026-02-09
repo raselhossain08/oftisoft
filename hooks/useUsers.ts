@@ -6,6 +6,7 @@ export function useUsers() {
     const [users, setUsers] = useState<User[]>([]);
     const [user, setUser] = useState<User | null>(null);
     const [stats, setStats] = useState<{ ltv: string; orderCount: number; ticketCount: number } | null>(null);
+    const [activities, setActivities] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -28,18 +29,29 @@ export function useUsers() {
         setIsLoading(true);
         setError(null);
         try {
-            const [userData, statsData] = await Promise.all([
+            const [userData, statsData, activityData] = await Promise.all([
                 adminUserAPI.getUser(id),
-                adminUserAPI.getUserStats(id)
+                adminUserAPI.getUserStats(id),
+                adminUserAPI.getActivity(id)
             ]);
             setUser(userData);
             setStats(statsData);
+            setActivities(activityData);
         } catch (err: any) {
             const message = err.response?.data?.message || err.message || "Failed to fetch user";
             setError(message);
             toast.error(message);
         } finally {
             setIsLoading(false);
+        }
+    }, []);
+
+    const fetchActivity = useCallback(async (id: string) => {
+        try {
+            const data = await adminUserAPI.getActivity(id);
+            setActivities(data);
+        } catch (err) {
+            // Error handled visually
         }
     }, []);
 
@@ -87,6 +99,7 @@ export function useUsers() {
         users,
         user,
         stats,
+        activities,
         isLoading,
         error,
         fetchUsers,
@@ -94,5 +107,6 @@ export function useUsers() {
         updateUser,
         toggleUserStatus,
         deleteUser,
+        fetchActivity,
     };
 }

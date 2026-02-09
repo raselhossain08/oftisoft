@@ -70,7 +70,23 @@ interface Bundle {
 }
 
 export default function PricingMarketingPage() {
-    const { coupons, bundles, products, isLoading, createCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, createBundle, updateBundle, deleteBundle } = useMarketing();
+    const { 
+        coupons, 
+        bundles, 
+        products, 
+        subscriptionPlans, 
+        isLoading, 
+        createCoupon, 
+        updateCoupon, 
+        deleteCoupon, 
+        toggleCouponStatus, 
+        createBundle, 
+        updateBundle, 
+        deleteBundle,
+        createSubscriptionPlan,
+        updateSubscriptionPlan,
+        deleteSubscriptionPlan
+    } = useMarketing();
     
     // Coupon Form State
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -224,6 +240,59 @@ export default function PricingMarketingPage() {
         setIsCreateBundleOpen(true);
     };
 
+
+    // Subscription Form State
+    const [isCreateSubscriptionOpen, setIsCreateSubscriptionOpen] = useState(false);
+    const [editingSubscriptionId, setEditingSubscriptionId] = useState<string | null>(null);
+    const [subName, setSubName] = useState("");
+    const [subPrice, setSubPrice] = useState("");
+    const [subInterval, setSubInterval] = useState("month");
+    const [subIcon, setSubIcon] = useState("Zap");
+
+    const resetSubscriptionForm = () => {
+        setEditingSubscriptionId(null);
+        setSubName("");
+        setSubPrice("");
+        setSubInterval("month");
+        setSubIcon("Zap");
+    };
+
+    const handleCreateSubscription = async () => {
+        if (!subName || !subPrice) {
+            toast.error("Please fill in all required fields");
+            return;
+        }
+
+        const data = {
+            name: subName,
+            price: Number(subPrice),
+            interval: subInterval,
+            iconName: subIcon
+        };
+
+        let success;
+        if (editingSubscriptionId) {
+            success = await updateSubscriptionPlan(editingSubscriptionId, data);
+            if (success) toast.success("Plan updated successfully");
+        } else {
+            success = await createSubscriptionPlan(data);
+        }
+
+        if (success) {
+            setIsCreateSubscriptionOpen(false);
+            resetSubscriptionForm();
+        }
+    };
+
+    const handleEditSubscription = (plan: any) => {
+        setEditingSubscriptionId(plan.id);
+        setSubName(plan.name);
+        setSubPrice(String(plan.price));
+        setSubInterval(plan.interval);
+        setSubIcon(plan.iconName);
+        setIsCreateSubscriptionOpen(true);
+    };
+
     return (
         <div className="space-y-8 pb-20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -254,17 +323,17 @@ export default function PricingMarketingPage() {
                             <div className="space-y-6 mt-4">
                                 <div className="space-y-2">
                                     <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Coupon Code</Label>
-                                    <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="SUMMER2026" className="h-12 rounded-xl font-bold uppercase" />
+                                    <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="SUMMER2026" className="h-auto rounded-xl font-bold uppercase" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Description</Label>
-                                    <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Summer Sale Discount" className="h-12 rounded-xl font-medium" />
+                                    <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Summer Sale Discount" className="h-auto rounded-xl font-medium" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Type</Label>
                                         <Select value={discountType} onValueChange={setDiscountType}>
-                                            <SelectTrigger className="h-12 rounded-xl font-medium">
+                                            <SelectTrigger className="h-auto rounded-xl font-medium">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -276,7 +345,7 @@ export default function PricingMarketingPage() {
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Value</Label>
                                         <div className="relative">
-                                            <Input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} placeholder="20" className="h-12 rounded-xl font-medium pl-8" />
+                                            <Input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} placeholder="20" className="h-auto rounded-xl font-medium pl-8" />
                                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-xs">$</span>
                                         </div>
                                     </div>
@@ -284,17 +353,17 @@ export default function PricingMarketingPage() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Expiry Date</Label>
-                                        <Input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} className="h-12 rounded-xl font-medium" />
+                                        <Input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} className="h-auto rounded-xl font-medium" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Limit (Optional)</Label>
-                                        <Input type="number" value={usageLimit} onChange={(e) => setUsageLimit(e.target.value)} placeholder="100" className="h-12 rounded-xl font-medium" />
+                                        <Input type="number" value={usageLimit} onChange={(e) => setUsageLimit(e.target.value)} placeholder="100" className="h-auto rounded-xl font-medium" />
                                     </div>
                                 </div>
                             </div>
                             <DialogFooter className="mt-8">
-                                <Button variant="outline" onClick={() => setIsCreateOpen(false)} className="rounded-xl h-12 font-bold px-8">Cancel</Button>
-                                <Button onClick={handleCreateCoupon} className="rounded-xl h-12 font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Create Coupon</Button>
+                                <Button variant="outline" onClick={() => setIsCreateOpen(false)} className="rounded-xl h-auto font-bold px-8">Cancel</Button>
+                                <Button onClick={handleCreateCoupon} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Create Coupon</Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -320,13 +389,13 @@ export default function PricingMarketingPage() {
 
             <Tabs defaultValue="coupons" className="space-y-8">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl h-14 w-fit border border-border/50">
-                    <TabsTrigger value="coupons" className="rounded-xl h-12 gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8 text-sm">
+                    <TabsTrigger value="coupons" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8 text-sm">
                         <Tag className="w-4 h-4" /> Coupons
                     </TabsTrigger>
-                    <TabsTrigger value="bundles" className="rounded-xl h-12 gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8 text-sm">
+                    <TabsTrigger value="bundles" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8 text-sm">
                         <Package className="w-4 h-4" /> Bundles
                     </TabsTrigger>
-                    <TabsTrigger value="subscriptions" className="rounded-xl h-12 gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8 text-sm">
+                    <TabsTrigger value="subscriptions" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8 text-sm">
                         <Zap className="w-4 h-4" /> Subscriptions
                     </TabsTrigger>
                 </TabsList>
@@ -338,7 +407,7 @@ export default function PricingMarketingPage() {
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="relative flex-1 max-w-md">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input placeholder="Search coupons..." className="pl-11 h-12 rounded-2xl bg-background border-border/50 focus:ring-primary/20" />
+                                    <Input placeholder="Search coupons..." className="pl-11 h-auto rounded-2xl bg-background border-border/50 focus:ring-primary/20" />
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Button variant="outline" size="sm" className="h-10 px-4 gap-2 rounded-xl font-bold border-border/50"><Filter className="w-4 h-4" /> Filters</Button>
@@ -349,12 +418,12 @@ export default function PricingMarketingPage() {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-muted/5 hover:bg-muted/5 border-border/50">
-                                        <TableHead className="w-[200px] h-12 font-black text-xs uppercase tracking-widest pl-6">Code</TableHead>
-                                        <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Description</TableHead>
-                                        <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Discount</TableHead>
-                                        <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Usage</TableHead>
-                                        <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Status</TableHead>
-                                        <TableHead className="h-12 font-black text-xs uppercase tracking-widest text-right pr-6">Action</TableHead>
+                                        <TableHead className="w-[200px] h-auto font-black text-xs uppercase tracking-widest pl-6">Code</TableHead>
+                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Description</TableHead>
+                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Discount</TableHead>
+                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Usage</TableHead>
+                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Status</TableHead>
+                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest text-right pr-6">Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -500,20 +569,20 @@ export default function PricingMarketingPage() {
                                 <div className="space-y-6 mt-4">
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Bundle Name</Label>
-                                        <Input value={bundleName} onChange={(e) => setBundleName(e.target.value)} placeholder="Ultimate Creator Pack" className="h-12 rounded-xl font-bold" />
+                                        <Input value={bundleName} onChange={(e) => setBundleName(e.target.value)} placeholder="Ultimate Creator Pack" className="h-auto rounded-xl font-bold" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Description</Label>
-                                        <Input value={bundleDescription} onChange={(e) => setBundleDescription(e.target.value)} placeholder="Includes all major kits + lifetime updates" className="h-12 rounded-xl font-medium" />
+                                        <Input value={bundleDescription} onChange={(e) => setBundleDescription(e.target.value)} placeholder="Includes all major kits + lifetime updates" className="h-auto rounded-xl font-medium" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                          <div className="space-y-2">
                                             <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Price ($)</Label>
-                                            <Input type="number" value={bundlePrice} onChange={(e) => setBundlePrice(e.target.value)} placeholder="199" className="h-12 rounded-xl font-medium" />
+                                            <Input type="number" value={bundlePrice} onChange={(e) => setBundlePrice(e.target.value)} placeholder="199" className="h-auto rounded-xl font-medium" />
                                         </div>
                                          <div className="space-y-2">
                                             <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Original Price ($)</Label>
-                                            <Input type="number" value={bundleOriginalPrice} onChange={(e) => setBundleOriginalPrice(e.target.value)} placeholder="299" className="h-12 rounded-xl font-medium" />
+                                            <Input type="number" value={bundleOriginalPrice} onChange={(e) => setBundleOriginalPrice(e.target.value)} placeholder="299" className="h-auto rounded-xl font-medium" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
@@ -533,63 +602,129 @@ export default function PricingMarketingPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Preview Image URL</Label>
-                                        <Input value={bundleImage} onChange={(e) => setBundleImage(e.target.value)} placeholder="https://..." className="h-12 rounded-xl font-medium text-xs" />
+                                        <Input value={bundleImage} onChange={(e) => setBundleImage(e.target.value)} placeholder="https://..." className="h-auto rounded-xl font-medium text-xs" />
                                     </div>
                                 </div>
                                 <DialogFooter className="mt-8">
-                                    <Button variant="outline" onClick={() => setIsCreateBundleOpen(false)} className="rounded-xl h-12 font-bold px-8">Cancel</Button>
-                                    <Button onClick={handleCreateBundle} className="rounded-xl h-12 font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Create Bundle</Button>
+                                    <Button variant="outline" onClick={() => setIsCreateBundleOpen(false)} className="rounded-xl h-auto font-bold px-8">Cancel</Button>
+                                    <Button onClick={handleCreateBundle} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Create Bundle</Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
                     </div>
                 </TabsContent>
 
+
                 {/* Subscriptions Tab */}
                 <TabsContent value="subscriptions">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[
-                            { name: "SaaS Maintenance", price: 299, interval: "mo", active: 142, icon: Zap, color: "text-blue-500", bg: "bg-blue-500/10" },
-                            { name: "Enterprise Support", price: 999, interval: "mo", active: 28, icon: Sparkles, color: "text-purple-500", bg: "bg-purple-500/10" },
-                            { name: "Technical Consulting", price: 1500, interval: "yr", active: 12, icon: TrendingUp, color: "text-green-500", bg: "bg-green-500/10" },
-                        ].map(plan => (
-                             <Card key={plan.name} className="border-border/50 group hover:border-primary/50 transition-all rounded-[32px] bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-lg overflow-hidden">
-                                <div className={`h-2 w-full ${plan.bg.replace('/10', '/50')}`} />
-                                <CardHeader className="p-8 pb-4">
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className={`p-3 rounded-2xl ${plan.bg} ${plan.color}`}>
-                                            <plan.icon size={24} />
-                                        </div>
-                                        <Badge className="ml-auto bg-green-500/10 text-green-500 border-none text-[9px] font-black uppercase tracking-widest px-2 py-1">Growth Status</Badge>
-                                    </div>
-                                    <CardTitle className="text-xl font-black italic tracking-tight">{plan.name}</CardTitle>
-                                    <CardDescription className="text-xs font-medium mt-1">Managed recurring service plan.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="p-8 pt-4">
-                                    <div className="flex items-baseline gap-1 mb-8">
-                                        <span className="text-4xl font-black tracking-tighter">${plan.price}</span>
-                                        <span className="text-sm font-bold text-muted-foreground">/{plan.interval}</span>
-                                    </div>
-                                    <div className="space-y-4 p-4 rounded-2xl bg-muted/50 border border-border/50">
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="font-bold text-muted-foreground uppercase tracking-widest">Active Subs</span>
-                                            <span className="font-black text-foreground">{plan.active}</span>
-                                        </div>
-                                        <div className="h-px bg-border/50" />
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="font-bold text-muted-foreground uppercase tracking-widest">MRR Impact</span>
-                                            <span className="font-black text-primary">${(plan.price * plan.active).toLocaleString()}</span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="p-8 pt-0">
-                                    <Button variant="ghost" className="w-full rounded-2xl h-12 text-xs font-bold gap-2 group border border-border/50 hover:bg-primary hover:text-white transition-all shadow-sm">
-                                        Manage Plan <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                                    </Button>
-                                </CardFooter>
-                             </Card>
-                        ))}
+                    <div className="flex justify-end mb-4">
+                        <Button onClick={() => {
+                            resetSubscriptionForm();
+                            setIsCreateSubscriptionOpen(true);
+                        }} className="gap-2 rounded-xl shadow-lg shadow-primary/20 bg-primary h-11 font-bold text-white">
+                            <Plus className="w-4 h-4" />
+                            Create New Plan
+                        </Button>
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {subscriptionPlans.map((plan: any) => {
+                            const Icon = plan.iconName === 'Zap' ? Zap : plan.iconName === 'TrendingUp' ? TrendingUp : Sparkles;
+                            return (
+                                <Card key={plan.id} className="border-border/50 group hover:border-primary/50 transition-all rounded-[32px] bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-lg overflow-hidden">
+                                    <div className={`h-2 w-full ${plan.bg?.replace('/10', '/50') || 'bg-blue-500/50'}`} />
+                                    <CardHeader className="p-8 pb-4">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className={`p-3 rounded-2xl ${plan.bgColor || 'bg-blue-500/10'} ${plan.color || 'text-blue-500'}`}>
+                                                <Icon size={24} />
+                                            </div>
+                                            <Badge className="ml-auto bg-green-500/10 text-green-500 border-none text-[9px] font-black uppercase tracking-widest px-2 py-1">Growth Status</Badge>
+                                        </div>
+                                        <CardTitle className="text-xl font-black italic tracking-tight">{plan.name}</CardTitle>
+                                        <CardDescription className="text-xs font-medium mt-1">Managed recurring service plan.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="p-8 pt-4">
+                                        <div className="flex items-baseline gap-1 mb-8">
+                                            <span className="text-4xl font-black tracking-tighter">${plan.price}</span>
+                                            <span className="text-sm font-bold text-muted-foreground">/{plan.interval}</span>
+                                        </div>
+                                        <div className="space-y-4 p-4 rounded-2xl bg-muted/50 border border-border/50">
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="font-bold text-muted-foreground uppercase tracking-widest">Active Subs</span>
+                                                <span className="font-black text-foreground">{plan.activeSubscribers || 0}</span>
+                                            </div>
+                                            <div className="h-px bg-border/50" />
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="font-bold text-muted-foreground uppercase tracking-widest">MRR Impact</span>
+                                                <span className="font-black text-primary">${((plan.price || 0) * (plan.activeSubscribers || 0)).toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="p-8 pt-0 flex gap-3">
+                                        <Button variant="outline" onClick={() => handleEditSubscription(plan)} className="flex-1 rounded-2xl h-auto text-xs font-bold gap-2 group border border-border/50 hover:bg-primary hover:text-white transition-all shadow-sm">
+                                            Manage Plan <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                                        </Button>
+                                        <Button variant="ghost" onClick={() => deleteSubscriptionPlan(plan.id)} className="w-12 h-auto p-0 rounded-2xl text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 size={16} /></Button>
+                                    </CardFooter>
+                                </Card>
+                            );
+                        })}
+                    </div>
+
+                    <Dialog open={isCreateSubscriptionOpen} onOpenChange={(open) => {
+                        setIsCreateSubscriptionOpen(open);
+                        if (!open) resetSubscriptionForm();
+                    }}>
+                        <DialogContent className="sm:max-w-[500px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-black italic tracking-tight text-center">{editingSubscriptionId ? "Edit Plan" : "Create Plan"}</DialogTitle>
+                                <DialogDescription className="text-center font-medium">Configure subscription details.</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-6 mt-4">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Plan Name</Label>
+                                    <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder="Enterprise" className="h-auto rounded-xl font-bold" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Price ($)</Label>
+                                        <Input type="number" value={subPrice} onChange={(e) => setSubPrice(e.target.value)} placeholder="99" className="h-auto rounded-xl font-medium" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Interval</Label>
+                                        <Select value={subInterval} onValueChange={setSubInterval}>
+                                            <SelectTrigger className="h-auto rounded-xl font-medium">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="month">Monthly</SelectItem>
+                                                <SelectItem value="year">Yearly</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Icon Style</Label>
+                                    <div className="flex gap-4">
+                                        {['Zap', 'Sparkles', 'TrendingUp'].map((icon) => (
+                                            <div 
+                                                key={icon} 
+                                                onClick={() => setSubIcon(icon)}
+                                                className={`p-4 rounded-xl cursor-pointer border transition-all ${subIcon === icon ? 'bg-primary/10 border-primary' : 'bg-muted/30 border-transparent hover:bg-muted/50'}`}
+                                            >
+                                                {icon === 'Zap' && <Zap size={20} />}
+                                                {icon === 'Sparkles' && <Sparkles size={20} />}
+                                                {icon === 'TrendingUp' && <TrendingUp size={20} />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter className="mt-8">
+                                <Button variant="outline" onClick={() => setIsCreateSubscriptionOpen(false)} className="rounded-xl h-auto font-bold px-8">Cancel</Button>
+                                <Button onClick={handleCreateSubscription} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Save Plan</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </TabsContent>
             </Tabs>
         </div>

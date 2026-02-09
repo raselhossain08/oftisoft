@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,7 +27,27 @@ const iconMap: any = {
 };
 
 export default function PrivacyPage() {
+    const { pageContent, isLoading } = usePageContent('privacy');
+    const setContent = usePrivacyContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = usePrivacyContentStore();
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-blue-500 font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Syncing Privacy Protocols...
+                </div>
+            </div>
+        );
+    }
+
     const features = content?.features || [];
     const header = content?.header;
     const guarantee = content?.guarantee;

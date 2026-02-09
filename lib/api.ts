@@ -349,6 +349,10 @@ export const billingAPI = {
         const response = await api.get('/billing/usage');
         return response.data;
     },
+    createPaymentIntent: async (amount: number, currency: string = 'usd'): Promise<{ clientSecret: string; id: string }> => {
+        const response = await api.post('/billing/create-payment-intent', { amount, currency });
+        return response.data;
+    },
 };
 
 export const downloadsAPI = {
@@ -434,6 +438,22 @@ export const marketingAPI = {
         const response = await api.put(`/marketing/bundles/${id}`, data);
         return response.data;
     },
+    getSubscriptionPlans: async (): Promise<any[]> => {
+        const response = await api.get('/marketing/subscription-plans');
+        return response.data;
+    },
+    createSubscriptionPlan: async (data: any): Promise<any> => {
+        const response = await api.post('/marketing/subscription-plans', data);
+        return response.data;
+    },
+    updateSubscriptionPlan: async (id: string, data: any): Promise<any> => {
+        const response = await api.put(`/marketing/subscription-plans/${id}`, data);
+        return response.data;
+    },
+    deleteSubscriptionPlan: async (id: string): Promise<any> => {
+        const response = await api.delete(`/marketing/subscription-plans/${id}`);
+        return response.data;
+    },
 };
 
 export interface SystemConfig {
@@ -447,6 +467,10 @@ export interface SystemConfig {
     maintenanceMode: boolean;
     passwordPolicy: 'low' | 'medium' | 'high';
     allowedIps: string;
+    stripePublishableKey?: string;
+    stripeSecretKey?: string;
+    paypalClientId?: string;
+    paypalClientSecret?: string;
     updatedAt: string;
 }
 
@@ -472,6 +496,10 @@ export interface EmailTemplate {
 export const systemAPI = {
     getConfig: async (): Promise<SystemConfig> => {
         const response = await api.get('/system/config');
+        return response.data;
+    },
+    getPublicConfig: async (): Promise<{ stripePublishableKey?: string; paypalClientId?: string; shopName: string; currency: string }> => {
+        const response = await api.get('/system/public/config');
         return response.data;
     },
     updateConfig: async (data: Partial<SystemConfig>): Promise<SystemConfig> => {
@@ -517,6 +545,17 @@ export const systemAPI = {
     },
 };
 
+export const integrationsAPI = {
+    getIntegrations: async (): Promise<any[]> => {
+        const response = await api.get('/integrations');
+        return response.data;
+    },
+    toggleIntegration: async (id: string, connected: boolean): Promise<any> => {
+        const response = await api.post(`/integrations/${id}/toggle`, { connected });
+        return response.data;
+    }
+};
+
 export const adminUserAPI = {
     getUsers: async (params?: { search?: string; role?: string; isActive?: boolean }) => {
         const response = await api.get<User[]>("/admin/users", { params });
@@ -544,6 +583,10 @@ export const adminUserAPI = {
     toggleUserStatus: async (id: string) => {
         const response = await api.patch<User>(`/admin/users/${id}/toggle-status`);
         return response.data;
+    },
+    getActivity: async (id: string) => {
+        const response = await api.get<any[]>(`/admin/users/${id}/activity`);
+        return response.data;
     }
 };
 
@@ -553,12 +596,23 @@ export const adminFinanceAPI = {
         return response.data;
     },
     getStats: async () => {
-        const response = await api.get<{
-            availableBalance: string;
-            pendingSales: string;
-            partnerPayouts: string;
-            gatewayStatus: string;
-        }>("/admin/billing/stats");
+        const response = await api.get<any>("/admin/billing/stats");
+        return response.data;
+    },
+    getPayouts: async () => {
+        const response = await api.get<any[]>("/admin/billing/payouts");
+        return response.data;
+    },
+    processPayout: async (data: any) => {
+        const response = await api.post("/admin/billing/process-payout", data);
+        return response.data;
+    },
+    getConfig: async () => {
+        const response = await api.get<any>("/admin/billing/config");
+        return response.data;
+    },
+    updateConfig: async (config: any) => {
+        const response = await api.patch("/admin/billing/config", config);
         return response.data;
     }
 };
@@ -878,6 +932,19 @@ export const quotesAPI = {
     },
     deleteQuote: async (id: string): Promise<void> => {
         await api.delete(`/quotes/${id}`);
+    },
+    downloadProposal: async (id: string): Promise<void> => {
+        const response = await api.get(`/quotes/${id}/download`, {
+            responseType: 'blob',
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `proposal_${id}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
     }
 };
 
@@ -909,4 +976,183 @@ export const contentAPI = {
         const response = await api.get('/content/pages');
         return response.data;
     }
+};
+
+// Leads API
+export enum LeadType {
+    CTA = 'cta',
+    NEWSLETTER = 'newsletter',
+    CONTACT = 'contact'
+}
+
+export enum LeadStatus {
+    NEW = 'new',
+    IN_PROGRESS = 'in_progress',
+    CONVERTED = 'converted',
+    ARCHIVED = 'archived'
+}
+
+export interface Lead {
+    id: string;
+    name?: string;
+    email: string;
+    message?: string;
+    type: LeadType;
+    status: LeadStatus;
+    metadata?: any;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const leadsAPI = {
+    create: async (data: Partial<Lead>): Promise<Lead> => {
+        const response = await api.post('/leads', data);
+        return response.data;
+    },
+    findAll: async (): Promise<Lead[]> => {
+        const response = await api.get('/leads');
+        return response.data;
+    },
+    getStats: async (): Promise<any> => {
+        const response = await api.get('/leads/stats');
+        return response.data;
+    },
+    updateStatus: async (id: string, status: LeadStatus): Promise<Lead> => {
+        const response = await api.patch(`/leads/${id}/status`, { status });
+        return response.data;
+    },
+    delete: async (id: string): Promise<void> => {
+        await api.delete(`/leads/${id}`);
+    }
+};
+
+// ADS API
+export enum AdType {
+    IMAGE = 'image',
+    GOOGLE_ADS = 'google-ads',
+    CUSTOM_HTML = 'custom-html',
+    SCRIPT = 'script'
+}
+
+export enum AdPosition {
+    BLOG_LIST_TOP = 'blog-list-top',
+    BLOG_LIST_MIDDLE = 'blog-list-middle',
+    BLOG_SIDEBAR = 'blog-sidebar',
+    POST_CONTENT_TOP = 'post-content-top',
+    POST_CONTENT_BOTTOM = 'post-content-bottom',
+    FOOTER_ABOVE = 'footer-above'
+}
+
+export enum AdSize {
+    LEADERBOARD = '728x90',
+    BANNER = '468x60',
+    SQUARE = '250x250',
+    RECTANGLE = '300x250',
+    SKY_SCRAPER = '120x600',
+    AUTO = 'responsive'
+}
+
+export interface Ad {
+    id: string;
+    title: string;
+    type: AdType;
+    content: string;
+    link?: string;
+    position: AdPosition;
+    size: AdSize;
+    isActive: boolean;
+    views: number;
+    clicks: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const adsAPI = {
+    getActiveByPosition: async (position: string): Promise<Ad[]> => {
+        const response = await api.get(`/ads/public/${position}`);
+        return response.data;
+    },
+    trackView: async (id: string): Promise<void> => {
+        await api.post(`/ads/track-view/${id}`);
+    },
+    trackClick: async (id: string): Promise<void> => {
+        await api.post(`/ads/track-click/${id}`);
+    },
+    // Admin methods
+    getAll: async (): Promise<Ad[]> => {
+        const response = await api.get('/ads');
+        return response.data;
+    },
+    getOne: async (id: string): Promise<Ad> => {
+        const response = await api.get(`/ads/${id}`);
+        return response.data;
+    },
+    create: async (data: Partial<Ad>): Promise<Ad> => {
+        const response = await api.post('/ads', data);
+        return response.data;
+    },
+    update: async (id: string, data: Partial<Ad>): Promise<Ad> => {
+        const response = await api.patch(`/ads/${id}`, data);
+        return response.data;
+    },
+    remove: async (id: string): Promise<void> => {
+        await api.delete(`/ads/${id}`);
+    }
+};
+
+export interface Review {
+    id: string;
+    product: Product;
+    user: User;
+    rating: number;
+    comment: string;
+    status: 'pending' | 'approved' | 'rejected';
+    helpfulCount: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const reviewsAPI = {
+    createReview: async (data: { productId: string; rating: number; comment: string }): Promise<Review> => {
+        const response = await api.post('/reviews', data);
+        return response.data;
+    },
+    getReviews: async (): Promise<Review[]> => {
+        const response = await api.get('/reviews');
+        return response.data;
+    },
+    getReviewsByProduct: async (productId: string): Promise<Review[]> => {
+        const response = await api.get(`/reviews/${productId}`);
+        return response.data;
+    },
+    updateReview: async (id: string, data: { status?: string }): Promise<Review> => {
+        const response = await api.patch(`/reviews/${id}`, data);
+        return response.data;
+    },
+    deleteReview: async (id: string): Promise<void> => {
+        await api.delete(`/reviews/${id}`);
+    }
+};
+export const analyticsAPI = {
+    trackVisit: async (data: { page: string; referrer?: string; userId?: string }): Promise<void> => {
+        await api.post('/analytics/track/visit', data);
+    },
+    trackEvent: async (data: { eventType: string; eventLabel?: string; page?: string; metadata?: any }): Promise<void> => {
+        await api.post('/analytics/track/event', data);
+    },
+    getStats: async (): Promise<any> => {
+        const response = await api.get('/analytics/stats');
+        return response.data;
+    },
+};
+
+export const affiliateAPI = {
+    getStats: async (): Promise<any> => {
+        const response = await api.get('/affiliate/stats');
+        return response.data;
+    },
+    withdraw: async (data: { amount: number; method: string }): Promise<any> => {
+        const response = await api.post('/affiliate/withdraw', data);
+        return response.data;
+    },
 };

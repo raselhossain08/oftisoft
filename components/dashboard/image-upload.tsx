@@ -19,7 +19,9 @@ interface ImageUploadProps {
     className?: string;
 }
 
-export function ImageUpload({
+import { useUploadFile } from "@/lib/api/content-queries";
+
+ export function ImageUpload({
     value,
     onChange,
     onRemove,
@@ -32,6 +34,7 @@ export function ImageUpload({
     const [progress, setProgress] = useState(0);
     const [dragActive, setDragActive] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const { mutateAsync: uploadFile } = useUploadFile();
 
     const handleDrag = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -76,51 +79,34 @@ export function ImageUpload({
         }
 
         setUploading(true);
-        setProgress(0);
+        // Progress simulation since XHR progress isn't directly exposed by ky in this simple setup
+        // Ideally we would hook into ky's onDownloadProgress/onUploadProgress if supported or use axios
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 90) return 90;
+                return prev + 10;
+            });
+        }, 200);
 
         try {
-            // Simulate upload progress
-            const interval = setInterval(() => {
-                setProgress(prev => {
-                    if (prev >= 90) {
-                        clearInterval(interval);
-                        return 90;
-                    }
-                    return prev + 10;
-                });
-            }, 200);
-
-            // Convert to base64 for local storage (temporary solution)
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                clearInterval(interval);
-                setProgress(100);
-                
-                setTimeout(() => {
-                    onChange(base64String);
-                    setUploading(false);
-                    setProgress(0);
-                    toast.success('Image uploaded successfully!');
-                }, 500);
-            };
-            reader.readAsDataURL(file);
-
-            // TODO: Replace with actual upload to Cloudinary/S3
-            // const formData = new FormData();
-            // formData.append('file', file);
-            // const response = await fetch('/api/upload', {
-            //     method: 'POST',
-            //     body: formData
-            // });
-            // const data = await response.json();
-            // onChange(data.url);
+            const result = await uploadFile(file);
+            
+            clearInterval(interval);
+            setProgress(100);
+            
+            setTimeout(() => {
+                onChange(result.url);
+                setUploading(false);
+                setProgress(0);
+                toast.success('Image uploaded successfully!');
+            }, 500);
 
         } catch (error) {
             console.error('Upload error:', error);
-            toast.error('Failed to upload image');
+            // toast.error('Failed to upload image') -> handled by useUploadFile
             setUploading(false);
             setProgress(0);
+            clearInterval(interval);
         }
     };
 

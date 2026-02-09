@@ -1,16 +1,56 @@
 "use client";
 
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Check, Zap, Rocket, Shield, Globe, Terminal, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 import { usePricingContentStore } from "@/lib/store/pricing-content";
+import { useCart } from "@/hooks/use-cart";
 
 export default function PricingPage() {
+    const { pageContent, isLoading } = usePageContent('pricing');
+    const setContent = usePricingContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = usePricingContentStore();
+    const cart = useCart();
+
+    const handleAddToCart = (plan: any) => {
+        const isNumeric = !isNaN(Number(plan.price));
+        if (isNumeric) {
+             cart.addItem({
+                id: `plan-${plan.name}`,
+                name: `${plan.name} License`,
+                price: Number(plan.price),
+                image: '',
+                quantity: 1,
+                type: 'service'
+            });
+        }
+    };
+
+    if (isLoading && !pageContent) {
+// ...
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Compiling Fiscal Matrix...
+                </div>
+            </div>
+        );
+    }
+
     const plans = content?.plans || [];
     const header = content?.header;
     const consultation = content?.consultation;
@@ -84,14 +124,30 @@ export default function PricingPage() {
                                     </ul>
                                 </CardContent>
                                 <CardFooter className="p-10 md:p-12 pt-0">
-                                    <Button className={cn(
-                                        "w-full h-16 rounded-2xl font-black italic transition-all duration-500 text-lg shadow-2xl",
-                                        plan.popular 
-                                            ? "bg-primary text-white shadow-primary/20 hover:scale-[1.02] active:scale-95" 
-                                            : "bg-white/5 text-white border border-white/10 hover:bg-white/10"
-                                    )}>
-                                        {plan.buttonText} <ArrowRight className="w-5 h-5 ml-3" />
-                                    </Button>
+                                    {!isNaN(Number(plan.price)) ? (
+                                        <Button 
+                                            onClick={() => handleAddToCart(plan)}
+                                            className={cn(
+                                                "w-full h-16 rounded-2xl font-black italic transition-all duration-500 text-lg shadow-2xl",
+                                                plan.popular 
+                                                    ? "bg-primary text-white shadow-primary/20 hover:scale-[1.02] active:scale-95" 
+                                                    : "bg-white/5 text-white border border-white/10 hover:bg-white/10"
+                                            )}
+                                        >
+                                            {plan.buttonText} <ArrowRight className="w-5 h-5 ml-3" />
+                                        </Button>
+                                    ) : (
+                                        <Button asChild className={cn(
+                                            "w-full h-16 rounded-2xl font-black italic transition-all duration-500 text-lg shadow-2xl",
+                                            plan.popular 
+                                                ? "bg-primary text-white shadow-primary/20 hover:scale-[1.02] active:scale-95" 
+                                                : "bg-white/5 text-white border border-white/10 hover:bg-white/10"
+                                        )}>
+                                            <Link href="/contact">
+                                                {plan.buttonText} <ArrowRight className="w-5 h-5 ml-3" />
+                                            </Link>
+                                        </Button>
+                                    )}
                                 </CardFooter>
                             </Card>
                         </motion.div>
@@ -101,7 +157,7 @@ export default function PricingPage() {
                 {/* FAQ Prompt */}
                 <div className="pt-12 text-center">
                     <p className="text-muted-foreground font-medium italic text-lg">
-                        {consultation?.text || "Need a custom deployment configuration?"} <span className="text-primary underline decoration-primary/20 hover:text-primary/70 transition-colors cursor-pointer">{consultation?.linkText || "Initiate Consultation Node"}</span>
+                        {consultation?.text || "Need a custom deployment configuration?"} <Link href="/contact" className="text-primary underline decoration-primary/20 hover:text-primary/70 transition-colors cursor-pointer">{consultation?.linkText || "Initiate Consultation Node"}</Link>
                     </p>
                 </div>
             </div>

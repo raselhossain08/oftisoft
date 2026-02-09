@@ -1,5 +1,6 @@
 "use client";
-
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,7 +14,27 @@ const iconMap: any = {
 };
 
 export default function ChangelogPage() {
+    const { pageContent, isLoading } = usePageContent('changelog');
+    const setContent = useChangelogContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useChangelogContentStore();
+    
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-background flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Initializing History Log...
+                </div>
+            </div>
+        );
+    }
+
     const updates = (content?.updates || []).filter(u => u.isActive);
     const header = content?.header;
     return (

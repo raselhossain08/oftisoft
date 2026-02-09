@@ -1,65 +1,192 @@
 
-import { useState, useCallback, useEffect } from "react";
-import { messagesAPI } from "@/lib/api";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { messagesAPI, adminUserAPI } from "@/lib/api";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { db } from "@/lib/firebase";
+import {
+    collection,
+    query,
+    where,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    serverTimestamp,
+    updateDoc,
+    doc,
+    limit,
+    getDocs
+} from "firebase/firestore";
 
 export function useMessages() {
     const { user } = useAuth();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+
     const [conversations, setConversations] = useState<any[]>([]);
     const [messages, setMessages] = useState<any[]>([]);
-    const [selectedChat, setSelectedChat] = useState<any>(null);
+    const [selectedChat, setSelectedChatState] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const fetchConversations = useCallback(async () => {
+    // Audio ref for notifications
+    const notificationAudio = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        // Use a reliable notification sound URL
+        notificationAudio.current = new Audio("https://raw.githubusercontent.com/adrianhajdin/project_assets/main/sound/notification.mp3");
+    }, []);
+
+    const playNotificationSound = () => {
         try {
-            const data = await messagesAPI.getConversations();
-            // Transform data to match UI expectations if necessary
-            const formatted = data.map((c: any) => ({
-                id: c.id,
-                name: (c.participants || []).find((p: any) => p.id !== user?.id)?.name || "Unknown",
-                role: (c.participants || []).find((p: any) => p.id !== user?.id)?.role || "User",
-                email: (c.participants || []).find((p: any) => p.id !== user?.id)?.email,
-                avatar: (c.participants || []).find((p: any) => p.id !== user?.id)?.avatarOrInitials || (c.participants || []).find((p: any) => p.id !== user?.id)?.name?.slice(0, 2).toUpperCase() || "??",
-                status: (c.participants || []).find((p: any) => p.id !== user?.id)?.isActive ? "online" : "offline",
-                lastMsg: c.lastMessage?.content || "No messages yet",
-                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
-                unread: 0,
-                color: "bg-blue-500",
-                recipientId: (c.participants || []).find((p: any) => p.id !== user?.id)?.id
-            }));
-            setConversations(formatted);
-        } catch (error) {
-            console.error("Failed to fetch conversations", error);
-            // Don't show toast on initial load to avoid spam
+            notificationAudio.current?.play().catch(e => console.log('Audio play failed', e));
+        } catch (e) {
+            console.error("Error playing sound", e);
         }
+    };
+
+    // Wrapper to update URL when chat is selected
+    const setSelectedChat = useCallback((chat: any) => {
+        setSelectedChatState(chat);
+        const params = new URLSearchParams(searchParams.toString());
+        if (chat?.recipientId) {
+            if (chat.id) params.set('chat', chat.id);
+            else params.set('chat', chat.recipientId);
+        } else {
+            params.delete('chat');
+        }
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }, [searchParams, pathname, router]);
+
+    // Real-time listener for Conversations
+    useEffect(() => {
+        if (!user?.id) {
+            setConversations([]);
+            return;
+        }
+
+        setIsLoading(true);
+
+        const q = query(
+            collection(db, "conversations"),
+            where("userIds", "array-contains", user.id),
+            orderBy("updatedAt", "desc")
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const formatted = snapshot.docs.map(doc => {
+                const data = doc.data();
+                // Find other participant
+                const other = (data.participants || []).find((p: any) => p.id !== user.id) || (data.participants || [])[0];
+
+                if (!other) {
+                    return null;
+                }
+
+                const lastMsgObj = data.lastMessage;
+                const isMe = lastMsgObj?.senderId === user.id;
+
+                // Safely handle timestamp
+                let timeStr = "";
+                if (lastMsgObj?.createdAt) {
+                    // It might be a Firestore Timestamp or a string (if optimistically set or from legacy)
+                    const date = lastMsgObj.createdAt.toDate ? lastMsgObj.createdAt.toDate() : new Date(lastMsgObj.createdAt);
+                    timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                return {
+                    id: doc.id,
+                    name: other.name || "Unknown",
+                    role: other.role || "User",
+                    email: other.email,
+                    avatar: other.avatarOrInitials || other.name?.slice(0, 2).toUpperCase() || "??",
+                    status: (other.isActive || other.status === 'active') ? "online" : "offline",
+                    lastMsg: lastMsgObj ? (isMe ? `You: ${lastMsgObj.content}` : lastMsgObj.content) : "No messages yet",
+                    lastMsgIds: lastMsgObj?.id || "init",
+                    time: timeStr,
+                    unread: (lastMsgObj && !lastMsgObj.read && !isMe) ? 1 : 0,
+                    color: "bg-blue-500",
+                    recipientId: other.id
+                };
+            }).filter(Boolean); // Filter out nulls
+
+            setConversations(prev => {
+                // Check if we have new last messages to play sound
+                if (prev.length > 0 && formatted.length > 0) {
+                    const prevTop = prev[0];
+                    const newTop = formatted[0];
+                    // Detect NEW message that is NOT from me
+                    if (newTop && prevTop && newTop.id === prevTop.id && newTop.lastMsgIds !== prevTop.lastMsgIds && !newTop.lastMsg?.startsWith("You:")) {
+                        playNotificationSound();
+                    }
+                }
+                return formatted as any[];
+            });
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Snapshot error:", error);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
     }, [user?.id]);
 
-    const fetchMessages = useCallback(async (chatId: string) => {
-        if (!chatId) return;
-        try {
-            const data = await messagesAPI.getMessages(chatId);
-            const formatted = data.map((m: any) => ({
-                id: m.id,
-                sender: m.sender.id === user?.id ? "Me" : m.sender.name,
-                text: m.content,
-                time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                isMe: m.sender.id === user?.id,
-                chatId: m.conversation.id
-            }));
-            setMessages(formatted);
-        } catch (error) {
-            console.error("Failed to fetch messages", error);
-            toast.error("Failed to load messages");
+    // Real-time listener for Messages of selected chat
+    useEffect(() => {
+        if (!selectedChat?.id) {
+            setMessages([]);
+            return;
         }
-    }, [user?.id]);
+
+        console.log('Listening to messages for:', selectedChat.id);
+
+        const q = query(
+            collection(db, "conversations", selectedChat.id, "messages"),
+            orderBy("createdAt", "asc")
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const formatted = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    sender: data.senderId === user?.id ? "Me" : data.senderName,
+                    text: data.content,
+                    time: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Sending...",
+                    isMe: data.senderId === user?.id,
+                    chatId: selectedChat.id
+                };
+            });
+            setMessages(formatted);
+        });
+
+        return () => unsubscribe();
+    }, [selectedChat?.id, user?.id]);
 
     const sendMessage = async (content: string) => {
-        if (!selectedChat || !content.trim()) return;
+        if (!selectedChat || !content.trim() || !user) return;
         try {
-            await messagesAPI.sendMessage(selectedChat.id, content);
-            await fetchMessages(selectedChat.id); // Refresh messages
-            fetchConversations(); // Refresh last message in list
+            // Add message to subcollection
+            await addDoc(collection(db, "conversations", selectedChat.id, "messages"), {
+                content: content,
+                senderId: user.id,
+                senderName: user.name,
+                createdAt: serverTimestamp(),
+                readBy: [user.id]
+            });
+
+            // Update conversation last message
+            await updateDoc(doc(db, "conversations", selectedChat.id), {
+                lastMessage: {
+                    content: content,
+                    senderId: user.id,
+                    createdAt: new Date().toISOString(), // Saving string for easier generic handling, though serverTimestamp is better usually
+                    read: false
+                },
+                updatedAt: serverTimestamp()
+            });
+
             return true;
         } catch (error) {
             console.error("Failed to send message", error);
@@ -68,15 +195,87 @@ export function useMessages() {
         }
     };
 
-    const startConversation = async (recipientId: string) => {
+    const startConversation = async (recipientId: string, recipientData?: any) => {
+        if (!user) return null;
+
         try {
-            const newConv = await messagesAPI.startConversation(recipientId);
-            await fetchConversations();
-            const foundNode = conversations.find(c => c.id === newConv.id);
-            // If strictly new and not in list yet, we might need to manually construct it or wait for fetch
-            // Ideally backend returns full conversation object.
-            // For now, let's just trigger refresh and select it if we can
-            return newConv;
+            // 1. Check if conversation already exists (client-side check from subscribed list)
+            const existing = conversations.find(c => c.recipientId === recipientId);
+            if (existing) {
+                setSelectedChat(existing);
+                return existing;
+            }
+
+            // 2. Need to verify if it exists on server but not loaded (edge case), or just create it.
+            // We'll optimistically try to find user details and create.
+
+            let recipientUser = recipientData;
+            if (!recipientUser) {
+                try {
+                    recipientUser = await adminUserAPI.getUser(recipientId);
+                } catch (e) {
+                    console.error("Failed to fetch recipient details", e);
+                    toast.error("User not found");
+                    return null;
+                }
+            }
+
+            // Chat ID: Sort IDs to ensure uniqueness between two users
+            const chatId = [user.id, recipientId].sort().join('_');
+            const chatDocRef = doc(db, "conversations", chatId);
+
+            await updateDoc(chatDocRef, {
+                updatedAt: serverTimestamp()
+            }).catch(async () => {
+                // If update failed (likely document doesn't exist), create it
+                await import("firebase/firestore").then(({ setDoc }) =>
+                    setDoc(chatDocRef, {
+                        userIds: [user.id, recipientId],
+                        participants: [
+                            {
+                                id: user.id,
+                                name: user.name,
+                                email: user.email,
+                                avatarOrInitials: user.avatarUrl || user.name[0] || "Me",
+                                status: 'active',
+                                role: user.role
+                            },
+                            {
+                                id: recipientUser.id,
+                                name: recipientUser.name,
+                                email: recipientUser.email,
+                                avatarOrInitials: recipientUser.avatarUrl || recipientUser.name?.[0] || recipientUser.avatarOrInitials || "U",
+                                status: recipientUser.isActive ? 'active' : 'inactive',
+                                role: recipientUser.role
+                            }
+                        ],
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                        lastMessage: null
+                    })
+                );
+            });
+
+            // Construct formatted object purely for immediate UI feedback if needed, 
+            // though the snapshot listener should trigger almost instantly.
+            const newChatFormatted = {
+                id: chatId,
+                name: recipientUser.name,
+                role: recipientUser.role,
+                email: recipientUser.email,
+                avatar: recipientUser.avatarUrl || recipientUser.avatarOrInitials || recipientUser.name?.slice(0, 2).toUpperCase() || "??",
+                status: recipientUser.isActive ? "online" : "offline",
+                lastMsg: "New Conversation",
+                lastMsgIds: "init",
+                time: "Just now",
+                unread: 0,
+                color: "bg-blue-500",
+                recipientId: recipientUser.id
+            };
+
+            setSelectedChat(newChatFormatted);
+            return newChatFormatted;
+
         } catch (error) {
             console.error("Failed to start conversation", error);
             toast.error("Failed to start conversation");
@@ -84,49 +283,38 @@ export function useMessages() {
         }
     };
 
-    useEffect(() => {
-        if (user) {
-            fetchConversations();
-        }
-    }, [user, fetchConversations]);
-
-    useEffect(() => {
-        if (selectedChat) {
-            fetchMessages(selectedChat.id);
-            // Set up polling interval for real-time-ish updates
-            const interval = setInterval(() => fetchMessages(selectedChat.id), 5000);
-            return () => clearInterval(interval);
-        }
-    }, [selectedChat, fetchMessages]);
-
     const startSupportChat = async () => {
         try {
             const bot = await messagesAPI.getSupportBot();
-            const newConv = await startConversation(bot.id);
-            if (newConv) {
-                // Formatting for UI selection
-                const formatted = {
-                    id: newConv.id,
-                    name: bot.name,
-                    role: bot.role,
-                    email: bot.email,
-                    avatar: bot.name.slice(0, 2).toUpperCase(),
-                    status: "online",
-                    lastMsg: "Connected to Support",
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    unread: 0,
-                    color: "bg-primary",
-                    recipientId: bot.id
-                };
-                setSelectedChat(formatted);
-                return formatted;
-            }
+            // Reuse startConversation logic with bot ID
+            return await startConversation(bot.id, bot);
         } catch (error) {
             console.error("Failed to start support chat", error);
             toast.error("Support system is currently synchronizing. Please try again.");
         }
         return null;
     };
+
+    // Initial URL sync logic is handled in the effect that sets conversations
+    // But we need to handle the case where we land on a URL with ?chat=ID and we need to load that specific chat 
+    // even if it's not in the 'conversations' list (unlikely if we load all, but possible).
+
+    // We'll rely on the main conversation list listener to populate state, and then finding it.
+
+    useEffect(() => {
+        const chatIdFromUrl = searchParams.get('chat');
+        if (chatIdFromUrl && conversations.length > 0 && !selectedChat) {
+            const found = conversations.find((c: any) => c.id === chatIdFromUrl || c.recipientId === chatIdFromUrl);
+            if (found) {
+                setSelectedChatState(found);
+            }
+        }
+    }, [conversations, searchParams, selectedChat]);
+
+    // Refresh function is now no-op as it's realtime
+    const refreshConversations = useCallback(async () => {
+        // No-op for realtime
+    }, []);
 
     return {
         conversations,
@@ -137,6 +325,6 @@ export function useMessages() {
         sendMessage,
         startConversation,
         startSupportChat,
-        refreshConversations: fetchConversations
+        refreshConversations
     };
 }

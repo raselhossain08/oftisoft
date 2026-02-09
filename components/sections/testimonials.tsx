@@ -58,7 +58,7 @@ export default function Testimonials() {
 
             {/* Marquee Container */}
             <div className="relative w-full overflow-hidden mask-gradient-x">
-                <div className="flex gap-6 animate-marquee hover:pause whitespace-nowrap py-10">
+                <div className="flex items-stretch gap-6 animate-marquee hover:pause whitespace-nowrap py-10">
                     {loopTestimonials.map((t: any, i: number) => (
                         <TestimonialCard key={i} data={t} index={i} />
                     ))}
@@ -88,14 +88,14 @@ export default function Testimonials() {
 
 function TestimonialCard({ data, index }: { data: any, index: number }) {
     return (
-        <div className="w-[320px] md:w-[450px] shrink-0 p-[1px] relative group h-full">
+        <div className="w-[320px] md:w-[450px] shrink-0 p-[1px] relative group h-full flex">
             {/* Gradient Border Glow */}
             <div className={cn(
                 "absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r blur-xl -z-10",
                 data.gradient
             )} />
 
-            <Card className="h-full bg-[#050505]/80 backdrop-blur-xl border-white/5 group-hover:bg-[#0a0a0a]/90 transition-colors rounded-3xl overflow-hidden flex flex-col justify-between">
+            <Card className="h-full bg-[#050505]/80 backdrop-blur-xl border-white/5 group-hover:bg-[#0a0a0a]/90 transition-colors rounded-3xl overflow-hidden flex flex-col justify-between h-[360px]">
                 <CardContent className="p-8 pb-0">
                     <div className="mb-6">
                         <div className="flex gap-1 mb-4">

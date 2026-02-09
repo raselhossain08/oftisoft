@@ -20,8 +20,22 @@ import {
     Eye,
     MessageSquare,
     ShieldCheck,
-    Layout
+    Layout,
+    Bold,
+    Italic,
+    Link as LinkIcon,
+    Paperclip,
+    Trash2,
+    CheckSquare,
+    Square,
+    RefreshCw,
+    FileText,
+    Image as ImageIcon
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -100,8 +114,29 @@ export default function SupportHubPage() {
     const [selectedKbArticle, setSelectedKbArticle] = useState<any | null>(null);
     const [isNewKbOpen, setIsNewKbOpen] = useState(false);
     const [selectedEmail, setSelectedEmail] = useState<any | null>(null);
+    const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
     
     const queryClient = useQueryClient();
+
+    const toggleTicketSelection = (id: string) => {
+        setSelectedTicketIds(prev => 
+            prev.includes(id) ? prev.filter(tId => tId !== id) : [...prev, id]
+        );
+    };
+
+    const toggleAllSelection = () => {
+        if (selectedTicketIds.length === filteredTickets.length) {
+            setSelectedTicketIds([]);
+        } else {
+            setSelectedTicketIds(filteredTickets.map(t => t.id));
+        }
+    };
+
+    const onDrop = (acceptedFiles: File[]) => {
+        toast.info(`${acceptedFiles.length} file(s) ready for upload`);
+    };
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
     // Fetch Tickets
     const { data: tickets = [], isLoading: isLoadingTickets } = useQuery({
@@ -175,19 +210,36 @@ export default function SupportHubPage() {
             case "open":
             case "active":
             case "published":
-                return <Badge className="bg-green-500/10 text-green-500 border-green-500/20 gap-1.5"><CheckCircle2 className="w-3 h-3" /> {status}</Badge>;
+                return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 gap-1.5 font-bold"><CheckCircle2 className="w-3 h-3" /> {status}</Badge>;
             case "resolved":
             case "ended":
             case "closed":
-                return <Badge variant="secondary" className="bg-muted text-muted-foreground gap-1.5"><CheckCircle2 className="w-3 h-3" /> {status}</Badge>;
+                return <Badge variant="secondary" className="bg-muted text-muted-foreground gap-1.5 font-bold"><CheckCircle2 className="w-3 h-3" /> {status}</Badge>;
             case "pending":
             case "queued":
             case "draft":
-                return <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 gap-1.5"><Clock className="w-3 h-3" /> {status}</Badge>;
+                return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-1.5 font-bold"><Clock className="w-3 h-3" /> {status}</Badge>;
             default:
-                return <Badge variant="outline">{status}</Badge>;
+                return <Badge variant="outline" className="font-bold">{status}</Badge>;
         }
     };
+
+    const TicketSkeleton = () => (
+        <TableRow className="animate-pulse">
+            <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+            <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+            <TableCell>
+                <div className="space-y-2">
+                    <Skeleton className="h-5 w-[250px]" />
+                    <Skeleton className="h-4 w-[150px]" />
+                </div>
+            </TableCell>
+            <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+            <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+            <TableCell><Skeleton className="h-6 w-20 rounded-lg" /></TableCell>
+            <TableCell><Skeleton className="h-8 w-20" /></TableCell>
+        </TableRow>
+    );
 
     const getPriorityBadge = (prio: string) => {
         switch (prio.toLowerCase()) {
@@ -214,8 +266,8 @@ export default function SupportHubPage() {
                     <CardDescription className="text-sm">Unified control for tickets, knowledge base, and live customer interaction.</CardDescription>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 md:gap-4">
-                    <Badge variant="outline" className="rounded-xl px-4 md:px-5 h-10 md:h-11 border-primary/20 bg-primary/5 text-primary gap-2.5 font-bold flex items-center text-[10px] md:text-xs">
-                        <ShieldCheck className="w-4 h-4" /> Agent Status: Online
+                    <Badge variant="outline" className="rounded-xl px-4 md:px-5 h-10 md:h-11 border-primary/20 bg-primary/5 text-primary gap-2.5 font-bold flex items-center text-[10px] md:text-xs animate-pulse">
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" /> Agent Status: Online
                     </Badge>
                     <Sheet open={isNewTicketOpen} onOpenChange={setIsNewTicketOpen}>
                         <SheetTrigger asChild>
@@ -280,9 +332,34 @@ export default function SupportHubPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="text-sm font-bold tracking-tight">Detailed Description</Label>
-                                    <Textarea {...register("description")} placeholder="Describe your problem in detail so our agents can help you faster..." className="min-h-[180px] rounded-xl bg-muted/30 border-none focus-visible:ring-primary/20 resize-none p-4" />
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm font-bold tracking-tight">Detailed Description</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7"><Bold className="w-3.5 h-3.5" /></Button>
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7"><Italic className="w-3.5 h-3.5" /></Button>
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7"><LinkIcon className="w-3.5 h-3.5" /></Button>
+                                        </div>
+                                    </div>
+                                    <Textarea {...register("description")} placeholder="Describe your problem in detail so our agents can help you faster..." className="min-h-[140px] rounded-xl bg-muted/30 border-none focus-visible:ring-primary/20 resize-none p-4" />
                                     {errors.description && <Label className="text-[10px] text-red-500 font-bold uppercase tracking-wider pl-1">{errors.description.message}</Label>}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-bold tracking-tight">Attachments</Label>
+                                    <div 
+                                        {...getRootProps()} 
+                                        className={cn(
+                                            "border-2 border-dashed rounded-2xl p-6 transition-all duration-300 flex flex-col items-center justify-center gap-2 cursor-pointer",
+                                            isDragActive ? "border-primary bg-primary/5 scale-[0.98]" : "border-border/50 hover:border-primary/50 hover:bg-muted/30"
+                                        )}
+                                    >
+                                        <input {...getInputProps()} />
+                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1">
+                                            <Paperclip className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <p className="text-xs font-bold">Drag & Drop or Click to upload</p>
+                                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">PNG, JPG, PDF up to 5MB</p>
+                                    </div>
                                 </div>
                                 <SheetFooter className="mt-4 pt-4 border-t border-border/50">
                                     <Button type="submit" className="w-full h-12 rounded-xl font-black uppercase tracking-widest shadow-xl shadow-primary/20" disabled={createTicketMutation.isPending}>
@@ -367,7 +444,14 @@ export default function SupportHubPage() {
                         <CardContent className="p-0">
                             <Table>
                                 <TableHeader>
-                                    <TableRow className="bg-muted/5 hover:bg-transparent">
+                                    <TableRow className="bg-muted/5 hover:bg-transparent transition-none">
+                                        <TableHead className="w-[40px] px-4">
+                                            <Checkbox 
+                                                checked={selectedTicketIds.length === filteredTickets.length && filteredTickets.length > 0}
+                                                onCheckedChange={toggleAllSelection}
+                                                className="rounded-md border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-none"
+                                            />
+                                        </TableHead>
                                         <TableHead className="w-[100px] md:w-[120px] text-[10px] md:text-xs">ID</TableHead>
                                         <TableHead className="min-w-[180px] md:min-w-[300px] text-[10px] md:text-xs">Subject & Customer</TableHead>
                                         <TableHead className="hidden md:table-cell text-[10px] md:text-xs">Status</TableHead>
@@ -378,53 +462,118 @@ export default function SupportHubPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {isLoadingTickets ? (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="h-40 text-center text-muted-foreground font-medium">
-                                                Loading support matrix...
-                                            </TableCell>
-                                        </TableRow>
+                                        <>
+                                            <TicketSkeleton />
+                                            <TicketSkeleton />
+                                            <TicketSkeleton />
+                                            <TicketSkeleton />
+                                            <TicketSkeleton />
+                                        </>
                                     ) : filteredTickets.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="h-40 text-center text-muted-foreground font-medium">
-                                                No tickets found matching your search.
+                                            <TableCell colSpan={7} className="h-60 text-center">
+                                                <div className="flex flex-col items-center justify-center gap-3">
+                                                    <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center">
+                                                        <Search className="w-8 h-8 text-muted-foreground/30" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h3 className="font-bold text-lg">No tickets located</h3>
+                                                        <p className="text-sm text-muted-foreground max-w-[250px] mx-auto">We couldn't find any results matching your current filters or search query.</p>
+                                                    </div>
+                                                    <Button variant="outline" size="sm" className="mt-2 rounded-xl h-9" onClick={() => setSearchQuery("")}>Clear Search</Button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        filteredTickets.map((t) => (
-                                            <TableRow key={t.id} className="group hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => setSelectedTicketId(t.id)}>
-                                                <TableCell className="font-mono text-[10px] font-bold text-primary max-w-[80px] truncate">{t.id}</TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-sm leading-snug">{t.subject}</span>
-                                                            <div className="flex items-center gap-2 mt-1">
-                                                                <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium"><User className="w-2.5 h-2.5" /> {t.customer?.name}</span>
-                                                                <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium"><Clock className="w-2.5 h-2.5" /> Updated {formatDistanceToNow(new Date(t.updatedAt), { addSuffix: true })}</span>
+                                        <AnimatePresence mode="popLayout">
+                                            {filteredTickets.map((t, index) => (
+                                                <motion.tr 
+                                                    key={t.id} 
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, scale: 0.95 }}
+                                                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                                                    className={cn(
+                                                        "group border-b border-border/50 hover:bg-primary/[0.03] transition-colors cursor-pointer relative",
+                                                        selectedTicketIds.includes(t.id) && "bg-primary/[0.04]"
+                                                    )} 
+                                                    onClick={() => setSelectedTicketId(t.id)}
+                                                >
+                                                    <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
+                                                        <Checkbox 
+                                                            checked={selectedTicketIds.includes(t.id)}
+                                                            onCheckedChange={() => toggleTicketSelection(t.id)}
+                                                            className="rounded-md border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-none"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell className="font-mono text-[10px] font-bold text-primary max-w-[80px] truncate">{t.id}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex flex-col">
+                                                                <span className="font-bold text-sm leading-snug group-hover:text-primary transition-colors">{t.subject}</span>
+                                                                <div className="flex items-center gap-2 mt-1">
+                                                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium"><User className="w-2.5 h-2.5" /> {t.customer?.name}</span>
+                                                                    <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">•</span>
+                                                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium"><Clock className="w-2.5 h-2.5" /> Updated {formatDistanceToNow(new Date(t.updatedAt), { addSuffix: true })}</span>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">{getStatusBadge(t.status)}</TableCell>
-                                                <TableCell className="hidden sm:table-cell">{getPriorityBadge(t.priority)}</TableCell>
-                                                <TableCell className="hidden lg:table-cell">
-                                                    <Badge variant="outline" className="text-[10px] gap-1 font-bold border-border bg-muted/30">
-                                                        <Tag className="w-2.5 h-2.5 opacity-40" /> {t.category}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1 text-primary font-bold px-3">
-                                                            Reply <ChevronRight className="w-3 h-3" />
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">{getStatusBadge(t.status)}</TableCell>
+                                                    <TableCell className="hidden sm:table-cell">{getPriorityBadge(t.priority)}</TableCell>
+                                                    <TableCell className="hidden lg:table-cell">
+                                                        <Badge variant="outline" className="text-[10px] gap-1 font-bold border-border bg-muted/30">
+                                                            <Tag className="w-2.5 h-2.5 opacity-40" /> {t.category}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Button variant="ghost" size="sm" className="h-8 rounded-lg gap-1 text-primary font-bold px-3 hover:bg-primary/10">
+                                                                Reply <ChevronRight className="w-3 h-3" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </motion.tr>
+                                            ))}
+                                        </AnimatePresence>
                                     )}
                                 </TableBody>
                             </Table>
                         </CardContent>
                     </Card>
+
+                    {/* Bulk Action Bar */}
+                    <AnimatePresence>
+                        {selectedTicketIds.length > 0 && (
+                            <motion.div 
+                                initial={{ y: 100, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: 100, opacity: 0 }}
+                                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-background/80 backdrop-blur-xl border border-primary/20 shadow-2xl rounded-2xl px-6 h-16 flex items-center gap-6 min-w-[320px] md:min-w-[500px]"
+                            >
+                                <div className="flex items-center gap-3 border-r border-border pr-6">
+                                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-black text-xs">
+                                        {selectedTicketIds.length}
+                                    </div>
+                                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">Tickets Selected</span>
+                                </div>
+                                <div className="flex items-center gap-2 flex-1">
+                                    <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-primary/10">
+                                        <CheckCircle2 className="w-4 h-4" /> <span className="hidden md:inline">Mark Resolved</span>
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-amber-500/10 hover:text-amber-500">
+                                        <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Update Status</span>
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-red-500/10 hover:text-red-500" onClick={() => setSelectedTicketIds([])}>
+                                        <Trash2 className="w-4 h-4" /> <span className="hidden md:inline">Delete</span>
+                                    </Button>
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setSelectedTicketIds([])}>
+                                    <Plus className="w-4 h-4 rotate-45" />
+                                </Button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </TabsContent>
 
                 {/* Knowledge Base Tab */}
@@ -466,7 +615,15 @@ export default function SupportHubPage() {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-sm font-bold tracking-tight">Content (Markdown supported)</Label>
+                                                <div className="flex items-center justify-between">
+                                                    <Label className="text-sm font-bold tracking-tight">Content (Markdown supported)</Label>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7"><Bold className="w-3.5 h-3.5" /></Button>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7"><Italic className="w-3.5 h-3.5" /></Button>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7"><LinkIcon className="w-3.5 h-3.5" /></Button>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7"><ImageIcon className="w-3.5 h-3.5" /></Button>
+                                                    </div>
+                                                </div>
                                                 <Textarea placeholder="Write article content here..." className="min-h-[250px] rounded-xl bg-muted/30 border-none resize-none p-4" />
                                             </div>
                                             <SheetFooter className="pt-4 border-t border-border/50">
@@ -672,7 +829,7 @@ export default function SupportHubPage() {
                                 <div className="relative group">
                                     <Textarea 
                                         placeholder="Type your response here..." 
-                                        className="min-h-[80px] md:min-h-[100px] rounded-xl pr-16 md:pr-20 bg-background text-sm"
+                                        className="min-h-[80px] md:min-h-[100px] rounded-xl pr-16 md:pr-20 bg-background text-sm shadow-inner"
                                         value={replyContent}
                                         onChange={(e) => setReplyContent(e.target.value)}
                                         onKeyDown={(e) => {
@@ -681,6 +838,10 @@ export default function SupportHubPage() {
                                             }
                                         }}
                                     />
+                                    <div className="absolute top-2 right-2 flex flex-col items-center gap-1">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10 text-primary"><Paperclip className="w-4 h-4" /></Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10 text-primary"><ImageIcon className="w-4 h-4" /></Button>
+                                    </div>
                                     <div className="absolute bottom-3 right-3 flex items-center gap-2">
                                         <Label className="text-[10px] text-muted-foreground mr-2 hidden sm:block font-medium">Ctrl + Enter to send</Label>
                                         <Button 

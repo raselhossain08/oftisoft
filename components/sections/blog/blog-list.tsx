@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 import { useBlogContentStore, type BlogCategory } from "@/lib/store/blog-content";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 // Remove static mock data
 
@@ -116,6 +117,8 @@ export default function BlogList() {
                     </div>
                 </div>
 
+                <AdSlot position="blog-list-top" />
+
                 {/* Posts Grid */}
                 <motion.div 
                     layout 
@@ -123,75 +126,82 @@ export default function BlogList() {
                 >
                     <AnimatePresence mode="popLayout">
                         {filteredPosts.map((post, index) => (
-                            <motion.article
-                                layout
-                                key={post.id}
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                                transition={{ duration: 0.4, delay: index * 0.05 }}
-                                className="h-full"
-                            >
-                                <Link href={`/blog/${post.slug || post.id}`} className="group relative flex flex-col h-full block">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl -z-10 blur-xl" />
-                                    
-                                    <Card className="h-full flex flex-col bg-card/50 backdrop-blur-md border-border/50 rounded-3xl overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2">
+                            <div key={`post-wrapper-${post.id}`} className="contents">
+                                <motion.article
+                                    layout
+                                    key={post.id}
+                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                                    className="h-full"
+                                >
+                                    <Link href={`/blog/${post.slug || post.id}`} className="group relative flex flex-col h-full block">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl -z-10 blur-xl" />
                                         
-                                        {/* Image Area */}
-                                        <div className="relative h-52 overflow-hidden bg-muted">
-                                            {/* Abstract Placeholder Gradient */}
-                                            <div className={cn(
-                                                "absolute inset-0 bg-gradient-to-br",
-                                                post.category === 'web' ? 'from-blue-600/20 to-purple-600/20' :
-                                                post.category === 'ai' ? 'from-emerald-600/20 to-cyan-600/20' :
-                                                post.category === 'mobile' ? 'from-orange-600/20 to-red-600/20' :
-                                                'from-slate-600/20 to-gray-600/20'
-                                            )} />
+                                        <Card className="h-full flex flex-col bg-card/50 backdrop-blur-md border-border/50 rounded-3xl overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2">
                                             
-                                            {/* Grid Pattern Overlay */}
-                                            <div className="absolute inset-0 opacity-[0.1] bg-grain mix-blend-overlay" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '10px 10px'}} />
+                                            {/* Image Area */}
+                                            <div className="relative h-52 overflow-hidden bg-muted">
+                                                {/* Abstract Placeholder Gradient */}
+                                                <div className={cn(
+                                                    "absolute inset-0 bg-gradient-to-br",
+                                                    post.category === 'web' ? 'from-blue-600/20 to-purple-600/20' :
+                                                    post.category === 'ai' ? 'from-emerald-600/20 to-cyan-600/20' :
+                                                    post.category === 'mobile' ? 'from-orange-600/20 to-red-600/20' :
+                                                    'from-slate-600/20 to-gray-600/20'
+                                                )} />
+                                                
+                                                {/* Grid Pattern Overlay */}
+                                                <div className="absolute inset-0 opacity-[0.1] bg-grain mix-blend-overlay" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '10px 10px'}} />
 
-                                            <div className="absolute top-4 left-4 z-10">
-                                                 <Badge variant="secondary" className="backdrop-blur-md bg-background/80 hover:bg-background/90 border-white/10 shadow-sm">
-                                                    {categories.find(c => c.id === post.category)?.label || post.category.toUpperCase()}
-                                                </Badge>
-                                            </div>
-                                        </div>
-
-                                        {/* Content */}
-                                        <CardContent className="p-6 flex flex-col flex-grow">
-                                            <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium mb-4">
-                                                <div className="flex items-center gap-1">
-                                                    <Calendar className="w-3.5 h-3.5" />
-                                                    <span>{post.date}</span>
-                                                </div>
-                                                <span className="w-1 h-1 rounded-full bg-border" />
-                                                <div className="flex items-center gap-1">
-                                                    <Clock className="w-3.5 h-3.5" />
-                                                    <span>{post.readTime}</span>
+                                                <div className="absolute top-4 left-4 z-10">
+                                                     <Badge variant="secondary" className="backdrop-blur-md bg-background/80 hover:bg-background/90 border-white/10 shadow-sm">
+                                                        {categories.find(c => c.id === post.category)?.label || post.category.toUpperCase()}
+                                                    </Badge>
                                                 </div>
                                             </div>
 
-                                            <h3 className="text-xl font-bold mb-3 leading-tight group-hover:text-primary transition-colors">
-                                                {post.title}
-                                            </h3>
+                                            {/* Content */}
+                                            <CardContent className="p-6 flex flex-col flex-grow">
+                                                <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium mb-4">
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="w-3.5 h-3.5" />
+                                                        <span>{post.date}</span>
+                                                    </div>
+                                                    <span className="w-1 h-1 rounded-full bg-border" />
+                                                    <div className="flex items-center gap-1">
+                                                        <Clock className="w-3.5 h-3.5" />
+                                                        <span>{post.readTime}</span>
+                                                    </div>
+                                                </div>
 
-                                            <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-grow">
-                                                {post.excerpt}
-                                            </p>
-                                        </CardContent>
+                                                <h3 className="text-xl font-bold mb-3 leading-tight group-hover:text-primary transition-colors">
+                                                    {post.title}
+                                                </h3>
 
-                                        <CardFooter className="p-6 pt-0 mt-auto border-t border-border/50 flex items-center justify-between pt-6">
-                                            <span className="text-sm font-semibold text-primary group-hover:underline decoration-primary/30 underline-offset-4">
-                                                Read Article
-                                            </span>
-                                            <Button size="icon" variant="secondary" className="rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 w-8 h-8">
-                                                <ArrowUpRight className="w-4 h-4" />
-                                            </Button>
-                                        </CardFooter>
-                                    </Card>
-                                </Link>
-                            </motion.article>
+                                                <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-grow">
+                                                    {post.excerpt}
+                                                </p>
+                                            </CardContent>
+
+                                            <CardFooter className="p-6 pt-0 mt-auto border-t border-border/50 flex items-center justify-between pt-6">
+                                                <span className="text-sm font-semibold text-primary group-hover:underline decoration-primary/30 underline-offset-4">
+                                                    Read Article
+                                                </span>
+                                                <Button size="icon" variant="secondary" className="rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 w-8 h-8">
+                                                    <ArrowUpRight className="w-4 h-4" />
+                                                </Button>
+                                            </CardFooter>
+                                        </Card>
+                                    </Link>
+                                </motion.article>
+                                {(index + 1) % 6 === 0 && (
+                                    <div className="col-span-full py-8">
+                                        <AdSlot position="blog-list-middle" />
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </AnimatePresence>
                 </motion.div>

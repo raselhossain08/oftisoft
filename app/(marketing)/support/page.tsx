@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +29,8 @@ import {
     Smartphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { useSupportContentStore } from "@/lib/store/support-content";
 
 const iconMap: any = {
@@ -50,11 +54,47 @@ const iconMap: any = {
 };
 
 export default function SupportPage() {
+    const { pageContent, isLoading } = usePageContent('support');
+    const setContent = useSupportContentStore((state) => state.setContent);
+    const router = useRouter();
+    // Dynamically import useAuthStore to avoid potential hydration mismatch if it uses local storage immediately
+    // or just use it directly if it's safe. Assuming safe for client component.
+    // However, since we just need to redirect, we can check auth status or just push to protected route 
+    // and let the dashboard middleware handle the redirect to login.
+    // For better UX, let's just redirect to dashboard support which is protected.
+    
+    const [searchQuery, setSearchQuery] = useState("");
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useSupportContentStore();
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Initializing Support Node...
+                </div>
+            </div>
+        );
+    }
     
     if (!content) return null;
 
     const { header, channels, faq, priorityRelay } = content;
+
+    const handleConnect = () => {
+        router.push("/dashboard/support");
+    };
+
+    const filteredFaq = faq.items.filter((item: any) => 
+        item.q.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        item.a.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
@@ -94,6 +134,8 @@ export default function SupportPage() {
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input 
                             placeholder={header.searchPlaceholder}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="h-16 pl-16 rounded-[24px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic shadow-2xl transition-all"
                         />
                     </motion.div>
@@ -105,7 +147,7 @@ export default function SupportPage() {
                         const Icon = iconMap[channel.iconName] || Bot;
                         return (
                             <motion.div key={channel.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
-                                <Card className="h-full border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700 cursor-pointer group">
+                                <Card className="h-full border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700 cursor-pointer group" onClick={handleConnect}>
                                     <CardContent className="p-10 space-y-6 flex flex-col items-center text-center">
                                         <div className={cn("w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6", channel.color)}>
                                             <Icon size={36} />
@@ -132,19 +174,25 @@ export default function SupportPage() {
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
-                        {faq.items.map((item, idx) => (
-                            <Card key={item.id} className="border-white/5 bg-white/[0.01] rounded-[40px] p-10 space-y-6 hover:bg-white/[0.02] transition-all group">
-                                <div className="flex items-start gap-6">
-                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 transition-transform group-hover:scale-110">
-                                        <HelpCircle size={20} />
+                        {filteredFaq.length > 0 ? (
+                            filteredFaq.map((item: any) => (
+                                <Card key={item.id} className="border-white/5 bg-white/[0.01] rounded-[40px] p-10 space-y-6 hover:bg-white/[0.02] transition-all group">
+                                    <div className="flex items-start gap-6">
+                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 transition-transform group-hover:scale-110">
+                                            <HelpCircle size={20} />
+                                        </div>
+                                        <div className="space-y-3">
+                                            <h4 className="text-xl font-black italic text-white tracking-tight leading-tight">{item.q}</h4>
+                                            <p className="text-base text-muted-foreground font-medium italic leading-relaxed">{item.a}</p>
+                                        </div>
                                     </div>
-                                    <div className="space-y-3">
-                                        <h4 className="text-xl font-black italic text-white tracking-tight leading-tight">{item.q}</h4>
-                                        <p className="text-base text-muted-foreground font-medium italic leading-relaxed">{item.a}</p>
-                                    </div>
-                                </div>
-                            </Card>
-                        ))}
+                                </Card>
+                            ))
+                        ) : (
+                            <div className="col-span-2 text-center text-muted-foreground italic py-12">
+                                No answers found for your query. Please initiate a connection for personal assistance.
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -167,6 +215,7 @@ export default function SupportPage() {
                                         <Button 
                                             key={idx}
                                             variant={btn.variant}
+                                            onClick={handleConnect}
                                             className={cn(
                                                 "h-16 px-12 rounded-[22px] font-black italic text-lg shadow-2xl transition-all active:scale-95 group/btn",
                                                 btn.variant === "default" ? "bg-primary hover:bg-primary/90 text-white shadow-primary/30" : "border-white/10 bg-white/5 text-white hover:bg-white/10"

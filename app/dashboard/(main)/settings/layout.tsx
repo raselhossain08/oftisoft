@@ -2,20 +2,26 @@
 
 import { cn } from "@/lib/utils";
 import { 
-    User, Lock, Bell, LogOut, Blocks, CreditCard, Settings, ChevronRight, Menu
+    User, Lock, Bell, LogOut, Blocks, CreditCard, Settings, ChevronRight, Menu, Globe, Zap
 } from "lucide-react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { authAPI } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const SETTINGS_TABS = [
     { id: "profile", label: "Profile", icon: User, href: "/dashboard/settings/profile", description: "Identity & Metadata" },
     { id: "billing", label: "Billing", icon: CreditCard, href: "/dashboard/settings/billing", description: "Financial Settlement" },
     { id: "security", label: "Security", icon: Lock, href: "/dashboard/settings/security", description: "Logic & Encryption" },
     { id: "notifications", label: "Notifications", icon: Bell, href: "/dashboard/settings/notifications", description: "Signal Protocols" },
+    { id: "payments", label: "Payments", icon: Globe, href: "/dashboard/settings/payments", description: "Gateway Configuration" },
     { id: "integrations", label: "Integrations", icon: Blocks, href: "/dashboard/settings/integrations", description: "Neural Connections" },
+    { id: "system", label: "System", icon: Settings, href: "/dashboard/settings/system", description: "Core Topology" },
 ];
 
 export default function SettingsLayout({
@@ -24,7 +30,26 @@ export default function SettingsLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        try {
+            setIsLoggingOut(true);
+            await authAPI.logout();
+            toast.success("Identity De-synchronized", {
+                description: "Your session has been securely terminated."
+            });
+            router.push("/auth/login");
+        } catch (error) {
+            toast.error("Termination Failed", {
+                description: "The neural link remains active. Please retry."
+            });
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
 
     return (
         <div className="flex flex-col space-y-8 pb-20 px-3 md:px-0">
@@ -74,6 +99,18 @@ export default function SettingsLayout({
                                     </NextLink>
                                 )
                             })}
+                        </div>
+                        <div className="pt-8 mt-8 border-t border-border/50">
+                            <button 
+                                onClick={handleLogout}
+                                disabled={isLoggingOut}
+                                className="w-full flex items-center gap-4 px-4 py-4 rounded-xl text-red-500 hover:bg-red-500/10 font-black transition-all group disabled:opacity-50"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
+                                    {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
+                                </div>
+                                <span>{isLoggingOut ? "Purging Link..." : "Sign Out Instance"}</span>
+                            </button>
                         </div>
                     </SheetContent>
                 </Sheet>
@@ -127,11 +164,15 @@ export default function SettingsLayout({
                     </nav>
 
                     <div className="pt-8 mt-8 border-t border-border/50 px-4">
-                        <button className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-red-500 hover:bg-red-500/10 font-black transition-all group">
+                        <button 
+                            onClick={handleLogout}
+                            disabled={isLoggingOut}
+                            className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-red-500 hover:bg-red-500/10 font-black transition-all group disabled:opacity-50"
+                        >
                             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
-                                <LogOut className="w-5 h-5" />
+                                {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
                             </div>
-                            <span>Sign Out Instance</span>
+                            <span>{isLoggingOut ? "Purging Link..." : "Sign Out Instance"}</span>
                         </button>
                     </div>
                 </aside>

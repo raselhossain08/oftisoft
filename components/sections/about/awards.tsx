@@ -23,9 +23,10 @@ const partners = [
     { name: "Vercel Enterprise", icon: Trophy }
 ];
 
-export default function Awards() {
-    const { content } = useAboutContentStore();
-    const awards = content?.awards || [];
+export default function Awards({ data }: { data?: any }) {
+    const { content: storeContent } = useAboutContentStore();
+    const awards = data?.awards || storeContent?.awards || [];
+    const content = data || storeContent;
     
     const [activeCard, setActiveCard] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -118,7 +119,7 @@ export default function Awards() {
                                 pagination={{ clickable: true, dynamicBullets: true }}
                                 className="w-full aspect-[3/4]"
                             >
-                                {awards.map((award) => (
+                                {awards.map((award: any) => (
                                     <SwiperSlide key={award.id} className="rounded-[2rem]">
                                         <AwardCard award={award} />
                                     </SwiperSlide>
@@ -129,7 +130,7 @@ export default function Awards() {
                         {/* 2. Desktop: Custom 3D Stack */}
                         <div className="hidden lg:flex h-[500px] w-full items-center justify-end perspective-1000 relative">
                             <AnimatePresence mode="popLayout">
-                                {awards.map((award, index) => {
+                                {awards.map((award: any, index: number) => {
                                     const isActive = index === activeCard;
                                     const offset = (index - activeCard + awards.length) % awards.length;
                                     
@@ -164,7 +165,7 @@ export default function Awards() {
 
                             {/* Desktop Custom Nav Dots */}
                             <div className="absolute bottom-10 right-[400px] flex flex-col gap-3">
-                                {awards.map((_, idx) => (
+                                {awards.map((_: any, idx: number) => (
                                     <button
                                         key={idx}
                                         onClick={() => setActiveCard(idx)}
@@ -189,7 +190,7 @@ export default function Awards() {
 // Reusable Card Component to keep code DRY
 function AwardCard({ award }: { award: any }) {
     return (
-        <Card className="relative h-full overflow-hidden rounded-[2rem] bg-[#0a0a0a] border-white/10 border shadow-2xl flex flex-col justify-between group">
+        <Card className="relative h-full overflow-hidden rounded-[2rem] bg-[#0a0a0a] border-white/10 border shadow-2xl flex flex-col justify-between group p-0">
             <CardContent className="h-full flex flex-col justify-between p-8 relative z-10">
                 {/* Gradient Background Glow */}
                 <div className={cn(

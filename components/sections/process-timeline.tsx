@@ -84,7 +84,7 @@ export default function ProcessTimeline() {
                 </div>
 
                 {/* Vertical Timeline Container */}
-                <div className="relative max-w-5xl mx-auto">
+                <div className="relative  mx-auto">
                     
                     {/* Central Track Line (Desktop) / Left Line (Mobile) */}
                     <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/5 -translate-x-1/2">

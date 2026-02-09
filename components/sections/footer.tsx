@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -6,6 +5,7 @@ import { motion } from "framer-motion";
 import { Facebook, Twitter, Instagram, Linkedin, Heart, Mail, MapPin, Phone, ArrowRight, Github, Send } from "lucide-react";
 import { useState } from "react";
 import { useFooterContentStore } from "@/lib/store/footer-content";
+import { useLeads } from "@/hooks/useLeads";
 
 const iconMap: Record<string, any> = {
     Github,
@@ -23,7 +23,16 @@ import { Button } from "@/components/ui/button";
 
 export default function Footer() {
     const { content } = useFooterContentStore();
+    const { subscribe, isSubscribing } = useLeads();
     const [email, setEmail] = useState("");
+
+    const handleSubscribe = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+        subscribe(email, {
+            onSuccess: () => setEmail("")
+        });
+    };
 
     if (!content) return null;
 
@@ -52,20 +61,21 @@ export default function Footer() {
                    </div>
                    
                    <div className="flex flex-col justify-center items-center lg:items-end">
-                       <form className="relative max-w-md w-full flex flex-col sm:flex-row gap-3" onSubmit={(e) => e.preventDefault()}>
+                       <form className="relative max-w-md w-full flex flex-col sm:flex-row gap-3" onSubmit={handleSubscribe}>
                            <Input 
-                                type="email" 
-                                placeholder={content.newsletterPlaceholder}
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full h-12 rounded-xl bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/50 focus-visible:bg-white/10 transition-all"
-                            />
-                            <Button size="icon" className="h-12 w-12 shrink-0 rounded-xl bg-primary hover:bg-primary/90 text-white transition-colors hidden sm:flex">
-                                <ArrowRight className="w-5 h-5" />
-                            </Button>
-                            <Button className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium sm:hidden">
-                                {content.newsletterButtonText}
-                            </Button>
+                                 type="email" 
+                                 required
+                                 placeholder={content.newsletterPlaceholder}
+                                 value={email}
+                                 onChange={(e) => setEmail(e.target.value)}
+                                 className="w-full h-12 rounded-xl bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/50 focus-visible:bg-white/10 transition-all"
+                             />
+                             <Button size="icon" type="submit" disabled={isSubscribing} className="h-12 w-12 shrink-0 rounded-xl bg-primary hover:bg-primary/90 text-white transition-colors hidden sm:flex items-center justify-center">
+                                {isSubscribing ? <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" /> : <ArrowRight className="w-5 h-5" />}
+                             </Button>
+                             <Button type="submit" disabled={isSubscribing} className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium sm:hidden">
+                                {isSubscribing ? "Subscribing..." : content.newsletterButtonText}
+                             </Button>
                         </form>
                         <p className="text-xs text-muted-foreground mt-4 text-center lg:text-right w-full max-w-md">
                             {content.newsletterDisclaimer}
@@ -80,28 +90,28 @@ export default function Footer() {
                              {content.tagline} {content.description}
                         </p>
                         <div className="flex gap-4">
-                            {content.socialLinks.map((social) => {
-                                const Icon = iconMap[social.icon] || Github;
-                                return (
-                                    <a
-                                        key={social.id}
-                                        href={social.href}
-                                        className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
-                                        aria-label={social.label}
-                                    >
-                                        <Icon className="w-5 h-5" />
-                                    </a>
-                                );
-                            })}
+                        {(content.socialLinks || []).map((social, i) => {
+                            const Icon = iconMap[social.icon] || Github;
+                            return (
+                                <a
+                                    key={social.id || i}
+                                    href={social.href}
+                                    className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
+                                    aria-label={social.label}
+                                >
+                                    <Icon className="w-5 h-5" />
+                                </a>
+                            );
+                        })}
                         </div>
                     </div>
 
-                    {content.columns.map((column) => (
-                        <div key={column.id} className="col-span-1">
+                    {(content.columns || []).map((column, i) => (
+                        <div key={column.id || i} className="col-span-1">
                             <h4 className="font-bold text-white mb-6">{column.title}</h4>
                             <ul className="space-y-4">
-                                {column.links.map((link) => (
-                                    <li key={link.id}>
+                                {(column.links || []).map((link, j) => (
+                                    <li key={link.id || j}>
                                         <Link 
                                             href={link.href} 
                                             className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center group w-fit"

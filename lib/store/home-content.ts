@@ -29,6 +29,7 @@ export interface HeroSection {
     }[];
     backgroundImage?: string;
     backgroundVideo?: string;
+    subtitles?: string[]; // Multiple words for typewriter
     enabled: boolean;
 }
 
@@ -189,6 +190,11 @@ export interface CTASection {
     buttonText: string;
     buttonLink: string;
     backgroundImage?: string;
+    contactInfo?: {
+        email: string;
+        phone: string;
+        location: string;
+    };
     enabled: boolean;
 }
 
@@ -276,6 +282,7 @@ const defaultContent: HomePageContent = {
             { value: 98, suffix: '%', label: 'Client Satisfaction' },
             { value: 6, suffix: 'Y', label: 'Years Experience' }
         ],
+        subtitles: ["Digital Solutions.", "Web Architecture.", "AI Innovation.", "SaaS Platforms."],
         enabled: true,
     },
     services: {
@@ -590,6 +597,11 @@ const defaultContent: HomePageContent = {
         description: 'Let\'s discuss how we can help you achieve your goals.',
         buttonText: 'Get in Touch',
         buttonLink: '/contact',
+        contactInfo: {
+            email: 'hello@oftisoft.com',
+            phone: '+1 (555) 000-0000',
+            location: 'San Francisco, CA'
+        },
         enabled: true,
     },
     seo: {

@@ -19,7 +19,8 @@ import {
     FileText,
     ExternalLink,
     Zap,
-    Download
+    Download,
+    RefreshCw
 } from "lucide-react";
 import { 
     BarChart, 
@@ -46,16 +47,33 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { useAffiliate } from "@/hooks/useAffiliate";
+import { Loader2 } from "lucide-react";
+
 export default function AffiliatePage() {
+    const { stats, isLoading, refresh, withdraw } = useAffiliate();
     const [copied, setCopied] = useState(false);
-    const referralLink = "https://oftisoft.com/ref/alex2026";
+    
+    // Fallback for referral link while loading or if profile missing
+    const referralCode = stats?.profile?.referralCode || "loading...";
+    const referralLink = `https://oftisoft.com/ref/${referralCode}`;
 
     const handleCopy = () => {
+        if (referralCode === "loading...") return;
         navigator.clipboard.writeText(referralLink);
         setCopied(true);
-        toast.success("Referral link copied to clipboard!");
+        toast.success("Referral bridge copied to clipboard!");
         setTimeout(() => setCopied(false), 2000);
     };
+
+    if (isLoading && !stats) {
+        return (
+          <div className="h-[70vh] flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-12 h-12 animate-spin text-primary opacity-20" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">Synchronizing Affiliate Nodes...</p>
+          </div>
+        );
+    }
 
     return (
         <div className="space-y-8 pb-20">
@@ -68,11 +86,15 @@ export default function AffiliatePage() {
                     <p className="text-muted-foreground font-medium mt-1">Scale your earnings by bridging new architects to the Oftisoft ecosystem.</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" className="rounded-xl gap-2 font-bold h-11 border-border/50 bg-card/50 backdrop-blur-sm">
-                        <Download className="w-4 h-4" /> Marketing Assets
+                    <Button 
+                        variant="outline" 
+                        onClick={refresh}
+                        className="rounded-xl gap-2 font-bold h-11 border-border/50 bg-card/50 backdrop-blur-sm"
+                    >
+                        <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} /> Fast Sync
                     </Button>
                     <Button className="rounded-xl gap-2 font-bold h-11 bg-primary text-white shadow-lg shadow-primary/20">
-                        <Zap className="w-4 h-4" /> New Campaign
+                        <Zap className="w-4 h-4" /> Expansion Kit
                     </Button>
                 </div>
             </div>
@@ -117,13 +139,31 @@ export default function AffiliatePage() {
                 {/* Earnings Stats */}
                 <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[
-                        { label: "Total Revenue", val: "$1,450.80", growth: "+12.5%", color: "text-primary", icon: DollarSign },
-                        { label: "Active Affiliates", val: "42 Nodes", growth: "+5 nodes", color: "text-indigo-500", icon: Users },
-                        { label: "Conversion Rate", val: "8.4%", growth: "+0.8%", color: "text-green-500", icon: TrendingUp },
+                        { 
+                            label: "Total Revenue", 
+                            val: `$${(Number(stats?.profile?.totalEarnings) || 0).toLocaleString()}`, 
+                            growth: "+12.5%", 
+                            color: "text-primary", 
+                            icon: DollarSign 
+                        },
+                        { 
+                            label: "Vault Balance", 
+                            val: `$${(Number(stats?.profile?.balance) || 0).toLocaleString()}`, 
+                            growth: "AvailableNow", 
+                            color: "text-indigo-500", 
+                            icon: Wallet 
+                        },
+                        { 
+                            label: "Conversion Tier", 
+                            val: stats?.profile?.tier?.toUpperCase() || "STANDARD", 
+                            growth: `${stats?.profile?.commissionRate || 20}% Yield`, 
+                            color: "text-green-500", 
+                            icon: TrendingUp 
+                        },
                     ].map((stat, i) => (
                         <Card key={i} className="border-border/50 bg-card/50 backdrop-blur-md rounded-[32px] p-6 group hover:border-primary/30 transition-all flex flex-col justify-between overflow-hidden shadow-sm relative">
                              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 blur-[40px] rounded-full group-hover:bg-primary/10 transition-colors" />
-                             <div className="w-12 h-auto rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-all relative z-10 mb-6">
+                             <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-all relative z-10 mb-6">
                                 <stat.icon className="w-6 h-6" />
                              </div>
                              <div className="relative z-10">
@@ -167,7 +207,7 @@ export default function AffiliatePage() {
                         </div>
                         <div className="h-[350px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={mockPerformanceReports}>
+                                <AreaChart data={stats?.performanceReports || mockPerformanceReports}>
                                     <defs>
                                         <linearGradient id="colorConversions" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -257,31 +297,36 @@ export default function AffiliatePage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border/30">
-                                        {mockAffiliateTransactions.map((tx) => (
-                                            <tr key={tx.id} className="group hover:bg-primary/[0.02] transition-colors">
-                                                <td className="px-8 py-6 font-black text-xs font-mono">{tx.id}</td>
-                                                <td className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase">{tx.date}</td>
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                                                            <Zap className="w-4 h-4" />
-                                                        </div>
-                                                        <span className="text-xs font-black italic">{tx.productName}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-6 text-xs font-bold">${tx.amount.toFixed(2)}</td>
-                                                <td className="px-8 py-6 text-xs font-black text-primary italic">${tx.commission.toFixed(2)}</td>
-                                                <td className="px-8 py-6">
-                                                    <Badge className={cn("text-[9px] font-black uppercase tracking-tighter rounded-lg border-none", 
-                                                        tx.status === "cleared" ? "bg-green-500 text-white" : tx.status === "pending" ? "bg-orange-500 text-white" : "bg-red-500 text-white"
-                                                    )}>
-                                                        {tx.status}
-                                                    </Badge>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                         {(stats?.commissions || []).map((tx: any) => (
+                                             <tr key={tx.id} className="group hover:bg-primary/[0.02] transition-colors">
+                                                 <td className="px-8 py-6 font-black text-xs font-mono">{tx.id.substring(0, 8)}</td>
+                                                 <td className="px-8 py-6 text-xs font-bold text-muted-foreground uppercase">{new Date(tx.createdAt).toLocaleDateString()}</td>
+                                                 <td className="px-8 py-6">
+                                                     <div className="flex items-center gap-3">
+                                                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                                             <Zap className="w-4 h-4" />
+                                                         </div>
+                                                         <span className="text-xs font-black italic">Order #{tx.order?.id?.substring(0, 5)}</span>
+                                                     </div>
+                                                 </td>
+                                                 <td className="px-8 py-6 text-xs font-bold">${Number(tx.order?.total || 0).toFixed(2)}</td>
+                                                 <td className="px-8 py-6 text-xs font-black text-primary italic">${Number(tx.amount).toFixed(2)}</td>
+                                                 <td className="px-8 py-6">
+                                                     <Badge className={cn("text-[9px] font-black uppercase tracking-tighter rounded-lg border-none", 
+                                                         tx.status === "cleared" ? "bg-green-500 text-white" : tx.status === "pending" ? "bg-orange-500 text-white" : "bg-red-500 text-white"
+                                                     )}>
+                                                         {tx.status}
+                                                     </Badge>
+                                                 </td>
+                                             </tr>
+                                         ))}
+                                         {(!stats?.commissions || stats.commissions.length === 0) && (
+                                             <tr>
+                                                 <td colSpan={6} className="px-8 py-20 text-center opacity-30 italic font-medium">No yield signals detected in the ledger.</td>
+                                             </tr>
+                                         )}
+                                     </tbody>
+                                 </table>
                             </div>
                         </div>
                     </Card>
@@ -299,9 +344,9 @@ export default function AffiliatePage() {
                                     <p className="text-muted-foreground text-sm font-medium">Funds matured and ready for extraction from the primary settlement ledger.</p>
                                 </div>
                                 <div className="flex flex-col gap-1 py-6">
-                                    <span className="text-5xl font-black italic text-primary">$1,092.40</span>
+                                    <span className="text-5xl font-black italic text-primary">${Number(stats?.profile?.balance || 0).toLocaleString()}</span>
                                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic flex items-center gap-2">
-                                        <Wallet className="w-3.5 h-3.5" /> Next extraction window: 24h 12m
+                                        <Wallet className="w-3.5 h-3.5" /> Direct extraction available
                                     </span>
                                 </div>
                                 <div className="space-y-4">
@@ -314,14 +359,18 @@ export default function AffiliatePage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-xs font-black italic">PayPal Node (Verified)</p>
-                                                    <p className="text-[10px] text-muted-foreground font-bold leading-none">alex***@techflow.com</p>
+                                                    <p className="text-[10px] text-muted-foreground font-bold leading-none">Extraction active</p>
                                                 </div>
                                             </div>
                                             <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                         </div>
                                    </div>
-                                   <Button className="w-full rounded-[24px] h-14 bg-primary text-white font-black italic shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                                       Initialize Ledger Extraction
+                                   <Button 
+                                        disabled={Number(stats?.profile?.balance) <= 0}
+                                        onClick={() => withdraw(Number(stats?.profile?.balance), 'paypal')}
+                                        className="w-full rounded-[24px] h-14 bg-primary text-white font-black italic shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    >
+                                       {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Initialize Ledger Extraction"}
                                    </Button>
                                    <p className="text-[9px] text-center text-muted-foreground font-bold italic">Global processing fees apply via inter-bank liquidity layers.</p>
                                 </div>
@@ -334,24 +383,27 @@ export default function AffiliatePage() {
                                 <History className="w-5 h-5 text-primary" /> Extraction History
                             </h3>
                             <div className="grid gap-4">
-                                {mockWithdrawals.map((wr) => (
+                                {(stats?.withdrawals || []).map((wr: any) => (
                                     <div key={wr.id} className="p-6 rounded-[32px] bg-card border border-border/50 flex items-center justify-between hover:border-primary/20 transition-all group">
                                         <div className="flex items-center gap-5">
-                                            <div className="w-12 h-auto rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                                            <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-all">
                                                 <Wallet size={20} />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-black italic">{wr.amount.toFixed(2)} USD Extraction</p>
-                                                <p className="text-[10px] text-muted-foreground font-bold uppercase">{wr.date} • {wr.method}</p>
+                                                <p className="text-sm font-black italic">{Number(wr.amount).toFixed(2)} USD Extraction</p>
+                                                <p className="text-[10px] text-muted-foreground font-bold uppercase">{new Date(wr.createdAt).toLocaleDateString()} • {wr.method}</p>
                                             </div>
                                         </div>
                                         <Badge className={cn("text-[9px] font-black uppercase tracking-tighter px-3 py-1.5 rounded-xl border-none",
-                                            wr.status === "processed" ? "bg-green-500 text-white" : wr.status === "pending" ? "bg-orange-500 text-white" : "bg-red-500 text-white"
+                                            wr.status === "completed" ? "bg-green-500 text-white" : wr.status === "pending" ? "bg-orange-500 text-white" : "bg-red-500 text-white"
                                         )}>
                                             {wr.status}
                                         </Badge>
                                     </div>
                                 ))}
+                                {(!stats?.withdrawals || stats.withdrawals.length === 0) && (
+                                    <div className="p-10 text-center opacity-30 italic font-medium">No extraction history found.</div>
+                                )}
                             </div>
                             <Button variant="outline" className="w-full rounded-[24px] h-auto font-bold border-border/50 text-muted-foreground hover:text-primary transition-all">
                                 Complete Audit History

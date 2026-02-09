@@ -31,8 +31,9 @@ const iconMap: any = {
     Users
 };
 
-export default function CompanyTimeline() {
-    const { content } = useAboutContentStore();
+export default function CompanyTimeline({ data }: { data?: any }) {
+    const { content: storeContent } = useAboutContentStore();
+    const content = data || storeContent;
     const timelineData = content?.timeline || [];
     
     const containerRef = useRef<HTMLDivElement>(null);
@@ -76,7 +77,7 @@ export default function CompanyTimeline() {
                     </div>
 
                     <div className="space-y-12 md:space-y-32">
-                        {timelineData.map((item, index) => (
+                        {timelineData.map((item: any, index: number) => (
                             <TimelineNode key={index} item={item} index={index} />
                         ))}
                     </div>

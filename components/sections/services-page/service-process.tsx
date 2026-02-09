@@ -36,7 +36,7 @@ export default function ServiceProcess() {
              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
              <div className="absolute top-1/2 left-0 w-full h-[500px] bg-primary/2 rounded-full blur-[100px] pointer-events-none" />
 
-            <div className="container px-4 mx-auto max-w-5xl relative z-10">
+            <div className="container px-4 mx-auto  relative z-10">
                 <div className="text-center mb-16 md:mb-24">
                      <motion.div 
                         initial={{ opacity: 0, y: 20 }}

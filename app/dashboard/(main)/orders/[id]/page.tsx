@@ -19,6 +19,7 @@ import {
     Clock,
     XCircle
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -36,12 +37,15 @@ import { useOrders } from "@/hooks/useOrders";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { StatusBadge } from "@/components/orders/status-badge";
+
 export default function OrderDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const id = params?.id as string;
     const { order, isLoading, updateStatus, downloadInvoice, isDownloadingInvoice } = useOrders(id);
     const [status, setStatus] = useState<string>('');
+    const [isRefunding, setIsRefunding] = useState(false);
 
     useEffect(() => {
         if (order) {
@@ -76,19 +80,12 @@ export default function OrderDetailsPage() {
     };
 
     const handleRefund = () => {
-        toast.info("Refund request submitted for manual review.");
-        handleStatusChange('refunded');
-    };
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "completed": return <Badge className="bg-green-500 text-white hover:bg-green-600 border-none">Completed</Badge>;
-            case "processing": return <Badge className="bg-blue-500 text-white hover:bg-blue-600 border-none">Processing</Badge>;
-            case "pending": return <Badge variant="outline" className="text-orange-500 border-orange-500">Pending</Badge>;
-            case "cancelled": return <Badge variant="destructive">Cancelled</Badge>;
-            case "refunded": return <Badge variant="secondary" className="text-purple-500">Refunded</Badge>;
-            default: return <Badge variant="outline">{status}</Badge>;
-        }
+        setIsRefunding(true);
+        updateStatus(id, 'refunded');
+        setTimeout(() => {
+            setIsRefunding(false);
+            toast.success("Refund processed successfully.");
+        }, 1000);
     };
 
     return (
@@ -103,7 +100,7 @@ export default function OrderDetailsPage() {
                     <div>
                         <div className="flex items-center gap-3">
                             <h1 className="text-3xl font-black tracking-tighter">Order {order.id.substring(0, 8)}...</h1>
-                            {getStatusBadge(status)}
+                            <StatusBadge status={status} className="text-base px-3 py-1" />
                         </div>
                         <p className="text-muted-foreground text-sm">Placed on {format(new Date(order.createdAt), 'PPP')} • {order.items.length} items</p>
                     </div>
@@ -252,15 +249,21 @@ export default function OrderDetailsPage() {
                                         <SelectItem value="processing">Processing</SelectItem>
                                         <SelectItem value="completed">Completed</SelectItem>
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
+                                        <SelectItem value="refunded">Refunded</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             
                             {status !== 'refunded' && status !== 'cancelled' && (
                                 <div className="pt-4 space-y-2">
-                                    <Button variant="outline" className="w-full rounded-xl gap-2 font-bold h-11 text-destructive hover:bg-destructive/5 hover:text-destructive" onClick={handleRefund}>
-                                        <RotateCcw className="w-4 h-4" />
-                                        Process Full Refund
+                                    <Button 
+                                        variant="outline" 
+                                        className="w-full rounded-xl gap-2 font-bold h-11 text-destructive hover:bg-destructive/5 hover:text-destructive" 
+                                        onClick={handleRefund}
+                                        disabled={isRefunding}
+                                    >
+                                        <RotateCcw className={cn("w-4 h-4", isRefunding && "animate-spin")} />
+                                        {isRefunding ? "Processing Refund..." : "Process Full Refund"}
                                     </Button>
                                     <p className="text-[10px] text-center text-muted-foreground uppercase font-black">Process takes 3-5 business days</p>
                                 </div>

@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+"use client"
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
     Search, Book, MessageCircle, Mail, FileQuestion, 
-    ChevronRight, ExternalLink, Plus, AlertCircle, CheckCircle2 
+    ChevronRight, ExternalLink, Plus, AlertCircle, CheckCircle2,
+    RefreshCw
 } from "lucide-react";
 import { useSupport } from "@/hooks/useSupport";
 import { Button } from "@/components/ui/button";
@@ -18,9 +20,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const FAQ_ITEMS = [
     { q: "How do I upgrade my plan?", a: "You can upgrade your plan anytime from the Billing > Subscription section. Changes take effect immediately." },
@@ -36,16 +41,45 @@ const GUIDES = [
 ];
 
 export default function HelpPage() {
-    const { tickets, isLoading, fetchTickets, createTicket } = useSupport();
+    const { tickets, isLoading, fetchTickets, createTicketAsync, getTicket, addMessageAsync } = useSupport();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     
+    // Ticket Details State
+    const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+    const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+    const [replyContent, setReplyContent] = useState("");
+    const [isReplying, setIsReplying] = useState(false);
+
     // Ticket Form
     const [subject, setSubject] = useState("");
-    const [category, setCategory] = useState("general");
+    const [category, setCategory] = useState("technical");
     const [priority, setPriority] = useState("medium");
     const [description, setDescription] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const fetchTicketDetails = useCallback(async (id: string) => {
+        setIsLoadingDetails(true);
+        try {
+            const data = await getTicket(id);
+            setSelectedTicket(data);
+        } catch (error) {
+            console.error("Failed to fetch ticket details", error);
+            toast.error("Could not load ticket details");
+        } finally {
+            setIsLoadingDetails(false);
+        }
+    }, [getTicket]);
+
+    useEffect(() => {
+        if (selectedTicketId) {
+            fetchTicketDetails(selectedTicketId);
+        } else {
+            setSelectedTicket(null);
+            setReplyContent("");
+        }
+    }, [selectedTicketId, fetchTicketDetails]);
 
     useEffect(() => {
         fetchTickets();
@@ -58,21 +92,39 @@ export default function HelpPage() {
         }
 
         setIsSubmitting(true);
-        const success = await createTicket({
-            subject,
-            category,
-            priority,
-            description
-        });
-        
-        if (success) {
+        try {
+            await createTicketAsync({
+                subject,
+                category,
+                priority,
+                description
+            });
             setIsCreateOpen(false);
             setSubject("");
             setDescription("");
-            setCategory("general");
-            setPriority("medium");
+            setCategory("Technical");
+            setPriority("MEDIUM");
+        } catch (err) {
+            // Error handled in hook
+        } finally {
+            setIsSubmitting(false);
         }
-        setIsSubmitting(false);
+    };
+
+    const handleReply = async () => {
+        if (!selectedTicketId || !replyContent.trim()) return;
+        
+        setIsReplying(true);
+        try {
+            await addMessageAsync({ id: selectedTicketId, content: replyContent });
+            setReplyContent("");
+            // Refresh details
+            fetchTicketDetails(selectedTicketId);
+        } catch (error) {
+            // Error handled in hook
+        } finally {
+            setIsReplying(false);
+        }
     };
 
     const getStatusColor = (status: string) => {
@@ -147,14 +199,15 @@ export default function HelpPage() {
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
                          <h3 className="text-2xl font-black italic tracking-tight">Your Recent Tickets</h3>
-                         <Button variant="outline" size="sm" onClick={() => fetchTickets()} className="gap-2">
+                         <Button variant="outline" size="sm" onClick={() => fetchTickets()} className="gap-2 rounded-xl h-9 font-bold">
+                            <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
                             Refresh
                          </Button>
                     </div>
                     
                     <div className="grid gap-4">
                         {tickets.slice(0, 3).map((ticket) => (
-                            <div key={ticket.id} className="bg-card border border-border/50 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-primary/30 transition-all">
+                            <div key={ticket.id} className="bg-card border border-border/50 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-primary/30 transition-all group overflow-hidden relative">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-3">
                                         <Badge variant="outline" className={`capitalize font-black border-2 ${getStatusColor(ticket.status)}`}>
@@ -173,8 +226,13 @@ export default function HelpPage() {
                                      <Badge variant="secondary" className="uppercase text-[10px] font-black tracking-widest h-6">
                                         {ticket.category}
                                      </Badge>
-                                     <Button variant="ghost" size="sm" className="font-bold gap-1">
-                                        View Details <ChevronRight className="w-4 h-4" />
+                                     <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="font-bold gap-1 group-hover:bg-primary/10 group-hover:text-primary transition-all rounded-lg"
+                                        onClick={() => setSelectedTicketId(ticket.id)}
+                                     >
+                                        View Details <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                                      </Button>
                                 </div>
                             </div>
@@ -221,6 +279,87 @@ export default function HelpPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Ticket Details Dialog */}
+            <Dialog open={!!selectedTicketId} onOpenChange={(open) => !open && setSelectedTicketId(null)}>
+                <DialogContent className="max-w-3xl w-[95vw] md:w-full h-[90vh] md:h-[80vh] flex flex-col p-0 overflow-hidden rounded-[32px] border-border/50 bg-card/95 backdrop-blur-xl">
+                    {isLoadingDetails ? (
+                        <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+                            <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+                            <p className="text-sm font-bold text-muted-foreground">Syncing ticket history...</p>
+                        </div>
+                    ) : selectedTicket ? (
+                        <>
+                            <DialogHeader className="p-6 md:p-8 border-b bg-muted/5 shrink-0">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <Badge variant="outline" className={`capitalize font-black border-2 ${getStatusColor(selectedTicket.status)}`}>
+                                            {selectedTicket.status}
+                                        </Badge>
+                                        <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">#{selectedTicket.id.slice(0, 8)}</span>
+                                    </div>
+                                    <Badge variant="secondary" className="uppercase text-[10px] font-black tracking-widest px-3 py-1">
+                                        {selectedTicket.category}
+                                    </Badge>
+                                </div>
+                                <DialogTitle className="text-2xl font-black italic tracking-tight">{selectedTicket.subject}</DialogTitle>
+                            </DialogHeader>
+
+                            <ScrollArea className="flex-1 p-6 md:p-8">
+                                <div className="space-y-8">
+                                    {selectedTicket.messages?.map((msg: any) => {
+                                        const isCustomer = msg.sender?.id === selectedTicket.customer?.id;
+                                        return (
+                                            <div key={msg.id} className={cn(
+                                                "flex gap-4 max-w-[85%]",
+                                                isCustomer ? "flex-row" : "flex-row-reverse ml-auto"
+                                            )}>
+                                                <Avatar className="h-10 w-10 shrink-0 border-2 border-background shadow-sm">
+                                                    <AvatarFallback className="font-bold text-xs">{msg.sender?.name.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className={cn(
+                                                    "p-4 rounded-[24px] space-y-2 relative",
+                                                    isCustomer 
+                                                        ? "bg-muted/50 rounded-tl-none border border-border/50" 
+                                                        : "bg-primary text-primary-foreground rounded-tr-none shadow-lg shadow-primary/20"
+                                                )}>
+                                                    <div className="flex items-center justify-between gap-8 mb-1">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-70">{msg.sender?.name}</span>
+                                                        <span className="text-[10px] opacity-50 font-bold">{format(new Date(msg.createdAt), 'HH:mm')}</span>
+                                                    </div>
+                                                    <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </ScrollArea>
+
+                            <div className="p-6 md:p-8 border-t bg-muted/5 shrink-0">
+                                <div className="relative group">
+                                    <Textarea 
+                                        placeholder="Add a reply to this ticket..." 
+                                        className="min-h-[100px] rounded-2xl pr-20 bg-background border-border/50 focus:ring-primary/20 resize-none p-4 font-medium"
+                                        value={replyContent}
+                                        onChange={(e) => setReplyContent(e.target.value)}
+                                    />
+                                    <div className="absolute bottom-4 right-4 flex items-center gap-3">
+                                        <span className="text-[10px] text-muted-foreground font-bold uppercase hidden sm:block">Ctrl + Enter</span>
+                                        <Button 
+                                            size="sm" 
+                                            className="h-10 px-6 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-primary/20 bg-primary text-white"
+                                            onClick={handleReply}
+                                            disabled={isReplying || !replyContent.trim()}
+                                        >
+                                            {isReplying ? "Sending..." : "Reply"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    ) : null}
+                </DialogContent>
+            </Dialog>
 
             {/* Create Ticket Dialog */}
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

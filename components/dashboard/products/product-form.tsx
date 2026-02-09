@@ -135,7 +135,7 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
     const isLoading = isCreating || isUpdating;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 pb-12">
+        <div className=" mx-auto space-y-8 pb-12">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Button asChild variant="ghost" size="icon" className="rounded-full">
@@ -174,16 +174,16 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
 
             <Tabs defaultValue="basic" className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 h-14 rounded-2xl border border-border">
-                    <TabsTrigger value="basic" className="rounded-xl h-12 gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
+                    <TabsTrigger value="basic" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
                         <Layout className="w-4 h-4" /> Basic Info
                     </TabsTrigger>
-                    <TabsTrigger value="details" className="rounded-xl h-12 gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
+                    <TabsTrigger value="details" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
                         <Info className="w-4 h-4" /> Details & Features
                     </TabsTrigger>
-                    <TabsTrigger value="assets" className="rounded-xl h-12 gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
+                    <TabsTrigger value="assets" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
                         <FileArchive className="w-4 h-4" /> Digital Assets
                     </TabsTrigger>
-                    <TabsTrigger value="pricing" className="rounded-xl h-12 gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
+                    <TabsTrigger value="pricing" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold text-xs uppercase tracking-wider">
                         <ShieldCheck className="w-4 h-4" /> Pricing & Licensing
                     </TabsTrigger>
                 </TabsList>
@@ -271,7 +271,7 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
                             </div>
 
                             <div className="p-6 border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-center bg-muted/10 group hover:border-primary/50 transition-all cursor-pointer">
-                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-auto rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform">
                                     <Plus className="w-6 h-6" />
                                 </div>
                                 <p className="font-bold">Upload Main Preview Image</p>
@@ -408,8 +408,8 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
                                 <h3 className="text-xl font-black mb-2">Primary Product File (.zip)</h3>
                                 <p className="text-muted-foreground text-sm max-w-sm mb-6">Drag and drop your project bundle here. Max file size: <span className="text-foreground font-bold">500MB</span></p>
                                 <div className="flex gap-4">
-                                    <Button className="rounded-full px-8 h-12 shadow-xl shadow-primary/20">Select File</Button>
-                                    <Button variant="outline" className="rounded-full px-8 h-12">Cloud Upload</Button>
+                                    <Button className="rounded-full px-8 h-auto shadow-xl shadow-primary/20">Select File</Button>
+                                    <Button variant="outline" className="rounded-full px-8 h-auto">Cloud Upload</Button>
                                 </div>
                             </div>
                         </CardContent>
@@ -438,7 +438,7 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
                                                 setLicenseRegular(Number(e.target.value));
                                                 setPrice(Number(e.target.value));
                                             }}
-                                            className="pl-10 h-12 rounded-xl text-xl font-bold" 
+                                            className="pl-10 h-auto rounded-xl text-xl font-bold" 
                                         />
                                     </div>
                                 </div>
@@ -461,7 +461,7 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
                                             type="number"
                                             value={licenseExtended}
                                             onChange={(e) => setLicenseExtended(Number(e.target.value))}
-                                            className="pl-10 h-12 rounded-xl text-xl font-bold" 
+                                            className="pl-10 h-auto rounded-xl text-xl font-bold" 
                                         />
                                     </div>
                                 </div>

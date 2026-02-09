@@ -58,9 +58,24 @@ export default function SubscriptionPage() {
 
     const handleConfirmUpgrade = async () => {
         if (selectedPlan) {
-            await updateSubscription(selectedPlan);
-            setIsConfirmOpen(false);
-            setSelectedPlan(null);
+            const toastId = toast.loading(`Provisioning ${selectedPlan} infrastructure...`, {
+                description: "Reconfiguring global cluster nodes and expanding storage."
+            });
+            
+            try {
+                await updateSubscription(selectedPlan);
+                toast.success(`${selectedPlan} Tier successfully deployed`, {
+                    id: toastId,
+                    description: "Your new computational capacity is now online."
+                });
+                setIsConfirmOpen(false);
+                setSelectedPlan(null);
+            } catch (error) {
+                toast.error("Provisioning failed", {
+                    id: toastId,
+                    description: "Rolling back changes. Please try again."
+                });
+            }
         }
     };
 

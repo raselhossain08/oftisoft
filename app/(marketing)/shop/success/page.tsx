@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Download, Copy, Mail, ShieldCheck, ArrowRight, Home, LayoutDashboard, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -166,4 +167,4 @@ export default function OrderSuccessPage() {
     );
 }
 
-import { Badge } from "@/components/ui/badge";
+

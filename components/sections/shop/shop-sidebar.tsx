@@ -1,6 +1,6 @@
 "use client";
 
-import { shopCategories } from "@/lib/shop-data";
+import { useShopContentStore } from "@/lib/store/shop-content";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,8 @@ interface ShopSidebarProps {
 }
 
 export function ShopSidebar({ className }: ShopSidebarProps) {
+    const { content } = useShopContentStore();
+    const categories = content?.categories || [];
     const [priceRange, setPriceRange] = useState([0, 1000]);
 
     return (
@@ -56,7 +58,7 @@ export function ShopSidebar({ className }: ShopSidebarProps) {
             <div className="space-y-4">
                 <h4 className="font-semibold text-sm">Categories</h4>
                 <Accordion type="multiple" className="w-full">
-                    {shopCategories.map((category) => (
+                    {categories.map((category) => (
                         <AccordionItem key={category.id} value={category.id} className="border-none">
                             <AccordionTrigger className="py-2 text-sm hover:no-underline hover:text-primary">
                                 {category.name}

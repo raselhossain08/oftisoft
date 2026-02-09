@@ -82,8 +82,11 @@ export const endpoints = {
     },
     content: {
         pages: 'content/pages',
-        page: (id: string) => `content/pages/${id}`,
-        update: (id: string) => `content/pages/${id}`,
+        page: (id: string) => `content/${id}`,
+        update: (id: string) => `content/${id}`,
+        publish: (id: string) => `content/${id}/publish`,
+        upload: 'content/upload',
+        list: 'content/files',
     },
     analytics: {
         overview: 'analytics/overview',

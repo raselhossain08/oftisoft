@@ -114,9 +114,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex">
-      {/* LEFT SIDE - HERO (60%) */}
-      <div className="hidden lg:flex w-[60%] relative bg-[#030712] overflow-hidden flex-col justify-between p-12 xl:p-16">
+    <div className="min-h-screen w-full ">
+      <div className="flex container mx-auto items-center justify-center h-[100vh]">
+         {/* LEFT SIDE - HERO (60%) */}
+      <div className="hidden lg:flex w-[60%] relative bg-[#030712] overflow-hidden flex-col justify-between p-12 xl:p-16 h-full">
         <div className="absolute inset-0 z-0">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-[#030712] to-[#030712]" />
           <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/10 via-[#030712] to-[#030712]" />
@@ -427,6 +428,8 @@ export default function RegisterPage() {
           )}
         </motion.div>
       </div>
+      </div>
+     
     </div>
   );
 }

@@ -22,10 +22,10 @@ const iconMap: any = {
     Lightbulb
 };
 
-export default function MissionValues() {
-    const { content } = useAboutContentStore();
-    const mission = content?.mission;
-    const values = content?.values || [];
+export default function MissionValues({ data }: { data?: any }) {
+    const { content: storeContent } = useAboutContentStore();
+    const mission = data?.mission || data || storeContent?.mission; // Fallback to data itself if it's the mission object
+    const values = data?.values || storeContent?.values || [];
 
     const gradients = [
         "from-amber-400 to-orange-500",
@@ -67,16 +67,16 @@ export default function MissionValues() {
                     >
                         <div className="absolute -left-6 top-0 text-8xl font-serif text-white/5 -z-10 leading-none">"</div>
                         <p className="text-xl md:text-2xl text-muted-foreground/90 leading-relaxed font-light">
-                            {mission?.quote.split(mission.quoteHighlight)[0]}
+                            {mission?.quote?.split(mission.quoteHighlight || "")[0]}
                             <span className="text-white font-medium">{mission?.quoteHighlight}</span>
-                            {mission?.quote.split(mission.quoteHighlight)[1]}
+                            {mission?.quote?.split(mission.quoteHighlight || "")[1]}
                         </p>
                     </motion.div>
                 </div>
 
                 {/* Values Grid - Desktop */}
                 <div className="hidden lg:grid grid-cols-4 gap-6">
-                    {values.map((item, index) => (
+                    {values.map((item: any, index: number) => (
                         <ValueCard key={index} item={item} index={index} />
                     ))}
                 </div>
@@ -96,7 +96,7 @@ export default function MissionValues() {
                         }}
                         className="pb-12"
                     >
-                        {values.map((item, index) => (
+                        {values.map((item: any, index: number) => (
                             <SwiperSlide key={index} className="h-auto">
                                 <ValueCard item={item} index={index} isMobile />
                             </SwiperSlide>
@@ -127,7 +127,7 @@ function ValueCard({ item, index, isMobile = false }: { item: any, index: number
             viewport={{ once: true }}
             className="h-full"
         >
-            <Card className="group relative h-full bg-[#0a0a0a] border-white/10 hover:border-white/20 transition-all duration-500 overflow-hidden rounded-[2rem] border">
+            <Card className="group relative h-full bg-[#0a0a0a] border-white/10 hover:border-white/20 transition-all duration-500 overflow-hidden rounded-[2rem] border p-0">
                 <CardContent className="p-8 flex flex-col h-full relative z-10">
                     {/* Hover Gradient Background */}
                     <div className={cn(

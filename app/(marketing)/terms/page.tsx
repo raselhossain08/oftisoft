@@ -13,9 +13,10 @@ import {
     Scale,
     ShieldAlert
 } from "lucide-react";
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { usePageContent } from "@/hooks/usePageContent";
-import { TermsPageContent } from "@/lib/store/terms-content";
+import { useTermsContentStore } from "@/lib/store/terms-content";
 
 const iconMap: any = {
     Globe,
@@ -30,8 +31,17 @@ const iconMap: any = {
 
 export default function TermsPage() {
     const { pageContent, isLoading } = usePageContent('terms');
+    const setContent = useTermsContentStore((state) => state.setContent);
 
-    if (isLoading) {
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
+    const { content } = useTermsContentStore();
+
+    if (isLoading && !pageContent) {
         return (
             <div className="relative min-h-screen pt-32 pb-24 bg-[#020202] flex items-center justify-center">
                 <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
@@ -40,8 +50,6 @@ export default function TermsPage() {
             </div>
         );
     }
-
-    const content = (pageContent?.content as TermsPageContent) || null;
 
     if (!content) return null;
 

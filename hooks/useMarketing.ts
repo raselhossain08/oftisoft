@@ -8,6 +8,8 @@ export function useMarketing() {
     const [products, setProducts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [subscriptionPlans, setSubscriptionPlans] = useState<any[]>([]);
+
     const fetchCoupons = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -27,6 +29,15 @@ export function useMarketing() {
             setBundles(data);
         } catch (err) {
             console.error("Failed to fetch bundles", err);
+        }
+    }, []);
+
+    const fetchSubscriptionPlans = useCallback(async () => {
+        try {
+            const data = await marketingAPI.getSubscriptionPlans();
+            setSubscriptionPlans(data);
+        } catch (err) {
+            console.error("Failed to fetch subscription plans", err);
         }
     }, []);
 
@@ -71,6 +82,22 @@ export function useMarketing() {
         }
     };
 
+    const createSubscriptionPlan = async (data: any) => {
+        setIsLoading(true);
+        try {
+            await marketingAPI.createSubscriptionPlan(data);
+            toast.success("Subscription Plan created successfully");
+            fetchSubscriptionPlans();
+            return true;
+        } catch (err) {
+            console.error("Failed to create subscription plan", err);
+            toast.error("Failed to create subscription plan");
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const deleteCoupon = async (id: string) => {
         try {
             await marketingAPI.deleteCoupon(id);
@@ -93,11 +120,23 @@ export function useMarketing() {
         }
     };
 
+    const deleteSubscriptionPlan = async (id: string) => {
+        try {
+            await marketingAPI.deleteSubscriptionPlan(id);
+            setSubscriptionPlans(prev => prev.filter(p => p.id !== id));
+            toast.success("Subscription Plan deleted");
+        } catch (err) {
+            console.error("Failed to delete subscription plan", err);
+            toast.error("Failed to delete subscription plan");
+        }
+    };
+
     useEffect(() => {
         fetchCoupons();
         fetchBundles();
         fetchProducts();
-    }, [fetchCoupons, fetchBundles, fetchProducts]);
+        fetchSubscriptionPlans();
+    }, [fetchCoupons, fetchBundles, fetchProducts, fetchSubscriptionPlans]);
 
     const updateCoupon = async (id: string, data: any) => {
         try {
@@ -123,6 +162,18 @@ export function useMarketing() {
         }
     };
 
+    const updateSubscriptionPlan = async (id: string, data: any) => {
+        try {
+            const updated = await marketingAPI.updateSubscriptionPlan(id, data);
+            setSubscriptionPlans(prev => prev.map(p => p.id === id ? updated : p));
+            return updated;
+        } catch (err) {
+            console.error("Failed to update subscription plan", err);
+            toast.error("Failed to update subscription plan");
+            return null;
+        }
+    };
+
     const toggleCouponStatus = async (id: string, currentStatus: string) => {
         const newStatus = currentStatus === 'active' ? 'disabled' : 'active';
         try {
@@ -137,6 +188,7 @@ export function useMarketing() {
         coupons,
         bundles,
         products,
+        subscriptionPlans,
         isLoading,
         createCoupon,
         updateCoupon,
@@ -145,6 +197,9 @@ export function useMarketing() {
         createBundle,
         updateBundle,
         deleteBundle,
-        refresh: () => { fetchCoupons(); fetchBundles(); fetchProducts(); }
+        createSubscriptionPlan,
+        updateSubscriptionPlan,
+        deleteSubscriptionPlan,
+        refresh: () => { fetchCoupons(); fetchBundles(); fetchProducts(); fetchSubscriptionPlans(); }
     };
 }

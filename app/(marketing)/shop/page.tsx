@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState, useMemo } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { ShopSidebar } from "@/components/sections/shop/shop-sidebar";
 import { ProductCard } from "@/components/sections/shop/product-card";
-import { mockProducts } from "@/lib/shop-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -12,15 +13,28 @@ import { motion } from "framer-motion";
 import { BundleDeals } from "@/components/sections/shop/bundle-deals";
 import { ShopTestimonials } from "@/components/sections/shop/shop-testimonials";
 import { SupportPromise } from "@/components/sections/shop/support-promise";
-import { useState, useMemo, ChangeEvent } from "react";
+import { useShopContentStore } from "@/lib/store/shop-content";
 import Link from "next/link";
 
 export default function ShopPage() {
+    const { pageContent, isLoading } = usePageContent('shop');
+    const setContent = useShopContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
+    const { content } = useShopContentStore();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedSort, setSelectedSort] = useState("newest");
 
+    const products = content?.products || [];
+    const header = content?.header;
+
     const filteredProducts = useMemo(() => {
-        let result = [...mockProducts];
+        let result = [...products];
         
         // Search
         if (searchQuery) {
@@ -36,7 +50,17 @@ export default function ShopPage() {
         if (selectedSort === "popular") result.sort((a, b) => b.reviews - a.reviews);
 
         return result;
-    }, [searchQuery, selectedSort]);
+    }, [searchQuery, selectedSort, products]);
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Loading Assets...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-24 pb-20">
@@ -44,8 +68,8 @@ export default function ShopPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                     <div className="space-y-2">
-                        <h1 className="text-3xl md:text-6xl font-black mb-2 tracking-tighter">Marketplace</h1>
-                        <p className="text-muted-foreground text-lg">Premium templates, UI kits, and enterprise AI solutions.</p>
+                        <h1 className="text-3xl md:text-6xl font-black mb-2 tracking-tighter">{header?.title || "Marketplace"}</h1>
+                        <p className="text-muted-foreground text-lg">{header?.description || "Premium templates, UI kits, and enterprise AI solutions."}</p>
                     </div>
                     
                     <div className="flex items-center gap-2 w-full md:w-auto">

@@ -1,5 +1,8 @@
-
+"use client";
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
+import { useHomeContentStore } from "@/lib/store/home-content";
 import Hero from "@/components/sections/hero";
 import Services from "@/components/sections/services";
 import FeaturedProjects from "@/components/sections/featured-projects";
@@ -14,6 +17,25 @@ const CTA = dynamic(() => import("@/components/sections/cta"), { ssr: true });
 
 
 export default function Home() {
+  const { pageContent, isLoading } = usePageContent('home');
+  const setContent = useHomeContentStore((state) => state.setContent);
+
+  useEffect(() => {
+    if (pageContent?.content) {
+      setContent(pageContent.content);
+    }
+  }, [pageContent, setContent]);
+
+  if (isLoading && !pageContent) {
+     return (
+        <div className="fixed inset-0 bg-[#030014] flex items-center justify-center z-[100]">
+           <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+             Initializing Oftisoft Nexus...
+           </div>
+        </div>
+     );
+  }
+
   return (
     <main className="relative min-h-screen flex flex-col text-foreground overflow-hidden selection:bg-primary/30">
         

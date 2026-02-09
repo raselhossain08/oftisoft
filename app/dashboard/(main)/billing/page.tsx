@@ -142,16 +142,24 @@ export default function BillingOverview() {
                         </div>
 
                         <div className="space-y-6 mb-10">
-                            <div className="space-y-2">
+                            <div className="space-y-2 group/usage">
                                 <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-white/70 uppercase">Storage Cluster</span>
+                                    <span className="text-white/70 uppercase flex items-center gap-1.5">
+                                        Storage Cluster 
+                                        { (usage?.storage?.percent || 80) > 85 && <AlertCircle className="w-3 h-3 text-orange-300 animate-pulse" /> }
+                                    </span>
                                     <span className="font-black tracking-wider">{usage?.storage?.used || "0.4GB"} / {usage?.storage?.total || "0.5GB"}</span>
                                 </div>
-                                <div className="w-full bg-black/30 rounded-full h-2.5 p-0.5 overflow-hidden border border-white/10">
+                                <div className="w-full bg-black/30 rounded-full h-2.5 p-0.5 overflow-hidden border border-white/10 relative">
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${usage?.storage?.percent || 80}%` }}
-                                        className="bg-white h-full rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" 
+                                        className={cn(
+                                            "h-full rounded-full transition-colors duration-500",
+                                            (usage?.storage?.percent || 80) > 90 ? "bg-red-400 shadow-[0_0_15px_rgba(248,113,113,0.8)]" :
+                                            (usage?.storage?.percent || 80) > 75 ? "bg-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.8)]" :
+                                            "bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                                        )}
                                     />
                                 </div>
                             </div>
@@ -164,15 +172,21 @@ export default function BillingOverview() {
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${usage?.apiCalls?.percent || 90}%` }}
-                                        className="bg-green-400 h-full rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]" 
+                                        className={cn(
+                                            "h-full rounded-full transition-colors duration-500",
+                                            (usage?.apiCalls?.percent || 90) > 90 ? "bg-red-400 shadow-[0_0_15px_rgba(248,113,113,0.8)]" :
+                                            (usage?.apiCalls?.percent || 90) > 80 ? "bg-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.8)]" :
+                                            "bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]"
+                                        )}
                                     />
                                 </div>
                             </div>
                         </div>
 
                         <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest border-t border-white/10 pt-6">
-                            <span className="text-white/50">Next Cycle: Jul 01, 2026</span>
-                            <span className="text-white">
+                            <span className="text-white/50">Next Cycle: Aug 01, 2026</span>
+                            <span className="text-white flex items-center gap-1.5">
+                                <Lock className="w-2.5 h-2.5 opacity-50" />
                                 {subscription?.plan === 'Business' ? "$99/mo" : subscription?.plan === 'Pro' ? "$29/mo" : "Free Tier"}
                             </span>
                         </div>
@@ -183,27 +197,43 @@ export default function BillingOverview() {
                 </motion.div>
 
                 {/* Usage Chart */}
-                <div className="md:col-span-2 bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm">
+                <div className="md:col-span-2 bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <BarChart className="w-5 h-5 text-primary/20" />
+                    </div>
                     <div className="flex justify-between items-center mb-8">
-                        <h3 className="font-black text-xl tracking-tight">Computational Investment</h3>
-                        <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full border border-border/50">
-                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <div>
+                            <h3 className="font-black text-xl tracking-tight leading-none mb-1">Computational Investment</h3>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Efficiency tracking pipeline</p>
+                        </div>
+                        <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-border/50 shadow-inner">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                             <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Trend 6M</span>
                         </div>
                     </div>
                     <div className="h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             < BarChart data={chartData}>
+                                <defs>
+                                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#6366f1" stopOpacity={1} />
+                                        <stop offset="100%" stopColor="#6366f1" stopOpacity={0.6} />
+                                    </linearGradient>
+                                </defs>
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 800 }} />
                                 <Tooltip
-                                    cursor={{ fill: 'rgba(99, 102, 241, 0.05)', radius: 4 }}
-                                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '16px', color: '#fff', backdropFilter: 'blur(8px)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)' }}
+                                    cursor={{ fill: 'rgba(99, 102, 241, 0.05)', radius: 12 }}
+                                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: 'none', borderRadius: '24px', color: '#fff', backdropFilter: 'blur(12px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
                                     itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                                    labelStyle={{ fontWeight: 'black', color: '#6366f1', marginBottom: '4px', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.1em' }}
+                                    labelStyle={{ fontWeight: 'black', color: '#6366f1', marginBottom: '6px', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.15em' }}
                                 />
-                                <Bar dataKey="amount" radius={8} barSize={40}>
+                                <Bar dataKey="amount" radius={[10, 10, 10, 10]} barSize={40}>
                                     {chartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? '#6366f1' : 'rgba(99, 102, 241, 0.2)'} />
+                                        <Cell 
+                                            key={`cell-${index}`} 
+                                            fill={index === chartData.length - 1 ? 'url(#barGradient)' : 'rgba(99, 102, 241, 0.15)'}
+                                            className="transition-all duration-500 hover:opacity-80 cursor-pointer"
+                                        />
                                     ))}
                                 </Bar>
                             </ BarChart>
@@ -217,65 +247,78 @@ export default function BillingOverview() {
                 {/* Payment Methods */}
                 <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm">
                     <div className="flex justify-between items-center mb-8">
-                        <h3 className="font-black text-xl tracking-tight">Authorized Methods</h3>
+                        <div>
+                            <h3 className="font-black text-xl tracking-tight">Authorized Methods</h3>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active payment vectors</p>
+                        </div>
                         <Button 
                             variant="ghost"
                             size="sm"
                             onClick={() => setIsAddCardOpen(true)}
-                            className="text-primary h-9 font-black uppercase tracking-widest text-[10px] hover:bg-primary/10 rounded-xl"
+                            className="text-primary h-10 px-4 bg-primary/5 font-black uppercase tracking-widest text-[10px] hover:bg-primary/10 rounded-xl border border-primary/10 transition-all"
                         >
-                            <Plus size={14} className="mr-1 stroke-[3px]" /> Add Entity
+                            <Plus size={14} className="mr-2 stroke-[3px]" /> Add Entity
                         </Button>
                     </div>
                     <div className="space-y-4">
                         {isLoadingMethods ? (
                             <div className="py-12 flex flex-col items-center justify-center gap-3 opacity-50">
                                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                                <span className="text-[10px] font-black tracking-widest uppercase">Decryption in progress...</span>
+                                <span className="text-[10px] font-black tracking-widest uppercase text-primary">Decryption in progress...</span>
                             </div>
                         ) : paymentMethods.length === 0 ? (
-                            <div className="py-12 flex flex-col items-center justify-center text-center gap-4 border-2 border-dashed border-border/50 rounded-3xl">
-                                <CreditCard className="w-10 h-10 text-muted-foreground/30" />
+                            <div className="py-16 flex flex-col items-center justify-center text-center gap-4 border-2 border-dashed border-border/50 rounded-[2rem] bg-muted/5">
+                                <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground/30">
+                                    <CreditCard className="w-8 h-8" />
+                                </div>
                                 <div>
                                     <p className="font-black text-sm uppercase tracking-widest text-muted-foreground">No Methods Found</p>
-                                    <p className="text-xs text-muted-foreground/60 font-medium">Add a payment method to begin.</p>
+                                    <p className="text-xs text-muted-foreground/60 font-medium">Connect a credit source to enable services.</p>
                                 </div>
                             </div>
                         ) : (
                             paymentMethods.map((card) => (
-                                <div key={card.id} className="group relative flex items-center justify-between p-5 border border-border/50 rounded-[1.5rem] bg-background/50 hover:bg-muted/30 transition-all duration-300">
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-14 h-9 bg-card border border-border/50 rounded-xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
-                                            <CreditCard className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                <div key={card.id} className="group relative flex items-center justify-between p-6 border border-border/50 rounded-[1.75rem] bg-background/50 hover:bg-muted/10 transition-all duration-500 hover:border-primary/20 hover:scale-[1.01]">
+                                    <div className="flex items-center gap-6">
+                                        <div className={cn(
+                                            "w-16 h-10 rounded-xl flex items-center justify-center shadow-lg border relative overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3",
+                                            card.brand.toLowerCase() === 'visa' ? "bg-blue-600 border-blue-400/30" : "bg-slate-800 border-slate-600/30"
+                                        )}>
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent" />
+                                            <span className="text-[10px] font-black text-white italic tracking-tighter z-10">{card.brand}</span>
                                         </div>
                                         <div>
-                                            <p className="font-black text-sm tracking-widest">•••• {card.last4}</p>
-                                            <p className="text-[10px] font-black uppercase text-muted-foreground tracking-tighter opacity-60">Expires {card.expiry} • {card.brand}</p>
+                                            <p className="font-black text-sm tracking-[0.2em] leading-none mb-1.5 uppercase opacity-80 group-hover:opacity-100 transition-opacity">•••• •••• •••• {card.last4}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest opacity-60">Cycle {card.expiry}</p>
+                                                <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                                                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest opacity-60">{card.type}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-3">
                                         {card.isDefault ? (
-                                            <div className="px-3 py-1 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-1.5 shadow-sm">
-                                                <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                                                <span className="text-[9px] font-black text-green-600 uppercase tracking-widest">Default</span>
+                                            <div className="px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 flex items-center gap-2 shadow-sm">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                                <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">Primary</span>
                                             </div>
                                         ) : (
-                                            <div className="flex items-center">
+                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
                                                 <Button 
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDefaultMethod(card.id)}
-                                                    className="h-8 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary"
+                                                    className="h-9 px-4 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 rounded-xl"
                                                 >
-                                                    Set Default
+                                                    Activate
                                                 </Button>
                                                 <Button 
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => deleteMethod(card.id)}
-                                                    className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="h-9 w-9 p-0 hover:bg-red-500/10 hover:text-red-500 rounded-xl text-muted-foreground"
                                                 >
-                                                    <Trash2 size={14} />
+                                                    <Trash2 size={16} />
                                                 </Button>
                                             </div>
                                         )}

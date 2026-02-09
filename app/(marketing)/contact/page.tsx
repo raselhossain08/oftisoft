@@ -1,5 +1,6 @@
 "use client";
-
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,15 +16,16 @@ import {
     Globe, 
     Zap, 
     Clock, 
-    CheckCircle2,
-    ArrowRight,
-    Terminal,
-    Bot,
-    Headset,
+    CheckCircle2, 
+    ArrowRight, 
+    Terminal, 
+    Bot, 
+    Headset, 
     ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useContactContentStore } from "@/lib/store/contact-content";
+import { useLeads } from "@/hooks/useLeads";
 
 // Icon Map
 const iconMap: any = {
@@ -31,12 +33,55 @@ const iconMap: any = {
 };
 
 export default function ContactPage() {
+    const { pageContent, isLoading } = usePageContent('contact');
+    const setContent = useContactContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useContactContentStore();
+    const { createLead, isCreating } = useLeads();
+
+    const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const data = {
+            name: formData.get('name') as string,
+            email: formData.get('email') as string,
+            message: formData.get('message') as string,
+            type: 'contact' as any,
+            metadata: {
+                subject: formData.get('subject') as string
+            }
+        };
+
+        createLead(data, {
+            onSuccess: () => {
+                const formElement = document.getElementById('contact-form') as HTMLFormElement;
+                formElement?.reset();
+            }
+        });
+    };
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Initializing Contact Interface...
+                </div>
+            </div>
+        );
+    }
+
     const header = content?.header;
     const contactInfo = content?.contactInfo || [];
     const statusNode = content?.statusNode;
     const form = content?.form;
     const footer = content?.footer;
+
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
             {/* Background Neural Matrices */}
@@ -112,28 +157,30 @@ export default function ContactPage() {
                                     <p className="text-lg text-muted-foreground font-medium italic">{form?.description || "Construct your communication payload below and commit to our primary processing core."}</p>
                                 </CardHeader>
                                 <CardContent className="p-10 md:p-14 space-y-8 relative z-10">
-                                    <div className="grid md:grid-cols-2 gap-8">
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.nameLabel || "Identity Token (Name)"}</label>
-                                            <Input className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="Architect Alpha" />
+                                    <form id="contact-form" onSubmit={handleContactSubmit} className="space-y-8">
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.nameLabel || "Identity Token (Name)"}</label>
+                                                <Input name="name" required className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="Architect Alpha" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.emailLabel || "Communication Proxy (Email)"}</label>
+                                                <Input name="email" required type="email" className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="alpha@network.com" />
+                                            </div>
                                         </div>
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.emailLabel || "Communication Proxy (Email)"}</label>
-                                            <Input className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="alpha@network.com" />
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.subjectLabel || "Request Subject Node"}</label>
+                                            <Input name="subject" required className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="Neural Engine Implementation" />
                                         </div>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.subjectLabel || "Request Subject Node"}</label>
-                                        <Input className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="Neural Engine Implementation" />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.messageLabel || "Context Payload (Message)"}</label>
-                                        <Textarea className="min-h-[160px] rounded-[32px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic p-8 transition-all resize-none" placeholder="Describe the scope of your communication node..." />
-                                    </div>
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.messageLabel || "Context Payload (Message)"}</label>
+                                            <Textarea name="message" required className="min-h-[160px] rounded-[32px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic p-8 transition-all resize-none" placeholder="Describe the scope of your communication node..." />
+                                        </div>
+                                    </form>
                                 </CardContent>
                                 <CardFooter className="p-10 md:p-14 pt-0 relative z-10">
-                                    <Button className="w-full h-18 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-black italic text-xl shadow-2xl shadow-primary/20 transition-all active:scale-[0.98] group">
-                                        {form?.buttonText || "Commit Transmission"} <Send className="w-6 h-6 ml-4 group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform" />
+                                    <Button type="submit" form="contact-form" disabled={isCreating} className="w-full h-18 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-black italic text-xl shadow-2xl shadow-primary/20 transition-all active:scale-[0.98] group">
+                                        {isCreating ? "Transmitting..." : (form?.buttonText || "Commit Transmission")} <Send className="w-6 h-6 ml-4 group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform" />
                                     </Button>
                                 </CardFooter>
                             </Card>

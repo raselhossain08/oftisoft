@@ -24,7 +24,8 @@ import {
     ExternalLink,
     Zap,
     DownloadCloud,
-    Loader2
+    Loader2,
+    Star
 } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -79,12 +80,35 @@ export default function DigitalLibraryPage() {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
+    const maskIP = (ip: string) => {
+        if (!ip) return '0.0.0.0';
+        const parts = ip.split('.');
+        if (parts.length < 4) return ip; // handle IPv6 or other formats simply
+        return `${parts[0]}.${parts[1]}.***.***`;
+    };
+
     const handleDownload = async (assetId: string) => {
-        toast.info("Preparing your build for deployment...", {
-            description: "Security verification in progress."
+        const toastId = toast.loading("Verifying license and preparing build...", {
+            description: "Synchronizing with global edge nodes."
         });
-        await recordDownload(assetId);
-        window.open('https://github.com/oftisoft/sample-build/archive/refs/heads/main.zip', '_blank');
+        
+        try {
+            await recordDownload(assetId);
+            // Simulate build generation delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            toast.success("Build ready for deployment", {
+                id: toastId,
+                description: "Artifact encrypted and transmitted."
+            });
+            
+            window.open('https://github.com/oftisoft/sample-build/archive/refs/heads/main.zip', '_blank');
+        } catch (error) {
+            toast.error("Security verification failed", {
+                id: toastId,
+                description: "Please try again or contact support."
+            });
+        }
     };
 
     const handleViewVersions = async (product: any) => {
@@ -247,13 +271,16 @@ export default function DigitalLibraryPage() {
                                                                 </div>
                                                             </Link>
 
-                                                            <div className="flex items-center gap-4 p-5 rounded-[24px] bg-muted/20 border border-border/30 hover:bg-orange-500/[0.05] hover:border-orange-500/20 transition-all cursor-pointer group/link shadow-sm">
+                                                            <div className="flex items-center gap-4 p-5 rounded-[24px] bg-orange-500/[0.05] border border-orange-500/20 transition-all cursor-pointer group/link shadow-sm relative overflow-hidden">
+                                                                <div className="absolute top-0 right-0 p-1 bg-orange-500 text-white rounded-bl-xl opacity-20 group-hover:opacity-100 transition-opacity">
+                                                                    <Star className="w-3 h-3 fill-current" />
+                                                                </div>
                                                                 <div className="w-12 h-auto rounded-[18px] bg-background flex items-center justify-center text-orange-500 shadow-sm group-hover/link:scale-110 transition-transform">
                                                                     <Gift className="w-6 h-6" />
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[10px] uppercase font-black text-muted-foreground mb-0.5 tracking-widest">Prime Bonus</p>
-                                                                    <p className="text-sm font-black italic leading-tight">{item.bonusAsset}</p>
+                                                                    <p className="text-[10px] uppercase font-black text-muted-foreground mb-0.5 tracking-widest">Digital Bonus Acquired</p>
+                                                                    <p className="text-sm font-black italic leading-tight group-hover:text-orange-600 transition-colors">{item.bonusAsset}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -381,7 +408,7 @@ export default function DigitalLibraryPage() {
 
                 {/* Notifications & Updates Tab */}
                 <TabsContent value="notifications" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                     <div className="grid gap-8 max-w-5xl">
+                     <div className="grid gap-8 ">
                         {notifications.length === 0 ? (
                             <div className="py-32 text-center bg-muted/10 border border-border/50 rounded-[40px] flex flex-col items-center gap-4">
                                 <div className="w-20 h-20 rounded-[30px] bg-green-500/10 flex items-center justify-center text-green-500">
@@ -410,7 +437,9 @@ export default function DigitalLibraryPage() {
                                             <div className="flex flex-wrap items-center gap-4">
                                                 <h4 className="font-black text-3xl italic tracking-tighter">{note.productName}</h4>
                                                 <Badge variant="outline" className={cn("text-[10px] font-black uppercase tracking-widest px-4 h-7 border-2", 
-                                                    note.importance === "major" ? "border-primary/30 text-primary bg-primary/5" : "border-red-500/30 text-red-500 bg-red-500/5"
+                                                    note.importance === "major" ? "border-primary/30 text-primary bg-primary/5" : 
+                                                    note.importance === "security" ? "border-red-500/30 text-red-500 bg-red-500/5 animate-pulse" :
+                                                    "border-blue-500/30 text-blue-500 bg-blue-500/5"
                                                 )}>{note.importance} Update</Badge>
                                             </div>
                                             <div className="flex items-center gap-4 text-lg text-muted-foreground font-bold">
@@ -503,7 +532,7 @@ export default function DigitalLibraryPage() {
                                                 {dl.date}
                                             </TableCell>
                                             <TableCell className="font-mono text-xs text-muted-foreground/60 tracking-wider">
-                                                {dl.ip}
+                                                {maskIP(dl.ip)}
                                             </TableCell>
                                             <TableCell className="text-right px-12">
                                                 <Button variant="ghost" size="icon" className="group rounded-2xl w-14 h-14 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all">

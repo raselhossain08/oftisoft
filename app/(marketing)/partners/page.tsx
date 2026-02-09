@@ -1,5 +1,6 @@
 "use client";
-
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,27 @@ const iconMap: any = {
 };
 
 export default function PartnersPage() {
+    const { pageContent, isLoading } = usePageContent('partners');
+    const setContent = usePartnersContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = usePartnersContentStore();
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Initializing Alliance Matrix...
+                </div>
+            </div>
+        );
+    }
+
     const partners = content?.partners || [];
     const header = content?.header;
     const cta = content?.cta;

@@ -1,5 +1,6 @@
 "use client";
-
+import { useEffect } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,27 @@ const iconMap: any = {
 };
 
 export default function CommunityPage() {
+    const { pageContent, isLoading } = usePageContent('community');
+    const setContent = useCommunityContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useCommunityContentStore();
+
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Initializing Community Grid...
+                </div>
+            </div>
+        );
+    }
+
     const links = (content?.links || []).filter(l => l.isActive);
     const header = content?.header;
     const newsletter = content?.newsletter;

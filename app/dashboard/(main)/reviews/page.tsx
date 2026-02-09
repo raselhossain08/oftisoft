@@ -16,7 +16,8 @@ import {
     Trash2,
     ShieldCheck,
     Megaphone,
-    Package
+    Package,
+    Loader2
 } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -34,26 +35,35 @@ import {
     DialogTrigger,
     DialogFooter
 } from "@/components/ui/dialog";
-import { mockUserReviews, mockProducts } from "@/lib/shop-data";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useReviews } from "@/hooks/useReviews";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function ReviewsPage() {
-    const [reviews, setReviews] = useState(mockUserReviews);
+    const { reviews, isLoading: isReviewsLoading, createReview, deleteReview, isCreating } = useReviews();
+    const { products, isLoading: isProductsLoading } = useProducts();
     const [searchQuery, setSearchQuery] = useState("");
     const [isWritingReview, setIsWritingReview] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(mockProducts[0]);
+    const [selectedProductId, setSelectedProductId] = useState("");
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [comment, setComment] = useState("");
 
-    const filteredReviews = reviews.filter(r => 
-        r.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const selectedProduct = products?.find(p => p.id === selectedProductId);
+
+    const filteredReviews = reviews?.filter(r => 
+        r.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.comment.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ) || [];
 
     const handleSubmitReview = () => {
+        if (!selectedProductId) {
+            toast.error("Please select a product to review.");
+            return;
+        }
         if (rating === 0) {
             toast.error("Please select a rating level.");
             return;
@@ -63,28 +73,33 @@ export default function ReviewsPage() {
             return;
         }
 
-        const newReview: any = {
-            id: `REV-${Math.floor(Math.random() * 1000)}`,
-            productId: selectedProduct.id,
-            productName: selectedProduct.name,
+        createReview({
+            productId: selectedProductId,
             rating,
-            comment,
-            date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-            status: "pending",
-            helpfulCount: 0
-        };
-
-        setReviews([newReview, ...reviews]);
-        setIsWritingReview(false);
-        setRating(0);
-        setComment("");
-        toast.success("Review submitted for moderation review.");
+            comment
+        }, {
+            onSuccess: () => {
+                setIsWritingReview(false);
+                setRating(0);
+                setComment("");
+                setSelectedProductId("");
+            }
+        });
     };
 
-    const deleteReview = (id: string) => {
-        setReviews(reviews.filter(r => r.id !== id));
-        toast.error("Review artifact purged.");
+    const handleDeleteReview = (id: string) => {
+        deleteReview(id);
     };
+
+    const isLoading = isReviewsLoading || isProductsLoading;
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 pb-20">
@@ -112,15 +127,32 @@ export default function ReviewsPage() {
                             <div className="py-8 space-y-8">
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black uppercase text-muted-foreground italic">Target Artifact</label>
-                                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 border border-border/30">
-                                        <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border">
-                                            <Image src={selectedProduct.image} alt={selectedProduct.name} fill className="object-cover" />
+                                    <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                                        <SelectTrigger className="w-full h-14 rounded-2xl bg-muted/20 border-border/30 px-4 font-bold">
+                                            <SelectValue placeholder="Select a product to review" />
+                                        </SelectTrigger>
+                                        <SelectContent className="max-h-[300px]">
+                                            {products?.map((product) => (
+                                                <SelectItem key={product.id} value={product.id} className="font-medium">
+                                                    {product.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    
+                                    {selectedProduct && (
+                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20 border border-border/30 animate-in fade-in slide-in-from-top-2">
+                                            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border bg-muted">
+                                                {selectedProduct.image ? (
+                                                     <Image src={selectedProduct.image} alt={selectedProduct.name} fill className="object-cover" />
+                                                ) : <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold">{selectedProduct.name[0]}</div>}
+                                            </div>
+                                            <div>
+                                                <p className="font-black italic text-lg">{selectedProduct.name}</p>
+                                                <p className="text-[10px] text-muted-foreground font-bold uppercase">{selectedProduct.version} Build</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-black italic text-lg">{selectedProduct.name}</p>
-                                            <p className="text-[10px] text-muted-foreground font-bold uppercase">{selectedProduct.version} Build</p>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-4">
@@ -132,7 +164,7 @@ export default function ReviewsPage() {
                                                 onMouseEnter={() => setHoverRating(star)}
                                                 onMouseLeave={() => setHoverRating(0)}
                                                 onClick={() => setRating(star)}
-                                                className="p-2 transition-all hover:scale-125"
+                                                className="p-2 transition-all hover:scale-125 focus:outline-none"
                                             >
                                                 <Star 
                                                     className={cn("w-10 h-10 transition-all", 
@@ -148,7 +180,7 @@ export default function ReviewsPage() {
                                     <label className="text-[10px] font-black uppercase text-muted-foreground italic">Feedback Payload</label>
                                     <Textarea 
                                         placeholder="Detailed analysis of the artifact's performance, build quality, and implementation..."
-                                        className="h-32 rounded-2xl bg-muted/20 border-border/50 focus:ring-primary/20 p-6 font-medium"
+                                        className="h-32 rounded-2xl bg-muted/20 border-border/50 focus:ring-primary/20 p-6 font-medium resize-none"
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
                                     />
@@ -157,7 +189,13 @@ export default function ReviewsPage() {
 
                             <DialogFooter className="gap-2">
                                 <Button variant="outline" className="rounded-xl h-auto font-bold px-8" onClick={() => setIsWritingReview(false)}>Cancel Activation</Button>
-                                <Button className="rounded-xl h-auto bg-primary text-white font-black italic px-10 shadow-lg shadow-primary/20" onClick={handleSubmitReview}>Deploy Review</Button>
+                                <Button 
+                                    className="rounded-xl h-auto bg-primary text-white font-black italic px-10 shadow-lg shadow-primary/20" 
+                                    onClick={handleSubmitReview}
+                                    disabled={isCreating}
+                                >
+                                    {isCreating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Deploy Review"}
+                                </Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -172,7 +210,7 @@ export default function ReviewsPage() {
                     <TabsTrigger value="pending" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-10 relative">
                         <Clock className="w-4 h-4" /> Signal Moderation
                         <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-[8px] flex items-center justify-center rounded-full text-white font-black border-2 border-background">
-                            {reviews.filter(r => r.status === "pending").length}
+                            {reviews?.filter(r => r.status === "pending").length || 0}
                         </span>
                     </TabsTrigger>
                 </TabsList>
@@ -207,18 +245,20 @@ export default function ReviewsPage() {
                                         <Card className="border-border/50 bg-card/60 backdrop-blur-md overflow-hidden rounded-[40px] hover:border-primary/20 transition-all group">
                                             <div className="flex flex-col lg:flex-row">
                                                 <div className="p-8 lg:p-10 flex-1 flex flex-col md:flex-row gap-8">
-                                                    <div className="w-24 h-24 rounded-[32px] overflow-hidden bg-muted shrink-0 border border-border shadow-inner relative group-hover:scale-110 transition-transform duration-500">
-                                                        <Image src={mockProducts.find(p => p.id === review.productId)?.image || "/images/products/placeholder.jpg"} alt={review.productName} fill className="object-cover" />
+                                                    <div className="w-24 h-24 rounded-[32px] overflow-hidden bg-muted shrink-0 border border-border shadow-inner relative group-hover:scale-110 transition-transform duration-500 flex items-center justify-center">
+                                                        {review.product.image ? (
+                                                            <Image src={review.product.image} alt={review.product.name} fill className="object-cover" />
+                                                        ) : <Package className="w-10 h-10 text-muted-foreground opacity-50" />}
                                                     </div>
                                                     <div className="flex-1 space-y-4">
                                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                                             <div>
-                                                                <h3 className="font-black italic text-xl group-hover:text-primary transition-colors">{review.productName}</h3>
+                                                                <h3 className="font-black italic text-xl group-hover:text-primary transition-colors">{review.product.name}</h3>
                                                                 <div className="flex items-center gap-1.5 mt-1">
                                                                     {[1, 2, 3, 4, 5].map((star) => (
                                                                         <Star key={star} className={cn("w-3.5 h-3.5", star <= review.rating ? "fill-primary text-primary" : "text-muted-foreground opacity-30")} />
                                                                     ))}
-                                                                    <span className="text-[10px] font-black text-muted-foreground ml-2 uppercase tracking-widest">{review.date}</span>
+                                                                    <span className="text-[10px] font-black text-muted-foreground ml-2 uppercase tracking-widest">{new Date(review.createdAt).toLocaleDateString()}</span>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-3">
@@ -229,16 +269,16 @@ export default function ReviewsPage() {
                                                                     {review.status === "approved" ? <CheckCircle2 className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
                                                                     {review.status}
                                                                 </Badge>
-                                                                <button onClick={() => deleteReview(review.id)} className="p-2 h-10 w-10 rounded-xl bg-muted/30 hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                                                                <button onClick={() => handleDeleteReview(review.id)} className="p-2 h-10 w-10 rounded-xl bg-muted/30 hover:bg-red-500/10 hover:text-red-500 transition-colors">
                                                                     <Trash2 size={16} />
                                                                 </button>
                                                             </div>
                                                         </div>
-                                                        <p className="text-muted-foreground font-medium leading-relaxed italic border-l-4 border-primary/20 pl-4 py-2">
+                                                        <p className="text-muted-foreground font-medium leading-relaxed italic border-l-4 border-primary/20 pl-4 py-2 break-words">
                                                             "{review.comment}"
                                                         </p>
                                                         <div className="flex items-center gap-6 pt-2">
-                                                            <div className="flex items-center gap-2 text-xs font-black text-muted-foreground uppercase italic underline decoration-primary/20 cursor-pointer hover:text-primary transition-colors">
+                                                            <div className="flex items-center gap-2 text-xs font-black text-muted-foreground uppercase italic cursor-default">
                                                                 <ThumbsUp className="w-3.5 h-3.5" /> {review.helpfulCount} Build Architects found this helpful
                                                             </div>
                                                         </div>
@@ -251,9 +291,8 @@ export default function ReviewsPage() {
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className="text-[10px] uppercase font-black text-muted-foreground italic">Impact Level</p>
-                                                        <p className="text-sm font-black flex items-center gap-2"><Megaphone className="w-4 h-4 text-indigo-500" /> Community Signal 8.5/10</p>
+                                                        <p className="text-sm font-black flex items-center gap-2"><Megaphone className="w-4 h-4 text-indigo-500" /> Community Signal {(review.rating * 1.7).toFixed(1)}/10</p>
                                                     </div>
-                                                    <Button variant="outline" className="w-full rounded-2xl h-11 font-bold border-border/50 bg-background/50">Edit Node</Button>
                                                 </div>
                                             </div>
                                         </Card>
@@ -292,12 +331,12 @@ export default function ReviewsPage() {
                     </div>
 
                     <div className="grid gap-4">
-                        {reviews.filter(r => r.status === "pending").map(r => (
+                        {reviews?.filter(r => r.status === "pending").map(r => (
                             <div key={r.id} className="p-8 rounded-[32px] bg-card/50 border border-orange-500/20 flex items-center justify-between group">
                                 <div className="flex items-center gap-6">
                                     <Clock className="w-8 h-8 text-orange-500 animate-pulse" />
                                     <div>
-                                        <h4 className="font-black italic text-lg">{r.productName}</h4>
+                                        <h4 className="font-black italic text-lg">{r.product.name}</h4>
                                         <p className="text-xs text-muted-foreground font-medium italic mt-0.5 line-clamp-1 truncate max-w-sm">"{r.comment}"</p>
                                     </div>
                                 </div>

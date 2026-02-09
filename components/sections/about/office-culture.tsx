@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAboutContentStore } from "@/lib/store/about-content";
 
-export default function OfficeCulture() {
-    const { content } = useAboutContentStore();
-    const culture = content?.culture;
+export default function OfficeCulture({ data }: { data?: any }) {
+    const { content: storeContent } = useAboutContentStore();
+    const culture = data || storeContent?.culture;
     const items = culture?.items || [];
 
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -42,7 +42,7 @@ export default function OfficeCulture() {
 
                 {/* Bento Grid Gallery */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:grid-rows-2 h-auto md:h-[600px]">
-                    {items.map((item, index) => (
+                    {items.map((item: any, index: number) => (
                         <motion.div
                             key={item.id}
                             initial={{ opacity: 0, y: 20 }}
@@ -106,7 +106,7 @@ export default function OfficeCulture() {
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.9, opacity: 0 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="relative w-full max-w-5xl aspect-video bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+                                className="relative w-full  aspect-video bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
                             >
                                 {selectedItem.type === 'video' ? (
                                     <video 

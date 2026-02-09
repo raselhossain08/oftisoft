@@ -46,6 +46,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { mockAnalyticsData } from "@/lib/shop-data";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { Loader2, Globe, MousePointer2, ExternalLink } from "lucide-react";
 
 const PERFORMANCE_DATA = [
   { name: "Mon", completed: 4, active: 10, velocity: 42 },
@@ -74,8 +76,18 @@ const TASK_DISTRIBUTION = [
 const GEO_COLORS = ["#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ec4899"];
 
 export default function UnifiedAnalyticsHub() {
+  const { stats, isLoading, refresh } = useAnalytics();
   const [userRole] = useState<"admin" | "user">("admin");
   const [timeRange, setTimeRange] = useState("week");
+
+  if (isLoading && !stats) {
+    return (
+      <div className="h-[70vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-12 h-12 animate-spin text-primary opacity-20" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">Initializing Intelligence Node...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-20 sm:pb-24">
@@ -95,17 +107,18 @@ export default function UnifiedAnalyticsHub() {
           <Button
             variant="outline"
             size="sm"
+            onClick={refresh}
             className="rounded-xl h-9 sm:h-11 border-border/50 bg-card/50 gap-2 font-bold text-xs sm:text-sm"
           >
-            <Calendar className="w-4 h-4 text-primary shrink-0" />
-            Last 30 Days
+            <RefreshCw className="w-4 h-4 text-primary shrink-0" />
+            Sync Pipeline
           </Button>
           <Button
             size="sm"
             className="rounded-xl h-9 sm:h-11 bg-primary text-primary-foreground gap-2 font-bold text-xs sm:text-sm"
           >
             <Download className="w-4 h-4 shrink-0" />
-            Export Intelligence
+            Export Intel
           </Button>
         </div>
       </div>
@@ -122,6 +135,12 @@ export default function UnifiedAnalyticsHub() {
             </TabsTrigger>
             {userRole === "admin" && (
               <>
+                <TabsTrigger
+                  value="live"
+                  className="rounded-lg sm:rounded-xl h-auto gap-2 font-bold px-4 sm:px-6 text-xs sm:text-sm flex-1 sm:flex-initial data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:ring-2 data-[state=active]:ring-primary/20 data-[state=active]:border data-[state=active]:border-primary/30 transition-all duration-200"
+                >
+                  <Globe className="w-4 h-4 shrink-0" /> Live Traffic
+                </TabsTrigger>
                 <TabsTrigger
                   value="business"
                   className="rounded-lg sm:rounded-xl h-auto gap-2 font-bold px-4 sm:px-6 text-xs sm:text-sm flex-1 sm:flex-initial data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:ring-2 data-[state=active]:ring-primary/20 data-[state=active]:border data-[state=active]:border-primary/30 transition-all duration-200"
@@ -257,7 +276,7 @@ export default function UnifiedAnalyticsHub() {
               </CardHeader>
               <CardContent className="h-[280px] sm:h-[350px] md:h-[400px] p-4 sm:p-6 md:p-8">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={PERFORMANCE_DATA} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <AreaChart data={stats?.productivity || PERFORMANCE_DATA} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={CHART_PRIMARY} stopOpacity={0.6} />
@@ -372,6 +391,103 @@ export default function UnifiedAnalyticsHub() {
             </Card>
           </div>
         </TabsContent>
+        
+        {/* Live Traffic Tab */}
+        {userRole === "admin" && (
+          <TabsContent value="live" className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0">
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+                <Card className="lg:col-span-2 border-border/50 bg-card/40 backdrop-blur-md rounded-[2.5rem] overflow-hidden">
+                    <CardHeader className="p-8 border-b border-border/50 bg-primary/[0.02]">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <CardTitle className="text-2xl font-black italic">Live Site Traffic</CardTitle>
+                                <CardDescription className="italic">In-flight connections and behavioral streaming.</CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
+                                <span className="text-[10px] font-black uppercase text-green-500 tracking-widest">{stats?.liveTracking?.activeNow || 0} Online</span>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm border-collapse">
+                                <thead className="bg-muted/30 text-muted-foreground font-black uppercase text-[9px] tracking-[0.2em]">
+                                    <tr>
+                                        <th className="p-6">Origin IP</th>
+                                        <th className="p-6">Pathway</th>
+                                        <th className="p-6">Environment</th>
+                                        <th className="p-6">Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border/20">
+                                    {(stats?.liveTracking?.recentVisits || []).map((visit: any, i: number) => (
+                                        <tr key={i} className="group hover:bg-primary/[0.01] transition-colors">
+                                            <td className="p-6 font-mono text-xs text-muted-foreground">
+                                                {visit.ip?.replace(/(\d+)\.(\d+)\.(\d+)\.(\d+)/, '$1.***.***.$4') || '0.0.0.0'}
+                                            </td>
+                                            <td className="p-6">
+                                                <div className="flex items-center gap-2">
+                                                    <MousePointer2 className="w-3.5 h-3.5 text-primary opacity-50" />
+                                                    <span className="font-bold text-xs bg-muted/50 px-2 py-1 rounded-md">{visit.page}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-6 text-[10px] font-medium text-muted-foreground truncate max-w-[200px]">
+                                                {visit.userAgent}
+                                            </td>
+                                            <td className="p-6 text-[10px] font-black uppercase italic text-muted-foreground/50 tabular-nums">
+                                                {new Date(visit.timestamp).toLocaleTimeString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {(!stats?.liveTracking?.recentVisits || stats.liveTracking.recentVisits.length === 0) && (
+                                        <tr>
+                                            <td colSpan={4} className="p-20 text-center opacity-30 italic font-medium">No active signals detected in the current node.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <div className="space-y-6">
+                    <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-[2.5rem] p-8">
+                        <h3 className="font-black italic text-lg mb-6 flex items-center gap-3">
+                            <Target className="w-5 h-5 text-primary" /> Acquisition Heat
+                        </h3>
+                        <div className="space-y-6">
+                            {[
+                                { name: "Direct Traffic", value: 45, color: "bg-primary" },
+                                { name: "Search Engines", value: 30, color: "bg-blue-500" },
+                                { name: "Social Referrals", value: 15, color: "bg-pink-500" },
+                                { name: "Backlinks", value: 10, color: "bg-orange-500" },
+                            ].map((item) => (
+                                <div key={item.name} className="space-y-2">
+                                    <div className="flex justify-between text-[10px] font-black uppercase italic tracking-widest text-muted-foreground">
+                                        <span>{item.name}</span>
+                                        <span className="text-foreground">{item.value}%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                                        <div className={cn("h-full rounded-full", item.color)} style={{ width: `${item.value}%` }} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+
+                    <Card className="border-border/50 bg-primary shadow-xl shadow-primary/20 rounded-[2.5rem] p-8 text-primary-foreground relative overflow-hidden group">
+                        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
+                        <h3 className="font-black italic text-lg mb-2 z-10 relative">Growth Acceleration</h3>
+                        <p className="text-sm opacity-80 mb-6 z-10 relative leading-relaxed">Optimization algorithms suggest prioritizing Search Engine node expanding.</p>
+                        <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl h-12 font-black italic tracking-tight z-10 relative">
+                            Deploy SEO Core
+                        </Button>
+                    </Card>
+                </div>
+             </div>
+          </TabsContent>
+        )}
 
         {/* Business Intel Tab */}
         {userRole === "admin" && (
@@ -383,28 +499,28 @@ export default function UnifiedAnalyticsHub() {
               {[
                 {
                   label: "Total Revenue",
-                  value: "$168,430",
+                  value: `$${(stats?.overview?.revenue || 0).toLocaleString()}`,
                   growth: "+12.5%",
                   icon: DollarSign,
                   trend: "up" as const,
                 },
                 {
                   label: "Total Orders",
-                  value: "1,248",
+                  value: (stats?.overview?.orders || 0).toString(),
                   growth: "+8.2%",
                   icon: ShoppingCart,
                   trend: "up" as const,
                 },
                 {
                   label: "Active Customers",
-                  value: "8,942",
+                  value: (stats?.overview?.customers || 0).toLocaleString(),
                   growth: "+14.1%",
                   icon: Users,
                   trend: "up" as const,
                 },
                 {
                   label: "Conversion Rate",
-                  value: "3.2%",
+                  value: stats?.overview?.conversion || "0.0%",
                   growth: "-0.4%",
                   icon: Activity,
                   trend: "down" as const,

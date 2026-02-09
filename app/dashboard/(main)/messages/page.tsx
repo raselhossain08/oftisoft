@@ -15,7 +15,10 @@ import {
   VideoOff,
   Upload,
   ArrowLeft,
-  X
+  X,
+  Bot,
+  MessageSquare,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +43,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCalling } from "@/hooks/useCalling";
 
 export default function MessagesPage() {
-  const { conversations, messages, selectedChat, setSelectedChat, isLoading, sendMessage, startConversation, refreshConversations } = useMessages();
+  const { 
+    conversations, messages, selectedChat, setSelectedChat, 
+    isLoading, sendMessage, startConversation, refreshConversations,
+    startSupportChat 
+  } = useMessages();
   const { users, fetchUsers, isLoading: isUsersLoading } = useUsers();
   const { user: currentUser } = useAuth();
   
@@ -115,7 +122,8 @@ export default function MessagesPage() {
     }
   };
 
-  const handleStartNewChat = async (recipientId: string) => {
+  const handleStartNewChat = async (recipientId: string, recipientData?: any) => {
+    // Check if we already have a conversation with this person in our list
     const existing = conversations.find(c => c.recipientId === recipientId);
     if (existing) {
         handleSelectChat(existing);
@@ -123,12 +131,17 @@ export default function MessagesPage() {
         return;
     }
     
-    // Start new conversation API call
-    const newChat = await startConversation(recipientId);
-    if (newChat) {
-        // Optimistic refresh or wait for effect
-        setIsNewChatOpen(false);
-        // We might need to manually set selected chat if the hook logic doesn't cover this instantly
+    // Start new conversation - the hook now handles auto-selection
+    setIsNewChatOpen(false);
+    toast.success("Initializing nexus connection...");
+    await startConversation(recipientId, recipientData);
+    setShowChatView(true); // Switch to chat view on mobile
+  };
+
+  const handleSupportChat = async () => {
+    const chat = await startSupportChat();
+    if (chat) {
+        handleSelectChat(chat);
     }
   };
 
@@ -373,8 +386,31 @@ export default function MessagesPage() {
       <ScrollArea className="flex-1 min-h-0">
         <div className="p-2 space-y-1">
           {conversations.length === 0 && !isLoading && (
-             <div className="p-4 text-center text-sm text-muted-foreground">
-               No conversations yet. Start one!
+             <div className="p-8 text-center space-y-4">
+               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/20">
+                  <MessageSquare className="w-8 h-8 text-primary" />
+               </div>
+               <div className="space-y-1">
+                  <p className="font-bold text-sm">No conversations yet</p>
+                  <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">Start a new nexus point or connect with our support architect.</p>
+               </div>
+               <div className="flex flex-col gap-2 pt-2">
+                  <Button 
+                    size="sm" 
+                    className="rounded-xl h-10 font-bold"
+                    onClick={() => setIsNewChatOpen(true)}
+                  >
+                     <Plus className="w-4 h-4 mr-2" /> Start New Chat
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-xl h-10 font-bold border-primary/20 hover:bg-primary/5"
+                    onClick={handleSupportChat}
+                  >
+                     <Bot className="w-4 h-4 mr-2 text-primary" /> Connect to Sarah
+                  </Button>
+               </div>
              </div>
           )}
           {filteredConversations.map((chat) => (
@@ -495,7 +531,7 @@ export default function MessagesPage() {
                             key={u.id} 
                             variant="ghost" 
                             className="w-full justify-start gap-3 h-14"
-                            onClick={() => handleStartNewChat(u.id)}
+                            onClick={() => handleStartNewChat(u.id, u)}
                         >
                              <Avatar className="h-8 w-8">
                                 <AvatarFallback>{u.name.slice(0, 2).toUpperCase()}</AvatarFallback>

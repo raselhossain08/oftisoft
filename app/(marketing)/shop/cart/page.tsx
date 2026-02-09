@@ -8,32 +8,29 @@ import { Trash, Minus, Plus, ShoppingBag, ArrowRight, Trash2 } from "lucide-reac
 import Image from "next/image";
 import Link from "next/link";
 import { mockProducts } from "@/lib/shop-data";
-import { useState } from "react";
+import { useCart } from "@/hooks/use-cart";
+import { useState, useEffect } from "react";
 
 export default function CartPage() {
-    // Mock cart state
-    const [cartItems, setCartItems] = useState([
-        { ...mockProducts[0], quantity: 1 },
-        { ...mockProducts[2], quantity: 1 }
-    ]);
+    const { items: cartItems, removeItem, updateQuantity } = useCart();
+    
+    // Prevent hydration mismatch
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const tax = subtotal * 0.08;
     const total = subtotal + tax;
 
-    const removeItem = (id: string) => {
-        setCartItems(cartItems.filter(item => item.id !== id));
+    const handleQuantityChange = (id: string, currentQty: number, delta: number) => {
+        const newQty = Math.max(1, currentQty + delta);
+        updateQuantity(id, newQty);
     };
 
-    const updateQuantity = (id: string, delta: number) => {
-        setCartItems(cartItems.map(item => {
-            if (item.id === id) {
-                const newQuantity = Math.max(1, item.quantity + delta);
-                return { ...item, quantity: newQuantity };
-            }
-            return item;
-        }));
-    };
+    if (!isMounted) return null;
+
 
     if (cartItems.length === 0) {
         return (
@@ -73,7 +70,7 @@ export default function CartPage() {
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
                                             <h3 className="font-bold text-lg truncate pr-4">{item.name}</h3>
-                                            <p className="text-sm text-muted-foreground">{item.category}</p>
+                                            <p className="text-sm text-muted-foreground">{item.type === 'service' ? 'Service' : 'Product'}</p>
                                         </div>
                                         <p className="font-bold text-lg">${item.price * item.quantity}</p>
                                     </div>
@@ -81,14 +78,14 @@ export default function CartPage() {
                                     <div className="flex items-center justify-between mt-4">
                                         <div className="flex items-center gap-3 bg-secondary/30 rounded-full px-3 py-1">
                                             <button 
-                                                onClick={() => updateQuantity(item.id, -1)}
+                                                onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
                                                 className="p-1 hover:text-primary transition-colors disabled:opacity-50"
                                             >
                                                 <Minus className="w-3 h-3" />
                                             </button>
                                             <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
                                             <button 
-                                                onClick={() => updateQuantity(item.id, 1)}
+                                                onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
                                                 className="p-1 hover:text-primary transition-colors"
                                             >
                                                 <Plus className="w-3 h-3" />

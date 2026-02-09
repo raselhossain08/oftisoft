@@ -19,7 +19,8 @@ import {
     Timer,
     Check,
     X as XIcon,
-    ExternalLink
+    ExternalLink,
+    Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,8 +119,9 @@ const RequestQuoteDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                         <button
                             type="submit"
                             disabled={isCreating}
-                            className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                            className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                         >
+                            {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
                             {isCreating ? "Submitting..." : "Submit Request"}
                         </button>
                     </div>
@@ -130,7 +132,7 @@ const RequestQuoteDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 };
 
 export default function QuotesPage() {
-    const { quotes, isLoading, updateStatus } = useQuotes();
+    const { quotes, isLoading, updateStatus, downloadProposal, isDownloading } = useQuotes();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedQuote, setSelectedQuote] = useState<any>(null);
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
@@ -366,7 +368,15 @@ export default function QuotesPage() {
                                             <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-green-500" /> Secure Protocol ACTIVE</span>
                                             <span className="flex items-center gap-1.5"><Calendar size={14} className="text-primary" /> Request Node Synced: {formatDate(selectedQuote.createdAt)}</span>
                                         </div>
-                                        <button className="text-primary underline flex items-center gap-1.5 hover:text-primary/70 transition-colors">Download Full Proposal PDF <ExternalLink size={10} /></button>
+                                        <button 
+                                            className="text-primary underline flex items-center gap-1.5 hover:text-primary/70 transition-colors disabled:opacity-50"
+                                            onClick={() => downloadProposal(selectedQuote.id)}
+                                            disabled={isDownloading}
+                                        >
+                                            {isDownloading && <Loader2 className="w-3 h-3 animate-spin"/>}
+                                            {isDownloading ? "Downloading..." : "Download Full Proposal PDF"} 
+                                            {!isDownloading && <ExternalLink size={10} />}
+                                        </button>
                                     </div>
                                 </Card>
                             </motion.div>

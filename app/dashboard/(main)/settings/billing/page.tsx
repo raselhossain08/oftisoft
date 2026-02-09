@@ -43,6 +43,16 @@ import {
     DialogTrigger,
     DialogFooter
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -51,6 +61,7 @@ import { billingAPI, PaymentMethod, Transaction } from "@/lib/api";
 export default function BillingSettings() {
     const queryClient = useQueryClient();
     const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+    const [cardToDelete, setCardToDelete] = useState<string | null>(null);
     const [newCard, setNewCard] = useState({
         brand: 'Visa',
         last4: '',
@@ -139,8 +150,15 @@ export default function BillingSettings() {
         setDefaultMutation.mutate(id);
     };
 
-    const handleDelete = (id: string) => {
-        deleteMutation.mutate(id);
+    const confirmDelete = (id: string) => {
+        setCardToDelete(id);
+    };
+
+    const executeDelete = () => {
+        if (cardToDelete) {
+            deleteMutation.mutate(cardToDelete);
+            setCardToDelete(null);
+        }
     };
 
     const handleAddCard = () => {
@@ -307,7 +325,7 @@ export default function BillingSettings() {
                                                         </DropdownMenuItem>
                                                     )}
                                                     <DropdownMenuItem 
-                                                        onClick={() => handleDelete(card.id)}
+                                                        onClick={() => confirmDelete(card.id)}
                                                         className="rounded-xl font-bold cursor-pointer text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 focus:text-red-500 transition-all gap-2"
                                                     >
                                                         <Trash2 className="w-4 h-4" /> De-Authorize
@@ -431,6 +449,28 @@ export default function BillingSettings() {
                     )}
                 </div>
             </div>
+
+            {/* Deletion Confirmation */}
+            <AlertDialog open={!!cardToDelete} onOpenChange={(open: boolean) => !open && setCardToDelete(null)}>
+                <AlertDialogContent className="rounded-[32px] border-none shadow-2xl p-10 bg-card">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-2xl font-black tracking-tight">De-Authorize Instrument?</AlertDialogTitle>
+                        <AlertDialogDescription className="font-medium text-muted-foreground mt-4">
+                            You are about to dismantle the link to this payment vector. 
+                            This action is irreversible and will remove the encrypted credentials from the vault.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="mt-8 gap-4">
+                        <AlertDialogCancel className="h-12 px-8 rounded-xl font-black border-none bg-muted/30 hover:bg-muted/50 transition-all">Abort Deletion</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={executeDelete}
+                            className="h-12 px-8 rounded-xl font-black bg-red-500 text-white hover:bg-red-600 shadow-xl shadow-red-500/20 transition-all"
+                        >
+                            Confirm De-Auth
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
         </div>
     );

@@ -6,6 +6,7 @@ import { Send, CheckCircle2, ArrowRight, Mail, MapPin, Phone } from "lucide-reac
 import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 // ... imports
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useHomeContentStore } from "@/lib/store/home-content";
+import { useLeads } from "@/hooks/useLeads";
 
 export default function CTA() {
     // Get content from CMS store
@@ -21,20 +23,34 @@ export default function CTA() {
         title: "Let's Build the Next Big Thing.",
         description: "Have a project in mind? We'd love to hear about it. Schedule a free 15-min discovery call to discuss your vision.",
         buttonText: "Start Conversation",
-        buttonLink: "/contact"
+        buttonLink: "/contact",
+        contactInfo: {
+            email: 'hello@oftisoft.com',
+            phone: '+1 (555) 000-0000',
+            location: 'San Francisco, CA'
+        }
     };
 
-    const [formState, setFormState] = useState<'idle' | 'submitting' | 'success'>('idle');
+    const { createLead, isCreating } = useLeads();
+    const [formState, setFormState] = useState<'idle' | 'success'>('idle');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setFormState('submitting');
-        // Simulate API call
-        setTimeout(() => {
-            setFormState('success');
-            toast.success("Message sent successfully! We'll be in touch soon.");
-        }, 2000);
+        const formData = new FormData(e.currentTarget);
+        const data = {
+            name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+            email: formData.get('email') as string,
+            message: formData.get('details') as string,
+            type: 'contact' as any
+        };
+
+        createLead(data, {
+            onSuccess: () => {
+                setFormState('success');
+            }
+        });
     };
+
 
     return (
         <section id="contact" className="py-16 md:py-24 bg-transparent relative overflow-hidden z-10">
@@ -61,9 +77,13 @@ export default function CTA() {
                         </p>
 
                         <div className="space-y-6">
-                             <ContactItem icon={Mail} title="Email Us" value="hello@ofitsoft.com" delay={0.1} />
-                             <ContactItem icon={Phone} title="Call Us" value="+1 (555) 000-0000" delay={0.2} />
-                             <ContactItem icon={MapPin} title="HQ" value="San Francisco, CA" delay={0.3} />
+                             {ctaContent.contactInfo && (
+                                <>
+                                    <ContactItem icon={Mail} title="Email Us" value={ctaContent.contactInfo.email} delay={0.1} />
+                                    <ContactItem icon={Phone} title="Call Us" value={ctaContent.contactInfo.phone} delay={0.2} />
+                                    <ContactItem icon={MapPin} title="HQ" value={ctaContent.contactInfo.location} delay={0.3} />
+                                </>
+                             )}
                         </div>
                     </div>
 
@@ -118,23 +138,24 @@ export default function CTA() {
                                         <div className="grid grid-cols-2 gap-5">
                                             <div className="space-y-2">
                                                 <Label htmlFor="firstName" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">First Name</Label>
-                                                <Input id="firstName" placeholder="Jane" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
+                                                <Input id="firstName" name="firstName" required placeholder="Jane" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="lastName" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Last Name</Label>
-                                                <Input id="lastName" placeholder="Doe" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
+                                                <Input id="lastName" name="lastName" required placeholder="Doe" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
                                             </div>
                                         </div>
                                         
                                         <div className="space-y-2">
                                             <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Email</Label>
-                                            <Input id="email" type="email" placeholder="jane@example.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
+                                            <Input id="email" name="email" required type="email" placeholder="jane@example.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
                                         </div>
                                         
                                         <div className="space-y-2">
                                             <Label htmlFor="details" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Project Details</Label>
                                             <Textarea 
                                                 id="details"
+                                                name="details"
                                                 required 
                                                 rows={4} 
                                                 className="bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-xl focus-visible:ring-primary/50 resize-none"
@@ -144,10 +165,10 @@ export default function CTA() {
 
                                         <Button
                                             type="submit"
-                                            disabled={formState === 'submitting'}
+                                            disabled={isCreating}
                                             className="w-full h-auto py-4 bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]"
                                         >
-                                            {formState === 'submitting' ? (
+                                            {isCreating ? (
                                                 <span className="flex items-center gap-2">
                                                     <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
                                                     Sending...
@@ -161,7 +182,7 @@ export default function CTA() {
                                         </Button>
                                         
                                         <p className="text-xs text-center text-muted-foreground mt-4">
-                                            By submitting, you agree to our <a href="#" className="underline hover:text-white">Privacy Policy</a>.
+                                            By submitting, you agree to our <Link href="/privacy" className="underline hover:text-white">Privacy Policy</Link>.
                                         </p>
                                     </motion.form>
                                 )}
@@ -175,7 +196,11 @@ export default function CTA() {
 }
 
 function ContactItem({ icon: Icon, title, value, delay }: { icon: any, title: string, value: string, delay: number }) {
-    return (
+    const isEmail = title.toLowerCase().includes('email');
+    const isPhone = title.toLowerCase().includes('phone') || title.toLowerCase().includes('call');
+    const href = isEmail ? `mailto:${value}` : isPhone ? `tel:${value.replace(/[^0-9+]/g, '')}` : undefined;
+
+    const Content = (
         <motion.div 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -192,6 +217,12 @@ function ContactItem({ icon: Icon, title, value, delay }: { icon: any, title: st
             </div>
         </motion.div>
     );
+
+    if (href) {
+        return <a href={href}>{Content}</a>;
+    }
+
+    return Content;
 }
 
 

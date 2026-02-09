@@ -61,8 +61,8 @@ export function useOrders(orderId?: string) {
         isLoading: orderId ? orderLoading : ordersLoading,
         createOrder: createOrderMutation.mutate,
         updateStatus: (id: string, status: string) => updateStatusMutation.mutate({ id, status }),
-        downloadInvoice: (id: string) => downloadInvoiceMutation.mutate(id),
-        exportReport: () => exportReportMutation.mutate(),
+        downloadInvoice: (id: string, options?: any) => downloadInvoiceMutation.mutate(id, options),
+        exportReport: (variables?: any, options?: any) => exportReportMutation.mutate(variables, options),
         isDownloadingInvoice: downloadInvoiceMutation.isPending,
         isExportingReport: exportReportMutation.isPending,
     };

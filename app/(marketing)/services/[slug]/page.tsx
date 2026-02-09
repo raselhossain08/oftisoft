@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { 
@@ -31,6 +32,15 @@ const iconMap: any = {
 };
 
 export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
+    const { pageContent, isLoading } = usePageContent('services');
+    const setContent = useServicesContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = useServicesContentStore();
     const service = content?.overview.find(s => s.id === params.slug);
     const globalProcess = content?.process || [];
@@ -74,7 +84,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                     <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Link>
                 <Link 
-                    href="/#contact" 
+                    href="#contact" 
                     className="pointer-events-auto px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 transition-all flex items-center gap-2"
                 >
                     Book Consultation
@@ -96,7 +106,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="max-w-5xl mx-auto text-center"
+                        className=" mx-auto text-center"
                         style={{ y: yHero, opacity: opacityHero }}
                     >
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold uppercase tracking-wider mb-8 shadow-glow">
@@ -280,7 +290,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
 
             {/* Project CTA */}
             <div className="sticky bottom-6 z-40 flex justify-center lg:hidden pointer-events-none">
-                 <Link href="/#contact" className="pointer-events-auto bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold flex items-center gap-2 shadow-2xl shadow-primary/30 animate-in fade-in slide-in-from-bottom-5">
+                 <Link href="#contact" className="pointer-events-auto bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold flex items-center gap-2 shadow-2xl shadow-primary/30 animate-in fade-in slide-in-from-bottom-5">
                     Start Your Project
                     <ArrowRight className="w-4 h-4" />
                  </Link>

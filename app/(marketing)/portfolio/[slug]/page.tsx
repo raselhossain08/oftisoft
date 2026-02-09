@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink, Github, Calendar, Layers, Cpu, Globe, ArrowRig
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import CTA from "@/components/sections/cta";
 
 // Swiper
@@ -20,7 +21,17 @@ import { usePortfolioContentStore } from "@/lib/store/portfolio-content";
 import { notFound, useRouter } from "next/navigation";
 
 export default function ProjectDetailPage({ params }: { params: { slug: string } }) {
+    const { pageContent, isLoading } = usePageContent('portfolio');
+    const setContent = usePortfolioContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { content } = usePortfolioContentStore();
+
     const router = useRouter();
     
     // Find project by ID (slug)
@@ -96,7 +107,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                 <div className="container px-4 mx-auto relative z-10">
                     <motion.div 
                         style={{ opacity: opacityHero }}
-                        className="max-w-5xl"
+                        className=""
                     >
                         <motion.div 
                             initial={{ opacity: 0, y: 30 }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { shopBundles } from "@/lib/shop-data";
+import { useShopContentStore } from "@/lib/store/shop-content";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +9,9 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function BundleDeals() {
+    const { content } = useShopContentStore();
+    const bundles = content?.bundles || [];
+
     return (
         <section className="py-24 bg-secondary/10">
             <div className="container px-4 mx-auto">
@@ -26,7 +29,7 @@ export function BundleDeals() {
                 </div>
 
                 <div className="grid gap-8">
-                    {shopBundles.map((bundle) => (
+                    {bundles.map((bundle) => (
                         <motion.div
                             key={bundle.id}
                             initial={{ opacity: 0, scale: 0.98 }}

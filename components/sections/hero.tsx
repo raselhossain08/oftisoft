@@ -75,13 +75,15 @@ export default function Hero() {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                         >
-                            <Badge variant="glass" className="px-5 py-2.5 gap-2.5 rounded-full text-base font-medium tracking-wide">
-                                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                                </span>
-                                {heroContent.badge}
-                            </Badge>
+                            <Link href="/contact">
+                                <Badge variant="glass" className="px-5 py-2.5 gap-2.5 rounded-full text-base font-medium tracking-wide cursor-pointer hover:bg-white/10 transition-colors">
+                                    <span className="relative flex h-2.5 w-2.5 shrink-0">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                                    </span>
+                                    {heroContent.badge}
+                                </Badge>
+                            </Link>
                         </motion.div>
 
                         <motion.h1 
@@ -91,7 +93,7 @@ export default function Hero() {
                             className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
                         >
                             <span className="block text-foreground drop-shadow-sm">{heroContent.title}</span>
-                            <SmoothTypewriter subtitle={heroContent.subtitle} />
+                            <SmoothTypewriter heroContent={heroContent} />
                         </motion.h1>
 
                         <motion.p 
@@ -109,8 +111,8 @@ export default function Hero() {
                             transition={{ delay: 0.3 }}
                             className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
                         >
-                            <Button asChild size="xl" variant="premium" className="w-full sm:w-auto">
-                                <Link href={heroContent.primaryCTA.link}>
+                            <Button asChild size="xl" variant="premium" className="w-full sm:w-auto overflow-hidden group">
+                                <Link href="/contact">
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         {heroContent.primaryCTA.text}
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -119,9 +121,9 @@ export default function Hero() {
                                 </Link>
                             </Button>
 
-                            <Button asChild size="xl" variant="outline" className="w-full sm:w-auto border-white/10 bg-white/5 hover:bg-white/10 text-foreground backdrop-blur-sm rounded-full">
-                                <Link href={heroContent.secondaryCTA.link}>
-                                    <Play className="w-4 h-4 fill-current mr-2" />
+                            <Button asChild size="xl" variant="outline" className="w-full sm:w-auto border-white/10 bg-white/5 hover:bg-white/10 text-foreground backdrop-blur-sm rounded-full group">
+                                <Link href="/portfolio">
+                                    <Play className="w-4 h-4 fill-current mr-2 group-hover:scale-110 transition-transform" />
                                     {heroContent.secondaryCTA.text}
                                 </Link>
                             </Button>
@@ -181,63 +183,71 @@ export default function Hero() {
                             <div className="absolute inset-[30%] bg-blue-500/20 rounded-full blur-[80px] animate-pulse-slow" />
                             
                             {/* 4. The Sphere */}
-                            <div className="relative w-40 h-40 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-md border border-white/20 shadow-[0_0_50px_rgba(59,130,246,0.2)] flex items-center justify-center z-10 group transition-transform duration-500 hover:scale-110">
-                                <Globe className="w-20 h-20 text-white/80 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" strokeWidth={1} />
-                                {/* Detail rings on sphere */}
-                                <div className="absolute inset-0 rounded-full border-t border-white/30 rotate-45" />
-                                <div className="absolute inset-2 rounded-full border-b border-white/10 -rotate-12" />
-                            </div>
+                            <Link href="/services">
+                                <div className="relative w-40 h-40 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-md border border-white/20 shadow-[0_0_50px_rgba(59,130,246,0.2)] flex items-center justify-center z-10 group transition-transform duration-500 hover:scale-110 cursor-pointer">
+                                    <Globe className="w-20 h-20 text-white/80 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" strokeWidth={1} />
+                                    {/* Detail rings on sphere */}
+                                    <div className="absolute inset-0 rounded-full border-t border-white/30 rotate-45" />
+                                    <div className="absolute inset-2 rounded-full border-b border-white/10 -rotate-12" />
+                                </div>
+                            </Link>
 
                             {/* 5. Floating Glass Cards - Positioned in 3D Space */}
                             
                             {/* Card 1: CPU */}
-                            <motion.div 
-                                animate={{ y: [0, -15, 0] }}
-                                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute -top-4 -left-4 w-48 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl transform-style-3d hover:border-purple-500/50 transition-colors"
-                            >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 bg-purple-500/20 rounded-lg">
-                                        <Cpu className="w-5 h-5 text-purple-400" />
+                            <Link href="/services">
+                                <motion.div 
+                                    animate={{ y: [0, -15, 0] }}
+                                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                                    className="absolute -top-4 -left-4 w-48 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl transform-style-3d hover:border-purple-500/50 transition-colors cursor-pointer group"
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="p-2 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/40 transition-colors">
+                                            <Cpu className="w-5 h-5 text-purple-400" />
+                                        </div>
+                                        <div className="h-2 w-12 bg-white/10 rounded-full" />
                                     </div>
-                                    <div className="h-2 w-12 bg-white/10 rounded-full" />
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="h-1.5 w-full bg-white/5 rounded-full" />
-                                    <div className="h-1.5 w-3/4 bg-white/5 rounded-full" />
-                                </div>
-                            </motion.div>
+                                    <div className="space-y-2">
+                                        <div className="h-1.5 w-full bg-white/5 rounded-full" />
+                                        <div className="h-1.5 w-3/4 bg-white/5 rounded-full" />
+                                    </div>
+                                </motion.div>
+                            </Link>
 
                             {/* Card 2: Code */}
-                            <motion.div 
-                                animate={{ y: [0, 20, 0] }}
-                                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                className="absolute bottom-8 -right-8 w-44 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl transform-style-3d hover:border-blue-500/50 transition-colors"
-                            >
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="p-2 bg-blue-500/20 rounded-lg">
-                                        <Code2 className="w-5 h-5 text-blue-400" />
+                            <Link href="/services">
+                                <motion.div 
+                                    animate={{ y: [0, 20, 0] }}
+                                    transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                                    className="absolute bottom-8 -right-8 w-44 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl transform-style-3d hover:border-blue-500/50 transition-colors cursor-pointer group"
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/40 transition-colors">
+                                            <Code2 className="w-5 h-5 text-blue-400" />
+                                        </div>
+                                        <div className="text-[10px] text-muted-foreground font-mono">.TSX</div>
                                     </div>
-                                    <div className="text-[10px] text-muted-foreground font-mono">.TSX</div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="h-1.5 w-20 bg-blue-400/20 rounded-full" />
-                                    <div className="h-1.5 w-full bg-white/5 rounded-full" />
-                                </div>
-                            </motion.div>
+                                    <div className="space-y-2">
+                                        <div className="h-1.5 w-20 bg-blue-400/20 rounded-full" />
+                                        <div className="h-1.5 w-full bg-white/5 rounded-full" />
+                                    </div>
+                                </motion.div>
+                            </Link>
 
                             {/* Card 3: Status Pill */}
-                            <motion.div 
-                                animate={{ x: [0, 10, 0] }}
-                                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                                className="absolute top-1/2 -right-24 -translate-y-1/2 px-4 py-3 bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl flex items-center gap-3 transform-style-3d hover:scale-105 transition-transform"
-                            >
-                                <span className="relative flex h-3 w-3">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                </span>
-                                <span className="text-sm font-semibold text-white tracking-wide">System Online</span>
-                            </motion.div>
+                            <Link href="/status">
+                                <motion.div 
+                                    animate={{ x: [0, 10, 0] }}
+                                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                                    className="absolute top-1/2 -right-24 -translate-y-1/2 px-4 py-3 bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl flex items-center gap-3 transform-style-3d hover:scale-105 transition-transform cursor-pointer"
+                                >
+                                    <span className="relative flex h-3 w-3">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                    </span>
+                                    <span className="text-sm font-semibold text-white tracking-wide">System Online</span>
+                                </motion.div>
+                            </Link>
 
                         </motion.div>
                     </div>
@@ -253,7 +263,7 @@ export default function Hero() {
     );
 }
 
-function SmoothTypewriter({ subtitle }: { subtitle?: string }) {
+function SmoothTypewriter({ heroContent }: { heroContent: any }) {
     const defaultWords = [
         "Digital Solutions.",
         "Web Architecture.",
@@ -261,8 +271,8 @@ function SmoothTypewriter({ subtitle }: { subtitle?: string }) {
         "SaaS Platforms."
     ];
     
-    // If subtitle is provided, use it as a single word, otherwise use default words
-    const words = subtitle ? [subtitle] : defaultWords;
+    // If subtitles array is provided, use it, otherwise use subtitle as a single word, otherwise default words
+    const words = heroContent.subtitles?.length ? heroContent.subtitles : (heroContent.subtitle ? [heroContent.subtitle] : defaultWords);
     const [index, setIndex] = useState(0);
 
     useEffect(() => {

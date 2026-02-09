@@ -19,14 +19,14 @@ const categories = [
     { label: "Design", icon: Palette },
 ];
 
-export default function TeamShowcase() {
-    const { content } = useAboutContentStore();
-    const team = content?.team;
+export default function TeamShowcase({ data }: { data?: any }) {
+    const { content: storeContent } = useAboutContentStore();
+    const team = data || storeContent?.team;
     const teamMembers = team?.members || [];
 
     const [filter, setFilter] = useState("All");
 
-    const filteredTeam = teamMembers.filter(member =>
+    const filteredTeam = teamMembers.filter((member: any) =>
         filter === "All" ? true : member.category === filter || (filter === "Development" && (member.category === "Development" || member.category === "Product"))
     );
 
@@ -79,7 +79,7 @@ export default function TeamShowcase() {
                 {/* Team Grid */}
                 <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <AnimatePresence mode="popLayout">
-                        {filteredTeam.map((member) => (
+                        {filteredTeam.map((member: any) => (
                             <motion.div
                                 key={member.id}
                                 layout
@@ -108,7 +108,7 @@ export default function TeamShowcase() {
                                                 
                                                 {/* Fallback Initials */}
                                                 <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/5 group-hover:scale-110 transition-transform duration-700">
-                                                    {member.name.split(" ").map(n => n[0]).join("")}
+                                                    {member.name?.split(" ").map((n: string) => n[0]).join("")}
                                                 </div>
                                             </>
                                         )}

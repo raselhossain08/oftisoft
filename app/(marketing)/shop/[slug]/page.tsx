@@ -1,4 +1,6 @@
 "use client"
+import { useEffect, useState, use } from "react";
+import { usePageContent } from "@/hooks/usePageContent";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +8,6 @@ import { ProductCard } from "@/components/sections/shop/product-card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { mockProducts } from "@/lib/shop-data";
 import { 
     Check, 
     ShieldCheck, 
@@ -26,20 +27,43 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { use, useState } from "react";
+import { useShopContentStore } from "@/lib/store/shop-content";
 import Link from 'next/link';
 
 export default function ProductDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
-    const product = mockProducts.find(p => p.slug === slug);
+    const { pageContent, isLoading } = usePageContent('shop');
+    const setContent = useShopContentStore((state) => state.setContent);
+
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
+    const { content } = useShopContentStore();
+    const products = content?.products || [];
+    const product = products.find(p => p.slug === slug);
     const [selectedLicense, setSelectedLicense] = useState<'regular' | 'extended'>('regular');
     const [activeScreenshot, setActiveScreenshot] = useState(0);
 
-    if (!product) {
+    if (isLoading && !pageContent) {
+        return (
+            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
+                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                    Syncing Asset Details...
+                </div>
+            </div>
+        );
+    }
+
+    if (!product && !isLoading) {
         return notFound();
     }
 
-    const relatedProducts = mockProducts.filter(p => p.id !== product.id).slice(0, 3);
+    if (!product) return null;
+
+    const relatedProducts = products.filter(p => p.id !== product.id).slice(0, 3);
     const allScreenshots = [product.image, ...product.screenshots];
 
     return (

@@ -49,7 +49,7 @@ export default function AuthorSpotlight() {
                     </p>
                 </motion.div>
 
-                <div className="max-w-5xl mx-auto">
+                <div className=" mx-auto">
                     <Swiper
                         modules={[Pagination, Autoplay, EffectCreative]}
                         effect={'creative'}

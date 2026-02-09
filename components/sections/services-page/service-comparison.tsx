@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/table";
 
 import { useServicesContentStore, type ComparisonFeature, type ComparisonTier } from "@/lib/store/services-content";
+import { useCart } from "@/hooks/use-cart";
 
 const iconMap: any = {
     Check, X, Sparkles, Zap, Shield, Crown, HelpCircle, ArrowRight, Minus,
@@ -38,9 +39,25 @@ const iconMap: any = {
 
 export default function ServiceComparison() {
     const { content } = useServicesContentStore();
+    const cart = useCart();
     const features = content?.comparison.features || [];
     const tiers = content?.comparison.tiers || [];
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+
+    const handleAddToCart = (tier: ComparisonTier) => {
+        const isCustom = tier.price === 'Custom';
+        if (!isCustom) {
+            const numericPrice = Number(tier.price.replace(/[^0-9.]/g, ''));
+            cart.addItem({
+                id: tier.id,
+                name: `${tier.name} Plan`,
+                price: numericPrice,
+                image: '',
+                quantity: 1,
+                type: 'service'
+            });
+        }
+    };
 
     return (
         <section className="py-16 md:py-24 bg-background relative overflow-hidden">
@@ -102,15 +119,25 @@ export default function ServiceComparison() {
                                     </CardContent>
 
                                     <CardFooter>
-                                        <Button 
-                                            asChild 
-                                            className="w-full font-bold" 
-                                            variant={tier.highlight ? "default" : "outline"}
-                                        >
-                                            <Link href="/#contact">
-                                                Choose {tier.name}
-                                            </Link>
-                                        </Button>
+                                        {tier.price === 'Custom' ? (
+                                            <Button 
+                                                asChild 
+                                                className="w-full font-bold" 
+                                                variant={tier.highlight ? "default" : "outline"}
+                                            >
+                                                <Link href="#contact">
+                                                    Contact Us
+                                                </Link>
+                                            </Button>
+                                        ) : (
+                                            <Button 
+                                                onClick={() => handleAddToCart(tier)}
+                                                className="w-full font-bold" 
+                                                variant={tier.highlight ? "default" : "outline"}
+                                            >
+                                                Add to Cart
+                                            </Button>
+                                        )}
                                     </CardFooter>
                                 </Card>
                             </SwiperSlide>
@@ -156,15 +183,25 @@ export default function ServiceComparison() {
                                                 </p>
                                             </div>
                                             
-                                            <Button 
-                                                asChild 
-                                                className="w-full font-bold" 
-                                                variant={tier.highlight ? "default" : "outline"}
-                                            >
-                                                <Link href="/#contact">
-                                                    Get Started <ArrowRight className="w-4 h-4 ml-2" />
-                                                </Link>
-                                            </Button>
+                                            {tier.price === 'Custom' ? (
+                                                <Button 
+                                                    asChild 
+                                                    className="w-full font-bold" 
+                                                    variant={tier.highlight ? "default" : "outline"}
+                                                >
+                                                    <Link href="#contact">
+                                                        Get Started <ArrowRight className="w-4 h-4 ml-2" />
+                                                    </Link>
+                                                </Button>
+                                            ) : (
+                                                <Button 
+                                                    onClick={() => handleAddToCart(tier)}
+                                                    className="w-full font-bold" 
+                                                    variant={tier.highlight ? "default" : "outline"}
+                                                >
+                                                    Add to Cart <ArrowRight className="w-4 h-4 ml-2" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </TableHead>
                                 ))}

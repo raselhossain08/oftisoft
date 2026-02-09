@@ -1,42 +1,75 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Github, Slack, Database, Cloud, Trello, Mail, Blocks, ExternalLink, Zap, Braces, Link, ShieldCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Check, Github, Slack, Database, Cloud, Trello, Mail, Blocks, ExternalLink, Zap, Braces, Link, ShieldCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { integrationsAPI } from "@/lib/api";
 
-const INTEGRATIONS = [
-    { id: "github", name: "GitHub Node", cat: "Development", icon: Github, connected: true, desc: "Automate delivery pipelines and sync codebase artifacts." },
-    { id: "slack", name: "Slack Link", cat: "Communication", icon: Slack, connected: true, desc: "Global bridge for real-time project signal telemetry." },
-    { id: "aws", name: "AWS Edge", cat: "Storage", icon: Cloud, connected: false, desc: "Object storage infrastructure for high-scale asset delivery." },
-    { id: "jira", name: "Jira Flow", cat: "Management", icon: Trello, connected: false, desc: "Industrial-grade issue tracking and sprint governance." },
-    { id: "gmail", name: "Neural Mail", cat: "Communication", icon: Mail, connected: false, desc: "SMTP relay for automated professional outreach." },
+const INTEGRATION_META = [
+    { id: "github", name: "GitHub Node", cat: "Development", icon: Github, desc: "Automate delivery pipelines and sync codebase artifacts." },
+    { id: "slack", name: "Slack Link", cat: "Communication", icon: Slack, desc: "Global bridge for real-time project signal telemetry." },
+    { id: "aws", name: "AWS Edge", cat: "Storage", icon: Cloud, desc: "Object storage infrastructure for high-scale asset delivery." },
+    { id: "jira", name: "Jira Flow", cat: "Management", icon: Trello, desc: "Industrial-grade issue tracking and sprint governance." },
+    { id: "gmail", name: "Neural Mail", cat: "Communication", icon: Mail, desc: "SMTP relay for automated professional outreach." },
 ];
 
 export default function IntegrationsSettings() {
-    const [connected, setConnected] = useState(INTEGRATIONS.filter(i => i.connected).map(i => i.id));
+    const queryClient = useQueryClient();
+    
+    // Fetch connected integrations from backend
+    const { data: connectedIds = [], isLoading } = useQuery({
+        queryKey: ["integrations"],
+        queryFn: async () => {
+            const data = await integrationsAPI.getIntegrations();
+            return data.map((i: any) => i.id);
+        },
+    });
 
-    const toggle = (id: string) => {
-        if (connected.includes(id)) {
-            setConnected(connected.filter(c => c !== id));
-            toast.error(`Interface de-coupled: ${id.toUpperCase()}`, {
-                description: "The neural bridge has been dismantled."
-            });
-        } else {
-            setConnected([...connected, id]);
-            toast.success(`Active bridge established: ${id.toUpperCase()}`, {
-                description: "Synchronizing workspace artifacts now.",
-                icon: <Link className="w-4 h-4 text-primary" />
+    // Mutation for toggling integration
+    const toggleMutation = useMutation({
+        mutationFn: ({ id, connected }: { id: string, connected: boolean }) => 
+            integrationsAPI.toggleIntegration(id, connected),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ["integrations"] });
+            if (variables.connected) {
+                toast.success(`Active bridge established: ${variables.id.toUpperCase()}`, {
+                    description: "Synchronizing workspace artifacts now.",
+                    icon: <Link className="w-4 h-4 text-primary" />
+                });
+            } else {
+                toast.error(`Interface de-coupled: ${variables.id.toUpperCase()}`, {
+                    description: "The neural bridge has been dismantled."
+                });
+            }
+        },
+        onError: (err: any) => {
+            toast.error("Bridge Synchronization Failed", {
+                description: err.response?.data?.message || "Internal interference detected."
             });
         }
+    });
+
+    const toggle = (id: string, isCurrentlyConnected: boolean) => {
+        toggleMutation.mutate({ id, connected: !isCurrentlyConnected });
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-center">
+                <Loader2 className="w-12 h-auto animate-spin text-primary opacity-20" />
+                <p className="text-muted-foreground font-black animate-pulse uppercase tracking-[0.3em]">Mapping Neural Nodes...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-12 max-w-5xl mx-auto">
+        <div className="space-y-12  mx-auto pb-20">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-10">
                 <div>
@@ -53,8 +86,10 @@ export default function IntegrationsSettings() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <AnimatePresence mode="popLayout">
-                    {INTEGRATIONS.map((tool) => {
-                        const isConnected = connected.includes(tool.id);
+                    {INTEGRATION_META.map((tool) => {
+                        const isConnected = connectedIds.includes(tool.id);
+                        const isPending = toggleMutation.isPending && toggleMutation.variables?.id === tool.id;
+
                         return (
                             <motion.div
                                 layout
@@ -84,7 +119,7 @@ export default function IntegrationsSettings() {
                                         </div>
                                         <Badge className={cn(
                                             "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border transition-colors",
-                                            isConnected ? "bg-primary text-white border-primary" : "bg-muted text-muted-foreground border-transparent"
+                                            isConnected ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-muted text-muted-foreground border-transparent"
                                         )}>
                                             {isConnected ? "Bridged" : "Standby"}
                                         </Badge>
@@ -97,7 +132,8 @@ export default function IntegrationsSettings() {
 
                                     <CardFooter className="p-8 md:p-10 pt-0">
                                         <Button
-                                            onClick={() => toggle(tool.id)}
+                                            onClick={() => toggle(tool.id, isConnected)}
+                                            disabled={isPending}
                                             variant={isConnected ? "outline" : "default"}
                                             className={cn(
                                                 "w-full h-14 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-[0.95]",
@@ -106,7 +142,11 @@ export default function IntegrationsSettings() {
                                                     : "shadow-primary/20"
                                             )}
                                         >
-                                            {isConnected ? "De-Auth Node" : "Initialize Link"}
+                                            {isPending ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                isConnected ? "De-Auth Node" : "Initialize Link"
+                                            )}
                                         </Button>
                                     </CardFooter>
                                 </Card>

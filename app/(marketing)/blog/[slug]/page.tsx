@@ -12,14 +12,24 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 import { useBlogContentStore } from "@/lib/store/blog-content";
+import { usePageContent } from "@/hooks/usePageContent";
 
 // Remove static mock data
 
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
-    const { content } = useBlogContentStore();
+    const { pageContent, isLoading: isSyncing } = usePageContent('blog');
+    const { content, setContent } = useBlogContentStore();
+    
+    useEffect(() => {
+        if (pageContent?.content) {
+            setContent(pageContent.content);
+        }
+    }, [pageContent, setContent]);
+
     const { scrollYProgress } = useScroll();
     const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -100,7 +110,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                     <div className="absolute inset-0 bg-black/30" />
                 </div>
 
-                <div className="container px-4 mx-auto relative z-10 text-center max-w-5xl">
+                <div className="container px-4 mx-auto relative z-10 text-center ">
                     <motion.div 
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -184,6 +194,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                         ))}
                                     </div>
                                 </div>
+                                <AdSlot position="post-content-bottom" />
                             </div>
 
                             {/* Author Bio Box */}
@@ -222,6 +233,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                                     <li className="pl-4 border-l-2 border-transparent hover:border-border cursor-pointer transition-colors">Conclusion</li>
                                 </ul>
                             </div>
+                            <AdSlot position="blog-sidebar" />
                         </aside>
                     </div>
                 </div>

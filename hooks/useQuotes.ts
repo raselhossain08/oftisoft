@@ -64,6 +64,16 @@ export function useQuotes(quoteId?: string) {
         }
     });
 
+    const downloadProposalMutation = useMutation({
+        mutationFn: quotesAPI.downloadProposal,
+        onSuccess: () => {
+            toast.success("Proposal downloaded successfully");
+        },
+        onError: () => {
+            toast.error("Failed to download proposal");
+        }
+    });
+
     return {
         quotes: quotes as Quote[],
         quote: quote as Quote,
@@ -72,8 +82,10 @@ export function useQuotes(quoteId?: string) {
         updateQuote: (id: string, data: Partial<Quote>) => updateQuoteMutation.mutate({ id, data }),
         updateStatus: (id: string, status: string) => updateStatusMutation.mutate({ id, status }),
         deleteQuote: deleteQuoteMutation.mutate,
+        downloadProposal: (id: string) => downloadProposalMutation.mutate(id),
         isCreating: createQuoteMutation.isPending,
         isUpdating: updateQuoteMutation.isPending,
         isDeleting: deleteQuoteMutation.isPending,
+        isDownloading: downloadProposalMutation.isPending,
     };
 }

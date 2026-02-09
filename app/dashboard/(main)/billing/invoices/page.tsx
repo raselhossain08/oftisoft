@@ -86,16 +86,43 @@ export default function InvoicesPage() {
         }
     };
 
-    const handleDownload = (id: string) => {
-        toast.success(`Downloading invoice ${id}...`);
+    const handleDownload = async (id: string) => {
+        const toastId = toast.loading(`Decrypting financial record ${id}...`, {
+            description: "Establishing secure tunnel to ledger nodes."
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        toast.success("Ready for delivery", {
+            id: toastId,
+            description: "Invoice artifact transmitted successfully."
+        });
+        
+        // Simple mock download
+        const link = document.createElement('a');
+        link.href = '#';
+        link.setAttribute('download', `invoice-${id}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const handlePrint = (id: string) => {
-        toast.info(`Preparing print view for ${id}...`);
+        toast.info(`Generating pixel-perfect render for ${id}...`, {
+            description: "Optimizing for high-fidelity output."
+        });
+        setTimeout(() => window.print(), 1000);
     };
 
     const handleReport = (id: string) => {
-        toast.warning(`Dispute/Report filed for invoice ${id}. Support will contact you shortly.`);
+        toast.promise(
+            new Promise((resolve) => setTimeout(resolve, 2000)),
+            {
+                loading: 'Initializing security audit and dispute protocol...',
+                success: 'Case filed. Our compliance team will review within 24 hours.',
+                error: 'Communication interrupted.',
+            }
+        );
     };
 
     return (
