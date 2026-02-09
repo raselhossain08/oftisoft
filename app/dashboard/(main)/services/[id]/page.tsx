@@ -266,7 +266,8 @@ export default function ServiceOrderDetailsPage() {
         });
     };
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "Not set";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     };
@@ -364,8 +365,8 @@ export default function ServiceOrderDetailsPage() {
                         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                             {[
                                 { label: "Deadline", value: formatDate(project.dueDate), icon: Calendar },
-                                { label: "Budget", value: `$${project.budget.toLocaleString()}`, icon: Briefcase },
-                                { label: "Type", value: project.type || "Custom", icon: Zap },
+                                { label: "Budget", value: project.budget ? `$${project.budget.toLocaleString()}` : "Not set", icon: Briefcase },
+                                { label: "Type", value: "Custom Service", icon: Zap },
                                 { label: "Team", value: `${project.members} ${project.members === 1 ? 'Member' : 'Members'}`, icon: Users },
                             ].map((stat) => (
                                 <div key={stat.label} className="p-4 rounded-2xl bg-background/50 border border-border/50">
@@ -483,7 +484,7 @@ export default function ServiceOrderDetailsPage() {
                             <div className="space-y-2">
                                 <div className="flex justify-between text-xs">
                                     <span className="text-muted-foreground">Budget</span>
-                                    <span className="font-bold">${project.budget.toLocaleString()}</span>
+                                    <span className="font-bold">{project.budget ? `$${project.budget.toLocaleString()}` : "Not set"}</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
                                     <span className="text-muted-foreground">Payment Status</span>

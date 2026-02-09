@@ -187,7 +187,8 @@ export default function MyServiceRequestsPage() {
         }
     };
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "Not set";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     };
@@ -269,7 +270,7 @@ export default function MyServiceRequestsPage() {
                                     <div className="flex items-center gap-2">
                                         <div className="text-right hidden sm:block mr-2">
                                             <p className="text-[10px] font-black text-muted-foreground uppercase mb-1">Budget</p>
-                                            <p className="text-xs font-bold">${req.budget.toLocaleString()}</p>
+                                            <p className="text-xs font-bold">{req.budget ? `$${req.budget.toLocaleString()}` : "Not set"}</p>
                                         </div>
                                         <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center font-black text-lg text-primary/80 border border-border group-hover:bg-primary group-hover:text-white transition-all">
                                             {req.client?.[0] || "P"}
@@ -316,7 +317,7 @@ export default function MyServiceRequestsPage() {
                                                 </div>
                                                 <div className="flex justify-between items-center p-3 rounded-xl bg-muted/30 border border-border/50">
                                                     <span className="text-xs font-bold">Type</span>
-                                                    <span className="text-xs font-black text-primary">{req.type || "Custom Service"}</span>
+                                                    <span className="text-xs font-black text-primary">Custom Service</span>
                                                 </div>
                                                 <div className="flex justify-between items-center p-3 rounded-xl bg-muted/30 border border-border/50">
                                                     <span className="text-xs font-bold">Created</span>
