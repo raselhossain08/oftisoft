@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +52,7 @@ export default function StatusPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Pinging Cloud Proxies...
                 </div>
             </div>
@@ -76,14 +76,14 @@ export default function StatusPage() {
                 {/* Header Section */}
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-green-500/30 bg-green-500/5 text-green-400 font-black italic tracking-[0.3em] text-[10px] uppercase shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-green-500/30 bg-green-500/5 text-green-400 font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(34,197,94,0.1)]">
                             {header.badge}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-black italic tracking-tighter text-white"
+                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {header.title.split(" ").map((word, i) => (
                             <span key={i} className={cn(word.toLowerCase() === "status." ? "text-green-500 NOT-italic" : "")}>
@@ -99,8 +99,8 @@ export default function StatusPage() {
                                 <div className="absolute inset-0 animate-ping bg-green-500/20 rounded-full scale-150" />
                              </div>
                              <div className="text-left">
-                                <h3 className="text-2xl font-black italic text-white tracking-tight">{header.mainStatus.title}</h3>
-                                <p className="text-xs font-black uppercase text-green-400/60 tracking-widest italic">{header.mainStatus.description}</p>
+                                <h3 className="text-2xl font-semibold text-white tracking-tight">{header.mainStatus.title}</h3>
+                                <p className="text-xs font-semibold text-green-400/60 tracking-widest">{header.mainStatus.description}</p>
                              </div>
                         </div>
                     </Card>
@@ -129,15 +129,15 @@ export default function StatusPage() {
                                                 )}>
                                                     {system.status}
                                                 </Badge>
-                                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest italic">{system.uptime} Uptime</span>
+                                                <span className="text-[10px] font-semibold text-white/20 tracking-widest">{system.uptime} Uptime</span>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            <h3 className="text-xl font-black italic text-white tracking-tight">{system.name}</h3>
+                                            <h3 className="text-xl font-semibold text-white tracking-tight">{system.name}</h3>
                                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
                                                 <div className="flex items-center gap-2">
                                                     <Signal size={12} className="text-white/20" />
-                                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest italic">Latency</span>
+                                                    <span className="text-[10px] font-semibold text-white/40 tracking-widest">Latency</span>
                                                 </div>
                                                 <span className="text-sm font-mono font-bold text-white/60">{system.latency}</span>
                                             </div>
@@ -153,8 +153,8 @@ export default function StatusPage() {
                 <Card className="border-white/5 bg-white/[0.01] rounded-[40px] overflow-hidden shadow-2xl">
                     <CardHeader className="p-10 md:p-14 border-b border-white/5">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-2xl md:text-4xl font-black italic tracking-tighter text-white">{incidents.title}</h3>
-                            <Button variant="ghost" className="text-[10px] font-black uppercase text-primary italic">View Full Log <ChevronRight size={14} className="ml-2" /></Button>
+                            <h3 className="text-2xl md:text-4xl font-semibold tracking-tighter text-white">{incidents.title}</h3>
+                            <Button variant="ghost" className="text-[10px] font-semibold text-primary">View Full Log <ChevronRight size={14} className="ml-2" /></Button>
                         </div>
                     </CardHeader>
                     <CardContent className="p-10 md:p-14 space-y-12">
@@ -166,11 +166,11 @@ export default function StatusPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-4">
-                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-widest italic">{incident.date}</span>
-                                        <Badge className="bg-white/5 text-white/60 text-[8px] font-black uppercase border-none">{incident.status}</Badge>
+                                        <span className="text-[10px] font-semibold text-white/20 tracking-widest">{incident.date}</span>
+                                        <Badge className="bg-white/5 text-white/60 text-[8px] font-semibold border-none">{incident.status}</Badge>
                                     </div>
-                                    <h4 className="text-xl font-bold italic text-white tracking-tight">{incident.title}</h4>
-                                    <p className="text-sm text-muted-foreground font-medium italic leading-relaxed">{incident.desc}</p>
+                                    <h4 className="text-xl font-bold text-white tracking-tight">{incident.title}</h4>
+                                    <p className="text-sm text-muted-foreground font-medium leading-relaxed">{incident.desc}</p>
                                 </div>
                             </div>
                         ))}
@@ -179,9 +179,9 @@ export default function StatusPage() {
 
                 {/* Monitoring Note */}
                 <div className="text-center pt-12 space-y-4">
-                    <p className="text-muted-foreground font-medium italic">{monitoring.note}</p>
+                    <p className="text-muted-foreground font-medium">{monitoring.note}</p>
                     <div className="flex items-center gap-4 justify-center">
-                        <Badge variant="outline" className="border-white/10 bg-white/5 text-[10px] font-black italic px-4 py-1 flex gap-2 items-center">
+                        <Badge variant="outline" className="border-white/10 bg-white/5 text-[10px] font-semibold px-4 py-1 flex gap-2 items-center">
                             <RefreshCw size={12} className="animate-spin text-primary" />
                             {monitoring.nextSyncText}
                         </Badge>
@@ -191,3 +191,4 @@ export default function StatusPage() {
         </div>
     );
 }
+

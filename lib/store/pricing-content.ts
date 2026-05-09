@@ -53,70 +53,70 @@ interface PricingContentState {
 
 const defaultContent: PricingPageContent = {
     header: {
-        badge: "Fiscal Investment Matrix",
+        badge: "Pricing",
         titlePrefix: "Pricing",
-        titleHighlight: "Protocol",
-        description: "Secure high-fidelity development artifacts and architectural support via our subscription nodes.",
+        titleHighlight: "That fits",
+        description: "Straightforward pricing for content, website, and SEO work that actually needs to be used.",
         videoUrl: ""
     },
     plans: [
         {
             id: "plan-1",
-            name: "Starter Sync",
-            description: "Perfect for individual builders and rapid prototyping.",
+            name: "Starter",
+            description: "Best for one-page sites or a small content refresh.",
             price: "29",
-            period: "MoonCycle",
+            period: "Month",
             features: [
-                "Access to 5 Premium UI Kits",
-                "Next.js 15 Starter Templates",
-                "Basic Community Support",
-                "Global Edge Distribution",
-                "2026 Aesthetic Design Tokens"
+                "Homepage rewrite",
+                "SEO title and description",
+                "One content revision",
+                "Basic image text guidance",
+                "Email support"
             ],
-            buttonText: "Initiate Starter Node",
+            buttonText: "Choose Starter",
             popular: false,
             order: 1
         },
         {
             id: "plan-2",
-            name: "Architect Core",
-            description: "Professional grade tools for established development operations.",
+            name: "Growth",
+            description: "Best for multi-page sites and blog-ready content systems.",
             price: "99",
-            period: "MoonCycle",
+            period: "Month",
             features: [
-                "All-Access Asset Library",
-                "Neural Engine Priority Access",
-                "24/7 Architectural Support",
-                "Custom API Key Deployment",
-                "Advanced Identity Governance",
-                "Multi-Tenant SaaS Kits"
+                "Full marketing page set",
+                "Blog structure and SEO fields",
+                "Image text descriptions",
+                "Priority revision round",
+                "Content planning support",
+                "Launch checklist"
             ],
-            buttonText: "Activate Core Node",
+            buttonText: "Choose Growth",
             popular: true,
             order: 2
         },
         {
             id: "plan-3",
-            name: "Enterprise Edge",
-            description: "Bespoke infrastructure solutions for hyper-scale enterprises.",
+            name: "Custom",
+            description: "Best for teams that want a full content and website rollout.",
             price: "299",
-            period: "MoonCycle",
+            period: "Month",
             features: [
-                "White-Label Implementation",
-                "Private Edge Proxy Setup",
-                "Dedicated Engineer Support",
-                "Custom RAG System Forge",
-                "Infinite Scale Guarantees",
-                "On-Premise Deployment Ops"
+                "Complete website rewrite",
+                "Custom page architecture",
+                "SEO and content audit",
+                "Ongoing update support",
+                "Priority communication",
+                "Long-term content roadmap"
             ],
-            buttonText: "Request Enterprise Sync",
+            buttonText: "Request Quote",
             popular: false,
             order: 3
         }
     ],
     consultation: {
-        text: "Need a custom deployment configuration?",
-        linkText: "Initiate Consultation Node"
+        text: "Need a custom scope or larger rollout?",
+        linkText: "Book a consultation"
     },
     lastUpdated: new Date().toISOString()
 };
@@ -124,7 +124,7 @@ const defaultContent: PricingPageContent = {
 export const usePricingContentStore = create<PricingContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -169,7 +169,7 @@ export const usePricingContentStore = create<PricingContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'pricing-content-storage',
@@ -177,3 +177,4 @@ export const usePricingContentStore = create<PricingContentState>()(
         }
     )
 );
+

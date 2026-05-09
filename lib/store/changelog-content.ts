@@ -46,24 +46,24 @@ interface ChangelogContentState {
 
 const defaultContent: ChangelogPageContent = {
     header: {
-        badge: "Evolution Log",
+        badge: "Change Log",
         titlePrefix: "Changelog",
         titleSuffix: ".",
-        description: "Tracking the architectural development and platform iterative cycles of the Ofitsoft ecosystem."
+        description: "Tracking the site updates, content improvements, and page rewrites for Oftisoft."
     },
     updates: [
         {
             id: "v2.4.0",
             version: "v2.4.0",
             date: "Feb 05, 2026",
-            title: "Neural Engine Integration",
-            description: "Implemented a new core processing engine with sub-10ms response times for all AI-driven artifacts.",
+            title: "Marketing content refresh",
+            description: "Rewrote the main site pages with original brand copy and clearer SEO structure.",
             category: "Major",
             changes: [
-                "Introduced Headless Forge for rapid component deployment.",
-                "Visual editor now supports real-time multi-device simulation.",
-                "Optimized global edge distribution protocols.",
-                "Added support for 2026 aesthetics design tokens."
+                "Updated the home and about pages.",
+                "Replaced generic language across core sections.",
+                "Improved page titles and descriptions.",
+                "Standardized image text and CTA copy."
             ],
             iconName: "Sparkles",
             isActive: true
@@ -72,13 +72,13 @@ const defaultContent: ChangelogPageContent = {
             id: "v2.3.5",
             version: "v2.3.5",
             date: "Jan 28, 2026",
-            title: "Financial Infrastructure Hardening",
-            description: "Significant upgrades to the billing and settlement system for multi-regional support.",
+            title: "Support and privacy updates",
+            description: "Refined support answers and privacy language so the site reads more clearly.",
             category: "Update",
             changes: [
-                "Enhanced MFA protocols for admin finance dashboards.",
-                "Integrated cross-border fiscal reconciliation nodes.",
-                "Improved PDF generation latency for invoices."
+                "Simplified FAQ wording.",
+                "Updated privacy text.",
+                "Aligned support copy with the new brand voice."
             ],
             iconName: "ShieldCheck",
             isActive: true
@@ -87,13 +87,13 @@ const defaultContent: ChangelogPageContent = {
             id: "v2.3.0",
             version: "v2.3.0",
             date: "Jan 15, 2026",
-            title: "Marketplace Expansion",
-            description: "Launching the new category matrix for bespoke development services.",
+            title: "Content system launch",
+            description: "Added structured content stores for the marketing pages and blog library.",
             category: "Feature",
             changes: [
-                "Added service request quotes and proposal tracking.",
-                "Unified digital library interface for asset management.",
-                "New glassmorphic UI kit for e-commerce artifacts."
+                "Introduced reusable page content models.",
+                "Added SEO-aware blog post data.",
+                "Aligned page fallbacks with brand copy."
             ],
             iconName: "Box",
             isActive: true
@@ -105,7 +105,7 @@ const defaultContent: ChangelogPageContent = {
 export const useChangelogContentStore = create<ChangelogContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -144,7 +144,7 @@ export const useChangelogContentStore = create<ChangelogContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'changelog-content-storage',
@@ -152,3 +152,4 @@ export const useChangelogContentStore = create<ChangelogContentState>()(
         }
     )
 );
+

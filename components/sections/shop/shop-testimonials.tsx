@@ -84,7 +84,7 @@ export function ShopTestimonials() {
                                             ))}
                                         </div>
                                         
-                                        <p className="text-xl italic mb-10 leading-relaxed font-medium text-foreground/90 flex-grow">
+                                        <p className="text-xl mb-10 leading-relaxed font-medium text-foreground/90 flex-grow">
                                             "{t.content}"
                                         </p>
                                         
@@ -100,7 +100,7 @@ export function ShopTestimonials() {
                                             </div>
                                             <div>
                                                 <p className="font-bold text-lg group-hover/card:text-primary transition-colors">{t.name}</p>
-                                                <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">{t.role}</p>
+                                                <p className="text-sm text-muted-foreground font-medium tracking-wider">{t.role}</p>
                                             </div>
                                         </div>
                                     </CardContent>

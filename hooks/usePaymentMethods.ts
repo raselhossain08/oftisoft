@@ -77,7 +77,7 @@ export function usePaymentMethods() {
         paymentMethods,
         isLoading,
         error,
-        fetchPaymentMethods,
+        refetch: fetchPaymentMethods,
         addPaymentMethod,
         setDefaultMethod,
         deleteMethod,

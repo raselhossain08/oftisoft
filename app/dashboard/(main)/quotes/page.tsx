@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
     FileText, 
     Clock, 
@@ -131,11 +132,20 @@ const RequestQuoteDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     );
 };
 
-export default function QuotesPage() {
+function QuotesPageContent() {
+    const searchParams = useSearchParams();
     const { quotes, isLoading, updateStatus, downloadProposal, isDownloading } = useQuotes();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedQuote, setSelectedQuote] = useState<any>(null);
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+
+    useEffect(() => {
+        const quoteId = searchParams.get("quote");
+        if (quoteId && quotes?.length) {
+            const found = quotes.find((q: { id: string }) => q.id === quoteId);
+            if (found) setSelectedQuote(found);
+        }
+    }, [searchParams, quotes]);
 
     const filteredQuotes = quotes?.filter(q => 
         q.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -167,7 +177,7 @@ export default function QuotesPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black italic tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         Quotes & Proposals
                     </h1>
                     <p className="text-muted-foreground font-medium mt-1">Manage custom build requests, professional side-by-side proposals, and project timelines.</p>
@@ -219,7 +229,7 @@ export default function QuotesPage() {
                                             {quote.status}
                                         </Badge>
                                     </div>
-                                    <h3 className="font-black italic text-lg leading-tight mb-2 group-hover:text-primary transition-colors">{quote.serviceType}</h3>
+                                    <h3 className="font-black text-lg leading-tight mb-2 group-hover:text-primary transition-colors">{quote.serviceType}</h3>
                                     <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase">
                                         <div className="flex items-center gap-1.5"><Calendar size={12} /> {formatDate(quote.createdAt)}</div>
                                         <div className="flex items-center gap-1.5"><DollarSign size={12} /> {quote.budget}</div>
@@ -256,7 +266,7 @@ export default function QuotesPage() {
                                                     <span className="text-xs font-black text-primary uppercase tracking-widest">#{selectedQuote.id.substring(0, 8)}</span>
                                                     <Badge variant="outline" className="rounded-lg h-5 text-[8px] font-black uppercase">Service Request</Badge>
                                                 </div>
-                                                <h2 className="text-4xl font-black italic tracking-tight">{selectedQuote.serviceType}</h2>
+                                                <h2 className="text-4xl font-black tracking-tight">{selectedQuote.serviceType}</h2>
                                             </div>
                                             <div className="flex gap-3">
                                                 {selectedQuote.status === "responded" && (
@@ -269,7 +279,7 @@ export default function QuotesPage() {
                                                             <XIcon className="w-5 h-5 mr-2" /> Decline
                                                         </Button>
                                                         <Button 
-                                                            className="rounded-2xl h-14 px-10 font-black italic bg-primary text-white shadow-xl shadow-primary/20"
+                                                            className="rounded-2xl h-14 px-10 font-black bg-primary text-white shadow-xl shadow-primary/20"
                                                             onClick={() => handleAction(selectedQuote.id, "accepted")}
                                                         >
                                                             <Check className="w-5 h-5 mr-2" /> Accept Proposal
@@ -277,7 +287,7 @@ export default function QuotesPage() {
                                                     </>
                                                 )}
                                                 {selectedQuote.status === "accepted" && (
-                                                    <Badge className="bg-green-500 text-white h-14 px-8 rounded-2xl font-black italic text-lg shadow-xl shadow-green-500/20">
+                                                    <Badge className="bg-green-500 text-white h-14 px-8 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20">
                                                         <ShieldCheck className="w-6 h-6 mr-3" /> Project Active
                                                     </Badge>
                                                 )}
@@ -287,10 +297,10 @@ export default function QuotesPage() {
                                     <CardContent className="p-10 space-y-10">
                                         {/* Original Request */}
                                         <div className="space-y-4">
-                                            <h4 className="text-[10px] font-black uppercase text-muted-foreground italic flex items-center gap-2">
+                                            <h4 className="text-[10px] font-black uppercase text-muted-foreground  flex items-center gap-2">
                                                 <Briefcase size={14} className="text-primary" /> Project Brief
                                             </h4>
-                                            <p className="text-lg font-medium leading-relaxed italic text-foreground/80 bg-muted/20 p-8 rounded-[32px] border border-border/50">
+                                            <p className="text-lg font-medium leading-relaxed  text-foreground/80 bg-muted/20 p-8 rounded-[32px] border border-border/50">
                                                 "{selectedQuote.description}"
                                             </p>
                                         </div>
@@ -301,20 +311,20 @@ export default function QuotesPage() {
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                     <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 space-y-1">
                                                         <p className="text-[10px] font-black text-primary uppercase">Estimated Investment</p>
-                                                        <p className="text-2xl font-black italic">${selectedQuote.proposal.price.toLocaleString()}</p>
+                                                        <p className="text-2xl font-black">${selectedQuote.proposal.price.toLocaleString()}</p>
                                                     </div>
                                                     <div className="p-6 rounded-3xl bg-orange-500/5 border border-orange-500/10 space-y-1">
                                                         <p className="text-[10px] font-black text-orange-500 uppercase">Deployment Time</p>
-                                                        <p className="text-2xl font-black italic">{selectedQuote.proposal.estimatedDays} Days</p>
+                                                        <p className="text-2xl font-black">{selectedQuote.proposal.estimatedDays} Days</p>
                                                     </div>
                                                     <div className="p-6 rounded-3xl bg-blue-500/5 border border-blue-500/10 space-y-1">
                                                         <p className="text-[10px] font-black text-blue-500 uppercase">Proposal Validity</p>
-                                                        <p className="text-2xl font-black italic">{selectedQuote.proposal.validUntil}</p>
+                                                        <p className="text-2xl font-black">{selectedQuote.proposal.validUntil}</p>
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-4">
-                                                    <h4 className="text-[10px] font-black uppercase text-muted-foreground italic flex items-center gap-2">
+                                                    <h4 className="text-[10px] font-black uppercase text-muted-foreground  flex items-center gap-2">
                                                         <Zap size={14} className="text-primary" /> Technical Approach & Scope
                                                     </h4>
                                                     <div className="p-8 rounded-[32px] bg-card/50 border border-border/50 text-muted-foreground font-medium leading-relaxed">
@@ -324,7 +334,7 @@ export default function QuotesPage() {
 
                                                 {/* Timeline / Milestones */}
                                                 <div className="space-y-6">
-                                                    <h4 className="text-[10px] font-black uppercase text-muted-foreground italic flex items-center gap-2">
+                                                    <h4 className="text-[10px] font-black uppercase text-muted-foreground  flex items-center gap-2">
                                                         <Timer size={14} className="text-primary" /> Project Execution Timeline
                                                     </h4>
                                                     <div className="relative space-y-4 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-0.5 before:bg-border/50">
@@ -342,7 +352,7 @@ export default function QuotesPage() {
                                                                     m.status === "current" ? "bg-primary/[0.03] border-primary/20 shadow-lg shadow-primary/5" : "bg-card/30 border-border/50"
                                                                 )}>
                                                                     <div className="flex justify-between items-center">
-                                                                        <h5 className="font-bold italic">{m.title}</h5>
+                                                                        <h5 className="font-bold ">{m.title}</h5>
                                                                         <span className="text-[10px] font-black uppercase text-muted-foreground bg-muted/50 px-3 py-1 rounded-lg">Week {m.week}</span>
                                                                     </div>
                                                                 </div>
@@ -355,7 +365,7 @@ export default function QuotesPage() {
                                             <div className="py-20 text-center space-y-6 bg-muted/5 rounded-[40px] border-2 border-dashed border-border/50 animate-pulse">
                                                 <Clock className="w-16 h-16 text-muted-foreground mx-auto opacity-20" />
                                                 <div className="space-y-2">
-                                                    <h3 className="text-2xl font-black italic">Awaiting Architect Analysis</h3>
+                                                    <h3 className="text-2xl font-black">Awaiting Architect Analysis</h3>
                                                     <p className="text-muted-foreground text-sm font-medium max-w-sm mx-auto">
                                                         Our senior engineers are currently evaluating your request payload. A detailed proposal will be de-queued shortly.
                                                     </p>
@@ -363,7 +373,7 @@ export default function QuotesPage() {
                                             </div>
                                         )}
                                     </CardContent>
-                                    <div className="p-10 pt-0 flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase italic border-t border-border/50 pt-8 mt-5">
+                                    <div className="p-10 pt-0 flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase  border-t border-border/50 pt-8 mt-5">
                                         <div className="flex items-center gap-6">
                                             <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-green-500" /> Secure Protocol ACTIVE</span>
                                             <span className="flex items-center gap-1.5"><Calendar size={14} className="text-primary" /> Request Node Synced: {formatDate(selectedQuote.createdAt)}</span>
@@ -384,7 +394,7 @@ export default function QuotesPage() {
                             <div className="h-[600px] flex flex-col items-center justify-center text-center space-y-6 bg-card/20 backdrop-blur-sm rounded-[50px] border-2 border-dashed border-border/50">
                                 <FileText className="w-20 h-20 text-primary opacity-20" />
                                 <div className="space-y-2">
-                                    <h3 className="text-2xl font-black italic">Proposal Command Center</h3>
+                                    <h3 className="text-2xl font-black">Proposal Command Center</h3>
                                     <p className="text-muted-foreground font-medium max-w-xs">Select a request node from the vector list to analyze proposals and timelines.</p>
                                 </div>
                             </div>
@@ -403,5 +413,17 @@ export default function QuotesPage() {
                 )}
             </AnimatePresence>
         </div>
+    );
+}
+
+export default function QuotesPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        }>
+            <QuotesPageContent />
+        </Suspense>
     );
 }

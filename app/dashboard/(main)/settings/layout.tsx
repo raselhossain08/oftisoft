@@ -1,51 +1,41 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { 
-    User, Lock, Bell, LogOut, Blocks, CreditCard, Settings, ChevronRight, Menu, Globe, Zap
-} from "lucide-react";
+import { User, Lock, Bell, LogOut, Blocks, CreditCard, Settings, ChevronRight, Menu, Globe } from "lucide-react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { authAPI } from "@/lib/api";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const SETTINGS_TABS = [
-    { id: "profile", label: "Profile", icon: User, href: "/dashboard/settings/profile", description: "Identity & Metadata" },
-    { id: "billing", label: "Billing", icon: CreditCard, href: "/dashboard/settings/billing", description: "Financial Settlement" },
-    { id: "security", label: "Security", icon: Lock, href: "/dashboard/settings/security", description: "Logic & Encryption" },
-    { id: "notifications", label: "Notifications", icon: Bell, href: "/dashboard/settings/notifications", description: "Signal Protocols" },
-    { id: "payments", label: "Payments", icon: Globe, href: "/dashboard/settings/payments", description: "Gateway Configuration" },
-    { id: "integrations", label: "Integrations", icon: Blocks, href: "/dashboard/settings/integrations", description: "Neural Connections" },
-    { id: "system", label: "System", icon: Settings, href: "/dashboard/settings/system", description: "Core Topology" },
+    { id: "profile", label: "Profile", icon: User, href: "/dashboard/settings/profile", description: "Account & avatar", roles: ["Viewer", "Editor", "Admin", "Support"] },
+    { id: "billing", label: "Billing", icon: CreditCard, href: "/dashboard/settings/billing", description: "Payment methods", roles: ["Viewer", "Editor", "Admin", "Support"] },
+    { id: "security", label: "Security", icon: Lock, href: "/dashboard/settings/security", description: "Password & 2FA", roles: ["Viewer", "Editor", "Admin", "Support"] },
+    { id: "notifications", label: "Notifications", icon: Bell, href: "/dashboard/settings/notifications", description: "Alerts & preferences", roles: ["Viewer", "Editor", "Admin", "Support"] },
+    { id: "payments", label: "Payments", icon: Globe, href: "/dashboard/settings/payments", description: "Gateway config", roles: ["Admin"] },
+    { id: "integrations", label: "Integrations", icon: Blocks, href: "/dashboard/settings/integrations", description: "API & connections", roles: ["Admin"] },
+    { id: "system", label: "System", icon: Settings, href: "/dashboard/settings/system", description: "Admin controls", roles: ["Admin"] },
 ];
 
-export default function SettingsLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const router = useRouter();
+    const { user, logout } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const activeRole = user?.role || "Viewer";
+    const visibleTabs = useMemo(
+        () => SETTINGS_TABS.filter((tab) => tab.roles.includes(activeRole)),
+        [activeRole]
+    );
 
     const handleLogout = async () => {
         try {
             setIsLoggingOut(true);
-            await authAPI.logout();
-            toast.success("Identity De-synchronized", {
-                description: "Your session has been securely terminated."
-            });
-            router.push("/auth/login");
-        } catch (error) {
-            toast.error("Termination Failed", {
-                description: "The neural link remains active. Please retry."
-            });
+            await logout();
         } finally {
             setIsLoggingOut(false);
         }
@@ -61,7 +51,7 @@ export default function SettingsLayout({
                     </div>
                     <div>
                         <h1 className="font-bold text-lg">Settings</h1>
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Core Configuration</p>
+                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Account settings</p>
                     </div>
                 </div>
                 <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -72,10 +62,10 @@ export default function SettingsLayout({
                     </SheetTrigger>
                     <SheetContent side="left" className="w-[300px] p-6">
                         <SheetHeader className="pb-8 border-b border-border/50">
-                            <SheetTitle className="text-2xl font-black tracking-tighter">Oftisoft Node</SheetTitle>
+                            <SheetTitle className="text-2xl font-black tracking-tighter">Settings</SheetTitle>
                         </SheetHeader>
                         <div className="space-y-2 mt-8">
-                            {SETTINGS_TABS.map((tab) => {
+                            {visibleTabs.map((tab) => {
                                 const isActive = pathname.startsWith(tab.href);
                                 return (
                                     <NextLink
@@ -109,7 +99,7 @@ export default function SettingsLayout({
                                 <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
                                     {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
                                 </div>
-                                <span>{isLoggingOut ? "Purging Link..." : "Sign Out Instance"}</span>
+                                <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
                             </button>
                         </div>
                     </SheetContent>
@@ -125,12 +115,12 @@ export default function SettingsLayout({
                         </div>
                         <div>
                             <h1 className="text-2xl font-black tracking-tight">Settings</h1>
-                            <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Control Matrix</p>
+                            <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Account settings</p>
                         </div>
                     </div>
 
                     <nav className="space-y-1">
-                        {SETTINGS_TABS.map((tab) => {
+                        {visibleTabs.map((tab) => {
                             const isActive = pathname.startsWith(tab.href);
                             return (
                                 <NextLink
@@ -172,7 +162,7 @@ export default function SettingsLayout({
                             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
                                 {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
                             </div>
-                            <span>{isLoggingOut ? "Purging Link..." : "Sign Out Instance"}</span>
+                            <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
                         </button>
                     </div>
                 </aside>

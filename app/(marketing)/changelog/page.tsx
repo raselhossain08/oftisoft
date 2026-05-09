@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
@@ -28,7 +28,7 @@ export default function ChangelogPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-background flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Initializing History Log...
                 </div>
             </div>
@@ -52,17 +52,17 @@ export default function ChangelogPage() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <Badge variant="outline" className="px-4 py-1 rounded-full border-primary/20 bg-primary/5 text-primary font-black italic tracking-widest text-[10px] uppercase">
-                            {header?.badge || "Evolution Log"}
+                        <Badge variant="outline" className="px-4 py-1 rounded-full border-primary/20 bg-primary/5 text-primary font-semibold tracking-widest text-[10px]">
+                            {header?.badge ?? ""}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-5xl md:text-7xl font-black italic tracking-tighter"
+                        className="text-5xl md:text-7xl font-semibold tracking-tighter"
                     >
-                        {header?.titlePrefix || "Changelog"}<span className="text-primary NOT-italic">{header?.titleSuffix || "."}</span>
+                        {header?.titlePrefix ?? ""}<span className="text-primary">{header?.titleSuffix ?? ""}</span>
                     </motion.h1>
                     <motion.p 
                         initial={{ opacity: 0 }}
@@ -70,13 +70,13 @@ export default function ChangelogPage() {
                         transition={{ delay: 0.4 }}
                         className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto"
                     >
-                        {header?.description || "Tracking the architectural development and platform iterative cycles of the Ofitsoft ecosystem."}
+                        {header?.description ?? ""}
                     </motion.p>
                 </div>
 
                 <div className="relative space-y-12 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-px before:bg-gradient-to-b before:from-primary/50 before:via-border before:to-transparent">
                     {updates.map((update, idx) => {
-                        const Icon = iconMap[update.iconName || 'Sparkles'] || Sparkles;
+                        const Icon = iconMap[update.iconName ?? ''] || Sparkles;
                         return (
                         <motion.div 
                             key={update.id}
@@ -100,22 +100,22 @@ export default function ChangelogPage() {
                                                 )}>
                                                     {update.category}
                                                 </Badge>
-                                                <span className="text-[10px] font-black text-muted-foreground uppercase">{update.date}</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground">{update.date}</span>
                                             </div>
-                                            <CardTitle className="text-2xl md:text-3xl font-black italic">{update.title}</CardTitle>
+                                            <CardTitle className="text-2xl md:text-3xl font-semibold">{update.title}</CardTitle>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-2xl font-black font-mono text-primary/40 group-hover:text-primary transition-colors duration-500">{update.version}</span>
+                                            <span className="text-2xl font-semibold font-mono text-primary/40 group-hover:text-primary transition-colors duration-500">{update.version}</span>
                                         </div>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-8 md:p-10 space-y-8">
-                                    <p className="text-lg text-muted-foreground font-medium leading-relaxed italic">
+                                    <p className="text-lg text-muted-foreground font-medium leading-relaxed">
                                         {update.description}
                                     </p>
                                     
                                     <div className="space-y-4">
-                                        <h4 className="text-[10px] font-black uppercase text-primary italic tracking-widest flex items-center gap-2">
+                                        <h4 className="text-[10px] font-semibold text-primary tracking-widest flex items-center gap-2">
                                             <Icon size={14} /> Refinements & Features
                                         </h4>
                                         <ul className="grid md:grid-cols-1 gap-3">
@@ -138,7 +138,7 @@ export default function ChangelogPage() {
                     whileInView={{ opacity: 1 }}
                     className="pt-12 text-center"
                 >
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic bg-muted/30 py-3 px-6 rounded-full w-fit mx-auto border border-border/50">
+                    <p className="text-[10px] font-semibold tracking-widest text-muted-foreground bg-muted/30 py-3 px-6 rounded-full w-fit mx-auto border border-border/50">
                         Operational nodes synced. End of Log.
                     </p>
                 </motion.div>
@@ -148,3 +148,4 @@ export default function ChangelogPage() {
 }
 
 import { cn } from "@/lib/utils";
+

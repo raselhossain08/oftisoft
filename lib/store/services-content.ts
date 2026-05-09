@@ -217,7 +217,7 @@ const defaultContent: ServicesPageContent = {
 export const useServicesContentStore = create<ServicesContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -402,7 +402,7 @@ export const useServicesContentStore = create<ServicesContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'services-content-storage',
@@ -410,3 +410,4 @@ export const useServicesContentStore = create<ServicesContentState>()(
         }
     )
 );
+

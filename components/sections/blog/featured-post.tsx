@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Clock, ArrowRight, Sparkles, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,16 @@ export default function FeaturedPost() {
     const y = useTransform(scrollY, [0, 500], [0, 150]);
     const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
+    const handleNext = () => {
+        if (featuredPosts.length === 0) return;
+        setActiveIndex((prev) => (prev + 1) % featuredPosts.length);
+    };
+
+    const handlePrev = () => {
+        if (featuredPosts.length === 0) return;
+        setActiveIndex((prev) => (prev - 1 + featuredPosts.length) % featuredPosts.length);
+    };
+
     useEffect(() => {
         const timer = setInterval(() => {
             handleNext();
@@ -31,13 +42,10 @@ export default function FeaturedPost() {
         return () => clearInterval(timer);
     }, [activeIndex]);
 
-    const handleNext = () => {
-        setActiveIndex((prev) => (prev + 1) % featuredPosts.length);
-    };
-
-    const handlePrev = () => {
-        setActiveIndex((prev) => (prev - 1 + featuredPosts.length) % featuredPosts.length);
-    };
+    // Guard against empty featured posts
+    if (featuredPosts.length === 0) {
+        return null;
+    }
 
     return (
         <section className="relative h-[85vh] w-full overflow-hidden flex items-end justify-center bg-black">
@@ -56,10 +64,17 @@ export default function FeaturedPost() {
                         >
                             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
                             <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dimmer */}
-                            <div 
-                                className="w-full h-full bg-cover bg-center"
-                                style={{ backgroundImage: `url('${post.coverImage || '/placeholder-image.jpg'}')` }}
-                            />
+                            {post.coverImage ? (
+                                <Image
+                                    src={post.coverImage}
+                                    alt={post.title}
+                                    fill
+                                    className="object-cover"
+                                    priority={index === activeIndex}
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-black" />
+                            )}
                         </motion.div>
                     )
                 ))}
@@ -93,7 +108,7 @@ export default function FeaturedPost() {
                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                         exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        className=" mx-auto"
+                        className="mx-auto"
                     >
                         {/* Meta Tags */}
                         <div className="flex flex-wrap gap-3 mb-6">
@@ -109,9 +124,9 @@ export default function FeaturedPost() {
                                     className={cn(
                                         "px-3 py-1 text-white backdrop-blur-md border border-white/10 shadow-lg bg-gradient-to-r border-0",
                                         featuredPosts[activeIndex].gradient || "from-blue-600 to-violet-600"
-                                    )}
+                                    )} 
                                 >
-                                    {categories.find(c => c.id === featuredPosts[activeIndex].category)?.label || "Article"}
+                                    {categories.find(c => c.id === featuredPosts[activeIndex].category)?.label ?? ""}
                                 </Badge>
                             </motion.div>
                         </div>
@@ -125,11 +140,11 @@ export default function FeaturedPost() {
                         <div className="flex flex-col sm:flex-row sm:items-center gap-6 md:gap-8 text-white/90">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-white/20 to-white/5 border border-white/20 backdrop-blur flex items-center justify-center font-bold text-white shadow-lg text-sm md:text-base">
-                                    {authors.find(a => a.id === featuredPosts[activeIndex].authorId)?.initials || "Au"}
+                                    {authors.find(a => a.id === featuredPosts[activeIndex].authorId)?.initials ?? ""}
                                 </div>
                                 <div>
-                                    <p className="text-sm md:text-base font-bold text-white">{authors.find(a => a.id === featuredPosts[activeIndex].authorId)?.name || "Unknown Author"}</p>
-                                    <p className="text-[10px] md:text-xs text-white/60 uppercase tracking-widest">Author</p>
+                                    <p className="text-sm md:text-base font-bold text-white">{authors.find(a => a.id === featuredPosts[activeIndex].authorId)?.name ?? ""}</p>
+                                    <p className="text-[10px] md:text-xs text-white/60 tracking-widest">Author</p>
                                 </div>
                             </div>
 

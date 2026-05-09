@@ -8,19 +8,18 @@ import {
     ShoppingCart, 
     Trash2, 
     TrendingDown, 
-    ExternalLink, 
     Star,
-    ChevronRight,
     Search,
     Filter,
     X,
     ArrowUpRight,
-    Zap,
     ShieldCheck,
-    Check
+    Loader2,
+    Package,
+    Plus
 } from "lucide-react";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,9 +32,10 @@ import Link from "next/link";
 import { useFavorites } from "@/hooks/useFavorites";
 
 export default function FavoritesPage() {
-    const { wishlist, isLoading, removeFromWishlist } = useFavorites();
+    const { wishlist, isLoading, error, isError, refresh, removeFromWishlist } = useFavorites();
     const [compareList, setCompareList] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [activeTab, setActiveTab] = useState("saved");
 
     const toggleCompare = (id: string) => {
         if (compareList.includes(id)) {
@@ -62,13 +62,25 @@ export default function FavoritesPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black italic tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         Wishlist & Curator
                     </h1>
                     <p className="text-muted-foreground font-medium mt-1">Manage your curated product selection, track price volatility and compare builds.</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" className="rounded-xl gap-2 font-bold h-11 border-border/50 bg-card/50 backdrop-blur-sm">
+                <div className="flex flex-wrap gap-2">
+                    <Button 
+                        variant="outline" 
+                        className="rounded-xl gap-2 font-bold h-11 border-border/50 bg-card/50 backdrop-blur-sm"
+                        onClick={refresh}
+                        disabled={isLoading}
+                    >
+                        <Loader2 className={cn("w-4 h-4", isLoading && "animate-spin")} /> Refresh
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        className="rounded-xl gap-2 font-bold h-11 border-border/50 bg-card/50 backdrop-blur-sm"
+                        onClick={() => setActiveTab("alerts")}
+                    >
                         <Bell className="w-4 h-4" /> Signal Alerts
                     </Button>
                     <Link href="/shop" passHref>
@@ -79,7 +91,7 @@ export default function FavoritesPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="saved" className="space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl h-14 w-fit border border-border">
                     <TabsTrigger value="saved" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8">
                         <Heart className="w-4 h-4" /> Saved Items
@@ -88,9 +100,8 @@ export default function FavoritesPage() {
                         <ArrowRightLeft className="w-4 h-4" /> Comparison Engine
                         {compareList.length > 0 && <Badge className="ml-2 h-5 min-w-5 px-1 bg-primary text-white border-none">{compareList.length}</Badge>}
                     </TabsTrigger>
-                    <TabsTrigger value="alerts" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8 relative">
+                    <TabsTrigger value="alerts" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-8">
                         <TrendingDown className="w-4 h-4" /> Price Drop Matrix
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-[8px] flex items-center justify-center rounded-full text-white font-black border-2 border-background">1</span>
                     </TabsTrigger>
                 </TabsList>
 
@@ -111,6 +122,18 @@ export default function FavoritesPage() {
                         </div>
                     </div>
 
+                    {isError ? (
+                        <div className="py-16 flex flex-col items-center justify-center gap-6 rounded-[40px] border-2 border-dashed border-destructive/30 bg-destructive/5 p-12">
+                            <p className="font-black text-destructive text-center max-w-md">Failed to load favorites. {error?.message ?? "Please try again."}</p>
+                            <Button onClick={refresh} variant="outline" className="rounded-2xl font-black" size="lg">Retry</Button>
+                        </div>
+                    ) : isLoading && wishlist.length === 0 ? (
+                        <div className="py-24 flex flex-col items-center justify-center gap-4 opacity-50">
+                            <Loader2 className="w-12 h-auto animate-spin text-primary" />
+                            <p className="font-black uppercase tracking-widest text-[10px]">Loading your wishlist...</p>
+                        </div>
+                    ) : (
+                    <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <AnimatePresence>
                             {filteredWishlist.map((product) => (
@@ -123,13 +146,17 @@ export default function FavoritesPage() {
                                     className="group"
                                 >
                                     <Card className="border-border/50 bg-card/50 backdrop-blur-md overflow-hidden hover:border-primary/30 transition-all rounded-[32px] h-full flex flex-col shadow-sm">
-                                        <div className="relative aspect-video overflow-hidden group/img">
-                                            <Image 
-                                                src={product.image} 
-                                                alt={product.name} 
-                                                fill 
-                                                className="object-cover group-hover/img:scale-110 transition-transform duration-700" 
-                                            />
+                                        <div className="relative aspect-video overflow-hidden group/img bg-muted">
+                                            {product.image ? (
+                                                <Image 
+                                                    src={product.image} 
+                                                    alt={product.name} 
+                                                    fill 
+                                                    className="object-cover group-hover/img:scale-110 transition-transform duration-700" 
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Package className="w-12 h-12" /></div>
+                                            )}
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-500" />
                                             <button 
                                                 onClick={() => removeFromWishlist(product.id)}
@@ -138,25 +165,27 @@ export default function FavoritesPage() {
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                             <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end translate-y-full group-hover/img:translate-y-0 transition-transform duration-500">
-                                                <Badge className="bg-primary/90 text-white border-none font-black italic">{product.rating} <Star className="w-3 h-3 ml-1 fill-white" /></Badge>
+                                                <Badge className="bg-primary/90 text-white border-none font-black ">{Number(product.rating) || 0} <Star className="w-3 h-3 ml-1 fill-white" /></Badge>
                                             </div>
                                         </div>
                                         <CardContent className="p-6 flex-1 space-y-4">
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-primary tracking-widest mb-1">{product.category}</p>
-                                                <h3 className="font-black italic text-lg leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
+                                                <h3 className="font-black  text-lg leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
                                             </div>
                                             <div className="flex items-center justify-between">
-                                                <p className="text-2xl font-black italic">${product.price}</p>
+                                                <p className="text-2xl font-black ">${Number(product.price) ?? 0}</p>
                                                 <Badge variant="outline" className="text-[8px] uppercase font-bold border-green-500/30 text-green-500 bg-green-500/5">In Stock</Badge>
                                             </div>
                                         </CardContent>
                                         <CardFooter className="px-6 pb-6 pt-0 flex flex-col gap-2">
                                             <Button 
                                                 className="w-full rounded-xl bg-primary text-white font-bold h-11 gap-2 shadow-lg shadow-primary/20"
-                                                onClick={() => toast.success("Added to integrated cart!")}
+                                                asChild
                                             >
-                                                <ShoppingCart className="w-4 h-4" /> Deploy to Cart
+                                                <Link href={`/shop${product.slug ? `?highlight=${product.id}` : ""}`}>
+                                                    <ShoppingCart className="w-4 h-4" /> Deploy to Cart
+                                                </Link>
                                             </Button>
                                             <Button 
                                                 variant="outline" 
@@ -178,11 +207,15 @@ export default function FavoritesPage() {
                         <div className="py-20 text-center space-y-4 bg-muted/20 rounded-[40px] border-2 border-dashed border-border/50">
                             <Heart className="w-16 h-16 text-muted-foreground mx-auto opacity-20" />
                             <div className="space-y-1">
-                                <h3 className="text-xl font-black italic">Curated Space Empty</h3>
+                                <h3 className="text-xl font-black ">Curated Space Empty</h3>
                                 <p className="text-muted-foreground text-sm font-medium">Items you favorite will materialize here for future acquisition.</p>
                             </div>
-                            <Button className="rounded-xl bg-primary font-bold">Go Shop</Button>
+                            <Button className="rounded-xl bg-primary font-bold" asChild>
+                                <Link href="/shop">Go to Shop</Link>
+                            </Button>
                         </div>
+                    )}
+                    </>
                     )}
                 </TabsContent>
 
@@ -194,19 +227,23 @@ export default function FavoritesPage() {
                                 <div className="p-8 flex flex-col justify-end space-y-4">
                                     <h4 className="text-sm font-black uppercase text-muted-foreground tracking-widest border-l-4 border-primary pl-4">Build Specifications</h4>
                                     <div className="space-y-8 py-10">
-                                        <p className="text-xs font-black uppercase italic text-muted-foreground">Category Matrix</p>
-                                        <p className="text-xs font-black uppercase italic text-muted-foreground">Original Price</p>
-                                        <p className="text-xs font-black uppercase italic text-muted-foreground">Tech Stack</p>
-                                        <p className="text-xs font-black uppercase italic text-muted-foreground">Latest Build</p>
-                                        <p className="text-xs font-black uppercase italic text-muted-foreground">Primary Policy</p>
+                                        <p className="text-xs font-black uppercase  text-muted-foreground">Category Matrix</p>
+                                        <p className="text-xs font-black uppercase  text-muted-foreground">Original Price</p>
+                                        <p className="text-xs font-black uppercase  text-muted-foreground">Tech Stack</p>
+                                        <p className="text-xs font-black uppercase  text-muted-foreground">Latest Build</p>
+                                        <p className="text-xs font-black uppercase  text-muted-foreground">Primary Policy</p>
                                     </div>
                                 </div>
 
                                 {productsToCompare.map((p) => (
                                     <Card key={p.id} className="border-border/50 bg-card/60 backdrop-blur-md overflow-hidden rounded-[40px] shadow-lg">
                                         <div className="p-6 space-y-6">
-                                            <div className="relative aspect-square rounded-3xl overflow-hidden border border-border/50 group">
-                                                <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            <div className="relative aspect-square rounded-3xl overflow-hidden border border-border/50 group bg-muted">
+                                                {p.image ? (
+                                                    <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Package className="w-16 h-16" /></div>
+                                                )}
                                                 <button 
                                                     onClick={() => toggleCompare(p.id)}
                                                     className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center text-muted-foreground hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
@@ -215,23 +252,23 @@ export default function FavoritesPage() {
                                                 </button>
                                             </div>
                                             <div className="text-center h-16 flex flex-col justify-center">
-                                                <h5 className="font-black italic text-lg leading-tight line-clamp-2">{p.name}</h5>
+                                                <h5 className="font-black  text-lg leading-tight line-clamp-2">{p.name}</h5>
                                             </div>
                                             
                                             <div className="space-y-8 py-4 text-center border-t border-border/30">
                                                 <p className="text-xs font-bold truncate px-2">{p.category}</p>
-                                                <p className="text-xl font-black italic">${p.price}</p>
+                                                <p className="text-xl font-black ">${Number(p.price) ?? 0}</p>
                                                 <div className="flex flex-wrap justify-center gap-1">
-                                                    {p.tags && p.tags.slice(0, 2).map((t: string, i: number) => (
+                                                    {Array.isArray(p.tags) && p.tags.slice(0, 2).map((t: string, i: number) => (
                                                         <Badge key={i} variant="outline" className="text-[8px] border-primary/20 text-primary font-black uppercase">{t}</Badge>
                                                     ))}
                                                 </div>
-                                                <p className="text-xs font-bold text-muted-foreground">{p.version}</p>
-                                                <p className="text-[10px] font-black uppercase leading-tight italic opacity-70 px-4">{p.updatePolicy}</p>
+                                                <p className="text-xs font-bold text-muted-foreground">{p.version ?? "—"}</p>
+                                                <p className="text-[10px] font-black uppercase leading-tight  opacity-70 px-4">{p.updatePolicy ?? "—"}</p>
                                             </div>
 
-                                            <Button className="w-full rounded-2xl h-auto bg-primary text-white font-black italic shadow-lg shadow-primary/20">
-                                                Acquire Build
+                                            <Button className="w-full rounded-2xl h-auto bg-primary text-white font-black  shadow-lg shadow-primary/20" asChild>
+                                                <Link href={`/shop${p.slug ? `?highlight=${p.id}` : ""}`}>Acquire Build</Link>
                                             </Button>
                                         </div>
                                     </Card>
@@ -242,7 +279,7 @@ export default function FavoritesPage() {
                                         <div className="w-16 h-16 rounded-full bg-background flex items-center justify-center text-muted-foreground group-hover:scale-110 transition-transform">
                                             <Plus className="w-8 h-8 opacity-20 group-hover:opacity-100" />
                                         </div>
-                                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest italic group-hover:text-primary">Add Candidate For Comparison</p>
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest  group-hover:text-primary">Add Candidate For Comparison</p>
                                     </div>
                                 )}
                             </div>
@@ -251,86 +288,73 @@ export default function FavoritesPage() {
                         <div className="py-20 text-center space-y-4 bg-muted/20 rounded-[40px] border-2 border-dashed border-border/50">
                             <ArrowRightLeft className="w-16 h-16 text-muted-foreground mx-auto opacity-20" />
                             <div className="space-y-1">
-                                <h3 className="text-xl font-black italic">Engine Standby</h3>
+                                <h3 className="text-xl font-black ">Engine Standby</h3>
                                 <p className="text-muted-foreground text-sm font-medium">Select up to 3 artifacts from your wishlist to initiate side-by-side analysis.</p>
                             </div>
                         </div>
                     )}
                 </TabsContent>
 
-                {/* Alerts Tab */}
+                {/* Alerts Tab - real wishlist only; price alerts coming soon */}
                 <TabsContent value="alerts" className="space-y-6">
                     <div className="grid gap-4 max-w-4xl">
-                        <Card className="border-border/50 bg-orange-500/[0.03] overflow-hidden relative group p-8 rounded-[40px] border-2 border-orange-500/20">
-                            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-orange-500/10 blur-[100px] rounded-full pointer-events-none" />
-                            <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-                                <div className="w-32 h-32 rounded-[32px] overflow-hidden border-2 border-orange-500/30 shadow-2xl shrink-0 bg-muted">
-                                    <Image src={wishlist[0]?.image || '/placeholder.png'} alt="Alert Image" fill className="object-cover" />
+                        {wishlist.length > 0 ? (
+                            <>
+                                <p className="text-sm text-muted-foreground font-medium">When price-drop alerts are available, you’ll see them here for items in your wishlist.</p>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    {wishlist.slice(0, 6).map((p) => (
+                                        <Card key={p.id} className="border-border/50 overflow-hidden rounded-[24px] p-6 flex flex-row gap-4 items-center">
+                                            <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-muted shrink-0">
+                                                {p.image ? (
+                                                    <Image src={p.image} alt={p.name} fill className="object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Package className="w-8 h-8" /></div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-black  text-base truncate">{p.name}</h4>
+                                                <p className="text-lg font-black  text-primary">${Number(p.price) ?? 0}</p>
+                                            </div>
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline" 
+                                                className="rounded-xl border-orange-500/20 text-orange-600 shrink-0"
+                                                onClick={() => toast.info("Price-drop alerts coming soon. We’ll notify you when this feature is available.")}
+                                            >
+                                                Notify when price drops
+                                            </Button>
+                                        </Card>
+                                    ))}
                                 </div>
-                                <div className="flex-1 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <Badge className="bg-orange-500 text-white font-black text-[9px] uppercase tracking-tighter">Volatility Signal</Badge>
-                                        <span className="text-[10px] font-bold text-muted-foreground uppercase">Released 2 hours ago</span>
-                                    </div>
-                                    <h3 className="text-2xl font-black italic tracking-tight">{wishlist[0]?.name || "Oftisoft Prime"}</h3>
-                                    <div className="flex items-center gap-6">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-muted-foreground uppercase italic mb-1">Standard Market Val</span>
-                                            <span className="text-lg font-bold text-muted-foreground line-through">$49.00</span>
-                                        </div>
-                                        <ArrowUpRight className="w-5 h-5 text-green-500 rotate-45" />
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-green-500 uppercase italic mb-1">Target Entry Val</span>
-                                            <span className="text-3xl font-black italic text-green-500">$29.00 <span className="text-sm font-black">(-40%)</span></span>
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground font-medium italic">Signal expires in 14 hours. Act now to secure the acquisition at this preferential rate.</p>
-                                </div>
-                                <div className="flex flex-col gap-3">
-                                    <Button className="rounded-2xl h-14 px-8 bg-orange-500 text-white font-black italic shadow-xl shadow-orange-500/20 hover:scale-[1.02] transition-all">Secure Acquisition</Button>
-                                    <Button variant="outline" className="rounded-2xl h-auto font-bold border-orange-500/20">Mute Signal</Button>
-                                </div>
+                            </>
+                        ) : (
+                            <div className="py-16 text-center space-y-4 bg-muted/20 rounded-[40px] border-2 border-dashed border-border/50">
+                                <TrendingDown className="w-14 h-14 text-muted-foreground mx-auto opacity-30" />
+                                <h3 className="text-xl font-black ">No wishlist items yet</h3>
+                                <p className="text-muted-foreground text-sm font-medium max-w-md mx-auto">Add products from the shop to your wishlist; when we support price-drop alerts, they’ll appear here.</p>
+                                <Button className="rounded-xl bg-primary font-bold" asChild>
+                                    <Link href="/shop">Go to Shop</Link>
+                                </Button>
                             </div>
-                        </Card>
+                        )}
 
-                        <div className="p-10 rounded-[40px] bg-primary/[0.02] border border-border/50 relative overflow-hidden group">
-                           <div className="flex items-center gap-8">
-                                <div className="w-16 h-16 rounded-[24px] bg-background border border-border/50 flex items-center justify-center text-primary shadow-xl">
+                        <div className="p-10 rounded-[40px] bg-primary/5 border border-border/50 relative overflow-hidden">
+                            <div className="flex items-center gap-8">
+                                <div className="w-16 h-16 rounded-[24px] bg-background border border-border/50 flex items-center justify-center text-primary shadow-xl shrink-0">
                                     <ShieldCheck className="w-8 h-8" />
                                 </div>
-                                <div className="flex-1">
-                                    <h4 className="font-black italic text-lg italic">Signal Infrastructure Active</h4>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-black  text-lg">Signal infrastructure</h4>
                                     <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-lg mt-1">
-                                        We monitor global market fluctuations across your wishlist candidates in real-time. You'll be alerted via Edge Push 
-                                        and Satellite SMS when a target build hits your indicated price threshold.
+                                        When price-drop alerts are enabled, we’ll monitor your wishlist and notify you when a product hits your target price.
                                     </p>
                                 </div>
-                                <Button variant="link" className="text-primary font-black text-xs uppercase underline tracking-tighter">Refine Signal Logic</Button>
-                           </div>
+                                <Button variant="link" className="text-primary font-black text-xs uppercase underline tracking-tighter shrink-0" onClick={() => toast.info("Refine signal logic will be available when price alerts are enabled.")}>Refine Signal Logic</Button>
+                            </div>
                         </div>
                     </div>
                 </TabsContent>
             </Tabs>
         </div>
     );
-}
-
-function Plus(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
-  )
 }

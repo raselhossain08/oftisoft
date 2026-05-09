@@ -53,7 +53,10 @@ export default function CTA() {
 
 
     return (
-        <section id="contact" className="py-16 md:py-24 bg-transparent relative overflow-hidden z-10">
+        <section id="contact" className="py-16 md:py-24 bg-background relative overflow-hidden z-10">
+            {/* Consistent Grid Background */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
             <div className="container px-4 mx-auto">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-start">
                     
@@ -137,22 +140,22 @@ export default function CTA() {
                                     >
                                         <div className="grid grid-cols-2 gap-5">
                                             <div className="space-y-2">
-                                                <Label htmlFor="firstName" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">First Name</Label>
+                                                <Label htmlFor="firstName" className="text-xs font-semibold tracking-wide text-white/60 ml-1">First Name</Label>
                                                 <Input id="firstName" name="firstName" required placeholder="Jane" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="lastName" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Last Name</Label>
+                                                <Label htmlFor="lastName" className="text-xs font-semibold tracking-wide text-white/60 ml-1">Last Name</Label>
                                                 <Input id="lastName" name="lastName" required placeholder="Doe" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
                                             </div>
                                         </div>
                                         
                                         <div className="space-y-2">
-                                            <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Email</Label>
+                                            <Label htmlFor="email" className="text-xs font-semibold tracking-wide text-white/60 ml-1">Email</Label>
                                             <Input id="email" name="email" required type="email" placeholder="jane@example.com" className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl focus-visible:ring-primary/50" />
                                         </div>
                                         
                                         <div className="space-y-2">
-                                            <Label htmlFor="details" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Project Details</Label>
+                                            <Label htmlFor="details" className="text-xs font-semibold tracking-wide text-white/60 ml-1">Project Details</Label>
                                             <Textarea 
                                                 id="details"
                                                 name="details"
@@ -206,13 +209,13 @@ function ContactItem({ icon: Icon, title, value, delay }: { icon: any, title: st
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay }}
-            className="flex items-center gap-6 group cursor-pointer"
+            className="flex items-center my-4 space-x-6 group cursor-pointer"
         >
             <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/50 transition-colors duration-300">
                 <Icon className="w-6 h-6 text-white" />
             </div>
             <div>
-                <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">{title}</h4>
+                <h4 className="text-sm font-semibold text-white/40 tracking-wide mb-1 group-hover:text-primary transition-colors">{title}</h4>
                 <p className="text-lg font-medium text-white">{value}</p>
             </div>
         </motion.div>

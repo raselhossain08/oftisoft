@@ -17,7 +17,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAboutContentStore } from "@/lib/store/about-content";
 
 const iconMap: any = {
     Building2,
@@ -32,9 +31,8 @@ const iconMap: any = {
 };
 
 export default function CompanyTimeline({ data }: { data?: any }) {
-    const { content: storeContent } = useAboutContentStore();
-    const content = data || storeContent;
-    const timelineData = content?.timeline || [];
+    const content = data;
+    const timelineData = data?.timeline || [];
     
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
@@ -55,13 +53,13 @@ export default function CompanyTimeline({ data }: { data?: any }) {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        <Badge variant="outline" className="mb-4 border-primary/20 text-primary uppercase tracking-[0.2em] font-bold px-4 py-1.5 bg-primary/5 rounded-full">
-                            {content?.timelineBadge || "Our Origins"}
+                        <Badge variant="outline" className="mb-4 border-primary/20 text-primary tracking-wide font-semibold px-4 py-1.5 bg-primary/5 rounded-full text-xs">
+                            {content?.timelineBadge ?? ""}
                         </Badge>
                         <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                            {content?.timelineTitle || "Evolution of"} <br />
+                            {content?.timelineTitle ?? ""} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                {content?.timelineTitleHighlight || "Innovation."}
+                                {content?.timelineTitleHighlight ?? ""}
                             </span>
                         </h3>
                     </motion.div>
@@ -78,7 +76,7 @@ export default function CompanyTimeline({ data }: { data?: any }) {
 
                     <div className="space-y-12 md:space-y-32">
                         {timelineData.map((item: any, index: number) => (
-                            <TimelineNode key={index} item={item} index={index} />
+                            <TimelineEvent key={index} item={item} index={index} />
                         ))}
                     </div>
                 </div>
@@ -87,7 +85,7 @@ export default function CompanyTimeline({ data }: { data?: any }) {
     );
 }
 
-function TimelineNode({ item, index }: { item: any, index: number }) {
+function TimelineEvent({ item, index }: { item: any, index: number }) {
     const isEven = index % 2 === 0;
     const Icon = iconMap[item.icon] || Rocket;
 
@@ -110,7 +108,7 @@ function TimelineNode({ item, index }: { item: any, index: number }) {
                  <Card className="group relative bg-white/5 border-white/5 hover:border-white/10 overflow-hidden transition-all duration-300 backdrop-blur-sm">
                     <CardContent className="p-8">
                         <div className={cn(
-                            "text-5xl font-black text-white/5 absolute -top-4 -z-10 transition-colors duration-500 group-hover:text-white/10",
+                            "text-5xl font-extrabold text-white/5 absolute -top-4 -z-10 transition-colors duration-500 group-hover:text-white/10",
                             isEven ? "right-4" : "left-4"
                         )}>
                             {item.year}
@@ -126,7 +124,7 @@ function TimelineNode({ item, index }: { item: any, index: number }) {
                  </Card>
             </div>
 
-            {/* Central Node */}
+            {/* Timeline Marker */}
             <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center">
                 <div className={cn(
                     "w-12 h-12 rounded-full border border-white/10 bg-[#0a0a0a] flex items-center justify-center z-10 group shadow-[0_0_0_8px_rgba(0,0,0,0.3)] transition-all duration-300 hover:scale-110 hover:border-white/30"

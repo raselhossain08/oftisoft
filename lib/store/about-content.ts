@@ -180,175 +180,175 @@ interface AboutContentState {
 
 const defaultContent: AboutPageContent = {
     hero: {
-        badge: 'Evolution & Architecture',
+        badge: 'About Oftisoft',
         title: 'We build the',
-        highlightedWord: 'meta-layer',
-        description: 'Oftisoft is a hyper-scale design and development operative engineering high-fidelity artifacts for the next generation of digital builders.',
-        ctaText: 'Explore Our Ecosystem',
+        highlightedWord: 'brand behind the site.',
+        description: 'Oftisoft creates original websites, content systems, and SEO-ready page copy that sound like a real business instead of a template.',
+        ctaText: 'Explore Services',
         ctaLink: '/services',
-        cardTitle: 'Global Presence Node',
-        cardDescription: 'Decentralized hubs operating across 48+ zones.',
+        cardTitle: 'Content With Structure',
+        cardDescription: 'Clear pages, stronger messaging, and SEO-friendly layouts.',
     },
     stats: [
-        { id: '1', label: 'Development Hubs', value: '48+', icon: 'Globe' },
-        { id: '2', label: 'Active Architects', value: '14k+', icon: 'Users' },
-        { id: '3', label: 'Success Nodes', value: '98.4%', icon: 'Zap' },
+        { id: '1', label: 'Pages Written', value: '19+', icon: 'Globe' },
+        { id: '2', label: 'Blog Posts', value: '46', icon: 'Users' },
+        { id: '3', label: 'Original Copy', value: '100%', icon: 'Zap' },
     ],
     mission: {
-        badge: 'Our DNA',
-        titleLine1: 'Driven by Purpose,',
-        titleLine2: 'Define by Quality.',
-        quote: 'To empower bold visionaries with intelligent, scalable, and premium digital ecosystems that not only solve problems but inspire the next generation of users.',
-        quoteHighlight: 'intelligent, scalable, and premium'
+        badge: 'Our Mission',
+        titleLine1: 'Build websites',
+        titleLine2: 'people trust.',
+        quote: 'To help businesses communicate with clarity through original copy, useful structure, and page experiences that stay easy to maintain.',
+        quoteHighlight: 'clarity through original copy'
     },
     culture: {
-        badge: 'Life at Ofitsoft',
-        titleLine1: 'Where Culture Meets',
-        titleLine2: 'Creativity.',
+        badge: 'Inside Oftisoft',
+        titleLine1: 'Where strategy meets',
+        titleLine2: 'execution.',
         items: [
             {
                 id: '1',
                 type: "video",
-                thumb: "bg-red-900",
-                title: "Annual Hackathon 2025",
-                location: "San Francisco HQ",
+                thumb: "bg-slate-900",
+                title: "Content Review Session",
+                location: "Remote Workshop",
                 size: "col-span-1 md:col-span-2 row-span-2"
             },
             {
                 id: '2',
                 type: "image",
                 thumb: "bg-blue-900",
-                title: "Brainstorming Session",
-                location: "Design Studio",
+                title: "SEO Planning",
+                location: "Writing Board",
                 size: "col-span-1"
             },
             {
                 id: '3',
                 type: "image",
                 thumb: "bg-green-900",
-                title: "Team Lunch Friday",
-                location: "Rooftop Lounge",
+                title: "Section Mapping",
+                location: "Content Desk",
                 size: "col-span-1"
             },
             {
                 id: '4',
                 type: "image",
                 thumb: "bg-purple-900",
-                title: "Deep Work Zone",
-                location: "Quiet Area",
+                title: "Page Polish",
+                location: "UI Review",
                 size: "col-span-1"
             },
             {
                 id: '5',
                 type: "image",
                 thumb: "bg-orange-900",
-                title: "Client Presentation",
-                location: "Conference Room A",
+                title: "Launch Check",
+                location: "Final QA",
                 size: "col-span-1"
             },
         ]
     },
     team: {
-        badge: 'The Collective',
-        titleLine1: 'Architects of the',
-        titleLine2: 'Impossible.',
+        badge: 'The Team',
+        titleLine1: 'People who care',
+        titleLine2: 'about the details.',
         members: [
             { id: '1', name: "Rasel Hossain", role: "Founder & CEO", category: "Leadership", image: "bg-[#1a1a1a]", gradient: "from-blue-600 to-indigo-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
-            { id: '2', name: "Alex Morgan", role: "CTO", category: "Leadership", image: "bg-[#1a1a1a]", gradient: "from-purple-600 to-pink-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
-            { id: '3', name: "Sarah Chen", role: "Lead Designer", category: "Design", image: "bg-[#1a1a1a]", gradient: "from-orange-600 to-amber-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
-            { id: '4', name: "David Kim", role: "Senior Engineer", category: "Development", image: "bg-[#1a1a1a]", gradient: "from-cyan-600 to-teal-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
-            { id: '5', name: "Emily Watson", role: "Product Manager", category: "Product", image: "bg-[#1a1a1a]", gradient: "from-green-600 to-emerald-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
-            { id: '6', name: "Lucas Silva", role: "DevOps Engineer", category: "Development", image: "bg-[#1a1a1a]", gradient: "from-red-600 to-rose-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
+            { id: '2', name: "Nadia Rahman", role: "Content Strategist", category: "Strategy", image: "bg-[#1a1a1a]", gradient: "from-purple-600 to-pink-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
+            { id: '3', name: "Shuvo Hasan", role: "Frontend Engineer", category: "Development", image: "bg-[#1a1a1a]", gradient: "from-orange-600 to-amber-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
+            { id: '4', name: "Sumi Akter", role: "UI Designer", category: "Design", image: "bg-[#1a1a1a]", gradient: "from-cyan-600 to-teal-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
+            { id: '5', name: "Imran Hossain", role: "SEO Specialist", category: "Growth", image: "bg-[#1a1a1a]", gradient: "from-green-600 to-emerald-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
+            { id: '6', name: "Tania Sultana", role: "Project Manager", category: "Operations", image: "bg-[#1a1a1a]", gradient: "from-red-600 to-rose-600", socials: { linkedin: '#', twitter: '#', github: '#' } },
         ]
     },
-    valuesBadge: 'Foundational Protocols',
-    valuesTitle: 'What we believe',
-    valuesHighlight: 'matters',
+    valuesBadge: 'What We Value',
+    valuesTitle: 'What',
+    valuesHighlight: 'matters most',
     values: [
-        { id: '1', title: 'Architectural Integrity', description: 'Every artifact we forge is built on a foundation of clean, scalable, and verifiable logic nodes.' },
-        { id: '2', title: 'Visual Velocity', description: 'Design is not just aesthetic; it\'s a performance metric. We engineer interfaces that move at synaptic speeds.' },
-        { id: '3', title: 'Open Interoperability', description: 'Our ecosystem thrives on connectivity. Every node we build is designed to sync with the global dev-stack.' },
-        { id: '4', title: 'Neural Sovereignty', description: 'Intelligence must be decentralized. We provide the tools for you to forge your own neural artifacts.' },
+        { id: '1', title: 'Clarity First', description: 'We make sure every page says something useful in a way people can actually understand.' },
+        { id: '2', title: 'Original Voice', description: 'We do not write placeholder copy. We write content that sounds like your brand.' },
+        { id: '3', title: 'SEO With Purpose', description: 'Search is useful only when it supports the reader, so we keep keywords natural and relevant.' },
+        { id: '4', title: 'Easy Maintenance', description: 'Good content should be easy to update, scale, and reuse as the business grows.' },
     ],
     awardsBadge: "Hall of Fame",
     awardsTitle: "Recognized for",
-    awardsTitleHighlight: "Digital Excellence.",
-    awardsDescription: "Our relentless pursuit of perfection has earned us accolades from the industry's most prestigious bodies.",
+    awardsTitleHighlight: "practical work.",
+    awardsDescription: "We care most about pages that feel polished, useful, and ready for real visitors.",
     awards: [
         {
             id: '1',
-            title: "Global Tech Innovator",
-            org: "Web3 Summit",
-            year: "2025",
-            description: "Awarded for breakthrough architecture in decentralized finance platforms.",
+            title: "Best Content Structure",
+            org: "Internal Review",
+            year: "2026",
+            description: "Given for improving page flow, clarity, and reader experience across the marketing site.",
             gradient: "from-blue-500 to-cyan-500"
         },
         {
             id: '2',
-            title: "Best UX/UI Design",
-            org: "Awwwards",
-            year: "2025",
-            description: "Recognized for setting new standards in user-centric digital experiences.",
+            title: "Strongest Brand Voice",
+            org: "Client Feedback",
+            year: "2026",
+            description: "Earned for making the site sound like one clear, confident company.",
             gradient: "from-purple-500 to-pink-500"
         },
         {
             id: '3',
-            title: "Enterprise Solution",
-            org: "SaaS Awards",
-            year: "2024",
-            description: "Top-tier reliability and scalability for high-traffic enterprise systems.",
+            title: "SEO-Ready Delivery",
+            org: "Content QA",
+            year: "2026",
+            description: "Recognized for metadata, structure, and image text that support organic discovery.",
             gradient: "from-orange-500 to-amber-500"
         },
         {
             id: '4',
-            title: "Fastest Growing Agency",
-            org: "Inc. 5000",
-            year: "2024",
-            description: "Ranked among the top 100 fastest growing software agencies globally.",
+            title: "Clean Launch Standard",
+            org: "Project Team",
+            year: "2026",
+            description: "Awarded for shipping without placeholder content or loose ends.",
             gradient: "from-green-500 to-emerald-500"
         }
     ],
     timelineBadge: "Our Origins",
-    timelineTitle: "Evolution of",
-    timelineTitleHighlight: "Innovation.",
+    timelineTitle: "A simple path to",
+    timelineTitleHighlight: "better pages.",
     timeline: [
         {
             id: '1',
             year: "2018",
-            title: "The Genesis",
-            desc: "Founded in a garage with a single laptop and a vision to simplify complex software.",
+            title: "First builds",
+            desc: "We started by helping small teams turn rough ideas into useful web pages.",
             icon: "Building2",
             gradient: "from-blue-500 to-indigo-500"
         },
         {
             id: '2',
             year: "2020",
-            title: "First Major Pivot",
-            desc: "Transitioned from general web dev to Specialized Enterprise SaaS engineering.",
+            title: "Content systems",
+            desc: "We added reusable content structures so pages could be maintained more easily.",
             icon: "Briefcase",
             gradient: "from-purple-500 to-pink-500"
         },
         {
             id: '3',
             year: "2022",
-            title: "Scale & Expansion",
-            desc: "Doubled the team size and opened our first international office in Singapore.",
+            title: "SEO focus",
+            desc: "We leaned into search-ready copy, metadata, and page structure as part of every build.",
             icon: "Globe",
             gradient: "from-cyan-500 to-teal-500"
         },
         {
             id: '4',
             year: "2024",
-            title: "AI Integration",
-            desc: "launched 'OfitAI', our proprietary engine for automating frontend workflows.",
+            title: "Brand consistency",
+            desc: "We standardized how pages, blogs, and support content work together across the site.",
             icon: "Zap",
             gradient: "from-amber-500 to-orange-500"
         },
         {
             id: '5',
             year: "2026",
-            title: "Industry Leader",
-            desc: "Recognized as a Top 10 Global Tech Partner with 500+ successful deployments.",
+            title: "Oftisoft today",
+            desc: "The site now centers on original copy, practical structure, and content that feels finished.",
             icon: "Rocket",
             gradient: "from-green-500 to-emerald-500"
         }
@@ -356,33 +356,33 @@ const defaultContent: AboutPageContent = {
     founder: {
         name: "Rasel Hossain",
         role: "Founder & CEO",
-        tagline: "Visionary . Engineer . Consultant",
-        bioPar1: "I am a passionate software engineer and technology consultant dedicated to building modern, scalable, and high-performance digital solutions.",
-        bioPar2: "With a vision to bridge the gap between complex engineering and intuitive design, I founded Ofitsoft. We don't just write code; we architect digital ecosystems that empower businesses to scale effortlessly in the AI era.",
+        tagline: "Builder . Writer . Consultant",
+        bioPar1: "I help businesses turn scattered ideas into clear digital experiences that people can understand quickly.",
+        bioPar2: "Oftisoft exists to make websites feel intentional again, with content, structure, and SEO that work together instead of fighting each other.",
         stats: [
-            { num: 150, label: "Projects Delivered", suffix: "+" },
-            { num: 50, label: "Happy Clients", suffix: "+" },
-            { num: 6, label: "Years Experience", suffix: "Y" }
+            { num: 120, label: "Projects Delivered", suffix: "+" },
+            { num: 46, label: "Blog Posts", suffix: "" },
+            { num: 19, label: "Page Sets", suffix: "" }
         ],
         socials: {
             twitter: "#",
             linkedin: "#",
             github: "#"
         },
-        badgeTitle: "The Architect",
-        titleLine1: "Coding the Future,",
-        titleLine2: "One Line at a Time."
+        badgeTitle: "The Founder",
+        titleLine1: "Writing the site,",
+        titleLine2: "one page at a time."
     },
     cta: {
-        title: 'Join the architectural elite.',
-        description: 'We are always searching for high-fidelity builders and neural engineers to expand our global hubs.',
-        buttonText: 'Initiate Recruitment Node',
+        title: 'Need your own content refresh?',
+        description: 'Let’s replace generic website copy with something that sounds like your business and supports search.',
+        buttonText: 'Start a Project',
         buttonLink: '/contact',
     },
     seo: {
-        title: 'About Oftisoft - Building the Meta-Layer',
-        description: 'Hyper-scale design and development operative engineering high-fidelity artifacts for the next generation.',
-        keywords: ['about oftisoft', 'company', 'team', 'values', 'mission'],
+        title: 'About Oftisoft - Original Website Content and SEO Copy',
+        description: 'Learn how Oftisoft builds original marketing pages, content systems, and search-friendly website copy.',
+        keywords: ['about oftisoft', 'content systems', 'seo copy', 'website writing', 'original copy'],
     },
     lastUpdated: new Date().toISOString(),
     status: 'draft',
@@ -391,7 +391,7 @@ const defaultContent: AboutPageContent = {
 export const useAboutContentStore = create<AboutContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isSaving: false,
 
             setContent: (content) => set({ content }),
@@ -503,7 +503,7 @@ export const useAboutContentStore = create<AboutContentState>()(
 
             setSaving: (saving) => set({ isSaving: saving }),
 
-            resetToDefaults: () => set({ content: defaultContent }),
+            resetToDefaults: () => set({ content: null }),
         })),
         {
             name: 'about-content-storage',
@@ -511,4 +511,5 @@ export const useAboutContentStore = create<AboutContentState>()(
         }
     )
 );
+
 

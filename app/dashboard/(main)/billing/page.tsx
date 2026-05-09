@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useMemo, useCallback } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-    CreditCard, Download, ExternalLink, CheckCircle2, AlertCircle,
-    ArrowUpRight, ArrowDownRight, Zap, Shield, FileText, Plus, X, Lock, Check, Loader2, Trash2
+    CreditCard, Download, AlertCircle, Zap, Shield, FileText, Plus, Lock, Loader2, Trash2, RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -30,11 +29,12 @@ import { billingAPI } from "@/lib/api";
 import { useEffect } from "react";
 
 export default function BillingOverview() {
-    const { invoices, isLoading: isLoadingInvoices } = useInvoices();
-    const { subscription } = useSubscription();
+    const { invoices, isLoading: isLoadingInvoices, isError: isInvoicesError, refetch: refetchInvoices } = useInvoices();
+    const { subscription, refetch: refetchSubscription } = useSubscription();
     const { 
         paymentMethods, 
         isLoading: isLoadingMethods, 
+        refetch: refetchPaymentMethods,
         addPaymentMethod, 
         setDefaultMethod, 
         deleteMethod 
@@ -44,10 +44,25 @@ export default function BillingOverview() {
     const [newCard, setNewCard] = useState({ number: "", expiry: "", cvc: "", name: "" });
     const [isAddingCard, setIsAddingCard] = useState(false);
     const [usage, setUsage] = useState<any>(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const fetchUsage = useCallback(() => {
+        billingAPI.getUsage().then(setUsage).catch(() => setUsage(null));
+    }, []);
 
     useEffect(() => {
-        billingAPI.getUsage().then(setUsage).catch(console.error);
-    }, [subscription?.plan]);
+        fetchUsage();
+    }, [fetchUsage, subscription?.plan]);
+
+    const handleRefresh = useCallback(async () => {
+        setIsRefreshing(true);
+        try {
+            await Promise.all([refetchInvoices(), refetchSubscription(), refetchPaymentMethods()]);
+            fetchUsage();
+        } finally {
+            setIsRefreshing(false);
+        }
+    }, [refetchInvoices, refetchSubscription, refetchPaymentMethods, fetchUsage]);
 
     const chartData = useMemo(() => {
         // Build chart data from invoices (last 6 months)
@@ -97,19 +112,46 @@ export default function BillingOverview() {
         }
     };
 
+    const handleInvoiceDownload = (inv: { id?: string; invoiceId?: string }) => {
+        toast.info("Invoice download coming soon. View your transaction history in the ledger.");
+    };
+
+    const hasError = isInvoicesError;
+    const isLoading = isLoadingInvoices || (subscription === null && !hasError);
+
+    if (hasError) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+                <AlertCircle className="w-16 h-16 text-red-500/80" />
+                <h3 className="text-xl font-bold">Failed to load billing data</h3>
+                <p className="text-muted-foreground text-sm text-center max-w-sm">Something went wrong. Please try again.</p>
+                <Button onClick={handleRefresh} className="gap-2 rounded-xl">
+                    <RefreshCw className="w-4 h-4" /> Retry
+                </Button>
+            </div>
+        );
+    }
+
+    const nextBillingDate = subscription?.nextBillingDate 
+        ? new Date(subscription.nextBillingDate).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+        : "—";
+
     return (
         <div className="space-y-8 mx-auto">
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center flex-wrap gap-4">
                 <div>
                     <h1 className="text-3xl font-black tracking-tight">Billing & Usage</h1>
                     <p className="text-muted-foreground font-medium">Manage your subscription, methods and monitor usage.</p>
                 </div>
                 <div className="flex gap-3">
-                    <Link href="/dashboard/billing/invoices" className="px-5 py-2.5 border border-border/50 bg-card rounded-2xl font-bold hover:bg-muted transition-all text-sm shadow-sm">
+                    <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing} className="rounded-2xl font-bold gap-2">
+                        <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} /> Refresh
+                    </Button>
+                    <Link href="/dashboard/billing/invoices" className="px-5 py-2.5 border border-border/50 bg-card rounded-2xl font-bold hover:bg-muted transition-all text-sm shadow-sm inline-flex items-center">
                         View Ledger
                     </Link>
-                    <Link href="/dashboard/billing/subscription" className="px-5 py-2.5 bg-primary text-white rounded-2xl font-black text-sm hover:hover:scale-[1.02] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
+                    <Link href="/dashboard/billing/subscription" className="px-5 py-2.5 bg-primary text-white rounded-2xl font-black text-sm hover:scale-[1.02] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
                         <Zap className="w-4 h-4 fill-white" /> Upgrade Tier
                     </Link>
                 </div>
@@ -184,7 +226,7 @@ export default function BillingOverview() {
                         </div>
 
                         <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest border-t border-white/10 pt-6">
-                            <span className="text-white/50">Next Cycle: Aug 01, 2026</span>
+                            <span className="text-white/50">Next Cycle: {nextBillingDate}</span>
                             <span className="text-white flex items-center gap-1.5">
                                 <Lock className="w-2.5 h-2.5 opacity-50" />
                                 {subscription?.plan === 'Business' ? "$99/mo" : subscription?.plan === 'Pro' ? "$29/mo" : "Free Tier"}
@@ -213,7 +255,7 @@ export default function BillingOverview() {
                     </div>
                     <div className="h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            < BarChart data={chartData}>
+                            <BarChart data={chartData}>
                                 <defs>
                                     <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor="#6366f1" stopOpacity={1} />
@@ -236,7 +278,7 @@ export default function BillingOverview() {
                                         />
                                     ))}
                                 </Bar>
-                            </ BarChart>
+                            </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
@@ -285,7 +327,7 @@ export default function BillingOverview() {
                                             card.brand.toLowerCase() === 'visa' ? "bg-blue-600 border-blue-400/30" : "bg-slate-800 border-slate-600/30"
                                         )}>
                                             <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent" />
-                                            <span className="text-[10px] font-black text-white italic tracking-tighter z-10">{card.brand}</span>
+                                            <span className="text-[10px] font-black text-white  tracking-tighter z-10">{card.brand}</span>
                                         </div>
                                         <div>
                                             <p className="font-black text-sm tracking-[0.2em] leading-none mb-1.5 uppercase opacity-80 group-hover:opacity-100 transition-opacity">•••• •••• •••• {card.last4}</p>
@@ -362,7 +404,10 @@ export default function BillingOverview() {
                                         )}>
                                             {inv.status}
                                         </span>
-                                        <button className="p-2.5 hover:bg-muted bg-background border border-border rounded-xl text-muted-foreground hover:text-foreground transition-all shadow-sm">
+                                        <button 
+                                            onClick={() => handleInvoiceDownload(inv)}
+                                            className="p-2.5 hover:bg-muted bg-background border border-border rounded-xl text-muted-foreground hover:text-foreground transition-all shadow-sm"
+                                        >
                                             <Download className="w-4 h-4" />
                                         </button>
                                     </div>

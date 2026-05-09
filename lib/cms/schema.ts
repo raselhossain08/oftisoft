@@ -13,9 +13,8 @@ const seoSection = {
     ]
 };
 export const CMS_SCHEMA = {
-    // 1. Home Page
     home: {
-        label: "Home Page",
+        label: "Home",
         icon: "Home",
         sections: [
             seoSection,
@@ -29,6 +28,8 @@ export const CMS_SCHEMA = {
                     { name: "subtitle", label: "Subtitle", type: "text" },
                     { name: "description", label: "Description", type: "textarea" },
                     { name: "subtitles", label: "Rotating Subtitles", type: "tags" },
+                    { name: "image", label: "Hero Image", type: "image" },
+                    { name: "imageUrl", label: "Hero Image URL", type: "text" },
                     {
                         name: "primaryCTA",
                         label: "Primary Button",
@@ -248,9 +249,8 @@ export const CMS_SCHEMA = {
         ]
     },
 
-    // 2. About Page
     about: {
-        label: "About Page",
+        label: "About Us",
         icon: "Users",
         sections: [
             seoSection,
@@ -839,9 +839,8 @@ export const CMS_SCHEMA = {
         ]
     },
 
-    // Services Page
     services: {
-        label: "Services Page",
+        label: "Services",
         icon: "Briefcase",
         sections: [
             seoSection,
@@ -1359,7 +1358,7 @@ export const CMS_SCHEMA = {
     },
 
     support: {
-        label: "Support Page",
+        label: "Support",
         icon: "LifeBuoy",
         sections: [
             seoSection,
@@ -1444,9 +1443,8 @@ export const CMS_SCHEMA = {
             }
         ]
     },
-    // 19. Global Settings (Simulator & Forge)
     settings: {
-        label: "Visual Forge Settings",
+        label: "Site Settings",
         icon: "Settings",
         sections: [
             {
@@ -1462,9 +1460,8 @@ export const CMS_SCHEMA = {
             }
         ]
     },
-    // 20. Global Infrastructure (Navbar, Footer, etc.)
     global: {
-        label: "Global Infrastructure",
+        label: "Global Navigation & Footer",
         icon: "Globe",
         sections: [
             {

@@ -43,6 +43,7 @@ export function useLeads() {
         onSuccess: () => {
             toast.success("Lead status updated.");
             queryClient.invalidateQueries({ queryKey: ["leads"] });
+            queryClient.invalidateQueries({ queryKey: ["leads-stats"] });
         }
     });
 
@@ -51,6 +52,7 @@ export function useLeads() {
         onSuccess: () => {
             toast.success("Lead record deleted.");
             queryClient.invalidateQueries({ queryKey: ["leads"] });
+            queryClient.invalidateQueries({ queryKey: ["leads-stats"] });
         }
     });
 

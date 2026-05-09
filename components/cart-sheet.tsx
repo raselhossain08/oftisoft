@@ -120,7 +120,7 @@ export const CartSheet = () => {
                             <div className="space-y-4 mb-4">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Subtotal</span>
-                                    <span className="font-bold">${cart.total().toLocaleString()}</span>
+                                    <span className="font-bold">${cart.getTotalPrice().toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Taxes</span>
@@ -129,7 +129,7 @@ export const CartSheet = () => {
                                 <Separator className="bg-white/10" />
                                 <div className="flex justify-between items-end">
                                     <span className="text-base font-bold">Total</span>
-                                    <span className="text-xl font-black text-primary">${cart.total().toLocaleString()}</span>
+                                    <span className="text-xl font-black text-primary">${cart.getTotalPrice().toLocaleString()}</span>
                                 </div>
                             </div>
                             <Button 

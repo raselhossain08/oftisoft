@@ -74,36 +74,36 @@ interface SupportContentState {
 
 const defaultContent: SupportPageContent = {
     header: {
-        badge: "Architectural Assistance Hub",
-        title: "Support Universe.",
-        searchPlaceholder: "Find architectural support nodes...",
+        badge: "Support",
+        title: "Support Center.",
+        searchPlaceholder: "Search help articles...",
         videoUrl: ""
     },
     channels: [
-        { id: "bot", title: "Neural Chat Bot", desc: "Immediate AI assistance for architectural queries and node status.", iconName: "Bot", color: "text-primary" },
-        { id: "chat", title: "Direct Sync (Chat)", desc: "Join the real-time architect's channel for deep implementation syncs.", iconName: "MessageSquare", color: "text-blue-500" },
-        { id: "docs", title: "Global SDK Docs", desc: "Exhaustive technical intelligence for independent platform mastery.", iconName: "Terminal", color: "text-purple-500" },
+        { id: "bot", title: "Quick Answers", desc: "Simple help for pages, content updates, and common questions.", iconName: "Bot", color: "text-primary" },
+        { id: "chat", title: "Direct Chat", desc: "Message the team when you need a quick human response.", iconName: "MessageSquare", color: "text-blue-500" },
+        { id: "docs", title: "Help Docs", desc: "Step-by-step guidance for working with the site content.", iconName: "Terminal", color: "text-purple-500" },
     ],
     faq: {
-        badge: "Protocol Intelligence",
-        title: "Frequent Sync Questions",
+        badge: "FAQ",
+        title: "Common Questions",
         items: [
-            { id: "sync", q: "How do I initiate a neural sync?", a: "Navigate to the Visual Forge in your dashboard and commit your first node artifact. The neural engine will automatically begin the synchronization process." },
-            { id: "latency", q: "What is the global edge latency?", a: "Oftisoft utilizes a proprietary proxy matrix ensuring sub-10ms delivery for document nodes and sub-150ms for complex neural computations globally." },
-            { id: "saas", q: "Can I deploy custom SaaS kits?", a: "Yes. Our SaaS starter nodes are fully modular and can be extended with bespoke logic via the Oftisoft SDK available in the documentation." },
-            { id: "247", q: "Is architectural support available 24/7?", a: "Elite and Enterprise nodes receive priority access to our global support operative, monitored 24/7 by both human architects and neural agents." },
+            { id: "sync", q: "How do I update page content?", a: "Open the matching content store or database record, edit the fields, and save the changes." },
+            { id: "latency", q: "Do the pages load quickly?", a: "The current setup is optimized for a clean marketing experience and can be extended with more performance work." },
+            { id: "saas", q: "Can I add new pages later?", a: "Yes. The content structure is reusable, so new pages can follow the same pattern." },
+            { id: "247", q: "Is support available after launch?", a: "Yes. We can keep helping with updates, fixes, and content changes after the site goes live." },
         ]
     },
     priorityRelay: {
-        title: "Priority Relay",
-        description: "Elite and Enterprise architects can initiate a high-fidelity direct sync with our core engineering operative for ultra-bespoke implementation assistance.",
+        title: "Priority Help",
+        description: "For launch blockers or urgent page updates, send us the details and we’ll respond quickly.",
         buttons: [
-            { label: "Initiate Priority Sync", iconName: "Zap", variant: "default" },
-            { label: "Email Case Relay", iconName: "Mail", variant: "outline" }
+            { label: "Request Help", iconName: "Zap", variant: "default" },
+            { label: "Email Support", iconName: "Mail", variant: "outline" }
         ],
         metrics: [
-            { id: "response", label: "Current Response Window", value: "~ 8 Minutes", iconName: "Clock" },
-            { id: "engineers", label: "Active Engineers On-Node", value: "12 Members", iconName: "CheckCircle2" }
+            { id: "response", label: "Typical Reply", value: "< 1 Business Day", iconName: "Clock" },
+            { id: "engineers", label: "People On Support", value: "Small Team", iconName: "CheckCircle2" }
         ]
     },
     lastUpdated: new Date().toISOString()
@@ -112,7 +112,7 @@ const defaultContent: SupportPageContent = {
 export const useSupportContentStore = create<SupportContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -198,7 +198,7 @@ export const useSupportContentStore = create<SupportContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'support-content-storage',
@@ -206,3 +206,4 @@ export const useSupportContentStore = create<SupportContentState>()(
         }
     )
 );
+

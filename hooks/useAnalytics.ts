@@ -8,10 +8,10 @@ export function useAnalytics() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchStats = useCallback(async () => {
+    const fetchStats = useCallback(async (timeRange?: 'day' | 'week' | 'month') => {
         try {
             setIsLoading(true);
-            const data = await analyticsAPI.getStats();
+            const data = await analyticsAPI.getStats(timeRange);
             setStats(data);
             setError(null);
         } catch (err) {
@@ -42,11 +42,13 @@ export function useAnalytics() {
         fetchStats();
     }, [fetchStats]);
 
+    const refresh = useCallback((timeRange?: 'day' | 'week' | 'month') => fetchStats(timeRange), [fetchStats]);
+
     return {
         stats,
         isLoading,
         error,
-        refresh: fetchStats,
+        refresh: (tr?: 'day' | 'week' | 'month') => fetchStats(tr),
         trackVisit,
         trackEvent
     };

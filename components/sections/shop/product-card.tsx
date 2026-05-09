@@ -16,11 +16,16 @@ import { useCart } from "@/hooks/use-cart";
 
 interface ProductCardProps {
     product: Product;
+    /** When provided, wishlist is synced with dashboard favorites; otherwise local-only state. */
+    isFavorite?: boolean;
+    onToggleWishlist?: () => void;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
-    const [isWishlisted, setIsWishlisted] = useState(false);
+export function ProductCard({ product, isFavorite, onToggleWishlist }: ProductCardProps) {
+    const [localWishlisted, setLocalWishlisted] = useState(false);
     const cart = useCart();
+
+    const isWishlisted = onToggleWishlist != null ? (isFavorite ?? false) : localWishlisted;
 
     const handleAddToCart = () => {
         cart.addItem({
@@ -28,18 +33,22 @@ export function ProductCard({ product }: ProductCardProps) {
             name: product.name,
             price: product.price,
             image: product.image,
-            quantity: 1,
+            slug: product.slug,
             type: 'product'
         });
         toast.success(`${product.name} added to cart!`);
     };
 
     const toggleWishlist = () => {
-        setIsWishlisted(!isWishlisted);
-        toast(isWishlisted ? "Removed from wishlist" : "Added to wishlist", {
-            description: product.name,
-            icon: <Heart className={cn("h-4 w-4", !isWishlisted ? "fill-red-500 text-red-500" : "")} />
-        });
+        if (onToggleWishlist) {
+            onToggleWishlist();
+        } else {
+            setLocalWishlisted((prev) => !prev);
+            toast(localWishlisted ? "Removed from wishlist" : "Added to wishlist", {
+                description: product.name,
+                icon: <Heart className={cn("h-4 w-4", !localWishlisted ? "fill-red-500 text-red-500" : "")} />
+            });
+        }
     };
     return (
         <motion.div
@@ -52,14 +61,21 @@ export function ProductCard({ product }: ProductCardProps) {
             <Card className="h-full group relative overflow-hidden bg-card/50 backdrop-blur-sm border-white/5 hover:border-primary/50 transition-colors pt-0">
                 <CardHeader className="p-0 relative aspect-[4/3] overflow-hidden">
                     <div className="absolute inset-0 bg-muted animate-pulse" /> {/* Placeholder */}
-                    <Image
-                        src={product.image || "/placeholder.png"} // Fallback
-                        alt={product.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+                    {product.image ? (
+                        <Image
+                            src={product.image}
+                            alt={product.name}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-muted via-background to-muted" />
+                    )}
                     
-                    <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300">
+                    <div className={cn(
+                        "absolute top-3 right-3 flex flex-col gap-2 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300",
+                        isWishlisted ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                    )}>
                         <Button 
                             onClick={toggleWishlist}
                             size="icon" 
@@ -96,7 +112,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </p>
 
                     <div className="flex flex-wrap gap-1 mb-4">
-                        {product.tags.slice(0, 3).map(tag => (
+                        {(Array.isArray(product.tags) ? product.tags : []).slice(0, 3).map(tag => (
                             <span key={tag} className="text-[10px] px-2 py-1 rounded-full bg-muted/50 border border-white/5 text-muted-foreground">
                                 {tag}
                             </span>

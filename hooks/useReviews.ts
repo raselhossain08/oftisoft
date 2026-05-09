@@ -2,22 +2,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reviewsAPI, Review } from '@/lib/api';
 import { toast } from 'sonner';
 
-export function useReviews() {
+export function useReviews(options?: { forModeration?: boolean }) {
     const queryClient = useQueryClient();
+    const forModeration = options?.forModeration ?? false;
 
-    const { data: reviews, isLoading, error } = useQuery({
-        queryKey: ['reviews'],
-        queryFn: reviewsAPI.getReviews,
+    const { data: reviews, isLoading, error, refetch, isError } = useQuery({
+        queryKey: ['reviews', forModeration ? 'moderation' : 'mine'],
+        queryFn: forModeration ? reviewsAPI.getReviewsForModeration : reviewsAPI.getReviews,
     });
 
     const createReview = useMutation({
         mutationFn: reviewsAPI.createReview,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['reviews'] });
-            toast.success("Review submitted for moderation review.");
+            toast.success("Review submitted for moderation.");
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to submit review");
+            toast.error(error?.response?.data?.message || error.message || "Failed to submit review");
         }
     });
 
@@ -28,7 +29,7 @@ export function useReviews() {
             toast.success("Review updated successfully");
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to update review");
+            toast.error(error?.response?.data?.message || error.message || "Failed to update review");
         }
     });
 
@@ -36,10 +37,10 @@ export function useReviews() {
         mutationFn: reviewsAPI.deleteReview,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['reviews'] });
-            toast.success("Review artifact purged.");
+            toast.success("Review removed.");
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to delete review");
+            toast.error(error?.response?.data?.message || error.message || "Failed to delete review");
         }
     });
 
@@ -47,6 +48,8 @@ export function useReviews() {
         reviews,
         isLoading,
         error,
+        isError,
+        refetch,
         createReview: createReview.mutate,
         isCreating: createReview.isPending,
         updateReview: updateReview.mutate,

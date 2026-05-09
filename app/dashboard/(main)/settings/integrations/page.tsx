@@ -158,6 +158,7 @@ export default function IntegrationsSettings() {
                 {/* Custom Integration Trigger */}
                 <Card 
                     className="p-10 rounded-[48px] border-2 border-dashed border-border flex flex-col items-center justify-center text-center space-y-6 group cursor-pointer hover:bg-primary/[0.04] hover:border-primary/40 transition-all h-[340px] bg-muted/5"
+                    onClick={() => toast.info("Custom webhook: configure in API or developer docs.")}
                 >
                     <div className="w-20 h-20 rounded-[30px] bg-background border border-border/50 flex items-center justify-center text-muted-foreground group-hover:scale-110 group-hover:rotate-12 group-hover:text-primary transition-all shadow-xl group-hover:shadow-primary/5">
                         <Braces size={40} strokeWidth={1} />
@@ -181,7 +182,7 @@ export default function IntegrationsSettings() {
                         Need to integrate a proprietary internal tool? Explore our <span className="text-primary font-black underline underline-offset-4 cursor-pointer hover:text-primary/70 transition-colors">Open Bridge API Documentation</span> for headless integration patterns and neural socket schemas.
                     </p>
                 </div>
-                <Button variant="ghost" className="h-auto w-12 rounded-full border border-border/50 group-hover:bg-primary group-hover:text-white transition-all shrink-0">
+                <Button variant="ghost" className="h-auto w-12 rounded-full border border-border/50 group-hover:bg-primary group-hover:text-white transition-all shrink-0" onClick={() => toast.info("Open your API docs or /api route for integration patterns.")}>
                     <ExternalLink className="w-5 h-5" />
                 </Button>
             </Card>

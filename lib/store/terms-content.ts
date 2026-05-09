@@ -52,44 +52,44 @@ interface TermsContentState {
 
 const defaultContent: TermsPageContent = {
     header: {
-        badge: "Operational Governance",
-        title: "Terms of Sync.",
-        description: "Legal framework and architectural governance protocols for the Oftisoft ecosystem.",
+        badge: "Terms",
+        title: "Terms of Use.",
+        description: "The basic rules for using the Oftisoft website and services.",
         videoUrl: ""
     },
     navigationRail: {
-        title: "Nexus Sections",
-        items: ["Acceptable Use Node", "Sync Obligations", "Neural Artifact Licensing", "Governance & Jurisdiction", "Fiscal Protocol"]
+        title: "Sections",
+        items: ["Acceptable Use", "Content Ownership", "Service Limits", "Privacy", "Payments"]
     },
     sections: [
         {
             id: "access",
-            title: "Platform Architecture Access",
+            title: "Website Access",
             iconName: "Globe",
-            content: "By initiating a sync with Oftisoft, you are granted a revocable, non-exclusive license to utilize our high-fidelity digital artifacts and development nodes. This access is governed by the professional scope defined in your subscription matrix."
+            content: "By using the site, you agree to follow these terms and use the content and features in a lawful, respectful way."
         },
         {
             id: "sovereignty",
-            title: "Neural Logic Sovereignty",
+            title: "Content Ownership",
             iconName: "Scale",
-            content: "All neural artifacts forged via our private engine remain the intellectual property of the architect (USER), provided that the fundamental core-nodes of the Oftisoft engine are not extracted for unauthorized replication."
+            content: "Unless stated otherwise, the text, branding, and page design on this site belong to Oftisoft."
         },
         {
             id: "integrity",
-            title: "Communication Integrity",
+            title: "Acceptable Use",
             iconName: "ShieldAlert",
-            content: "Architects agree to maintain high-fidelity communication standards. Any manual extraction of platform intelligence for hyper-scale disruption without explicit governance approval will result in immediate node de-sync."
+            content: "Please do not misuse the site, attempt to break it, or copy content in a way that violates the law or our rights."
         },
         {
             id: "fiscal",
-            title: "Fiscal Settlement Protocol",
+            title: "Payments",
             iconName: "Clock",
-            content: "Sync fees are architectural investments billed per moon-cycle. Failure to reconcile fiscal settlements within the 10-day grace corridor will initiate a systematic cool-down of all active deployment proxies."
+            content: "If you purchase services from Oftisoft, payment terms will be shared in your proposal, invoice, or agreement."
         },
     ],
     revision: {
-        prefix: "Last Governance Update:",
-        updatedAt: "Feb 07, 2026 / 00:44 UTC"
+        prefix: "Last updated:",
+        updatedAt: "Apr 22, 2026 / 00:44 UTC"
     },
     lastUpdated: new Date().toISOString()
 };
@@ -97,7 +97,7 @@ const defaultContent: TermsPageContent = {
 export const useTermsContentStore = create<TermsContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -149,7 +149,7 @@ export const useTermsContentStore = create<TermsContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'terms-content-storage',
@@ -157,3 +157,4 @@ export const useTermsContentStore = create<TermsContentState>()(
         }
     )
 );
+

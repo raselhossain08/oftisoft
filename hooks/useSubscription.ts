@@ -3,15 +3,18 @@ import { billingAPI } from "@/lib/api";
 import { toast } from "sonner";
 
 export function useSubscription() {
-    const [subscription, setSubscription] = useState<{ plan: string; status: string } | null>(null);
+    const [subscription, setSubscription] = useState<{ plan: string; status: string; nextBillingDate?: string } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchSubscription = useCallback(async () => {
         setIsLoading(true);
+        setError(null);
         try {
             const data = await billingAPI.getSubscription();
             setSubscription(data);
         } catch (err: any) {
+            setError(err?.response?.data?.message || "Failed to load subscription");
             console.error("Failed to fetch subscription", err);
         } finally {
             setIsLoading(false);
@@ -41,7 +44,9 @@ export function useSubscription() {
     return {
         subscription,
         isLoading,
+        error,
+        isError: !!error,
         updateSubscription,
-        fetchSubscription,
+        refetch: fetchSubscription,
     };
 }

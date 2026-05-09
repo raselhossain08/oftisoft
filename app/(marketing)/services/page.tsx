@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -24,7 +24,7 @@ export default function ServicesPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Configuring Service Modules...
                 </div>
             </div>
@@ -43,3 +43,4 @@ export default function ServicesPage() {
         </main>
     );
 }
+

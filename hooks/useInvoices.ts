@@ -30,6 +30,7 @@ export function useInvoices() {
         invoices,
         isLoading,
         error,
-        fetchInvoices,
+        isError: !!error,
+        refetch: fetchInvoices,
     };
 }

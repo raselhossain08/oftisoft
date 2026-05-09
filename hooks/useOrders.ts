@@ -33,6 +33,17 @@ export function useOrders(orderId?: string) {
             queryClient.invalidateQueries({ queryKey: ['orders', variables.id] });
             toast.success(`Order status updated to ${variables.status}`);
         },
+        onError: () => toast.error('Failed to update order status'),
+    });
+
+    const updateOrderMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: { internalNotes?: string; trackingNumber?: string } }) => ordersAPI.updateOrder(id, data),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            queryClient.invalidateQueries({ queryKey: ['orders', variables.id] });
+            toast.success('Order updated');
+        },
+        onError: () => toast.error('Failed to update order'),
     });
 
     const downloadInvoiceMutation = useMutation({
@@ -61,9 +72,12 @@ export function useOrders(orderId?: string) {
         isLoading: orderId ? orderLoading : ordersLoading,
         createOrder: createOrderMutation.mutate,
         updateStatus: (id: string, status: string) => updateStatusMutation.mutate({ id, status }),
+        updateOrder: (id: string, data: { internalNotes?: string; trackingNumber?: string }) => updateOrderMutation.mutate({ id, data }),
         downloadInvoice: (id: string, options?: any) => downloadInvoiceMutation.mutate(id, options),
         exportReport: (variables?: any, options?: any) => exportReportMutation.mutate(variables, options),
         isDownloadingInvoice: downloadInvoiceMutation.isPending,
         isExportingReport: exportReportMutation.isPending,
+        isUpdatingStatus: updateStatusMutation.isPending,
+        isUpdatingOrder: updateOrderMutation.isPending,
     };
 }

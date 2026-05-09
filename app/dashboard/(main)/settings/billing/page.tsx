@@ -99,8 +99,8 @@ export default function BillingSettings() {
         mutationFn: (id: string) => billingAPI.deletePaymentMethod(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
-            toast.error("Payment instrument removed from vault.", {
-                description: "Credentials have been wiped from this node."
+            toast.success("Payment method removed", {
+                description: "The payment instrument has been removed from your account."
             });
         }
     });
@@ -385,7 +385,7 @@ export default function BillingSettings() {
                             Synchronize your mobile biometric wallet for frictionless holographic checkout and instant settlement across the Oftisoft network.
                         </p>
                     </div>
-                    <Button variant="link" className="text-indigo-500 p-0 h-auto font-black text-[11px] uppercase underline underline-offset-8 tracking-tighter relative z-10 hover:text-indigo-600">Initialize Ecosystem Sync</Button>
+                    <Button variant="link" className="text-indigo-500 p-0 h-auto font-black text-[11px] uppercase underline underline-offset-8 tracking-tighter relative z-10 hover:text-indigo-600" onClick={() => toast.info("Biometric sync: connect your mobile wallet in the app.")}>Initialize Ecosystem Sync</Button>
                 </Card>
 
                 <Card className="rounded-[48px] bg-primary/[0.04] border-none p-10 space-y-8 group relative overflow-hidden backdrop-blur-sm self-start">
@@ -417,7 +417,7 @@ export default function BillingSettings() {
                         </div>
                         <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Ledger Snapshot</h3>
                     </div>
-                    <Button variant="ghost" className="text-[11px] font-black uppercase text-primary tracking-widest h-auto p-0 hover:bg-transparent transition-all hover:scale-110">Deep Audit History</Button>
+                    <Button variant="ghost" className="text-[11px] font-black uppercase text-primary tracking-widest h-auto p-0 hover:bg-transparent transition-all hover:scale-110" onClick={() => toast.info("Full transaction history is shown above.")}>View Full History</Button>
                 </div>
                 
                 <div className="grid gap-4">

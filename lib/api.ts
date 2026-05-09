@@ -1,6 +1,15 @@
 import axios from 'axios';
+import { getIsLoggingOut } from '@/store/useAuthStore';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+// Helper to check if auth cookies exist
+// Note: This only checks non-httpOnly cookies. For httpOnly cookies,
+// the browser will automatically send them with credentials: "include"
+function hasAuthCookies(): boolean {
+    // Check for access_token or refresh_token cookies
+    return document.cookie.includes('access_token=') || document.cookie.includes('refresh_token=');
+}
 
 // Create axios instance with default config
 const api = axios.create({
@@ -14,6 +23,14 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
     (config) => {
+        // Skip token refresh calls only if no cookies exist at all
+        // For httpOnly cookies, we can't detect them via JS, so we always try the request
+        // and let the server respond with 401 if truly unauthenticated
+        const isRefreshEndpoint = config.url?.includes('/auth/refresh');
+        if (isRefreshEndpoint && !hasAuthCookies()) {
+            // Abort the request early if no auth cookies exist
+            return Promise.reject(new axios.Cancel('No auth cookies'));
+        }
         return config;
     },
     (error) => {
@@ -28,8 +45,14 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        // Prevent infinite loop: don't retry if the failing request is the refresh endpoint itself
+        const isRefreshRequest = originalRequest.url?.includes('/auth/refresh');
+
+        // Don't attempt token refresh if user is logging out
+        const isLoggingOut = getIsLoggingOut();
+
         // If 401 and not yet retried, try token refresh
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest && !isLoggingOut) {
             originalRequest._retry = true;
             try {
                 await api.post('/auth/refresh');
@@ -257,13 +280,16 @@ export interface TicketMessage {
 export interface Ticket {
     id: string;
     subject: string;
+    description?: string;
     status: TicketStatus;
     priority: TicketPriority;
     category: string;
     customer: User;
+    assignedTo?: User;
     messages?: TicketMessage[];
     createdAt: string;
     updatedAt: string;
+    resolvedAt?: string;
 }
 
 export const supportAPI = {
@@ -622,13 +648,36 @@ export const messagesAPI = {
         const response = await api.get('/messages/conversations');
         return response.data;
     },
+    getAvailableUsers: async (): Promise<any[]> => {
+        const response = await api.get('/messages/available-users');
+        return response.data;
+    },
     getMessages: async (conversationId: string): Promise<any[]> => {
         const response = await api.get(`/messages/${conversationId}`);
         return response.data;
     },
-    sendMessage: async (conversationId: string, content: string): Promise<any> => {
-        const response = await api.post(`/messages/${conversationId}`, { content });
+    markAsRead: async (conversationId: string): Promise<void> => {
+        await api.patch(`/messages/${conversationId}/read`);
+    },
+    sendMessage: async (
+        conversationId: string, 
+        content: string, 
+        replyToId?: string,
+        attachments?: { id: string; name: string; url: string; type: string; size: number }[]
+    ): Promise<any> => {
+        const response = await api.post(`/messages/${conversationId}`, { 
+            content, 
+            replyToId,
+            attachments 
+        });
         return response.data;
+    },
+    editMessage: async (messageId: string, content: string): Promise<any> => {
+        const response = await api.patch(`/messages/message/${messageId}`, { content });
+        return response.data;
+    },
+    deleteMessage: async (messageId: string): Promise<void> => {
+        await api.delete(`/messages/message/${messageId}`);
     },
     startConversation: async (recipientId: string): Promise<any> => {
         const response = await api.post('/messages', { recipientId });
@@ -637,12 +686,53 @@ export const messagesAPI = {
     getSupportBot: async (): Promise<any> => {
         const response = await api.get('/messages/support-bot');
         return response.data;
+    },
+    uploadAttachment: async (file: File): Promise<any> => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await api.post('/messages/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    },
+    pinConversation: async (conversationId: string, pinned: boolean): Promise<void> => {
+        await api.patch(`/messages/${conversationId}/pin`, { pinned });
+    },
+    muteConversation: async (conversationId: string, muted: boolean): Promise<void> => {
+        await api.patch(`/messages/${conversationId}/mute`, { muted });
+    },
+    blockUser: async (userId: string): Promise<void> => {
+        await api.post(`/messages/block/${userId}`);
+    },
+    unblockUser: async (userId: string): Promise<void> => {
+        await api.delete(`/messages/block/${userId}`);
+    },
+    addReaction: async (messageId: string, emoji: string): Promise<void> => {
+        await api.post(`/messages/message/${messageId}/reaction`, { emoji });
+    },
+    removeReaction: async (messageId: string, emoji: string): Promise<void> => {
+        await api.delete(`/messages/message/${messageId}/reaction/${encodeURIComponent(emoji)}`);
+    },
+    sendTypingIndicator: async (conversationId: string): Promise<void> => {
+        await api.post(`/messages/${conversationId}/typing`);
+    },
+    getTypingUsers: async (conversationId: string): Promise<string[]> => {
+        const response = await api.get(`/messages/${conversationId}/typing`);
+        return response.data;
+    },
+    searchMessages: async (conversationId: string, query: string): Promise<any[]> => {
+        const response = await api.get(`/messages/${conversationId}/search`, { params: { query } });
+        return response.data;
     }
 };
 
 export const notificationsAPI = {
     getNotifications: async (): Promise<any[]> => {
         const response = await api.get('/notifications');
+        return response.data;
+    },
+    getCounts: async (): Promise<{ unread: number; highPriority: number; archived: number }> => {
+        const response = await api.get('/notifications/counts');
         return response.data;
     },
     getArchivedNotifications: async (): Promise<any[]> => {
@@ -657,6 +747,9 @@ export const notificationsAPI = {
     },
     archive: async (id: string): Promise<void> => {
         await api.put(`/notifications/${id}/archive`);
+    },
+    unarchive: async (id: string): Promise<void> => {
+        await api.put(`/notifications/${id}/unarchive`);
     },
     delete: async (id: string): Promise<void> => {
         await api.delete(`/notifications/${id}`);
@@ -686,6 +779,7 @@ export interface Order {
         zip: string;
     };
     trackingNumber?: string;
+    internalNotes?: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -705,6 +799,10 @@ export const ordersAPI = {
     },
     updateStatus: async (id: string, status: string): Promise<Order> => {
         const response = await api.patch(`/orders/${id}/status`, { status });
+        return response.data;
+    },
+    updateOrder: async (id: string, data: { internalNotes?: string; trackingNumber?: string }): Promise<Order> => {
+        const response = await api.patch(`/orders/${id}`, data);
         return response.data;
     },
     downloadInvoice: async (id: string): Promise<void> => {
@@ -827,7 +925,7 @@ export const categoriesAPI = {
         return response.data;
     },
     removeSubcategory: async (id: string, subcategory: string): Promise<Category> => {
-        const response = await api.delete(`/categories/${id}/subcategories/${subcategory}`);
+        const response = await api.delete(`/categories/${id}/subcategories/${encodeURIComponent(subcategory)}`);
         return response.data;
     }
 };
@@ -882,6 +980,7 @@ export const projectsAPI = {
     }
 };
 
+export { api };
 export default api;
 
 // Quotes API
@@ -1121,6 +1220,10 @@ export const reviewsAPI = {
         const response = await api.get('/reviews');
         return response.data;
     },
+    getReviewsForModeration: async (): Promise<Review[]> => {
+        const response = await api.get('/reviews/moderation');
+        return response.data;
+    },
     getReviewsByProduct: async (productId: string): Promise<Review[]> => {
         const response = await api.get(`/reviews/${productId}`);
         return response.data;
@@ -1140,8 +1243,9 @@ export const analyticsAPI = {
     trackEvent: async (data: { eventType: string; eventLabel?: string; page?: string; metadata?: any }): Promise<void> => {
         await api.post('/analytics/track/event', data);
     },
-    getStats: async (): Promise<any> => {
-        const response = await api.get('/analytics/stats');
+    getStats: async (timeRange?: 'day' | 'week' | 'month'): Promise<any> => {
+        const params = timeRange ? { timeRange } : {};
+        const response = await api.get('/analytics/stats', { params });
         return response.data;
     },
 };
@@ -1151,8 +1255,114 @@ export const affiliateAPI = {
         const response = await api.get('/affiliate/stats');
         return response.data;
     },
-    withdraw: async (data: { amount: number; method: string }): Promise<any> => {
+    withdraw: async (data: { amount: number; method: string; paymentDetails?: any }): Promise<any> => {
         const response = await api.post('/affiliate/withdraw', data);
+        return response.data;
+    },
+    getWithdrawalMethods: async (): Promise<any> => {
+        const response = await api.get('/affiliate/methods');
+        return response.data;
+    },
+    cancelWithdrawal: async (id: string): Promise<any> => {
+        const response = await api.post('/affiliate/withdraw/cancel', { id });
+        return response.data;
+    },
+};
+
+export const affiliateAdminAPI = {
+    // Dashboard
+    getDashboardStats: async (): Promise<any> => {
+        const response = await api.get('/affiliate/admin/dashboard');
+        return response.data;
+    },
+
+    // Affiliates
+    getAffiliates: async (params?: { page?: number; status?: string; tier?: string; search?: string }): Promise<any> => {
+        const response = await api.get('/affiliate/admin/affiliates', { params });
+        return response.data;
+    },
+    getAffiliateById: async (id: string): Promise<any> => {
+        const response = await api.get(`/affiliate/admin/affiliates/${id}`);
+        return response.data;
+    },
+    approveAffiliate: async (id: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/affiliates/${id}/approve`);
+        return response.data;
+    },
+    suspendAffiliate: async (id: string, reason?: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/affiliates/${id}/suspend`, { reason });
+        return response.data;
+    },
+    banAffiliate: async (id: string, reason?: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/affiliates/${id}/ban`, { reason });
+        return response.data;
+    },
+    updateAffiliateTier: async (id: string, tier: string): Promise<any> => {
+        const response = await api.patch(`/affiliate/admin/affiliates/${id}/tier`, { tier });
+        return response.data;
+    },
+    updateAffiliateRate: async (id: string, rate: number): Promise<any> => {
+        const response = await api.patch(`/affiliate/admin/affiliates/${id}/rate`, { rate });
+        return response.data;
+    },
+    addAffiliateNote: async (id: string, note: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/affiliates/${id}/notes`, { note });
+        return response.data;
+    },
+
+    // Commissions
+    getCommissions: async (params?: { page?: number; status?: string; affiliateId?: string }): Promise<any> => {
+        const response = await api.get('/affiliate/admin/commissions', { params });
+        return response.data;
+    },
+    approveCommission: async (id: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/commissions/${id}/approve`);
+        return response.data;
+    },
+    rejectCommission: async (id: string, reason?: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/commissions/${id}/reject`, { reason });
+        return response.data;
+    },
+    bulkApproveCommissions: async (ids: string[]): Promise<any> => {
+        const response = await api.post('/affiliate/admin/commissions/bulk-approve', { ids });
+        return response.data;
+    },
+
+    // Withdrawals
+    getWithdrawals: async (params?: { page?: number; status?: string; affiliateId?: string }): Promise<any> => {
+        const response = await api.get('/affiliate/admin/withdrawals', { params });
+        return response.data;
+    },
+    approveWithdrawal: async (id: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/withdrawals/${id}/approve`);
+        return response.data;
+    },
+    processWithdrawal: async (id: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/withdrawals/${id}/process`);
+        return response.data;
+    },
+    completeWithdrawal: async (id: string, transactionId?: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/withdrawals/${id}/complete`, { transactionId });
+        return response.data;
+    },
+    rejectWithdrawal: async (id: string, reason?: string): Promise<any> => {
+        const response = await api.post(`/affiliate/admin/withdrawals/${id}/reject`, { reason });
+        return response.data;
+    },
+
+    // Settings
+    getSettings: async (): Promise<any> => {
+        const response = await api.get('/affiliate/admin/settings');
+        return response.data;
+    },
+    updateSettings: async (settings: any): Promise<any> => {
+        const response = await api.patch('/affiliate/admin/settings', settings);
+        return response.data;
+    },
+
+    // Enums
+    getEnums: async (): Promise<any> => {
+        const response = await api.get('/affiliate/admin/enums');
         return response.data;
     },
 };

@@ -5,17 +5,34 @@ import {
   Activity,
   ArrowUpRight,
   ArrowDownRight,
-  MoreHorizontal,
-  Trophy,
-  Zap,
-  Star,
-  Shield,
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   Download,
   Share2,
   RefreshCw,
+  ShoppingCart,
+  Briefcase,
+  CreditCard,
+  MessageSquare,
+  Package,
+  Users,
+  FolderKanban,
+  FileText,
+  ArrowRight,
+  HelpCircle,
+  TrendingUp,
+  Ticket,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Edit3,
+  Shield,
+  UserCheck,
+  BarChart3,
+  Headphones,
+  LifeBuoy,
+  Inbox,
 } from "lucide-react";
 import {
   AreaChart,
@@ -25,51 +42,68 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TypeAnimation } from "react-type-animation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/useAuth";
+import { useOrders } from "@/hooks/useOrders";
+import { useProjects } from "@/hooks/useProjects";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useUsers } from "@/hooks/useUsers";
+import { useFinance } from "@/hooks/useFinance";
+import { useTickets } from "@/hooks/useTickets";
 
-const data = [
-  { name: "Mon", visits: 4000, pv: 2400 },
-  { name: "Tue", visits: 3000, pv: 1398 },
-  { name: "Wed", visits: 2000, pv: 9800 },
-  { name: "Thu", visits: 2780, pv: 3908 },
-  { name: "Fri", visits: 1890, pv: 4800 },
-  { name: "Sat", visits: 2390, pv: 3800 },
-  { name: "Sun", visits: 3490, pv: 4300 },
-];
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
 
-const ACHIEVEMENTS = [
-  { title: "Project Master", icon: Trophy, color: "text-amber-500", bg: "bg-amber-500/10" },
-  { title: "Speed Demon", icon: Zap, color: "text-blue-500", bg: "bg-blue-500/10" },
-  { title: "Team Favorite", icon: Star, color: "text-purple-500", bg: "bg-purple-500/10" },
-  { title: "Privacy Pro", icon: Shield, color: "text-green-500", bg: "bg-green-500/10" },
-];
+function deriveChartDataFromOrders(orders: { total?: number; createdAt?: string }[]): { name: string; visits: number; pv: number }[] {
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const now = new Date();
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now);
+    d.setDate(now.getDate() - (6 - i));
+    const dayStart = new Date(d);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(d);
+    dayEnd.setHours(23, 59, 59, 999);
+    const dayOrders = (orders || []).filter((o) => {
+      const created = new Date(o.createdAt || 0);
+      return created >= dayStart && created <= dayEnd;
+    });
+    const total = dayOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+    return { name: dayNames[d.getDay()], visits: dayOrders.length, pv: Math.round(total) };
+  });
+}
 
-const RECENT_ACTIVITY = [
-  { name: "Sarah J.", initials: "SJ", task: "Final UI Designs", time: "10m ago" },
-  { name: "Mike T.", initials: "MT", task: "API Deployment", time: "1h ago" },
-];
+// ============================================
+// ROLE DEFINITIONS
+// ============================================
+export const ROLES = {
+  VIEWER: 'Viewer',
+  EDITOR: 'Editor',
+  SUPPORT: 'Support',
+  ADMIN: 'Admin',
+  SUPER_ADMIN: 'SuperAdmin',
+} as const;
 
-const TEAM_MEMBERS = [
-  { name: "Rasel Hossain", role: "Manager", status: "online" },
-  { name: "Sarah Jenkins", role: "UI Designer", status: "typing" },
-  { name: "Mike Thompson", role: "Dev", status: "busy" },
-];
+type UserRole = typeof ROLES[keyof typeof ROLES];
+
+// ============================================
+// UTILITY COMPONENTS
+// ============================================
 
 const StatCard = ({
   title,
@@ -77,474 +111,759 @@ const StatCard = ({
   change,
   trend,
   href,
+  icon: Icon,
+  color = "primary",
 }: {
   title: string;
   value: string;
   change: string;
-  trend: "up" | "down";
+  trend: "up" | "down" | "neutral";
   href: string;
-}) => (
-  <Button variant="ghost" asChild className="h-auto p-0 block text-left">
+  icon: React.ElementType;
+  color?: "primary" | "success" | "warning" | "destructive";
+}) => {
+  const colorClasses = {
+    primary: "bg-primary/10 text-primary border-primary/20",
+    success: "bg-green-500/10 text-green-600 border-green-500/20",
+    warning: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    destructive: "bg-red-500/10 text-red-600 border-red-500/20",
+  };
+
+  return (
     <Link href={href}>
       <motion.div
-        whileHover={{ y: -5, scale: 1.02 }}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-card border border-border p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm transition-all hover:shadow-xl group h-full w-full"
+        whileHover={{ y: -4, scale: 1.01 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-card border border-border p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer group h-full"
       >
-        <div className="flex justify-between items-start mb-3 sm:mb-4">
-          <div>
-            <p className="text-xs sm:text-sm text-muted-foreground font-bold uppercase tracking-wider mb-1">
-              {title}
-            </p>
-            <h3 className="text-2xl sm:text-3xl font-extrabold">{value}</h3>
+        <div className="flex justify-between items-start mb-4">
+          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", colorClasses[color])}>
+            <Icon className="w-6 h-6" />
           </div>
-          <div
-            className={cn(
-              "p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-transform group-hover:rotate-12 shrink-0",
-              trend === "up" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-            )}
-          >
-            {trend === "up" ? (
-              <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            ) : (
-              <ArrowDownRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            )}
-          </div>
+          {trend !== "neutral" && (
+            <div className={cn(
+              "flex items-center gap-1 text-xs font-semibold",
+              trend === "up" ? "text-green-600" : "text-red-600"
+            )}>
+              {trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+              {change}
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2 text-xs">
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[10px] sm:text-xs font-bold border-0",
-              trend === "up" ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600"
-            )}
-          >
-            {change}
-          </Badge>
-          <span className="text-muted-foreground font-medium">vs last month</span>
+        <div>
+          <h3 className="text-2xl font-bold mb-1">{value}</h3>
+          <p className="text-sm text-muted-foreground font-medium">{title}</p>
         </div>
       </motion.div>
     </Link>
-  </Button>
+  );
+};
+
+const QuickAction = ({ icon: Icon, label, href, color = "primary" }: { icon: any; label: string; href: string; color?: string }) => (
+  <Link href={href}>
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className="flex flex-col items-center gap-2 p-4 rounded-xl bg-muted/50 hover:bg-primary/10 border border-border hover:border-primary/30 transition-all cursor-pointer group"
+    >
+      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+        color === "primary" && "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white",
+        color === "success" && "bg-green-500/10 text-green-600 group-hover:bg-green-500 group-hover:text-white",
+        color === "warning" && "bg-amber-500/10 text-amber-600 group-hover:bg-amber-500 group-hover:text-white",
+        color === "destructive" && "bg-red-500/10 text-red-600 group-hover:bg-red-500 group-hover:text-white",
+      )}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <span className="text-xs font-semibold text-center">{label}</span>
+    </motion.div>
+  </Link>
 );
 
-import { useAuth } from "@/hooks/useAuth";
+const ActivityItem = ({ icon: Icon, title, description, time, status }: { icon: any; title: string; description: string; time: string; status?: string }) => (
+  <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
+    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+      <Icon className="w-5 h-5 text-primary" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-2">
+        <p className="font-semibold text-sm truncate">{title}</p>
+        {status && (
+          <Badge variant={status === 'completed' ? 'default' : status === 'pending' ? 'secondary' : 'destructive'} className="text-[10px]">
+            {status}
+          </Badge>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground line-clamp-1">{description}</p>
+      <p className="text-xs text-muted-foreground mt-1">{time}</p>
+    </div>
+  </div>
+);
 
-export default function DashboardHome() {
+// ============================================
+// VIEWER/USER DASHBOARD
+// ============================================
+
+function UserDashboard() {
   const { user } = useAuth();
-  const pathname = usePathname();
-  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const { orders = [] } = useOrders();
+  const { projects = [] } = useProjects();
+  const { subscription } = useSubscription();
 
-  const navLinks = [
-    { href: "/dashboard", label: "Overview" },
-    { href: "/dashboard/analytics", label: "Analytics" },
-    { href: "/dashboard/settings", label: "Settings" },
-  ];
-
-  const prevMonth = () => setCalendarMonth((m) => (m === 0 ? 11 : m - 1));
-  const nextMonth = () => setCalendarMonth((m) => (m === 11 ? 0 : m + 1));
+  const firstName = user?.name?.split(' ')[0] || 'there';
+  const activeOrders = orders.filter(o => o.status !== 'completed').length;
+  const completedOrders = orders.filter(o => o.status === 'completed').length;
 
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-[1600px] mx-auto">
-      {/* Header / Welcome */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
-        <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black mb-2 tracking-tight h-10 sm:h-12 overflow-hidden">
-            <TypeAnimation
-              sequence={[
-                `Welcome back, ${user?.name?.split(' ')[0] || 'Architect'}! 👋`,
-                2000,
-                "Scale your business today.",
-                2000,
-                "Manage projects like a pro.",
-                2000,
-              ]}
-              wrapper="span"
-              speed={50}
-              repeat={Infinity}
-            />
-          </h1>
-          <div className="h-8 overflow-hidden relative mt-1">
-            <motion.div
-              animate={{ y: ["0%", "-33.33%", "-66.66%"] }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                times: [0, 0.33, 0.66],
-                ease: "easeInOut",
-              }}
-              className="flex flex-col text-xs sm:text-sm font-medium text-muted-foreground"
-            >
-              <span className="h-8 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-                You have{" "}
-                <span className="text-foreground font-bold underline">
-                  3 critical deadlines
-                </span>{" "}
-                this week.
-              </span>
-              <span className="h-8 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-                New feature &quot;AI Chat&quot; is{" "}
-                <span className="text-foreground font-bold">ready for review</span>.
-              </span>
-              <span className="h-8 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-                Server uptime was{" "}
-                <span className="text-foreground font-bold">99.99%</span> last month.
-              </span>
-            </motion.div>
-          </div>
+    <div className="space-y-8">
+      {/* Welcome Header */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-8 border border-primary/20">
+        <div className="relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome back, <span className="text-primary">{firstName}</span>
+            </h1>
+            <p className="text-muted-foreground max-w-xl">
+              Here's what's happening with your account today.
+            </p>
+          </motion.div>
         </div>
-
-        <div className="flex bg-muted p-1 rounded-xl sm:rounded-2xl border border-border shrink-0">
-          {navLinks.map((link: any) => (
-            <Button
-              key={link.href}
-              variant="ghost"
-              size="sm"
-              asChild
-              className={cn(
-                "px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-bold rounded-lg",
-                pathname === link.href
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Link href={link.href}>{link.label}</Link>
-            </Button>
-          ))}
-        </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Active Projects"
-          value="12"
-          change="+2"
-          trend="up"
+          title="My Orders"
+          value={String(activeOrders)}
+          change="Active"
+          trend="neutral"
+          href="/dashboard/orders"
+          icon={ShoppingCart}
+          color="primary"
+        />
+        <StatCard
+          title="Active Services"
+          value={String(projects.filter(p => p.status === 'in_progress').length)}
+          change="In Progress"
+          trend="neutral"
           href="/dashboard/projects"
+          icon={Briefcase}
+          color="success"
         />
         <StatCard
-          title="Total Revenue"
-          value="$48,200"
-          change="+12.5%"
+          title="Subscription"
+          value={subscription?.plan || "Free"}
+          change={subscription?.status === 'active' ? 'Active' : 'Inactive'}
+          trend={subscription?.status === 'active' ? 'up' : 'down'}
+          href="/dashboard/settings/billing"
+          icon={CreditCard}
+          color="warning"
+        />
+        <StatCard
+          title="Completed"
+          value={String(completedOrders)}
+          change="Orders"
           trend="up"
-          href="/dashboard/analytics"
-        />
-        <StatCard
-          title="Team Velocity"
-          value="87%"
-          change="-2.4%"
-          trend="down"
-          href="/dashboard/analytics"
-        />
-        <StatCard
-          title="Task Efficiency"
-          value="94%"
-          change="+5.1%"
-          trend="up"
-          href="/dashboard/analytics"
+          href="/dashboard/orders"
+          icon={CheckCircle2}
+          color="success"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-8 space-y-6 sm:space-y-8">
-          {/* Performance Graph */}
-          <Card className="relative overflow-hidden border rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-            <CardHeader className="flex flex-row items-center justify-between p-0 mb-6 sm:mb-8 relative z-10">
-              <div>
-                <CardTitle className="text-lg sm:text-xl">Activity Trends</CardTitle>
-                <CardDescription>Real-time performance metrics</CardDescription>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="icon" asChild className="h-9 w-9 shrink-0">
-                  <Link
-                    href="/dashboard/analytics"
-                    title="View Detailed Analytics"
-                  >
-                    <Activity className="w-4 h-4" />
-                  </Link>
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/analytics" className="cursor-pointer">
-                        <Download className="w-4 h-4" /> Export Data
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/analytics" className="cursor-pointer">
-                        <Share2 className="w-4 h-4" /> Share Report
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/analytics" className="cursor-pointer">
-                        <RefreshCw className="w-4 h-4" /> Refresh
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="h-[250px] sm:h-[300px] md:h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data}>
-                    <defs>
-                      <linearGradient id="colorWave" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip
-                      cursor={{ stroke: "#6366f1", strokeWidth: 2, strokeDasharray: "4 4" }}
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        borderRadius: "12px",
-                        border: "1px solid hsl(var(--border))",
-                        boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="visits"
-                      stroke="#6366f1"
-                      strokeWidth={3}
-                      fillOpacity={1}
-                      fill="url(#colorWave)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Quick Actions & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+            <CardDescription>Get things done faster</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <QuickAction icon={ShoppingCart} label="Browse Products" href="/shop" color="primary" />
+              <QuickAction icon={Briefcase} label="Hire Service" href="/services" color="success" />
+              <QuickAction icon={FileText} label="View Invoices" href="/dashboard/orders" color="warning" />
+              <QuickAction icon={HelpCircle} label="Get Support" href="/dashboard/support" color="destructive" />
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {/* Achievements */}
-            <Card className="rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8">
-              <CardHeader className="p-0 mb-4 sm:mb-6">
-                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                  <Trophy className="text-amber-500 w-5 h-5" /> Milestone Badges
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  {ACHIEVEMENTS.map((ach, i) => (
-                    <Button
-                      key={i}
-                      variant="ghost"
-                      asChild
-                      className="h-auto p-0 block"
-                    >
-                      <Link
-                        href="/dashboard/settings/profile"
-                        className="flex flex-col items-center p-4 bg-muted/20 border border-border rounded-2xl sm:rounded-3xl hover:border-primary/50 transition-all group"
-                      >
-                        <div
-                          className={cn(
-                            "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform",
-                            ach.bg,
-                            ach.color
-                          )}
-                        >
-                          <ach.icon size={20} className="sm:w-6 sm:h-6" />
-                        </div>
-                        <p className="text-[10px] sm:text-xs font-bold text-center">
-                          {ach.title}
-                        </p>
-                      </Link>
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card className="rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8">
-              <CardHeader className="p-0 mb-4 sm:mb-6">
-                <CardTitle className="text-lg sm:text-xl">Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="space-y-4 sm:space-y-6">
-                  {RECENT_ACTIVITY.map((act, i) => (
-                    <div key={i} className="flex items-center gap-3 sm:gap-4">
-                      <Avatar className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl shrink-0">
-                        <AvatarFallback className="rounded-xl bg-muted text-[10px] font-bold">
-                          {act.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-bold truncate">
-                          {act.name}{" "}
-                          <span className="font-normal text-muted-foreground">
-                            uploaded
-                          </span>{" "}
-                          {act.task}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                          {act.time}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:col-span-4 space-y-6 sm:space-y-8">
-          {/* Calendar */}
-          <Card className="rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8 overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between p-0 mb-4 sm:mb-6">
-              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-primary shrink-0" /> Schedule
-                <span className="text-sm font-normal text-muted-foreground">
-                  {monthNames[calendarMonth]}
-                </span>
-              </CardTitle>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={prevMonth}
-                  className="h-8 w-8 shrink-0"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={nextMonth}
-                  className="h-8 w-8 shrink-0"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="grid grid-cols-7 gap-y-2 sm:gap-y-4 text-center">
-                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                  <span
-                    key={`${d}-${i}`}
-                    className="text-[10px] font-black text-muted-foreground uppercase"
-                  >
-                    {d}
-                  </span>
-                ))}
-                {Array.from({ length: 31 }).map((_, i) => (
-                  <div key={i} className="relative py-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className={cn(
-                        "text-xs font-bold w-7 h-7 sm:w-8 sm:h-8 p-0 rounded-lg sm:rounded-xl mx-auto",
-                        i + 1 === 24
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                          : "hover:bg-muted"
-                      )}
-                    >
-                      <Link href={`/dashboard/calendar?date=${i + 1}`}>{i + 1}</Link>
-                    </Button>
-                    {[12, 18, 28].includes(i + 1) && (
-                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Team */}
-          <Card className="rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8">
-            <CardHeader className="p-0 mb-4 sm:mb-6">
-              <CardTitle className="text-base sm:text-lg">Online Team</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="space-y-4 sm:space-y-5">
-                {TEAM_MEMBERS.map((tm, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between gap-2"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="relative shrink-0">
-                        <Avatar className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl">
-                          <AvatarFallback className="rounded-xl bg-muted text-xs font-bold">
-                            {tm.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span
-                          className={cn(
-                            "absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 border-2 border-card rounded-full",
-                            tm.status === "online"
-                              ? "bg-green-500"
-                              : tm.status === "typing"
-                              ? "bg-blue-500 animate-pulse"
-                              : "bg-orange-500"
-                          )}
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold leading-tight truncate">
-                          {tm.name}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate">
-                          {tm.role}
-                        </p>
-                      </div>
-                    </div>
-                    {tm.status === "typing" && (
-                      <div className="flex gap-1 shrink-0">
-                        {[0, 1, 2].map((d) => (
-                          <motion.div
-                            key={d}
-                            animate={{ opacity: [0, 1, 0] }}
-                            transition={{
-                              repeat: Infinity,
-                              duration: 1,
-                              delay: d * 0.2,
-                            }}
-                            className="w-1 h-1 bg-primary rounded-full"
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                asChild
-                className="w-full mt-6 sm:mt-8 rounded-xl sm:rounded-2xl"
-              >
-                <Link href="/dashboard/settings/security">
-                  Manage Permissions
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {orders.slice(0, 3).map((order, i) => (
+              <ActivityItem
+                key={order.id || i}
+                icon={ShoppingCart}
+                title={`Order #${order.id?.slice(-6) || i + 1}`}
+                description={`$${order.total} - ${order.status}`}
+                time={order.createdAt ? format(new Date(order.createdAt), 'MMM d, h:mm a') : 'Recently'}
+                status={order.status}
+              />
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
+}
+
+// ============================================
+// SUPPORT DASHBOARD
+// ============================================
+
+function SupportDashboard() {
+  const { user } = useAuth();
+  const { tickets = [], stats: ticketStats } = useTickets();
+  const { orders = [] } = useOrders();
+
+  const openTickets = tickets.filter(t => t.status === 'open').length;
+  const pendingTickets = tickets.filter(t => t.status === 'pending').length;
+  const resolvedToday = tickets.filter(t => {
+    if (t.status !== 'resolved') return false;
+    const today = new Date();
+    const resolved = new Date(t.resolvedAt || t.updatedAt);
+    return resolved.toDateString() === today.toDateString();
+  }).length;
+
+  return (
+    <div className="space-y-8">
+      {/* Support Header */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500/20 via-blue-500/10 to-background p-8 border border-blue-500/20">
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className="bg-blue-500 text-white">
+                <Headphones className="w-3 h-3 mr-1" />
+                Support Portal
+              </Badge>
+            </div>
+            <h1 className="text-3xl font-bold">
+              Support Dashboard
+            </h1>
+            <p className="text-muted-foreground max-w-xl mt-1">
+              Manage tickets, assist customers, and resolve issues efficiently.
+            </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Current Agent</p>
+              <p className="font-semibold">{user?.name}</p>
+            </div>
+            <Avatar className="w-12 h-12 border-2 border-blue-500/30">
+              <AvatarImage src={user?.avatarUrl} />
+              <AvatarFallback className="bg-blue-500 text-white">{user?.name?.[0]}</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Open Tickets"
+          value={String(openTickets)}
+          change={`${pendingTickets} pending`}
+          trend={openTickets > 5 ? "up" : "neutral"}
+          href="/dashboard/support/tickets"
+          icon={Inbox}
+          color="primary"
+        />
+        <StatCard
+          title="Resolved Today"
+          value={String(resolvedToday)}
+          change="Tickets"
+          trend="up"
+          href="/dashboard/support/tickets"
+          icon={CheckCircle2}
+          color="success"
+        />
+        <StatCard
+          title="Avg Response"
+          value="2.5h"
+          change="Target: 2h"
+          trend="neutral"
+          href="/dashboard/support/analytics"
+          icon={Clock}
+          color="warning"
+        />
+        <StatCard
+          title="Satisfaction"
+          value="94%"
+          change="+2%"
+          trend="up"
+          href="/dashboard/support/reviews"
+          icon={UserCheck}
+          color="success"
+        />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Priority Tickets */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-destructive" />
+                Priority Tickets
+              </CardTitle>
+              <CardDescription>High priority tickets requiring immediate attention</CardDescription>
+            </div>
+            <Button size="sm" variant="outline" asChild>
+              <Link href="/dashboard/support/tickets">
+                View All
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {tickets
+                .filter(t => t.priority === 'high' || t.status === 'open')
+                .slice(0, 5)
+                .map((ticket) => (
+                  <div key={ticket.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-2 h-2 rounded-full",
+                        ticket.priority === 'high' ? "bg-red-500" :
+                        ticket.priority === 'medium' ? "bg-amber-500" : "bg-green-500"
+                      )} />
+                      <div>
+                        <p className="font-semibold text-sm">{ticket.subject}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {ticket.customer?.name || 'Unknown'} • {ticket.category}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={ticket.status === 'open' ? 'destructive' : 'secondary'}>
+                        {ticket.status}
+                      </Badge>
+                      <Button size="sm" asChild>
+                        <Link href={`/dashboard/support/tickets/${ticket.id}`}>
+                          Respond
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              {tickets.filter(t => t.priority === 'high' || t.status === 'open').length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <CheckCircle2 className="w-12 h-12 mx-auto mb-2 text-green-500" />
+                  <p>All caught up! No priority tickets.</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/support/tickets/new">
+                <Ticket className="w-4 h-4 mr-2" />
+                Create Ticket
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/admin/users">
+                <Users className="w-4 h-4 mr-2" />
+                Find Customer
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/support/knowledge-base">
+                <FileText className="w-4 h-4 mr-2" />
+                Knowledge Base
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/support/analytics">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                View Analytics
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// EDITOR/STAFF DASHBOARD
+// ============================================
+
+function StaffDashboard() {
+  const { user } = useAuth();
+  const { orders = [] } = useOrders();
+  const { projects = [] } = useProjects();
+  const { users = [] } = useUsers();
+  
+  const myProjects = projects.filter(p => p.userId === user?.id);
+  const pendingApprovals = projects.filter(p => p.status === 'pending_review').length;
+  const contentUpdates = 12; // This would come from API
+
+  return (
+    <div className="space-y-8">
+      {/* Staff Header */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-background p-8 border border-purple-500/20">
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge className="bg-purple-500 text-white">
+              <Edit3 className="w-3 h-3 mr-1" />
+              Staff Portal
+            </Badge>
+          </div>
+          <h1 className="text-3xl font-black">
+            Staff Dashboard
+          </h1>
+          <p className="text-muted-foreground max-w-xl mt-1">
+            Manage content, projects, and collaborate with the team.
+          </p>
+        </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="My Projects"
+          value={String(myProjects.length)}
+          change="Assigned"
+          trend="neutral"
+          href="/dashboard/projects"
+          icon={FolderKanban}
+          color="primary"
+        />
+        <StatCard
+          title="Pending Review"
+          value={String(pendingApprovals)}
+          change="Needs approval"
+          trend={pendingApprovals > 0 ? "up" : "neutral"}
+          href="/dashboard/projects"
+          icon={FileText}
+          color="warning"
+        />
+        <StatCard
+          title="Content Updates"
+          value={String(contentUpdates)}
+          change="This week"
+          trend="up"
+          href="/dashboard/content"
+          icon={Edit3}
+          color="success"
+        />
+        <StatCard
+          title="Active Users"
+          value={String(users.filter(u => u.isActive).length)}
+          change="Total"
+          trend="neutral"
+          href="/dashboard/admin/users"
+          icon={Users}
+          color="primary"
+        />
+      </div>
+
+      {/* Content Management & Recent Orders */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Orders */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-lg font-black">Recent Orders</CardTitle>
+              <CardDescription>Latest customer orders requiring attention</CardDescription>
+            </div>
+            <Button size="sm" variant="outline" asChild>
+              <Link href="/dashboard/orders">
+                View All
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {orders.slice(0, 5).map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <ShoppingCart className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">Order #{order.id?.slice(-6)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.user?.name || 'Guest'} • ${order.total}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
+                      {order.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-black">Staff Tools</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/content/pages">
+                <FileText className="w-4 h-4 mr-2" />
+                Manage Pages
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/content/products">
+                <Package className="w-4 h-4 mr-2" />
+                Edit Products
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/projects">
+                <FolderKanban className="w-4 h-4 mr-2" />
+                View Projects
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/admin/users">
+                <Users className="w-4 h-4 mr-2" />
+                Customer Lookup
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// ADMIN DASHBOARD
+// ============================================
+
+function AdminDashboard() {
+  const { orders = [] } = useOrders();
+  const { projects = [] } = useProjects();
+  const { users = [] } = useUsers();
+  const { stats: financeStats } = useFinance();
+  const { tickets = [] } = useTickets();
+  
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const chartData = deriveChartDataFromOrders(orders);
+
+  return (
+    <div className="space-y-8">
+      {/* Admin Header with Typewriter */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-8 border border-primary/20">
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge className="bg-primary text-white">
+              <Shield className="w-3 h-3 mr-1" />
+              Admin Portal
+            </Badge>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex-1">
+              {mounted && (
+                <TypeAnimation
+                  sequence={[
+                    "Welcome to Admin Control Center",
+                    2000,
+                    "Monitor system health",
+                    2000,
+                    "Manage users and content",
+                    2000,
+                    "Analyze performance metrics",
+                    2000,
+                  ]}
+                  wrapper="h1"
+                  className="text-3xl sm:text-4xl font-black"
+                  repeat={Infinity}
+                />
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="px-3 py-1">
+                <Activity className="w-3 h-3 mr-1" />
+                System Online
+              </Badge>
+            </div>
+          </div>
+        </div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      </div>
+
+      {/* Admin Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Revenue"
+          value={`$${financeStats?.totalRevenue?.toLocaleString() || '0'}`}
+          change="+12%"
+          trend="up"
+          href="/dashboard/admin/finance"
+          icon={TrendingUp}
+          color="success"
+        />
+        <StatCard
+          title="Active Projects"
+          value={String(projects.filter(p => p.status === 'in_progress').length)}
+          change="On Track"
+          trend="up"
+          href="/dashboard/projects"
+          icon={FolderKanban}
+          color="primary"
+        />
+        <StatCard
+          title="Total Orders"
+          value={String(orders.length)}
+          change="This month"
+          trend="up"
+          href="/dashboard/orders"
+          icon={ShoppingCart}
+          color="warning"
+        />
+        <StatCard
+          title="Users"
+          value={String(users.length)}
+          change="+5 new"
+          trend="up"
+          href="/dashboard/admin/users"
+          icon={Users}
+          color="primary"
+        />
+      </div>
+
+      {/* Revenue Chart & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Revenue Chart */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg font-black">Revenue Overview</CardTitle>
+            <CardDescription>Last 7 days revenue and orders</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="name" className="text-xs" />
+                  <YAxis className="text-xs" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="pv"
+                    stroke="hsl(var(--primary))"
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
+                    name="Revenue ($)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions Panel */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-black">Admin Tools</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button className="w-full justify-start" asChild>
+              <Link href="/dashboard/admin/users">
+                <Users className="w-4 h-4 mr-2" />
+                Manage Users
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/settings/system">
+                <Shield className="w-4 h-4 mr-2" />
+                System Settings
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/admin/finance">
+                <CreditCard className="w-4 h-4 mr-2" />
+                Financial Reports
+              </Link>
+            </Button>
+            <Button className="w-full justify-start" variant="outline" asChild>
+              <Link href="/dashboard/content">
+                <FileText className="w-4 h-4 mr-2" />
+                Content Management
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// MAIN ENTRY POINT
+// ============================================
+
+export default function DashboardHome() {
+  const { user, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  const role = user?.role;
+
+  // Route to appropriate dashboard based on role
+  switch (role) {
+    case ROLES.SUPER_ADMIN:
+    case ROLES.ADMIN:
+      return <AdminDashboard />;
+    case ROLES.EDITOR:
+      return <StaffDashboard />;
+    case ROLES.SUPPORT:
+      return <SupportDashboard />;
+    case ROLES.VIEWER:
+    default:
+      return <UserDashboard />;
+  }
 }

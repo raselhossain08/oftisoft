@@ -36,12 +36,21 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useProducts } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
+import { Product } from "@/lib/api";
 import {
     Dialog,
     DialogContent,
@@ -51,24 +60,43 @@ import {
     DialogTrigger,
     DialogFooter
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ProductManagementPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [isUploading, setIsUploading] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
     
     const { products, stats, isLoading, isStatsLoading, deleteProduct, isDeleting } = useProducts(
         undefined,
         searchQuery,
         categoryFilter === "all" ? undefined : categoryFilter
     );
+    const { categories } = useCategories();
 
     const handleBulkUpload = () => {
         setIsUploading(true);
         setTimeout(() => {
             setIsUploading(false);
-            toast.success("CSV processed: 12 products imported successfully");
-        }, 2000);
+            toast.info("Bulk import: add file upload and CSV parsing to enable.");
+        }, 1500);
+    };
+
+    const handleConfirmDelete = () => {
+        if (deleteTarget) {
+            deleteProduct(deleteTarget.id);
+            setDeleteTarget(null);
+        }
     };
 
     const filteredProducts = products || [];
@@ -130,7 +158,7 @@ export default function ProductManagementPage() {
                         <div className="text-2xl font-bold">
                             {isStatsLoading ? "..." : stats?.totalProducts || 0}
                         </div>
-                        <p className="text-xs text-muted-foreground">+2 since yesterday</p>
+                        <p className="text-xs text-muted-foreground">All products</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -142,7 +170,7 @@ export default function ProductManagementPage() {
                         <div className="text-2xl font-bold">
                             {isStatsLoading ? "..." : stats?.activeCategories || 0}
                         </div>
-                        <p className="text-xs text-muted-foreground">Across 4 main niches</p>
+                        <p className="text-xs text-muted-foreground">Categories with products</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -154,7 +182,7 @@ export default function ProductManagementPage() {
                         <div className="text-2xl font-bold">
                             {isStatsLoading ? "..." : stats?.stockWarnings || 0}
                         </div>
-                        <p className="text-xs text-muted-foreground text-orange-500 font-medium leading-none">Items need attention</p>
+                        <p className="text-xs text-orange-500 font-medium leading-none">Items need attention</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -166,7 +194,7 @@ export default function ProductManagementPage() {
                         <div className="text-2xl font-bold">
                             ${isStatsLoading ? "..." : stats?.totalSales?.toLocaleString() || "0"}
                         </div>
-                        <p className="text-xs text-green-500 font-medium">+15.2% from last month</p>
+                        <p className="text-xs text-muted-foreground">Completed orders</p>
                     </CardContent>
                 </Card>
             </div>
@@ -184,13 +212,17 @@ export default function ProductManagementPage() {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" className="gap-2 rounded-lg">
-                                <Filter className="h-4 w-4" />
-                                Filter
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-lg">
-                                Category: All
-                            </Button>
+                            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                <SelectTrigger className="w-[180px] h-10 rounded-xl">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All categories</SelectItem>
+                                    {categories?.map((c) => (
+                                        <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </CardHeader>
@@ -265,10 +297,10 @@ export default function ProductManagementPage() {
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem 
                                                             className="flex items-center gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
-                                                            onClick={() => deleteProduct(p.id)}
+                                                            onClick={() => setDeleteTarget(p)}
                                                             disabled={isDeleting}
                                                         >
-                                                            <Trash2 className="w-4 h-4" /> {isDeleting ? "Deleting..." : "Delete"}
+                                                            <Trash2 className="w-4 h-4" /> Delete
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
@@ -290,57 +322,77 @@ export default function ProductManagementPage() {
             </Card>
 
             <div className="grid md:grid-cols-2 gap-8">
-                {/* Inventory Overview */}
+                {/* Inventory Overview - from real products */}
                 <Card className="border-border/50">
                     <CardHeader>
                         <CardTitle className="text-xl">Inventory Status</CardTitle>
-                        <CardDescription>Quick overview of labels and download availability.</CardDescription>
+                        <CardDescription>Recent products and availability.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {[
-                            { name: "NeonStore Kit", status: "In Stock", type: "Digital" },
-                            { name: "SaaS Starter", status: "Updating", type: "Digital" },
-                        ].map((item) => (
-                            <div key={item.name} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border">
+                        {filteredProducts.slice(0, 5).map((p) => (
+                            <div key={p.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border">
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                                     <div>
-                                        <p className="text-sm font-bold">{item.name}</p>
-                                        <p className="text-[10px] text-muted-foreground uppercase">{item.type}</p>
+                                        <p className="text-sm font-bold">{p.name}</p>
+                                        <p className="text-[10px] text-muted-foreground uppercase">Digital</p>
                                     </div>
                                 </div>
-                                <Badge variant="outline" className="text-[10px] bg-background">{item.status}</Badge>
+                                <Badge variant="outline" className="text-[10px] bg-background">Available</Badge>
                             </div>
                         ))}
+                        {filteredProducts.length === 0 && !isLoading && (
+                            <p className="text-sm text-muted-foreground py-2">No products yet.</p>
+                        )}
                         <Button asChild variant="outline" className="w-full rounded-xl">
                             <Link href="/dashboard/products/inventory">Manage Detailed Inventory</Link>
                         </Button>
                     </CardContent>
                 </Card>
 
-                {/* Category Management Shortcut */}
+                {/* Category Management - from API */}
                 <Card className="border-border/50">
                     <CardHeader>
                         <CardTitle className="text-xl">Quick Category Management</CardTitle>
-                        <CardDescription>Most active marketplace categories.</CardDescription>
+                        <CardDescription>Categories and product counts from catalog.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {[
-                            { name: "Mobile Apps", count: 24 },
-                            { name: "Web Templates", count: 56 },
-                            { name: "AI Solutions", count: 12 },
-                        ].map((cat) => (
-                            <div key={cat.name} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border shadow-sm">
+                        {categories?.slice(0, 5).map((cat) => (
+                            <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border shadow-sm">
                                 <span className="text-sm font-bold">{cat.name}</span>
-                                <Badge className="rounded-full h-5 min-w-[20px] justify-center px-2">{cat.count}</Badge>
+                                <Badge className="rounded-full h-5 min-w-[20px] justify-center px-2">{cat.productCount ?? 0}</Badge>
                             </div>
                         ))}
+                        {(!categories || categories.length === 0) && !isLoading && (
+                            <p className="text-sm text-muted-foreground py-2">No categories yet.</p>
+                        )}
                         <Button asChild variant="outline" className="w-full rounded-xl">
                             <Link href="/dashboard/products/categories">Manage All Categories</Link>
                         </Button>
                     </CardContent>
                 </Card>
             </div>
+
+            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+                <AlertDialogContent className="rounded-2xl border-border/50 max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">Delete product?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently remove &quot;{deleteTarget?.name}&quot;. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            variant="destructive"
+                            className="rounded-xl font-bold bg-destructive text-destructive-foreground"
+                            onClick={handleConfirmDelete}
+                        >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

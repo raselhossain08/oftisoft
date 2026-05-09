@@ -144,7 +144,7 @@ export default function HelpPage() {
                 <motion.h1 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-4xl font-black italic tracking-tight"
+                    className="text-4xl font-black  tracking-tight"
                 >
                     How can we help?
                 </motion.h1>
@@ -164,7 +164,7 @@ export default function HelpPage() {
                     <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform shadow-inner">
                         <Book className="w-7 h-7" />
                     </div>
-                    <h3 className="font-black text-xl mb-2 italic">Documentation</h3>
+                    <h3 className="font-black text-xl mb-2 ">Documentation</h3>
                     <p className="text-muted-foreground text-sm font-medium mb-4">Detailed guides and API references for developers.</p>
                     <span className="text-sm font-black text-primary flex items-center gap-1 group-hover:underline">Browse Docs <ChevronRight size={14} /></span>
                 </Link>
@@ -176,7 +176,7 @@ export default function HelpPage() {
                     <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 mb-6 group-hover:scale-110 transition-transform shadow-inner">
                         <MessageCircle className="w-7 h-7" />
                     </div>
-                    <h3 className="font-black text-xl mb-2 italic">Live Chat</h3>
+                    <h3 className="font-black text-xl mb-2 ">Live Chat</h3>
                     <p className="text-muted-foreground text-sm font-medium mb-4">Chat with our support team in real-time.</p>
                     <span className="text-sm font-black text-primary flex items-center gap-1 group-hover:underline">Start Chat <ChevronRight size={14} /></span>
                 </div>
@@ -188,7 +188,7 @@ export default function HelpPage() {
                     <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform shadow-inner">
                         <Mail className="w-7 h-7" />
                     </div>
-                    <h3 className="font-black text-xl mb-2 italic">Priority Support</h3>
+                    <h3 className="font-black text-xl mb-2 ">Priority Support</h3>
                     <p className="text-muted-foreground text-sm font-medium mb-4">Open a ticket for complex issues. 24h response time.</p>
                     <span className="text-sm font-black text-primary flex items-center gap-1 group-hover:underline">Open Ticket <ChevronRight size={14} /></span>
                 </div>
@@ -198,7 +198,7 @@ export default function HelpPage() {
             {tickets.length > 0 && (
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                         <h3 className="text-2xl font-black italic tracking-tight">Your Recent Tickets</h3>
+                         <h3 className="text-2xl font-black  tracking-tight">Your Recent Tickets</h3>
                          <Button variant="outline" size="sm" onClick={() => fetchTickets()} className="gap-2 rounded-xl h-9 font-bold">
                             <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
                             Refresh
@@ -243,7 +243,7 @@ export default function HelpPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div>
-                     <h3 className="text-2xl font-black italic tracking-tight mb-6">Frequently Asked Questions</h3>
+                     <h3 className="text-2xl font-black  tracking-tight mb-6">Frequently Asked Questions</h3>
                      <div className="space-y-4">
                         {FAQ_ITEMS.filter(i => i.q.toLowerCase().includes(searchQuery.toLowerCase()) || i.a.toLowerCase().includes(searchQuery.toLowerCase())).map((item, i) => (
                             <div key={i} className="bg-muted/10 border border-border/50 rounded-2xl p-6 hover:bg-muted/20 transition-colors">
@@ -260,7 +260,7 @@ export default function HelpPage() {
                 </div>
 
                 <div>
-                    <h3 className="text-2xl font-black italic tracking-tight mb-6">Popular Guides</h3>
+                    <h3 className="text-2xl font-black  tracking-tight mb-6">Popular Guides</h3>
                     <div className="space-y-4">
                         {GUIDES.map((guide, i) => (
                             <Link href="#" key={i} className="flex items-center justify-between p-5 bg-card border border-border/50 rounded-2xl hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
@@ -302,7 +302,7 @@ export default function HelpPage() {
                                         {selectedTicket.category}
                                     </Badge>
                                 </div>
-                                <DialogTitle className="text-2xl font-black italic tracking-tight">{selectedTicket.subject}</DialogTitle>
+                                <DialogTitle className="text-2xl font-black  tracking-tight">{selectedTicket.subject}</DialogTitle>
                             </DialogHeader>
 
                             <ScrollArea className="flex-1 p-6 md:p-8">
@@ -365,7 +365,7 @@ export default function HelpPage() {
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogContent className="sm:max-w-[600px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                     <DialogHeader>
-                        <DialogTitle className="text-3xl font-black italic tracking-tight text-center">Open Support Ticket</DialogTitle>
+                        <DialogTitle className="text-3xl font-black  tracking-tight text-center">Open Support Ticket</DialogTitle>
                         <DialogDescription className="text-center text-base font-medium">
                             Describe your issue and we'll get back to you as soon as possible.
                         </DialogDescription>

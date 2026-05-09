@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
@@ -47,7 +47,7 @@ export default function DocsPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Syncing Intelligence Protocols...
                 </div>
             </div>
@@ -71,16 +71,16 @@ export default function DocsPage() {
                 {/* Header Section */}
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-black italic tracking-[0.3em] text-[10px] uppercase shadow-[0_0_20px_rgba(var(--primary),0.2)]">
-                            {header?.badge || "Intelligence Repositorium"}
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(var(--primary),0.2)]">
+                            {header?.badge ?? ""}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-black italic tracking-tighter text-white"
+                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
-                        {header?.title || "Documentation"} <span className="text-primary NOT-italic">{header?.highlight || "Protocol"}</span>.
+                        {header?.title ?? ""} <span className="text-primary">{header?.highlight ?? ""}</span>.
                     </motion.h1>
                     <motion.div 
                         initial={{ opacity: 0, y: 10 }}
@@ -90,8 +90,8 @@ export default function DocsPage() {
                     >
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input 
-                            placeholder={header?.placeholder || "Find architectural intelligence nodes..."}
-                            className="h-16 pl-16 rounded-[24px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic shadow-2xl transition-all"
+                            placeholder={header?.placeholder ?? ""}
+                            className="h-16 pl-16 rounded-[24px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold shadow-2xl transition-all"
                         />
                     </motion.div>
                 </div>
@@ -99,7 +99,7 @@ export default function DocsPage() {
                 {/* Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {categories.map((category, idx) => {
-                        const Icon = iconMap[category.iconName || 'Layers'] || Layers;
+                        const Icon = iconMap[category.iconName ?? ''] || Layers;
                         return (
                         <motion.div
                             key={category.id}
@@ -114,9 +114,9 @@ export default function DocsPage() {
                                         <Icon size={28} />
                                     </div>
                                     <div className="space-y-2">
-                                        <h3 className="text-2xl font-black italic text-white tracking-tight leading-tight">{category.title}</h3>
+                                        <h3 className="text-2xl font-semibold text-white tracking-tight leading-tight">{category.title}</h3>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-[10px] font-black uppercase text-muted-foreground italic tracking-widest">{category.count}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground tracking-widest">{category.count}</span>
                                             <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-2 transition-all" />
                                         </div>
                                     </div>
@@ -132,17 +132,17 @@ export default function DocsPage() {
                     <div className="flex-1 space-y-6 relative z-10 text-center md:text-left">
                         <div className="flex flex-col md:flex-row items-center gap-4 text-primary">
                             <BookOpen size={32} />
-                            <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white">{cta?.title || "Advanced SDK Guides"}</h2>
+                            <h2 className="text-4xl md:text-6xl font-semibold tracking-tighter text-white">{cta?.title ?? ""}</h2>
                         </div>
-                        <p className="text-xl text-muted-foreground font-medium italic leading-relaxed max-w-2xl">
-                            {cta?.description || "Unlock the full architectural potential of your development environment with our hyper-scaled SDK documentation nodes."}
+                        <p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-2xl">
+                            {cta?.description ?? ""}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                            <Button className="h-16 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black italic shadow-xl shadow-primary/20 text-lg group/btn">
-                                {cta?.primaryButton || "Explore SDK Repo"} <Terminal className="w-5 h-5 ml-3 group-hover/btn:translate-x-1 transition-transform" />
+                            <Button className="h-16 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-semibold shadow-xl shadow-primary/20 text-lg group/btn">
+                                {cta?.primaryButton ?? ""} <Terminal className="w-5 h-5 ml-3 group-hover/btn:translate-x-1 transition-transform" />
                             </Button>
-                            <Button variant="outline" className="h-16 px-10 rounded-2xl border-white/10 bg-white/5 text-white font-black italic text-lg hover:bg-white/10">
-                                {cta?.secondaryButton || "View GitHub"} <ExternalLink className="w-5 h-5 ml-3" />
+                            <Button variant="outline" className="h-16 px-10 rounded-2xl border-white/10 bg-white/5 text-white font-semibold text-lg hover:bg-white/10">
+                                {cta?.secondaryButton ?? ""} <ExternalLink className="w-5 h-5 ml-3" />
                             </Button>
                         </div>
                     </div>
@@ -151,15 +151,15 @@ export default function DocsPage() {
                 {/* Sub-Footer links/support */}
                 <div className="grid md:grid-cols-2 gap-12 pt-12">
                     {support.map((card) => {
-                        const Icon = iconMap[card.iconName || 'MessageSquare'] || MessageSquare;
+                        const Icon = iconMap[card.iconName ?? ''] || MessageSquare;
                         return (
                         <div key={card.id} className="flex items-center gap-8 p-10 rounded-[40px] bg-white/[0.02] border border-white/5 group hover:border-blue-500/20 transition-all">
                             <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", card.color.replace('text-', 'bg-').replace('500', '500/10'), card.color)}>
                                 <Icon size={32} />
                             </div>
                             <div className="space-y-1">
-                                <h4 className="text-xl font-black italic text-white tracking-tight">{card.title}</h4>
-                                <p className="text-sm text-muted-foreground font-medium italic">{card.description}</p>
+                                <h4 className="text-xl font-semibold text-white tracking-tight">{card.title}</h4>
+                                <p className="text-sm text-muted-foreground font-medium">{card.description}</p>
                             </div>
                         </div>
                     );})}
@@ -168,3 +168,4 @@ export default function DocsPage() {
         </div>
     );
 }
+

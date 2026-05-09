@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,6 +36,7 @@ const resetSchema = z
 type ResetFormData = z.infer<typeof resetSchema>;
 
 function ResetPasswordForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const { resetPassword, verifyResetToken } = useAuth();
@@ -63,7 +64,7 @@ function ResetPasswordForm() {
     try {
       await resetPassword(token, data.password);
       toast.success("Password reset. Please sign in.", { id });
-      window.location.href = "/dashboard/login";
+      router.push("/dashboard/login");
     } catch {
       toast.error("Reset failed. Link may have expired.", { id });
     }

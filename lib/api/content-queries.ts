@@ -20,11 +20,20 @@ export interface UploadResponse {
 
 // 1. Fetch Page Content
 const fetchPageContent = async (pageKey: string): Promise<PageContentResponse> => {
-    return api.get<PageContentResponse>(endpoints.content.page(pageKey));
+    console.log(`[Content API] Fetching content for page: ${pageKey}`);
+    try {
+        const result = await api.get<PageContentResponse>(endpoints.content.page(pageKey));
+        console.log(`[Content API] Fetched content for ${pageKey}:`, result);
+        return result;
+    } catch (error) {
+        console.error(`[Content API] Error fetching ${pageKey}:`, error);
+        throw error;
+    }
 };
 
 // 2. Update Page Content
 const updatePageContent = async ({ pageKey, content }: { pageKey: string; content: any }): Promise<PageContentResponse> => {
+    console.log(`[Content API] Updating content for page: ${pageKey}`);
     return api.put<PageContentResponse>(endpoints.content.update(pageKey), { content });
 };
 
@@ -40,6 +49,8 @@ export function usePageContent(pageKey: string) {
         queryKey: ["content", pageKey],
         queryFn: () => fetchPageContent(pageKey),
         enabled: !!pageKey,
+        retry: 1,
+        staleTime: 30000,
     });
 }
 
@@ -53,8 +64,9 @@ export function useUpdatePageContent() {
             queryClient.invalidateQueries({ queryKey: ["all-pages"] });
             toast.success("Content saved successfully");
         },
-        onError: (error) => {
-            toast.error("Failed to save content");
+        onError: (error: any) => {
+            const message = error?.message || "Failed to save content";
+            toast.error(message);
             console.error(error);
         },
     });
@@ -120,12 +132,50 @@ export function useUploadFile() {
 }
 // 7. Fetch All Pages
 const fetchAllPages = async (): Promise<PageContentResponse[]> => {
-    return api.get<PageContentResponse[]>('content/pages');
+    console.log('[Content API] Fetching all pages');
+    try {
+        const result = await api.get<PageContentResponse[]>('content/pages');
+        console.log('[Content API] Fetched all pages:', result?.length || 0, 'pages');
+        return result;
+    } catch (error) {
+        console.error('[Content API] Error fetching all pages:', error);
+        throw error;
+    }
 };
+
+// 8. AI Generate (DeepSeek) – content & SEO
+export interface AiGenerateParams {
+    prompt: string;
+    fieldType?: 'meta_title' | 'meta_description' | 'keywords' | 'title' | 'description' | 'tags';
+    pageKey?: string;
+    sectionId?: string;
+    fieldName?: string;
+    /** JSON string of existing content + schema hints for context */
+    context?: string;
+}
+export interface AiGenerateResponse {
+    text: string;
+}
+
+const generateWithAI = async (params: AiGenerateParams): Promise<AiGenerateResponse> => {
+    return api.post<AiGenerateResponse>(endpoints.content.aiGenerate, params);
+};
+
+export function useGenerateWithAI() {
+    return useMutation({
+        mutationFn: generateWithAI,
+        onError: (err: any) => {
+            const msg = err?.response?.data?.message || err?.message || 'AI generation failed';
+            toast.error(msg);
+        },
+    });
+}
 
 export function useAllPages() {
     return useQuery({
         queryKey: ["all-pages"],
         queryFn: fetchAllPages,
+        retry: 1,
+        staleTime: 60000,
     });
 }

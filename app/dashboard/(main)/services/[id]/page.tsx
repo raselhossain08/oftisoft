@@ -129,10 +129,12 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="planning">Planning</SelectItem>
-                                    <SelectItem value="in-progress">In Progress</SelectItem>
-                                    <SelectItem value="on-hold">On Hold</SelectItem>
-                                    <SelectItem value="completed">Completed</SelectItem>
+                                    <SelectItem value="Planning">Planning</SelectItem>
+                                    <SelectItem value="In Progress">In Progress</SelectItem>
+                                    <SelectItem value="On Hold">On Hold</SelectItem>
+                                    <SelectItem value="Review">Review</SelectItem>
+                                    <SelectItem value="Completed">Completed</SelectItem>
+                                    <SelectItem value="Delayed">Delayed</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -274,10 +276,12 @@ export default function ServiceOrderDetailsPage() {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case "in-progress": return "bg-blue-500/10 text-blue-500";
-            case "completed": return "bg-green-500/10 text-green-500";
-            case "planning": return "bg-orange-500/10 text-orange-500";
-            case "on-hold": return "bg-purple-500/10 text-purple-500";
+            case "In Progress": return "bg-blue-500/10 text-blue-500";
+            case "Completed": return "bg-green-500/10 text-green-500";
+            case "Planning": return "bg-orange-500/10 text-orange-500";
+            case "On Hold": return "bg-purple-500/10 text-purple-500";
+            case "Review": return "bg-amber-500/10 text-amber-500";
+            case "Delayed": return "bg-red-500/10 text-red-500";
             default: return "bg-muted/10 text-muted-foreground";
         }
     };

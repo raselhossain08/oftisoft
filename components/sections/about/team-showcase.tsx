@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAboutContentStore } from "@/lib/store/about-content";
 
 const categories = [
     { label: "All", icon: Grid },
@@ -20,8 +19,7 @@ const categories = [
 ];
 
 export default function TeamShowcase({ data }: { data?: any }) {
-    const { content: storeContent } = useAboutContentStore();
-    const team = data || storeContent?.team;
+    const team = data;
     const teamMembers = team?.members || [];
 
     const [filter, setFilter] = useState("All");
@@ -39,13 +37,13 @@ export default function TeamShowcase({ data }: { data?: any }) {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5 rounded-full">
-                            {team?.badge || "The Collective"}
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
+                            {team?.badge ?? ""}
                         </Badge>
-                        <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                            {team?.titleLine1 || "Architects of the"} <br />
+                        <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+                            {team?.titleLine1 ?? ""} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                {team?.titleLine2 || "Impossible."}
+                                {team?.titleLine2 ?? ""}
                             </span>
                         </h3>
                     </motion.div>
@@ -107,7 +105,7 @@ export default function TeamShowcase({ data }: { data?: any }) {
                                                 <div className={cn("w-full h-full opacity-50 mix-blend-overlay", (member.image && !member.image.includes(' ')) ? member.image : member.gradient?.replace("from-", "bg-"))} />
                                                 
                                                 {/* Fallback Initials */}
-                                                <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/5 group-hover:scale-110 transition-transform duration-700">
+                                                <div className="absolute inset-0 flex items-center justify-center text-8xl font-bold text-white/5 group-hover:scale-110 transition-transform duration-700">
                                                     {member.name?.split(" ").map((n: string) => n[0]).join("")}
                                                 </div>
                                             </>
@@ -129,7 +127,7 @@ export default function TeamShowcase({ data }: { data?: any }) {
                                             <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-primary transition-colors duration-300">
                                                 {member.name}
                                             </h3>
-                                            <p className="text-white/60 font-medium tracking-wide text-sm uppercase">
+                                            <p className="text-white/60 font-medium tracking-wide text-sm">
                                                 {member.role}
                                             </p>
                                         </div>

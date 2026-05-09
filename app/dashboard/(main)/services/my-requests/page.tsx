@@ -58,7 +58,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             description: formData.description,
             budget: formData.budget ? parseFloat(formData.budget) : 0,
             dueDate: formData.dueDate || new Date().toISOString(),
-            status: "planning",
+            status: "Planning",
             progress: 0,
             members: 1
         }, {
@@ -179,10 +179,12 @@ export default function MyServiceRequestsPage() {
 
     const getStatusTheme = (status: string) => {
         switch (status) {
-            case "in-progress": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
-            case "completed": return "text-green-500 bg-green-500/10 border-green-500/20";
-            case "planning": return "text-orange-500 bg-orange-500/10 border-orange-500/20";
-            case "on-hold": return "text-purple-500 bg-purple-500/10 border-purple-500/20";
+            case "In Progress": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
+            case "Completed": return "text-green-500 bg-green-500/10 border-green-500/20";
+            case "Planning": return "text-orange-500 bg-orange-500/10 border-orange-500/20";
+            case "On Hold": return "text-purple-500 bg-purple-500/10 border-purple-500/20";
+            case "Review": return "text-amber-500 bg-amber-500/10 border-amber-500/20";
+            case "Delayed": return "text-red-500 bg-red-500/10 border-red-500/20";
             default: return "text-muted-foreground bg-muted/10 border-muted/20";
         }
     };
@@ -261,7 +263,7 @@ export default function MyServiceRequestsPage() {
                                                 </Badge>
                                             )}
                                         </div>
-                                        <CardTitle className="text-2xl font-black italic group-hover:text-primary transition-colors">{req.title}</CardTitle>
+                                        <CardTitle className="text-2xl font-black  group-hover:text-primary transition-colors">{req.title}</CardTitle>
                                         <CardDescription className="flex items-center gap-4 text-xs font-medium">
                                             <span className="flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> {req.client}</span>
                                             <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Deadline: {formatDate(req.dueDate)}</span>
@@ -282,7 +284,7 @@ export default function MyServiceRequestsPage() {
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-end">
                                             <p className="text-[10px] font-black uppercase text-muted-foreground">Project Progress</p>
-                                            <p className="text-lg font-black italic">{req.progress}%</p>
+                                            <p className="text-lg font-black ">{req.progress}%</p>
                                         </div>
                                         <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
                                             <motion.div 
@@ -337,11 +339,11 @@ export default function MyServiceRequestsPage() {
                                                 A
                                             </div>
                                         </div>
-                                        <p className="text-[10px] font-bold text-muted-foreground italic">Project ID: {req.id.substring(0, 8)}</p>
+                                        <p className="text-[10px] font-bold text-muted-foreground ">Project ID: {req.id.substring(0, 8)}</p>
                                     </div>
                                     <Button 
                                         className="rounded-xl font-bold h-10 gap-2 bg-background border-border shadow-sm group hover:bg-primary hover:text-white transition-all"
-                                        onClick={() => window.location.href = `/dashboard/projects/${req.id}`}
+                                        onClick={() => window.location.href = `/dashboard/services/${req.id}`}
                                     >
                                         View Details <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                                     </Button>
@@ -365,7 +367,7 @@ export default function MyServiceRequestsPage() {
                     <Card className="border-border/50 bg-primary/[0.03] overflow-hidden relative group">
                         <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 blur-[60px] rounded-full" />
                         <CardHeader>
-                            <CardTitle className="text-xl font-black italic flex items-center gap-2">
+                            <CardTitle className="text-xl font-black  flex items-center gap-2">
                                 <AlertCircle className="w-5 h-5 text-primary" /> Active Overview
                             </CardTitle>
                         </CardHeader>
@@ -382,13 +384,13 @@ export default function MyServiceRequestsPage() {
                                 <h5 className="text-[10px] font-black uppercase text-muted-foreground">Quick Stats</h5>
                                 <div className="space-y-3">
                                     {[
-                                        { label: "In Progress", val: filteredRequests.filter(p => p.status === "in-progress").length },
-                                        { label: "Planning", val: filteredRequests.filter(p => p.status === "planning").length },
-                                        { label: "Completed", val: filteredRequests.filter(p => p.status === "completed").length },
+                                        { label: "In Progress", val: filteredRequests.filter(p => p.status === "In Progress").length },
+                                        { label: "Planning", val: filteredRequests.filter(p => p.status === "Planning").length },
+                                        { label: "Completed", val: filteredRequests.filter(p => p.status === "Completed").length },
                                     ].map((stat, i) => (
                                         <div key={i} className="flex justify-between items-center bg-background/50 p-3 rounded-xl border border-border/50 backdrop-blur-sm">
                                             <span className="text-[11px] font-bold">{stat.label}</span>
-                                            <span className="text-[11px] font-black text-primary italic">{stat.val}</span>
+                                            <span className="text-[11px] font-black text-primary ">{stat.val}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -404,9 +406,9 @@ export default function MyServiceRequestsPage() {
                     </Card>
 
                     <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden flex flex-col items-center p-8 text-center space-y-4 border-dashed">
-                        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-muted-foreground ring-4 ring-muted/20 italic font-black">?</div>
+                        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-muted-foreground ring-4 ring-muted/20  font-black">?</div>
                         <div className="space-y-1">
-                            <h4 className="text-sm font-black italic">Need Custom Service?</h4>
+                            <h4 className="text-sm font-black ">Need Custom Service?</h4>
                             <p className="text-[10px] text-muted-foreground font-medium leading-relaxed px-4">
                                 Start a new service project or request a custom quote for your specific needs.
                             </p>

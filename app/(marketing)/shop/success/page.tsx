@@ -1,170 +1,346 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Download, Copy, Mail, ShieldCheck, ArrowRight, Home, LayoutDashboard, MessageSquare } from "lucide-react";
+import { CheckCircle2, Download, Copy, Mail, ShieldCheck, ArrowRight, Home, LayoutDashboard, MessageSquare, Loader2, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { useState } from "react";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 
-export default function OrderSuccessPage() {
-    const [copied, setCopied] = useState(false);
-    const licenseKey = "OFTI-2026-XXXX-REGL-8892";
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(licenseKey);
-        setCopied(true);
-        toast.success("License key copied to clipboard!");
-        setTimeout(() => setCopied(false), 2000);
-    };
-
-    return (
-        <div className="container px-4 py-16 md:py-24 mx-auto max-w-4xl">
-            <div className="text-center mb-12">
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    className="w-24 h-24 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"
-                >
-                    <CheckCircle2 className="w-12 h-12" />
-                </motion.div>
-                <motion.h1 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-4xl md:text-5xl font-extrabold mb-4"
-                >
-                    Payment Successful!
-                </motion.h1>
-                <motion.p 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-muted-foreground text-lg"
-                >
-                    Thank you for your purchase. Your order <span className="text-foreground font-bold">#ORD-88291</span> has been confirmed.
-                </motion.p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-                {/* Product Access Card */}
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <Card className="h-full border-primary/20 shadow-xl overflow-hidden relative">
-                         <div className="absolute top-0 right-0 p-4">
-                            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">Instant Access</Badge>
-                        </div>
-                        <CardHeader>
-                            <CardTitle>Your Digital Assets</CardTitle>
-                            <CardDescription>Download your files and view your license.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="p-4 rounded-2xl bg-muted/50 border border-border">
-                                <p className="text-sm font-bold mb-3">License Key:</p>
-                                <div className="flex items-center gap-2">
-                                    <code className="flex-1 p-2 bg-background rounded-lg border font-mono text-xs overflow-x-auto">
-                                        {licenseKey}
-                                    </code>
-                                    <Button size="icon" variant="outline" className="h-9 w-9 shrink-0" onClick={copyToClipboard}>
-                                        <Copy className={`w-4 h-4 ${copied ? "text-green-500" : ""}`} />
-                                    </Button>
-                                </div>
-                            </div>
-
-                            <Button className="w-full h-14 rounded-2xl font-bold text-lg gap-2 shadow-lg shadow-primary/20" size="lg">
-                                <Download className="w-5 h-5" />
-                                Download Files (.zip)
-                            </Button>
-
-                            <p className="text-xs text-muted-foreground text-center flex items-center justify-center gap-2">
-                                <Mail className="w-3 h-3" />
-                                A copy has been sent to your email.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-
-                {/* Next Steps Card */}
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <Card className="h-full border-border/50 shadow-lg">
-                        <CardHeader>
-                            <CardTitle>Manage & Support</CardTitle>
-                            <CardDescription>What would you like to do next?</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Link href="/dashboard" className="flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                        <LayoutDashboard className="w-5 h-5" />
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="font-bold text-sm">Customer Dashboard</p>
-                                        <p className="text-xs text-muted-foreground">Manage all your purchases</p>
-                                    </div>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                            </Link>
-
-                            <Link href="/support" className="flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500">
-                                        <MessageSquare className="w-5 h-5" />
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="font-bold text-sm">Get Support</p>
-                                        <p className="text-xs text-muted-foreground">Open a technical ticket</p>
-                                    </div>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                            </Link>
-
-                             <Link href="/shop" className="flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
-                                        <Home className="w-5 h-5" />
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="font-bold text-sm">Continue Shopping</p>
-                                        <p className="text-xs text-muted-foreground">Discover more premium assets</p>
-                                    </div>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-center p-8 rounded-3xl bg-secondary/20 border border-border/50"
-            >
-                <div className="flex items-center justify-center gap-4 mb-4">
-                    <ShieldCheck className="w-6 h-6 text-primary" />
-                    <span className="font-bold text-lg">Lifetime Support & Updates</span>
-                </div>
-                <p className="text-muted-foreground max-w-lg mx-auto mb-6">
-                    Our team is committed to providing ongoing updates and technical assistance for all our products. You can access future versions directly from your dashboard.
-                </p>
-                <Separator className="mb-6" />
-                <p className="text-sm text-muted-foreground">
-                    Need help with installation? <Link href="/docs" className="text-primary font-bold hover:underline">Check our documentation</Link> or <Link href="/contact" className="text-primary font-bold hover:underline">contact us</Link>.
-                </p>
-            </motion.div>
-        </div>
-    );
+interface OrderItem {
+  id: string;
+  product: {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    price: number;
+  };
+  quantity: number;
+  price: number;
+  licenseKey: string | null;
+  downloadUrl: string | null;
 }
 
+interface OrderData {
+  order: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    createdAt: string;
+    completedAt: string;
+  };
+  items: OrderItem[];
+  totals: {
+    subtotal: string;
+    tax: string;
+    total: string;
+    currency: string;
+  };
+  customer: {
+    name: string;
+    email: string;
+  };
+  message: string;
+}
 
+function OrderSuccessContent() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
+  
+  const [orderData, setOrderData] = useState<OrderData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!orderId) {
+      setError("No order ID provided");
+      setLoading(false);
+      return;
+    }
+
+    fetchOrderData();
+  }, [orderId]);
+
+  const fetchOrderData = async () => {
+    try {
+      const response = await api.get(`/orders/${orderId}/success`);
+      setOrderData(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.message ?? "");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, itemId: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(itemId);
+    toast.success("License key copied to clipboard!");
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="container px-4 py-16 md:py-24 mx-auto max-w-4xl text-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <Loader2 className="w-12 h-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading your order details...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (error || !orderData) {
+    return (
+      <div className="container px-4 py-16 md:py-24 mx-auto max-w-4xl">
+        <Card className="border-red-500/20 bg-red-500/5">
+          <CardHeader className="text-center">
+            <CardTitle className="text-red-400">Unable to Load Order</CardTitle>
+            <CardDescription>{error ?? ""}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center gap-4">
+            <Button asChild>
+              <Link href="/dashboard/orders">View All Orders</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/shop">Continue Shopping</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { order, items, totals, customer, message } = orderData;
+
+  return (
+    <div className="container px-4 py-16 md:py-24 mx-auto max-w-5xl">
+      {/* Success Header */}
+      <div className="text-center mb-12">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+          className="w-24 h-24 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
+          <CheckCircle2 className="w-12 h-12" />
+        </motion.div>
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl md:text-5xl font-extrabold mb-4"
+        >
+          Payment Successful!
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-muted-foreground text-lg"
+        >
+          Thank you for your purchase. Your order <span className="text-foreground font-bold">#{order.orderNumber}</span> has been confirmed.
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-sm text-muted-foreground mt-2"
+        >
+          A confirmation email has been sent to {customer.email}
+        </motion.p>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Products Section */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="lg:col-span-2 space-y-6"
+        >
+          <Card className="border-primary/20 shadow-xl">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Your Purchase</CardTitle>
+                  <CardDescription>{items.length} item{items.length !== 1 ? 's' : ''} in this order</CardDescription>
+                </div>
+                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                  {order.status}
+                </Badge>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              {items.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  className="p-4 rounded-2xl bg-muted/50 border border-border"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Package className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold truncate">{item.product.name}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{item.product.description}</p>
+                      <p className="text-sm font-medium mt-1">
+                        Qty: {item.quantity} Ã— ${parseFloat(item.price.toString()).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-bold">${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  {item.licenseKey && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium mb-2">License Key:</p>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 p-3 bg-background rounded-lg border font-mono text-xs overflow-x-auto">
+                          {item.licenseKey}
+                        </code>
+                        <Button 
+                          size="icon" 
+                          variant="outline" 
+                          className="h-10 w-10 shrink-0"
+                          onClick={() => copyToClipboard(item.licenseKey!, item.id)}
+                        >
+                          <Copy className={`w-4 h-4 ${copiedKey === item.id ? "text-green-500" : ""}`} />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {item.downloadUrl && (
+                    <Button 
+                      className="w-full h-12 rounded-xl font-bold gap-2"
+                      size="lg"
+                      asChild
+                    >
+                      <a href={item.downloadUrl} download>
+                        <Download className="w-5 h-5" />
+                        Download Files
+                      </a>
+                    </Button>
+                  )}
+                </motion.div>
+              ))}
+
+              {/* Order Totals */}
+              <div className="border-t border-border pt-6 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>${totals.subtotal}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Tax</span>
+                  <span>${totals.tax}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Total</span>
+                  <span>${totals.total} {totals.currency}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Sidebar */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-6"
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>What's Next?</CardTitle>
+              <CardDescription>Manage your purchase</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/dashboard" className="flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <LayoutDashboard className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">Dashboard</p>
+                    <p className="text-xs text-muted-foreground">View all orders</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              <Link href="/dashboard/downloads" className="flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                    <Download className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">Downloads</p>
+                    <p className="text-xs text-muted-foreground">Access your files</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              <Link href="/support" className="flex items-center justify-between p-4 rounded-2xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500">
+                    <MessageSquare className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">Get Support</p>
+                    <p className="text-xs text-muted-foreground">Need help?</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-secondary/20 border-border/50">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <ShieldCheck className="w-5 h-5 text-primary" />
+                <span className="font-bold">Lifetime Support</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                All purchases include free updates and technical support.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// Export with Suspense wrapper
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="container px-4 py-16 md:py-24 mx-auto max-w-4xl text-center">
+        <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
+  );
+}

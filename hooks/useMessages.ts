@@ -1,283 +1,630 @@
-
 import { useState, useCallback, useEffect, useRef } from "react";
-import { messagesAPI, adminUserAPI } from "@/lib/api";
-import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { messagesAPI } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { db } from "@/lib/firebase";
-import {
-    collection,
-    query,
-    where,
-    orderBy,
-    onSnapshot,
-    addDoc,
-    serverTimestamp,
-    updateDoc,
-    doc,
-    limit,
-    getDocs
-} from "firebase/firestore";
+import { toast } from "sonner";
+
+const NOTIFICATION_SOUND = "/sounds/notification.mp3";
+
+function playNotificationSound() {
+    try {
+        const audio = new Audio(NOTIFICATION_SOUND);
+        audio.volume = 0.6;
+        audio.play().catch(() => {});
+    } catch {}
+}
+
+export type MessageStatus = 'sent' | 'delivered' | 'read';
+export type UserRole = 'SuperAdmin' | 'Admin' | 'Support' | 'Editor' | 'User' | 'Viewer';
+
+export interface MessageAttachment {
+    id: string;
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+}
+
+export interface MessageReaction {
+    emoji: string;
+    users: string[];
+}
+
+export interface Message {
+    id: string;
+    sender: string;
+    senderId: string;
+    senderRole: UserRole;
+    text: string;
+    time: string;
+    isMe: boolean;
+    chatId: string;
+    status: MessageStatus;
+    attachments?: MessageAttachment[];
+    replyTo?: {
+        id: string;
+        text: string;
+        sender: string;
+    };
+    reactions?: MessageReaction[];
+    edited?: boolean;
+    editedAt?: string;
+}
+
+export interface ConversationUser {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    avatar: string;
+    status: 'online' | 'offline';
+    lastSeen?: string;
+}
+
+export interface Conversation {
+    id: string;
+    name: string;
+    role: UserRole;
+    email: string;
+    avatar: string;
+    status: 'online' | 'offline';
+    lastMsg: string;
+    lastMsgIds: string;
+    time: string;
+    unread: number;
+    color: string;
+    recipientId: string;
+    isSupport: boolean;
+    isPinned?: boolean;
+    isMuted?: boolean;
+    blockedBy?: string[];
+}
+
+export interface MessagingPermissions {
+    canMessageAllUsers: boolean;
+    canMessageAdmins: boolean;
+    canMessageSupport: boolean;
+    canMessageStaff: boolean;
+    canUploadFiles: boolean;
+    maxFileSize: number;
+    allowedFileTypes: string[];
+    canCreateGroup: boolean;
+    canDeleteMessages: boolean;
+    canEditMessages: boolean;
+    canBlockUsers: boolean;
+    canReportMessages: boolean;
+}
+
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+    'SuperAdmin': 5,
+    'Admin': 4,
+    'Support': 3,
+    'Editor': 2,
+    'User': 1,
+    'Viewer': 0
+};
+
+export function getRolePermissions(role: UserRole): MessagingPermissions {
+    const basePermissions: MessagingPermissions = {
+        canMessageAllUsers: false,
+        canMessageAdmins: false,
+        canMessageSupport: true,
+        canMessageStaff: false,
+        canUploadFiles: true,
+        maxFileSize: 10 * 1024 * 1024, // 10MB
+        allowedFileTypes: ['image/*', 'application/pdf', '.doc', '.docx', '.txt', '.zip'],
+        canCreateGroup: false,
+        canDeleteMessages: false,
+        canEditMessages: true,
+        canBlockUsers: true,
+        canReportMessages: true
+    };
+
+    switch (role) {
+        case 'SuperAdmin':
+        case 'Admin':
+            return {
+                ...basePermissions,
+                canMessageAllUsers: true,
+                canMessageAdmins: true,
+                canMessageSupport: true,
+                canMessageStaff: true,
+                canCreateGroup: true,
+                canDeleteMessages: true,
+                canEditMessages: true,
+                canBlockUsers: true,
+                maxFileSize: 50 * 1024 * 1024, // 50MB
+            };
+        case 'Support':
+            return {
+                ...basePermissions,
+                canMessageAllUsers: true,
+                canMessageAdmins: true,
+                canMessageSupport: true,
+                canMessageStaff: true,
+                canCreateGroup: true,
+                canDeleteMessages: true,
+                maxFileSize: 20 * 1024 * 1024,
+            };
+        case 'Editor':
+            return {
+                ...basePermissions,
+                canMessageStaff: true,
+                canMessageSupport: true,
+                maxFileSize: 15 * 1024 * 1024,
+            };
+        case 'User':
+        case 'Viewer':
+        default:
+            return basePermissions;
+    }
+}
+
+export function canMessageUser(
+    senderRole: UserRole,
+    recipientRole: UserRole,
+    recipientIsSupport: boolean = false
+): boolean {
+    // SuperAdmin can message anyone
+    if (senderRole === 'SuperAdmin') return true;
+    
+    // Admin can message anyone except SuperAdmin
+    if (senderRole === 'Admin') return recipientRole !== 'SuperAdmin';
+    
+    // Support can message anyone except SuperAdmin and Admin
+    if (senderRole === 'Support') {
+        return recipientRole !== 'SuperAdmin' && recipientRole !== 'Admin';
+    }
+    
+    // Editor can message Support, other Editors, and Users
+    if (senderRole === 'Editor') {
+        return ['Support', 'Editor', 'User', 'Viewer'].includes(recipientRole);
+    }
+    
+    // Users can message Support and Users/Viewers
+    if (senderRole === 'User' || senderRole === 'Viewer') {
+        if (recipientIsSupport) return true;
+        return recipientRole === 'User' || recipientRole === 'Viewer';
+    }
+    
+    return false;
+}
+
+function formatConversation(c: any, currentUserId: string): Conversation | null {
+    const participants = Array.isArray(c.participants) ? c.participants : [];
+    const uid = String(currentUserId || "");
+    const other = participants.find((p: any) => {
+        const pid = String(p?.id ?? p?.user?.id ?? "");
+        return pid && uid && pid !== uid;
+    }) || (participants.length >= 2 ? participants[1] : null);
+    
+    if (!other) return null;
+    const otherId = String(other?.id ?? other?.user?.id ?? "");
+    if (otherId === uid) return null;
+
+    const lastMsg = c.lastMessage;
+    const isMe = lastMsg?.sender?.id === currentUserId;
+
+    let timeStr = "";
+    if (lastMsg?.createdAt) {
+        const date = new Date(lastMsg.createdAt);
+        const now = new Date();
+        const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (diffDays === 1) {
+            timeStr = 'Yesterday';
+        } else if (diffDays < 7) {
+            timeStr = date.toLocaleDateString([], { weekday: 'short' });
+        } else {
+            timeStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        }
+    }
+
+    return {
+        id: c.id,
+        name: other.name || "Unknown",
+        role: other.role || "User",
+        email: other.email,
+        avatar: other.avatarUrl || (other.name || "??").slice(0, 2).toUpperCase(),
+        status: other.isActive ? "online" : "offline",
+        lastMsg: lastMsg ? (isMe ? `You: ${lastMsg.content}` : lastMsg.content) : "No messages yet",
+        lastMsgIds: lastMsg?.id || "init",
+        time: timeStr,
+        unread: c.unreadCount || 0,
+        color: getRoleColor(other.role),
+        recipientId: other.id,
+        isSupport: other.isAI || other.role === 'Support',
+        isPinned: c.isPinned || false,
+        isMuted: c.isMuted || false,
+        blockedBy: c.blockedBy || []
+    };
+}
+
+function getRoleColor(role: string): string {
+    switch (role) {
+        case 'SuperAdmin': return 'bg-purple-600';
+        case 'Admin': return 'bg-red-500';
+        case 'Support': return 'bg-green-500';
+        case 'Editor': return 'bg-orange-500';
+        case 'User': return 'bg-blue-500';
+        default: return 'bg-gray-500';
+    }
+}
+
+function formatMessage(m: any, currentUserId: string, chatId: string, currentUserName?: string): Message {
+    const isMe = m.sender?.id === currentUserId;
+    const timeStr = m.createdAt
+        ? new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : "";
+    
+    let status: MessageStatus = 'sent';
+    if (m.read) {
+        status = 'read';
+    } else if (m.delivered) {
+        status = 'delivered';
+    }
+    
+    return {
+        id: m.id,
+        sender: isMe ? (currentUserName || "You") : (m.sender?.name || "Unknown"),
+        senderId: m.sender?.id,
+        senderRole: m.sender?.role || 'User',
+        text: m.content,
+        time: timeStr,
+        isMe,
+        chatId,
+        status,
+        attachments: m.attachments || [],
+        replyTo: m.replyTo ? {
+            id: m.replyTo.id,
+            text: m.replyTo.content,
+            sender: m.replyTo.sender?.name || "Unknown"
+        } : undefined,
+        reactions: m.reactions || [],
+        edited: m.edited || false,
+        editedAt: m.editedAt
+    };
+}
 
 export function useMessages() {
     const { user } = useAuth();
+    const queryClient = useQueryClient();
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
 
-    const [conversations, setConversations] = useState<any[]>([]);
-    const [messages, setMessages] = useState<any[]>([]);
-    const [selectedChat, setSelectedChatState] = useState<any>(null);
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [selectedChat, setSelectedChatState] = useState<Conversation | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+    const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
+    const [permissions, setPermissions] = useState<MessagingPermissions | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
+    
+    const pollRef = useRef<NodeJS.Timeout | null>(null);
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const seenMessageIdsRef = useRef<Set<string>>(new Set());
+    const lastTypingRef = useRef<number>(0);
 
-    // Audio ref for notifications
-    const notificationAudio = useRef<HTMLAudioElement | null>(null);
+    const userRole = (user?.role || 'User') as UserRole;
+    const userPermissions = permissions || getRolePermissions(userRole);
 
+    // Update permissions when user changes
     useEffect(() => {
-        // Use a reliable notification sound URL
-        notificationAudio.current = new Audio("https://raw.githubusercontent.com/adrianhajdin/project_assets/main/sound/notification.mp3");
-    }, []);
-
-    const playNotificationSound = () => {
-        try {
-            notificationAudio.current?.play().catch(e => console.log('Audio play failed', e));
-        } catch (e) {
-            console.error("Error playing sound", e);
+        if (user?.role) {
+            setPermissions(getRolePermissions(user.role as UserRole));
         }
-    };
+    }, [user?.role]);
 
-    // Wrapper to update URL when chat is selected
-    const setSelectedChat = useCallback((chat: any) => {
+    const setSelectedChat = useCallback((chat: Conversation | null) => {
         setSelectedChatState(chat);
         const params = new URLSearchParams(searchParams.toString());
-        if (chat?.recipientId) {
-            if (chat.id) params.set('chat', chat.id);
-            else params.set('chat', chat.recipientId);
+        if (chat?.id) {
+            params.set('chat', chat.id);
         } else {
             params.delete('chat');
         }
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, [searchParams, pathname, router]);
 
-    // Real-time listener for Conversations
+    // Fetch conversations from backend
+    const fetchConversations = useCallback(async (silent = false) => {
+        if (!user?.id) return;
+        if (!silent) setIsLoading(true);
+        try {
+            const data = await messagesAPI.getConversations();
+            const formatted = (data || [])
+                .map((c: any) => formatConversation(c, user.id))
+                .filter(Boolean) as Conversation[];
+            
+            // Sort: pinned first, then by unread count, then by last message time
+            const sorted = formatted.sort((a, b) => {
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+                if (a.unread !== b.unread) return b.unread - a.unread;
+                return 0;
+            });
+            
+            setConversations(sorted);
+        } catch (e) {
+            if (!silent) {
+                console.error("Failed to fetch conversations", e);
+                setConversations([]);
+            }
+        } finally {
+            if (!silent) setIsLoading(false);
+        }
+    }, [user?.id]);
+
     useEffect(() => {
         if (!user?.id) {
             setConversations([]);
             return;
         }
+        fetchConversations(false);
+        const interval = setInterval(() => fetchConversations(true), 10000);
+        return () => clearInterval(interval);
+    }, [user?.id, fetchConversations]);
 
-        setIsLoading(true);
-
-        const q = query(
-            collection(db, "conversations"),
-            where("userIds", "array-contains", user.id),
-            orderBy("updatedAt", "desc")
+    // Filter conversations based on search
+    const filteredConversations = useCallback(() => {
+        if (!searchQuery.trim()) return conversations;
+        const query = searchQuery.toLowerCase();
+        return conversations.filter(c =>
+            c.name.toLowerCase().includes(query) ||
+            c.email.toLowerCase().includes(query) ||
+            c.role.toLowerCase().includes(query) ||
+            c.lastMsg.toLowerCase().includes(query)
         );
+    }, [conversations, searchQuery]);
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const formatted = snapshot.docs.map(doc => {
-                const data = doc.data();
-                // Find other participant
-                const other = (data.participants || []).find((p: any) => p.id !== user.id) || (data.participants || [])[0];
-
-                if (!other) {
-                    return null;
-                }
-
-                const lastMsgObj = data.lastMessage;
-                const isMe = lastMsgObj?.senderId === user.id;
-
-                // Safely handle timestamp
-                let timeStr = "";
-                if (lastMsgObj?.createdAt) {
-                    // It might be a Firestore Timestamp or a string (if optimistically set or from legacy)
-                    const date = lastMsgObj.createdAt.toDate ? lastMsgObj.createdAt.toDate() : new Date(lastMsgObj.createdAt);
-                    timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                }
-
-                return {
-                    id: doc.id,
-                    name: other.name || "Unknown",
-                    role: other.role || "User",
-                    email: other.email,
-                    avatar: other.avatarOrInitials || other.name?.slice(0, 2).toUpperCase() || "??",
-                    status: (other.isActive || other.status === 'active') ? "online" : "offline",
-                    lastMsg: lastMsgObj ? (isMe ? `You: ${lastMsgObj.content}` : lastMsgObj.content) : "No messages yet",
-                    lastMsgIds: lastMsgObj?.id || "init",
-                    time: timeStr,
-                    unread: (lastMsgObj && !lastMsgObj.read && !isMe) ? 1 : 0,
-                    color: "bg-blue-500",
-                    recipientId: other.id
-                };
-            }).filter(Boolean); // Filter out nulls
-
-            setConversations(prev => {
-                // Check if we have new last messages to play sound
-                if (prev.length > 0 && formatted.length > 0) {
-                    const prevTop = prev[0];
-                    const newTop = formatted[0];
-                    // Detect NEW message that is NOT from me
-                    if (newTop && prevTop && newTop.id === prevTop.id && newTop.lastMsgIds !== prevTop.lastMsgIds && !newTop.lastMsg?.startsWith("You:")) {
-                        playNotificationSound();
-                    }
-                }
-                return formatted as any[];
-            });
-            setIsLoading(false);
-        }, (error) => {
-            console.error("Snapshot error:", error);
-            setIsLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, [user?.id]);
-
-    // Real-time listener for Messages of selected chat
+    // Fetch messages when chat selected
     useEffect(() => {
-        if (!selectedChat?.id) {
+        if (!selectedChat?.id || !user?.id) {
             setMessages([]);
+            setFilteredMessages([]);
             return;
         }
 
-        console.log('Listening to messages for:', selectedChat.id);
+        const chatId = selectedChat.id;
+        const userId = user.id;
+        let isFirstLoad = true;
+        seenMessageIdsRef.current = new Set();
 
-        const q = query(
-            collection(db, "conversations", selectedChat.id, "messages"),
-            orderBy("createdAt", "asc")
+        const load = async () => {
+            try {
+                if (isFirstLoad) setIsMessagesLoading(true);
+                const data = await messagesAPI.getMessages(chatId);
+                const formatted = (data || []).map((m: any) =>
+                    formatMessage(m, userId, chatId, user?.name)
+                );
+                
+                // Play sound on new incoming messages
+                if (!isFirstLoad && formatted.length > 0) {
+                    const newFromOthers = formatted.filter(
+                        (m: Message) => !m.isMe && !seenMessageIdsRef.current.has(m.id)
+                    );
+                    if (newFromOthers.length > 0) playNotificationSound();
+                }
+                
+                formatted.forEach((m: Message) => seenMessageIdsRef.current.add(m.id));
+                setMessages(formatted);
+                setFilteredMessages(formatted);
+            } catch (e) {
+                console.error("Failed to fetch messages", e);
+            } finally {
+                if (isFirstLoad) {
+                    isFirstLoad = false;
+                    setIsMessagesLoading(false);
+                }
+            }
+        };
+
+        load();
+
+        messagesAPI.markAsRead(chatId).then(() => {
+            fetchConversations(true);
+            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        }).catch(() => {});
+
+        // Poll for new messages
+        pollRef.current = setInterval(load, 3000);
+        return () => {
+            if (pollRef.current) clearInterval(pollRef.current);
+        };
+    }, [selectedChat?.id, user?.id, user?.name, fetchConversations, queryClient]);
+
+    // Search messages in current chat
+    const searchMessages = useCallback((query: string) => {
+        setSearchQuery(query);
+        if (!query.trim()) {
+            setFilteredMessages(messages);
+            return;
+        }
+        const lowerQuery = query.toLowerCase();
+        const filtered = messages.filter(m =>
+            m.text.toLowerCase().includes(lowerQuery) ||
+            m.sender.toLowerCase().includes(lowerQuery)
         );
+        setFilteredMessages(filtered);
+    }, [messages]);
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const formatted = snapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    sender: data.senderId === user?.id ? "Me" : data.senderName,
-                    text: data.content,
-                    time: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Sending...",
-                    isMe: data.senderId === user?.id,
-                    chatId: selectedChat.id
-                };
-            });
-            setMessages(formatted);
-        });
+    const sendMessage = async (content: string, attachments?: File[], replyToId?: string) => {
+        if (!selectedChat || !content.trim() || !user) return false;
+        
+        // Check permissions
+        if (!userPermissions.canMessageAllUsers && selectedChat.role !== 'Support') {
+            const recipientRole = selectedChat.role as UserRole;
+            if (!canMessageUser(userRole, recipientRole, selectedChat.isSupport)) {
+                toast.error("You don't have permission to message this user");
+                return false;
+            }
+        }
 
-        return () => unsubscribe();
-    }, [selectedChat?.id, user?.id]);
-
-    const sendMessage = async (content: string) => {
-        if (!selectedChat || !content.trim() || !user) return;
         try {
-            // Add message to subcollection
-            await addDoc(collection(db, "conversations", selectedChat.id, "messages"), {
-                content: content,
-                senderId: user.id,
-                senderName: user.name,
-                createdAt: serverTimestamp(),
-                readBy: [user.id]
-            });
+            let uploadedAttachments: MessageAttachment[] = [];
+            
+            // Upload attachments if any
+            if (attachments && attachments.length > 0) {
+                if (!userPermissions.canUploadFiles) {
+                    toast.error("You don't have permission to upload files");
+                    return false;
+                }
+                
+                for (const file of attachments) {
+                    if (file.size > userPermissions.maxFileSize) {
+                        toast.error(`File ${file.name} exceeds maximum size`);
+                        return false;
+                    }
+                }
+                
+                // Upload files
+                const uploadPromises = attachments.map(file => messagesAPI.uploadAttachment(file));
+                uploadedAttachments = await Promise.all(uploadPromises);
+            }
 
-            // Update conversation last message
-            await updateDoc(doc(db, "conversations", selectedChat.id), {
-                lastMessage: {
-                    content: content,
-                    senderId: user.id,
-                    createdAt: new Date().toISOString(), // Saving string for easier generic handling, though serverTimestamp is better usually
-                    read: false
-                },
-                updatedAt: serverTimestamp()
-            });
-
+            await messagesAPI.sendMessage(selectedChat.id, content.trim(), replyToId, uploadedAttachments);
+            const data = await messagesAPI.getMessages(selectedChat.id);
+            const formatted = (data || []).map((m: any) =>
+                formatMessage(m, user.id, selectedChat.id, user?.name)
+            );
+            setMessages(formatted);
+            setFilteredMessages(formatted);
+            fetchConversations(true);
+            queryClient.invalidateQueries({ queryKey: ['conversations'] });
             return true;
-        } catch (error) {
-            console.error("Failed to send message", error);
+        } catch (e) {
+            console.error("Failed to send message", e);
             toast.error("Failed to send message");
             return false;
         }
     };
 
+    const editMessage = async (messageId: string, newContent: string) => {
+        if (!userPermissions.canEditMessages) {
+            toast.error("You don't have permission to edit messages");
+            return false;
+        }
+        
+        try {
+            await messagesAPI.editMessage(messageId, newContent);
+            if (selectedChat) {
+                const data = await messagesAPI.getMessages(selectedChat.id);
+                const formatted = (data || []).map((m: any) =>
+                    formatMessage(m, user!.id, selectedChat.id, user?.name)
+                );
+                setMessages(formatted);
+                setFilteredMessages(formatted);
+            }
+            return true;
+        } catch (e) {
+            console.error("Failed to edit message", e);
+            toast.error("Failed to edit message");
+            return false;
+        }
+    };
+
+    const deleteMessage = async (messageId: string) => {
+        if (!userPermissions.canDeleteMessages) {
+            toast.error("You don't have permission to delete messages");
+            return false;
+        }
+        
+        try {
+            await messagesAPI.deleteMessage(messageId);
+            setMessages(prev => prev.filter(m => m.id !== messageId));
+            setFilteredMessages(prev => prev.filter(m => m.id !== messageId));
+            return true;
+        } catch (e) {
+            console.error("Failed to delete message", e);
+            toast.error("Failed to delete message");
+            return false;
+        }
+    };
+
+    const addReaction = async (messageId: string, emoji: string) => {
+        try {
+            await messagesAPI.addReaction(messageId, emoji);
+            if (selectedChat) {
+                const data = await messagesAPI.getMessages(selectedChat.id);
+                const formatted = (data || []).map((m: any) =>
+                    formatMessage(m, user!.id, selectedChat.id, user?.name)
+                );
+                setMessages(formatted);
+                setFilteredMessages(formatted);
+            }
+        } catch (e) {
+            console.error("Failed to add reaction", e);
+        }
+    };
+
+    const removeReaction = async (messageId: string, emoji: string) => {
+        try {
+            await messagesAPI.removeReaction(messageId, emoji);
+            if (selectedChat) {
+                const data = await messagesAPI.getMessages(selectedChat.id);
+                const formatted = (data || []).map((m: any) =>
+                    formatMessage(m, user!.id, selectedChat.id, user?.name)
+                );
+                setMessages(formatted);
+                setFilteredMessages(formatted);
+            }
+        } catch (e) {
+            console.error("Failed to remove reaction", e);
+        }
+    };
+
+    const sendTypingIndicator = useCallback(() => {
+        if (!selectedChat || !user) return;
+        
+        const now = Date.now();
+        // Throttle typing indicators to every 3 seconds
+        if (now - lastTypingRef.current < 3000) return;
+        lastTypingRef.current = now;
+        
+        messagesAPI.sendTypingIndicator(selectedChat.id).catch(() => {});
+    }, [selectedChat, user]);
+
     const startConversation = async (recipientId: string, recipientData?: any) => {
         if (!user) return null;
 
+        const existing = conversations.find((c: Conversation) => c.recipientId === recipientId);
+        if (existing) {
+            setSelectedChat(existing);
+            return existing;
+        }
+
+        // Check if can message this user
+        if (!userPermissions.canMessageAllUsers && recipientData) {
+            const recipientRole = recipientData.role as UserRole;
+            const isSupport = recipientData.isAI || recipientData.role === 'Support';
+            if (!canMessageUser(userRole, recipientRole, isSupport)) {
+                toast.error("You don't have permission to message this user");
+                return null;
+            }
+        }
+
         try {
-            // 1. Check if conversation already exists (client-side check from subscribed list)
-            const existing = conversations.find(c => c.recipientId === recipientId);
-            if (existing) {
-                setSelectedChat(existing);
-                return existing;
+            const conv = await messagesAPI.startConversation(recipientId);
+            const formatted = formatConversation(conv, user.id);
+            if (!formatted) {
+                toast.error("Failed to start conversation");
+                return null;
             }
-
-            // 2. Need to verify if it exists on server but not loaded (edge case), or just create it.
-            // We'll optimistically try to find user details and create.
-
-            let recipientUser = recipientData;
-            if (!recipientUser) {
-                try {
-                    recipientUser = await adminUserAPI.getUser(recipientId);
-                } catch (e) {
-                    console.error("Failed to fetch recipient details", e);
-                    toast.error("User not found");
-                    return null;
-                }
-            }
-
-            // Chat ID: Sort IDs to ensure uniqueness between two users
-            const chatId = [user.id, recipientId].sort().join('_');
-            const chatDocRef = doc(db, "conversations", chatId);
-
-            await updateDoc(chatDocRef, {
-                updatedAt: serverTimestamp()
-            }).catch(async () => {
-                // If update failed (likely document doesn't exist), create it
-                await import("firebase/firestore").then(({ setDoc }) =>
-                    setDoc(chatDocRef, {
-                        userIds: [user.id, recipientId],
-                        participants: [
-                            {
-                                id: user.id,
-                                name: user.name,
-                                email: user.email,
-                                avatarOrInitials: user.avatarUrl || user.name[0] || "Me",
-                                status: 'active',
-                                role: user.role
-                            },
-                            {
-                                id: recipientUser.id,
-                                name: recipientUser.name,
-                                email: recipientUser.email,
-                                avatarOrInitials: recipientUser.avatarUrl || recipientUser.name?.[0] || recipientUser.avatarOrInitials || "U",
-                                status: recipientUser.isActive ? 'active' : 'inactive',
-                                role: recipientUser.role
-                            }
-                        ],
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp(),
-                        lastMessage: null
-                    })
-                );
+            setConversations(prev => {
+                const exists = prev.some(c => c.id === formatted.id);
+                if (exists) return prev;
+                return [formatted, ...prev];
             });
-
-            // Construct formatted object purely for immediate UI feedback if needed, 
-            // though the snapshot listener should trigger almost instantly.
-            const newChatFormatted = {
-                id: chatId,
-                name: recipientUser.name,
-                role: recipientUser.role,
-                email: recipientUser.email,
-                avatar: recipientUser.avatarUrl || recipientUser.avatarOrInitials || recipientUser.name?.slice(0, 2).toUpperCase() || "??",
-                status: recipientUser.isActive ? "online" : "offline",
-                lastMsg: "New Conversation",
-                lastMsgIds: "init",
-                time: "Just now",
-                unread: 0,
-                color: "bg-blue-500",
-                recipientId: recipientUser.id
-            };
-
-            setSelectedChat(newChatFormatted);
-            return newChatFormatted;
-
-        } catch (error) {
-            console.error("Failed to start conversation", error);
+            setSelectedChat(formatted);
+            return formatted;
+        } catch (e) {
+            console.error("Failed to start conversation", e);
             toast.error("Failed to start conversation");
             return null;
         }
@@ -286,45 +633,125 @@ export function useMessages() {
     const startSupportChat = async () => {
         try {
             const bot = await messagesAPI.getSupportBot();
-            // Reuse startConversation logic with bot ID
             return await startConversation(bot.id, bot);
-        } catch (error) {
-            console.error("Failed to start support chat", error);
-            toast.error("Support system is currently synchronizing. Please try again.");
+        } catch (e) {
+            console.error("Failed to start support chat", e);
+            toast.error("Support is temporarily unavailable. Please try again.");
+            return null;
         }
-        return null;
     };
 
-    // Initial URL sync logic is handled in the effect that sets conversations
-    // But we need to handle the case where we land on a URL with ?chat=ID and we need to load that specific chat 
-    // even if it's not in the 'conversations' list (unlikely if we load all, but possible).
+    const pinConversation = async (conversationId: string, pinned: boolean) => {
+        try {
+            await messagesAPI.pinConversation(conversationId, pinned);
+            setConversations(prev => prev.map(c => 
+                c.id === conversationId ? { ...c, isPinned: pinned } : c
+            ));
+            toast.success(pinned ? "Conversation pinned" : "Conversation unpinned");
+        } catch (e) {
+            toast.error("Failed to update conversation");
+        }
+    };
 
-    // We'll rely on the main conversation list listener to populate state, and then finding it.
+    const muteConversation = async (conversationId: string, muted: boolean) => {
+        try {
+            await messagesAPI.muteConversation(conversationId, muted);
+            setConversations(prev => prev.map(c => 
+                c.id === conversationId ? { ...c, isMuted: muted } : c
+            ));
+            toast.success(muted ? "Conversation muted" : "Conversation unmuted");
+        } catch (e) {
+            toast.error("Failed to update conversation");
+        }
+    };
 
+    const blockUser = async (userId: string) => {
+        if (!userPermissions.canBlockUsers) {
+            toast.error("You don't have permission to block users");
+            return false;
+        }
+        
+        try {
+            await messagesAPI.blockUser(userId);
+            toast.success("User blocked");
+            fetchConversations(true);
+            return true;
+        } catch (e) {
+            toast.error("Failed to block user");
+            return false;
+        }
+    };
+
+    const unblockUser = async (userId: string) => {
+        try {
+            await messagesAPI.unblockUser(userId);
+            toast.success("User unblocked");
+            fetchConversations(true);
+            return true;
+        } catch (e) {
+            toast.error("Failed to unblock user");
+            return false;
+        }
+    };
+
+    // Listen for typing indicators
+    useEffect(() => {
+        if (!selectedChat) return;
+        
+        const checkTyping = setInterval(async () => {
+            try {
+                const typing = await messagesAPI.getTypingUsers(selectedChat.id);
+                setTypingUsers(new Set(typing.filter((id: string) => id !== user?.id)));
+            } catch {}
+        }, 2000);
+        
+        return () => clearInterval(checkTyping);
+    }, [selectedChat, user?.id]);
+
+    // Restore chat from URL on load
     useEffect(() => {
         const chatIdFromUrl = searchParams.get('chat');
         if (chatIdFromUrl && conversations.length > 0 && !selectedChat) {
-            const found = conversations.find((c: any) => c.id === chatIdFromUrl || c.recipientId === chatIdFromUrl);
-            if (found) {
-                setSelectedChatState(found);
-            }
+            const found = conversations.find(
+                (c: Conversation) => c.id === chatIdFromUrl || c.recipientId === chatIdFromUrl
+            );
+            if (found) setSelectedChatState(found);
         }
     }, [conversations, searchParams, selectedChat]);
 
-    // Refresh function is now no-op as it's realtime
-    const refreshConversations = useCallback(async () => {
-        // No-op for realtime
-    }, []);
+    const refreshConversations = useCallback((silent = true) => {
+        fetchConversations(silent);
+    }, [fetchConversations]);
 
     return {
-        conversations,
-        messages,
+        conversations: filteredConversations(),
+        allConversations: conversations,
+        messages: filteredMessages,
+        allMessages: messages,
         selectedChat,
         setSelectedChat,
         isLoading,
+        isMessagesLoading,
+        typingUsers,
+        permissions: userPermissions,
+        userRole,
+        searchQuery,
+        setSearchQuery,
         sendMessage,
+        editMessage,
+        deleteMessage,
+        addReaction,
+        removeReaction,
+        sendTypingIndicator,
         startConversation,
         startSupportChat,
-        refreshConversations
+        refreshConversations,
+        pinConversation,
+        muteConversation,
+        blockUser,
+        unblockUser,
+        searchMessages,
+        canMessageUser: (recipientRole: UserRole, isSupport?: boolean) => 
+            canMessageUser(userRole, recipientRole, isSupport)
     };
 }

@@ -50,50 +50,50 @@ interface FeaturesContentState {
 
 const defaultContent: FeaturesPageContent = {
     header: {
-        badge: "Core Capabilities Matrix",
+        badge: "What the site supports",
         titlePrefix: "Platform",
         titleHighlight: "Features",
-        description: "Engineer high-fidelity digital experiences with our suite of modern development tools and architectural nodes."
+        description: "Oftisoft pages use reusable content, SEO-friendly structure, and original copy across the full marketing site."
     },
     features: [
         {
             id: "feat-1",
-            title: "Neural Artifact Generation",
-            description: "Deploy production-grade code snippets and UI components using our proprietary neural engine with 2026 aesthetics.",
+            title: "Original Page Copy",
+            description: "Every page is written to match the brand voice instead of sounding like a placeholder demo.",
             iconName: "Cpu",
             color: "text-primary",
             order: 1
         },
         {
             id: "feat-2",
-            title: "Global Edge Distribution",
-            description: "All digital assets and documentation nodes are served via our high-speed global proxy for sub-10s latency.",
+            title: "SEO Structure",
+            description: "Headings, descriptions, and page sections are arranged so the content is easier to index and read.",
             iconName: "Globe",
             color: "text-blue-500",
             order: 2
         },
         {
             id: "feat-3",
-            title: "Hyper-Secure Protocol",
-            description: "Advanced MFA and identity governance built into every development node to protect your professional artifacts.",
+            title: "Reusable Content Blocks",
+            description: "The same content model can power marketing pages, support pages, and blog sections without duplication.",
             iconName: "ShieldCheck",
             color: "text-green-500",
             order: 3
         },
         {
             id: "feat-4",
-            title: "Headless Forge Integration",
-            description: "Scale your projects with a modular, headless architecture that adapts to any modern framework.",
+            title: "Launch Ready",
+            description: "The website content is prepared for a real launch, not just a proof of concept.",
             iconName: "Layers",
             color: "text-purple-500",
             order: 4
         }
     ],
     showcase: {
-        title: "Integrated Visual Forge",
-        description: "Real-time multi-device simulation and artifact deployment.",
-        badgeText: "OPERATIONAL",
-        statusText: "SUDO SYNC --NODES ACTIVE"
+        title: "Content System in Motion",
+        description: "Pages, blogs, and supporting sections all share one coherent voice.",
+        badgeText: "LIVE",
+        statusText: "SITE CONTENT READY"
     },
     lastUpdated: new Date().toISOString()
 };
@@ -101,7 +101,7 @@ const defaultContent: FeaturesPageContent = {
 export const useFeaturesContentStore = create<FeaturesContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -146,7 +146,7 @@ export const useFeaturesContentStore = create<FeaturesContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'features-content-storage',
@@ -154,3 +154,4 @@ export const useFeaturesContentStore = create<FeaturesContentState>()(
         }
     )
 );
+

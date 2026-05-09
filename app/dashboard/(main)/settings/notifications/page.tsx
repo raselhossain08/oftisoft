@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mail, Bell, Smartphone, Monitor, Zap, Shield, CheckCircle2, ChevronRight, Signal, Loader2, AlertCircle } from "lucide-react";
+import { Mail, Bell, Smartphone, Monitor, Zap, Shield, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -81,33 +81,6 @@ export default function NotificationsSettings() {
     const handleToggle = (field: keyof typeof formState) => {
         const newValue = !formState[field];
         setFormState(prev => ({ ...prev, [field]: newValue }));
-        
-        const labels = {
-            emailNotifications: "Email Network",
-            pushNotifications: "Edge Push",
-            smsNotifications: "Satellite SMS",
-            marketingNotifications: "Marketing Feed",
-            artifactDeploymentNotifications: "Deployment Signal",
-            mentionNotifications: "Collaboration Signal",
-            milestoneNotifications: "Milestone Signal",
-            allocationNotifications: "Allocation Signal",
-            ledgerNotifications: "Ledger Signal",
-            transactionNotifications: "Transaction Signal",
-            loginAlertNotifications: "Security Signal",
-            securityAlertNotifications: "Hardening Signal",
-            kernelUpdateNotifications: "Kernel Signal"
-        };
-
-        if (newValue) {
-            toast.success(`Successfully latched to ${labels[field]}`, {
-                description: "Instant neural updates enabled.",
-                icon: <Signal className="w-4 h-4 text-primary" />
-            });
-        } else {
-            toast.error(`De-synced from ${labels[field]}`, {
-                description: "Signal propagation paused for this vector."
-            });
-        }
     };
 
     const handleSave = () => {

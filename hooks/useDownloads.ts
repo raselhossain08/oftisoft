@@ -1,15 +1,16 @@
 import { useState, useCallback, useEffect } from "react";
 import { downloadsAPI } from "@/lib/api";
-import { toast } from "sonner";
 
 export function useDownloads() {
     const [inventory, setInventory] = useState<any[]>([]);
     const [history, setHistory] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
 
     const fetchAll = useCallback(async () => {
         setIsLoading(true);
+        setError(null);
         try {
             const [inv, hist, notes] = await Promise.all([
                 downloadsAPI.getInventory(),
@@ -20,7 +21,7 @@ export function useDownloads() {
             setHistory(hist);
             setNotifications(notes);
         } catch (err: any) {
-            console.error("Failed to fetch downloads data", err);
+            setError(err instanceof Error ? err : new Error(String(err)));
         } finally {
             setIsLoading(false);
         }
@@ -31,7 +32,7 @@ export function useDownloads() {
             await downloadsAPI.recordDownload(id);
             await fetchAll(); // Refresh history
         } catch (err: any) {
-            console.error("Failed to record download", err);
+            throw err; // Let caller handle toast
         }
     };
 
@@ -62,6 +63,8 @@ export function useDownloads() {
         history,
         notifications,
         isLoading,
+        error,
+        isError: !!error,
         recordDownload,
         getVersions,
         getChangelog,

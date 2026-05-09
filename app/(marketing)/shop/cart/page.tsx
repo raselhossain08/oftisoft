@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +59,7 @@ export default function CartPage() {
                             <CardContent className="p-4 md:p-6 flex gap-6 items-center">
                                 <div className="h-24 w-24 relative rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
                                     <Image
-                                        src={item.image || "/placeholder.png"}
+                                        src={item.image ?? ""}
                                         alt={item.name}
                                         fill
                                         className="object-cover"
@@ -147,3 +147,4 @@ export default function CartPage() {
         </div>
     );
 }
+

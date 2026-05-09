@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { authService } from "@/lib/services/auth.service";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,11 +72,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading: authLoading, isAuthenticated, checkAuth } = useAuth();
+  const { login, verify2FALogin, isLoading: authLoading, isAuthenticated, checkAuth } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [tempToken, setTempToken] = useState<string | null>(null);
+  const [twoFACode, setTwoFACode] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const handleOAuthLogin = (provider: "google" | "github") => {
     setOauthLoading(provider);
     window.location.href = `${API_URL}/auth/${provider}`;
@@ -100,6 +105,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     const loadingToast = toast.loading("Signing in...");
+    setRememberMe(data.remember);
     
     try {
       const result = await login(data.email, data.password, data.remember);
@@ -111,11 +117,39 @@ export default function LoginPage() {
         setTimeout(() => {
           router.push('/dashboard');
         }, 1000);
+      } else if ((result as any).requires2FA) {
+        // 2FA required
+        toast.dismiss(loadingToast);
+        setRequires2FA(true);
+        setTempToken((result as any).tempToken);
       } else {
         toast.error(result.error || "Login failed", { id: loadingToast });
       }
     } catch (error: any) {
       toast.error(error.message || "Login failed. Please try again.", { id: loadingToast });
+    }
+  };
+
+  const handle2FASubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tempToken || twoFACode.length !== 6) return;
+
+    const loadingToast = toast.loading("Verifying 2FA...");
+    try {
+      const result = await verify2FALogin(tempToken, twoFACode, rememberMe);
+      if (result.success) {
+        toast.success("Login successful!", { id: loadingToast });
+        setIsSuccess(true);
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
+      } else {
+        toast.error(result.error || "Invalid 2FA code", { id: loadingToast });
+        setTwoFACode("");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Invalid 2FA code", { id: loadingToast });
+      setTwoFACode("");
     }
   };
 
@@ -275,6 +309,37 @@ export default function LoginPage() {
                 Redirecting to dashboard...
               </p>
             </motion.div>
+          ) : requires2FA ? (
+            <form onSubmit={handle2FASubmit} className="space-y-4 sm:space-y-6">
+              <div className="text-center">
+                <ShieldCheck className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-2">Two-Factor Authentication</h2>
+                <p className="text-muted-foreground text-sm">
+                  Enter the 6-digit code from your authenticator app
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={twoFACode}
+                  onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, ""))}
+                  placeholder="000000"
+                  className="text-center text-2xl tracking-[0.5em] font-mono"
+                  autoFocus
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={twoFACode.length !== 6}
+                className="w-full h-10 sm:h-12 font-bold rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+              >
+                Verify & Login
+              </Button>
+            </form>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
@@ -304,15 +369,27 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label htmlFor="password">Password</Label>
-                  <Button
-                    variant="link"
-                    asChild
-                    className="text-xs h-auto p-0 font-medium"
-                  >
-                    <Link href="/dashboard/forgot-password">
-                      Forgot Password?
-                    </Link>
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="link"
+                      asChild
+                      className="text-xs h-auto p-0 font-medium"
+                    >
+                      <Link href="/dashboard/email-login">
+                        Login with OTP
+                      </Link>
+                    </Button>
+                    <span className="text-muted-foreground">|</span>
+                    <Button
+                      variant="link"
+                      asChild
+                      className="text-xs h-auto p-0 font-medium"
+                    >
+                      <Link href="/dashboard/forgot-password">
+                        Forgot Password?
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />

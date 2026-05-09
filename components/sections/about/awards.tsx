@@ -14,7 +14,6 @@ import "swiper/css/pagination";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAboutContentStore } from "@/lib/store/about-content";
 
 const partners = [
     { name: "Google Cloud Partner", icon: Zap },
@@ -24,9 +23,8 @@ const partners = [
 ];
 
 export default function Awards({ data }: { data?: any }) {
-    const { content: storeContent } = useAboutContentStore();
-    const awards = data?.awards || storeContent?.awards || [];
-    const content = data || storeContent;
+    const awards = data?.awards || [];
+    const content = data;
     
     const [activeCard, setActiveCard] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -57,7 +55,7 @@ export default function Awards({ data }: { data?: any }) {
                         >
                             <Badge variant="outline" className="gap-2 px-3 py-1.5 rounded-full bg-white/5 border-white/10 text-xs font-medium text-primary mb-6 hover:bg-white/10 transition-colors">
                                 <Trophy className="w-3 h-3 fill-current" />
-                                {content?.awardsBadge || "Hall of Fame"}
+                                {content?.awardsBadge ?? ""}
                             </Badge>
                         </motion.div>
 
@@ -68,9 +66,9 @@ export default function Awards({ data }: { data?: any }) {
                             transition={{ delay: 0.1 }}
                             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
                         >
-                            {content?.awardsTitle || "Recognized for"} <br />
+                            {content?.awardsTitle ?? ""} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                {content?.awardsTitleHighlight || "Digital Excellence."}
+                                {content?.awardsTitleHighlight ?? ""}
                             </span>
                         </motion.h2>
 
@@ -81,7 +79,7 @@ export default function Awards({ data }: { data?: any }) {
                             transition={{ delay: 0.2 }}
                             className="text-lg text-muted-foreground/80 mb-10 max-w-lg leading-relaxed"
                         >
-                            {content?.awardsDescription || "Our relentless pursuit of perfection has earned us accolades from the industry's most prestigious bodies."}
+                            {content?.awardsDescription ?? ""}
                         </motion.p>
 
                         {/* Partners Grid */}
@@ -214,7 +212,7 @@ function AwardCard({ award }: { award: any }) {
                     <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
                         {award.title}
                     </h3>
-                    <div className="text-xs font-bold text-primary uppercase tracking-widest mb-4">
+                    <div className="text-xs font-semibold text-primary tracking-wide mb-4">
                         {award.org}
                     </div>
                     <p className="text-muted-foreground/90 text-sm leading-relaxed">

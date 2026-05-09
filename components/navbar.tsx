@@ -9,6 +9,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { useNavbarContent } from "@/hooks/useNavbarContent";
+import { useNavbarContentStore } from "@/lib/store/navbar-content";
 
 // ... existing imports
 import { useAuth } from "@/hooks/useAuth";
@@ -16,14 +18,20 @@ import { useAuth } from "@/hooks/useAuth";
 // ... existing imports
 import { Logo } from "@/components/ui/logo";
 
-import { useNavbarContentStore } from "@/lib/store/navbar-content";
-
 export default function Navbar() {
     const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
     const [isOpen, setIsOpen] = useState(false); 
     const { isAuthenticated, logout } = useAuth();
-    const { content } = useNavbarContentStore();
+    const { navbarContent, isLoading } = useNavbarContent();
+    const { setContent } = useNavbarContentStore();
+
+    // Sync backend data to store
+    useEffect(() => {
+        if (navbarContent) {
+            setContent(navbarContent);
+        }
+    }, [navbarContent, setContent]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -34,7 +42,11 @@ export default function Navbar() {
     }, []);
 
     const cart = useCart();
-    const navLinks = content?.links || [];
+    
+    if (isLoading || !navbarContent) return null;
+    
+    const content = navbarContent;
+    const navLinks = content.links || [];
 
     return (
         <motion.nav

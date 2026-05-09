@@ -5,14 +5,16 @@ import { toast } from "sonner";
 export function useFavorites() {
     const [wishlist, setWishlist] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
 
     const fetchFavorites = useCallback(async () => {
         setIsLoading(true);
+        setError(null);
         try {
             const data = await favoritesAPI.getFavorites();
-            setWishlist(data);
-        } catch (err) {
-            console.error("Failed to fetch favorites", err);
+            setWishlist(Array.isArray(data) ? data : []);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err : new Error(String(err)));
         } finally {
             setIsLoading(false);
         }
@@ -23,9 +25,12 @@ export function useFavorites() {
             await favoritesAPI.addFavorite(productId);
             toast.success("Added to favorites");
             fetchFavorites();
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to add favorite", err);
-            toast.error("Failed to add to favorites");
+            const status = err?.response?.status;
+            if (status === 401) toast.error("Sign in to save favorites");
+            else if (status === 400) toast.error("This product can't be added to favorites.");
+            else toast.error("Failed to add to favorites");
         }
     };
 
@@ -58,6 +63,8 @@ export function useFavorites() {
     return {
         wishlist,
         isLoading,
+        error,
+        isError: !!error,
         addToWishlist,
         removeFromWishlist,
         checkIsFavorite,

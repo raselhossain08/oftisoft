@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
+import { usePublicProducts, usePublicBundles, mapApiProductsToShop, mapApiBundlesToShop } from "@/hooks/usePublicMarketing";
 import { ShopSidebar } from "@/components/sections/shop/shop-sidebar";
 import { ProductCard } from "@/components/sections/shop/product-card";
 import { Button } from "@/components/ui/button";
@@ -14,11 +15,15 @@ import { BundleDeals } from "@/components/sections/shop/bundle-deals";
 import { ShopTestimonials } from "@/components/sections/shop/shop-testimonials";
 import { SupportPromise } from "@/components/sections/shop/support-promise";
 import { useShopContentStore } from "@/lib/store/shop-content";
+import { useFavorites } from "@/hooks/useFavorites";
 import Link from "next/link";
 
 export default function ShopPage() {
     const { pageContent, isLoading } = usePageContent('shop');
     const setContent = useShopContentStore((state) => state.setContent);
+    const { data: apiProducts = [] } = usePublicProducts();
+    const { data: apiBundles = [] } = usePublicBundles();
+    const { wishlist, addToWishlist, removeFromWishlist } = useFavorites();
 
     useEffect(() => {
         if (pageContent?.content) {
@@ -30,7 +35,11 @@ export default function ShopPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedSort, setSelectedSort] = useState("newest");
 
-    const products = content?.products || [];
+    const productsFromApi = useMemo(() => mapApiProductsToShop(apiProducts), [apiProducts]);
+    const bundlesFromApi = useMemo(() => mapApiBundlesToShop(apiBundles), [apiBundles]);
+    const products = productsFromApi.length > 0 ? productsFromApi : (content?.products || []);
+    const bundles = bundlesFromApi.length > 0 ? bundlesFromApi : (content?.bundles || []);
+    const favoriteIds = useMemo(() => new Set((wishlist || []).map((p: { id: string }) => p.id)), [wishlist]);
     const header = content?.header;
 
     const filteredProducts = useMemo(() => {
@@ -55,7 +64,7 @@ export default function ShopPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Loading Assets...
                 </div>
             </div>
@@ -64,12 +73,12 @@ export default function ShopPage() {
 
     return (
         <div className="space-y-24 pb-20">
-            <div className="container px-4 py-8 md:py-12 mx-auto">
+            <div className="container px-4 py-8 md:py-40 mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                     <div className="space-y-2">
-                        <h1 className="text-3xl md:text-6xl font-black mb-2 tracking-tighter">{header?.title || "Marketplace"}</h1>
-                        <p className="text-muted-foreground text-lg">{header?.description || "Premium templates, UI kits, and enterprise AI solutions."}</p>
+                        <h1 className="text-3xl md:text-6xl font-semibold mb-2 tracking-tighter">{header?.title ?? ""}</h1>
+                        <p className="text-muted-foreground text-lg">{header?.description ?? ""}</p>
                     </div>
                     
                     <div className="flex items-center gap-2 w-full md:w-auto">
@@ -126,14 +135,14 @@ export default function ShopPage() {
                     {/* Product Grid */}
                     <div className="flex-1">
                         <div className="hidden lg:flex items-center justify-between mb-8">
-                            <span className="text-sm text-muted-foreground font-medium">Found <span className="text-foreground font-black">{filteredProducts.length}</span> premium assets</span>
+                            <span className="text-sm text-muted-foreground font-medium">Found <span className="text-foreground font-semibold">{filteredProducts.length}</span> premium assets</span>
                             <div className="flex items-center gap-4">
                                 <Button asChild variant="ghost" size="sm" className="gap-2 font-bold hover:text-primary">
                                     <Link href="/shop/compare"><ArrowUpDown className="w-4 h-4" /> Compare Assets</Link>
                                 </Button>
                                 <div className="h-4 w-px bg-border mx-2" />
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-black uppercase text-muted-foreground">Sort By:</span>
+                                    <span className="text-xs font-semibold text-muted-foreground">Sort By:</span>
                                     <Select value={selectedSort} onValueChange={setSelectedSort}>
                                         <SelectTrigger className="w-[180px] border-none bg-transparent hover:bg-muted font-bold transition-colors">
                                             <SelectValue />
@@ -152,7 +161,18 @@ export default function ShopPage() {
                         {filteredProducts.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                                 {filteredProducts.map((product) => (
-                                    <ProductCard key={product.id} product={product} />
+                                    <ProductCard
+                                        key={product.id}
+                                        product={product}
+                                        isFavorite={favoriteIds.has(product.id)}
+                                        onToggleWishlist={() => {
+                                            if (favoriteIds.has(product.id)) {
+                                                removeFromWishlist(product.id);
+                                            } else {
+                                                addToWishlist(product.id);
+                                            }
+                                        }}
+                                    />
                                 ))}
                             </div>
                         ) : (
@@ -167,7 +187,7 @@ export default function ShopPage() {
                 </div>
             </div>
 
-            <BundleDeals />
+            <BundleDeals bundles={bundles} />
             
             <SupportPromise />
 
@@ -175,3 +195,4 @@ export default function ShopPage() {
         </div>
     );
 }
+

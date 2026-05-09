@@ -18,7 +18,7 @@ export default function AuthLayout({
     useEffect(() => {
         // Only redirect if we ARE definitely authenticated
         if (!isLoading && isAuthenticated) {
-            router.push("/dashboard");
+            router.replace("/dashboard");
         }
     }, [isAuthenticated, isLoading, router]);
 

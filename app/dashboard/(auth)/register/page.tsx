@@ -102,9 +102,10 @@ export default function RegisterPage() {
         data.password
       );
       if (result.success) {
-        toast.success("Account created. Please sign in.", { id });
+        toast.success("Account created! Welcome aboard.", { id });
         setIsSuccess(true);
-        setTimeout(() => router.push("/dashboard/login"), 800);
+        // Auto-login after registration - redirect to dashboard
+        setTimeout(() => router.push("/dashboard"), 1200);
       } else {
         toast.error(result.error ?? "Registration failed", { id });
       }
@@ -267,7 +268,7 @@ export default function RegisterPage() {
                 Account Created!
               </h2>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Redirecting to login...
+                Redirecting to dashboard...
               </p>
             </motion.div>
           ) : (

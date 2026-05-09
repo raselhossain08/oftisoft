@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { messagesAPI, ordersAPI, leadsAPI } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface BadgeCounts {
     messages: number;
@@ -9,43 +10,46 @@ interface BadgeCounts {
 }
 
 export function useBadgeCounts() {
-    const { user } = useAuth();
+    const { user, isAuthenticated } = useAuth();
+    const authCheckComplete = useAuthStore((state) => state.authCheckComplete);
 
     // Check if user has permission to view leads stats
-    const canViewLeads = Boolean(user?.role && ['Admin', 'Editor', 'Support'].includes(user.role));
+    const canViewLeads = isAuthenticated && Boolean(user?.role && ['Admin', 'Editor', 'Support'].includes(user.role));
 
     const { data: conversations = [] } = useQuery({
-        queryKey: ['conversations'],
+        queryKey: ['conversations', user?.id],
         queryFn: messagesAPI.getConversations,
-        refetchInterval: 30000, // Refetch every 30 seconds
+        refetchInterval: 5000, // Real-time: refetch every 5 seconds
+        // Only run after auth check is complete AND user is authenticated
+        enabled: authCheckComplete && !!user?.id && isAuthenticated,
     });
 
     const { data: orders = [] } = useQuery({
         queryKey: ['orders'],
         queryFn: ordersAPI.getOrders,
         refetchInterval: 60000, // Refetch every minute
+        // Only run after auth check is complete AND user is authenticated
+        enabled: authCheckComplete && isAuthenticated,
     });
 
     const { data: leadsStats } = useQuery({
         queryKey: ['leads-stats'],
         queryFn: leadsAPI.getStats,
         refetchInterval: 60000, // Refetch every minute
-        enabled: canViewLeads, // Only fetch if user has permission
+        // Only run after auth check is complete AND user has permission and is authenticated
+        enabled: authCheckComplete && canViewLeads,
         retry: false, // Don't retry on 403 errors
     });
 
-    // Calculate unread messages count
-    // Since backend doesn't track unread per conversation, we'll count conversations with recent messages
-    // You can enhance this by adding unreadCount to the backend Conversation entity
-    const unreadMessages = conversations.filter((conv: any) => {
-        // Check if there's a lastMessage and it was created recently (within last 24 hours)
-        if (conv.lastMessage) {
-            const lastMessageTime = new Date(conv.lastMessage.createdAt).getTime();
-            const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
-            return lastMessageTime > oneDayAgo;
-        }
-        return false;
-    }).length;
+    // Calculate unread messages: conversations where lastMessage is from someone else and not read
+    const currentUserId = user?.id || '';
+    const unreadMessages = conversations.reduce((count: number, conv: any) => {
+        const lastMsg = conv.lastMessage;
+        if (!lastMsg) return count;
+        const isFromMe = lastMsg.sender?.id === currentUserId;
+        const isUnread = !lastMsg.read && !isFromMe;
+        return count + (isUnread ? 1 : 0);
+    }, 0);
 
     // Calculate pending orders count
     const pendingOrders = orders.filter((order: any) =>

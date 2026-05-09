@@ -8,13 +8,8 @@ import {
     History, 
     RefreshCw,
     Search,
-    Filter,
     ArrowLeft,
-    TrendingUp,
     FileCode,
-    Activity,
-    Download,
-    Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,18 +45,10 @@ export default function InventoryPage() {
         toast.info("Backup settings coming soon");
     };
 
-    // Calculate inventory stats
     const totalProducts = products?.length || 0;
     const digitalProducts = products?.length || 0;
     const physicalProducts = 0;
-    
-    // Mock data for stats that would come from backend
-    const downloadHealth = 99.8;
-    const totalStorage = "12.4 GB";
-    const outdatedAssets = 2;
-    
-    // Calculate total downloads (mock calculation)
-    const totalDownloads = products?.reduce((acc, p) => acc + (p.reviews * 12), 0) || 0;
+    const stockWarnings = stats?.stockWarnings ?? 0;
 
     const filteredProducts = products?.filter(p => 
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -103,34 +90,34 @@ export default function InventoryPage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-4">
-                 <Card className="border-border/50">
+                <Card className="border-border/50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-black uppercase tracking-wider text-muted-foreground">Download Health</CardTitle>
-                        <Activity className="h-4 w-4 text-green-500" />
+                        <CardTitle className="text-sm font-black uppercase tracking-wider text-muted-foreground">Digital Products</CardTitle>
+                        <Package className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black">{downloadHealth}%</div>
-                        <p className="text-[10px] text-green-500 font-bold mt-1">Uptime across CDN nodes</p>
+                        <div className="text-3xl font-black">{totalProducts}</div>
+                        <p className="text-[10px] text-muted-foreground mt-1">Products in catalog</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-black uppercase tracking-wider text-muted-foreground">Total Storage</CardTitle>
-                        <FileCode className="h-4 w-4 text-primary" />
+                        <CardTitle className="text-sm font-black uppercase tracking-wider text-muted-foreground">Physical</CardTitle>
+                        <FileCode className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black">{totalStorage}</div>
-                        <p className="text-[10px] text-muted-foreground mt-1">Total digital asset volume</p>
+                        <div className="text-3xl font-black">{physicalProducts}</div>
+                        <p className="text-[10px] text-muted-foreground mt-1">Physical SKUs</p>
                     </CardContent>
                 </Card>
-                <Card className="border-border/50 border-orange-500/20 bg-orange-500/5">
+                <Card className={`border-border/50 ${stockWarnings > 0 ? "border-orange-500/20 bg-orange-500/5" : ""}`}>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-black uppercase tracking-wider text-orange-500">Alerts</CardTitle>
+                        <CardTitle className="text-sm font-black uppercase tracking-wider text-orange-500">Stock Alerts</CardTitle>
                         <AlertTriangle className="h-4 w-4 text-orange-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black">{outdatedAssets} Assets</div>
-                        <p className="text-[10px] text-orange-500 font-bold mt-1">Outdated versions detected</p>
+                        <div className="text-3xl font-black">{stockWarnings}</div>
+                        <p className="text-[10px] text-muted-foreground mt-1">Items need attention</p>
                     </CardContent>
                 </Card>
             </div>
@@ -187,11 +174,8 @@ export default function InventoryPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="font-mono text-xs">{p.version}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-1.5 font-bold">
-                                                {p.reviews * 12}
-                                                <TrendingUp className="w-3 h-3 text-green-500" />
-                                            </div>
+                                        <TableCell className="text-muted-foreground text-sm">
+                                            —
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
@@ -227,23 +211,10 @@ export default function InventoryPage() {
                 <Card className="border-border/50">
                     <CardHeader>
                         <CardTitle className="text-lg">Storage Breakdown</CardTitle>
+                        <CardDescription>Storage metrics when asset storage is configured.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        {[
-                            { name: "Source Code (ZIP)", size: "8.2 GB", percent: 65, color: "bg-primary" },
-                            { name: "Documentation & Assets", size: "3.1 GB", percent: 25, color: "bg-purple-500" },
-                            { name: "Previews & Screenshots", size: "1.1 GB", percent: 10, color: "bg-blue-500" },
-                        ].map((item) => (
-                            <div key={item.name} className="space-y-2">
-                                <div className="flex justify-between text-xs">
-                                    <span className="font-bold">{item.name}</span>
-                                    <span className="text-muted-foreground">{item.size}</span>
-                                </div>
-                                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                    <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.percent}%` }} />
-                                </div>
-                            </div>
-                        ))}
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">Storage breakdown will appear here when digital asset storage is enabled.</p>
                     </CardContent>
                 </Card>
 
@@ -253,7 +224,7 @@ export default function InventoryPage() {
                             <RefreshCw className="w-8 h-8" />
                         </div>
                         <h3 className="text-xl font-bold">Automated Backups</h3>
-                        <p className="text-sm text-muted-foreground">Your digital assets are automatically versioned and backed up to multiple S3 regions every 24 hours.</p>
+                        <p className="text-sm text-muted-foreground">Configure automated backups and versioning for your digital assets.</p>
                         <Button 
                             variant="outline" 
                             className="rounded-full"

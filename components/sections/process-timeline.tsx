@@ -71,7 +71,7 @@ export default function ProcessTimeline() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        <Badge variant="outline" className="mb-4 border-primary/20 text-primary uppercase tracking-widest px-3 py-1">
+                        <Badge variant="outline" className="mb-4 border-primary/20 text-primary tracking-widest px-3 py-1">
                             {processContent.badge}
                         </Badge>
                         <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -84,7 +84,7 @@ export default function ProcessTimeline() {
                 </div>
 
                 {/* Vertical Timeline Container */}
-                <div className="relative  mx-auto">
+                <div className="relative mx-auto">
                     
                     {/* Central Track Line (Desktop) / Left Line (Mobile) */}
                     <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/5 -translate-x-1/2">

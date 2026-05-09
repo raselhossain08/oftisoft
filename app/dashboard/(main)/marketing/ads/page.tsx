@@ -42,6 +42,17 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAds } from "@/hooks/useAds";
 import { AdType, AdPosition, AdSize } from "@/lib/api";
 import { format } from "date-fns";
@@ -51,15 +62,22 @@ import { cn } from "@/lib/utils";
 import { AdDialog } from "@/components/ads/ad-dialog";
 
 export default function AdsDashboardPage() {
-    const { ads = [], isLoading, updateAd, deleteAd } = useAds();
+    const { ads = [], isLoading, updateAd, deleteAd, createAd } = useAds();
     const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [typeFilter, setTypeFilter] = useState<string>("all");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedAd, setSelectedAd] = useState<any>(null);
+    const [adToDelete, setAdToDelete] = useState<{ id: string; title: string } | null>(null);
 
-    const filteredAds = ads.filter(ad => 
-        ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ad.position.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredAds = ads.filter(ad => {
+        const matchesSearch = !searchQuery ||
+            ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            ad.position?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = statusFilter === "all" || (statusFilter === "active" && ad.isActive) || (statusFilter === "paused" && !ad.isActive);
+        const matchesType = typeFilter === "all" || ad.type === typeFilter;
+        return matchesSearch && matchesStatus && matchesType;
+    });
 
     const getAdTypeIcon = (type: AdType) => {
         switch (type) {
@@ -81,6 +99,19 @@ export default function AdsDashboardPage() {
         setIsDialogOpen(true);
     };
 
+    const handleDuplicate = (ad: any) => {
+        createAd({
+            title: (ad.title || "Ad") + " (Copy)",
+            type: ad.type,
+            content: ad.content,
+            link: ad.link || "",
+            position: ad.position,
+            size: ad.size,
+            isActive: false,
+        });
+        toast.success("Ad duplicated. Edit the new copy as needed.");
+    };
+
     const toggleStatus = (ad: any) => {
         updateAd(ad.id, { isActive: !ad.isActive });
         toast.success(`Ad ${ad.isActive ? 'deactivated' : 'activated'} successfully`);
@@ -99,7 +130,7 @@ export default function AdsDashboardPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black italic tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent italic">Ad Engine</h1>
+                    <h1 className="text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent ">Ad Engine</h1>
                     <p className="text-muted-foreground font-medium mt-1">Deploy and manage advertisements across your blog and platform.</p>
                 </div>
                 <Button onClick={handleCreate} className="gap-2 rounded-xl h-11 font-bold shadow-lg shadow-primary/20">
@@ -143,9 +174,40 @@ export default function AdsDashboardPage() {
                                 className="pl-11 h-12 rounded-2xl bg-background border-border/50 focus:ring-primary/20" 
                             />
                         </div>
-                        <Button variant="outline" size="sm" className="h-10 px-4 gap-2 rounded-xl font-bold border-border/50">
-                            <Filter className="w-4 h-4" /> Filters
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-10 px-4 gap-2 rounded-xl font-bold border-border/50">
+                                    <Filter className="w-4 h-4" /> Filters
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-72 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl p-4" align="end">
+                                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</DropdownMenuLabel>
+                                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                    <SelectTrigger className="h-10 rounded-xl font-medium mt-1">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All</SelectItem>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="paused">Paused</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-4">Type</DropdownMenuLabel>
+                                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                                    <SelectTrigger className="h-10 rounded-xl font-medium mt-1">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All types</SelectItem>
+                                        <SelectItem value={AdType.IMAGE}>Image</SelectItem>
+                                        <SelectItem value={AdType.GOOGLE_ADS}>Google Ads</SelectItem>
+                                        <SelectItem value={AdType.CUSTOM_HTML}>Custom HTML</SelectItem>
+                                        <SelectItem value={AdType.SCRIPT}>Script</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Button variant="ghost" size="sm" className="w-full rounded-xl font-bold mt-4" onClick={() => { setStatusFilter("all"); setTypeFilter("all"); }}>Clear filters</Button>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -156,7 +218,7 @@ export default function AdsDashboardPage() {
                                 <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Type / Size</TableHead>
                                 <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Position</TableHead>
                                 <TableHead className="h-12 font-black text-xs uppercase tracking-widest text-center">Stats</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest italic">Status</TableHead>
+                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest ">Status</TableHead>
                                 <TableHead className="h-12 font-black text-xs uppercase tracking-widest text-right pr-8">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -232,10 +294,11 @@ export default function AdsDashboardPage() {
                                                 <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-border/50 bg-card/95 backdrop-blur-xl">
                                                     <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2 py-1.5">Manage Ad</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(ad)} className="rounded-xl gap-2 font-bold text-xs"><Settings2 size={14} /> Edit Campaign</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleDuplicate(ad)} className="rounded-xl gap-2 font-bold text-xs"><Copy size={14} /> Duplicate Ad</DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => {
                                                         navigator.clipboard.writeText(ad.content);
                                                         toast.success("Content copied to clipboard");
-                                                    }} className="rounded-xl gap-2 font-bold text-xs"><Copy size={14} /> Copy Content</DropdownMenuItem>
+                                                    }} className="rounded-xl gap-2 font-bold text-xs">Copy Content</DropdownMenuItem>
                                                     {ad.link && (
                                                         <DropdownMenuItem onClick={() => window.open(ad.link, '_blank')} className="rounded-xl gap-2 font-bold text-xs"><ExternalLink size={14} /> Preview Link</DropdownMenuItem>
                                                     )}
@@ -244,13 +307,26 @@ export default function AdsDashboardPage() {
                                                         {ad.isActive ? <XCircle size={14} className="text-red-500" /> : <CheckCircle2 size={14} className="text-green-500" />}
                                                         {ad.isActive ? 'Pause Campaign' : 'Resume Campaign'}
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => deleteAd(ad.id)} className="rounded-xl gap-2 font-bold text-xs text-destructive"><Trash2 size={14} /> Purge record</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => setAdToDelete({ id: ad.id, title: ad.title })} className="rounded-xl gap-2 font-bold text-xs text-destructive"><Trash2 size={14} /> Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
                                 );
                             })}
+                            {filteredAds.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="h-64 text-center">
+                                        <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                                            <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center">
+                                                <Megaphone className="w-8 h-8 opacity-20" />
+                                            </div>
+                                            <p className="font-medium">No ads yet. Create one to get started.</p>
+                                            <Button onClick={handleCreate} variant="outline" size="sm" className="rounded-xl">Create New Ad</Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
@@ -261,6 +337,32 @@ export default function AdsDashboardPage() {
                 onClose={() => setIsDialogOpen(false)} 
                 ad={selectedAd} 
             />
+
+            <AlertDialog open={!!adToDelete} onOpenChange={(open) => !open && setAdToDelete(null)}>
+                <AlertDialogContent className="rounded-2xl border-border/50 max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete ad?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently remove the campaign <span className="font-semibold text-foreground">&quot;{adToDelete?.title}&quot;</span>. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            variant="destructive"
+                            className="rounded-xl font-bold bg-destructive text-destructive-foreground"
+                            onClick={() => {
+                                if (adToDelete) {
+                                    deleteAd(adToDelete.id);
+                                    setAdToDelete(null);
+                                }
+                            }}
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
@@ -276,7 +378,7 @@ function StatCard({ title, value, icon: Icon, color }: { title: string, value: n
                 </div>
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50 mb-1">{title}</p>
-                    <h3 className="text-3xl font-black italic tracking-tighter italic">{value}</h3>
+                    <h3 className="text-3xl font-black  tracking-tighter ">{value}</h3>
                 </div>
             </CardContent>
         </Card>

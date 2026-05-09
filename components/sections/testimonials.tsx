@@ -1,11 +1,9 @@
 
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Star, Quote, MessageSquareQuote } from "lucide-react";
-import Image from "next/image";
+import { motion } from "framer-motion";
+import { Star, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
 import { useHomeContentStore } from "@/lib/store/home-content";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,18 +20,20 @@ export default function Testimonials() {
         testimonials: []
     };
 
+    // Ensure testimonials is always an array
+    const testimonialsList = Array.isArray(testimonialsContent.testimonials)
+        ? testimonialsContent.testimonials
+        : [];
+
     // Duplicate for infinite loop
     const loopTestimonials = [
-        ...testimonialsContent.testimonials,
-        ...testimonialsContent.testimonials,
-        ...testimonialsContent.testimonials
+        ...testimonialsList,
+        ...testimonialsList,
+        ...testimonialsList
     ];
 
-    const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start end", "end start"] });
-
     return (
-        <section ref={containerRef} className="py-24 md:py-32 bg-transparent relative overflow-hidden z-10 text-center">
+        <section className="py-24 md:py-32 bg-transparent relative overflow-hidden z-10 text-center">
             {/* Background Light */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
 
@@ -103,7 +103,7 @@ function TestimonialCard({ data, index }: { data: any, index: number }) {
                                 <Star key={i} className="w-4 h-4 text-yellow-500/50 fill-current group-hover:text-yellow-500 transition-colors" />
                             ))}
                         </div>
-                        <p className="text-base md:text-lg text-muted-foreground/90 leading-relaxed font-light whitespace-normal italic">
+                        <p className="text-base md:text-lg text-muted-foreground/90 leading-relaxed font-normal whitespace-normal">
                             "{data.quote}"
                         </p>
                     </div>
@@ -118,7 +118,7 @@ function TestimonialCard({ data, index }: { data: any, index: number }) {
                         
                         <div className="text-left flex-1 min-w-0">
                             <h4 className="text-white font-bold text-sm tracking-wide truncate">{data.name}</h4>
-                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider truncate">{data.role}</p>
+                            <p className="text-xs text-muted-foreground font-medium tracking-wide truncate">{data.role}</p>
                         </div>
                         
                         <Quote className="w-8 h-8 text-white/5 ml-auto group-hover:text-white/10 transition-colors shrink-0" />

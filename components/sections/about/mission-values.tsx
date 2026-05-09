@@ -10,7 +10,6 @@ import "swiper/css/pagination";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAboutContentStore } from "@/lib/store/about-content";
 
 const iconMap: any = {
     Zap,
@@ -23,9 +22,8 @@ const iconMap: any = {
 };
 
 export default function MissionValues({ data }: { data?: any }) {
-    const { content: storeContent } = useAboutContentStore();
-    const mission = data?.mission || data || storeContent?.mission; // Fallback to data itself if it's the mission object
-    const values = data?.values || storeContent?.values || [];
+    const mission = data?.mission || data;
+    const values = data?.values || [];
 
     const gradients = [
         "from-amber-400 to-orange-500",
@@ -47,13 +45,13 @@ export default function MissionValues({ data }: { data?: any }) {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                     >
-                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5 rounded-full">
-                            {mission?.badge || "Our DNA"}
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
+                            {mission?.badge ?? ""}
                         </Badge>
-                        <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                            {mission?.titleLine1 || "Driven by Purpose,"} <br />
+                        <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                            {mission?.titleLine1 ?? ""} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                {mission?.titleLine2 || "Define by Quality."}
+                                {mission?.titleLine2 ?? ""}
                             </span>
                         </h3>
                     </motion.div>
@@ -66,7 +64,7 @@ export default function MissionValues({ data }: { data?: any }) {
                         className="relative"
                     >
                         <div className="absolute -left-6 top-0 text-8xl font-serif text-white/5 -z-10 leading-none">"</div>
-                        <p className="text-xl md:text-2xl text-muted-foreground/90 leading-relaxed font-light">
+                        <p className="text-lg md:text-xl text-muted-foreground/90 leading-relaxed font-normal">
                             {mission?.quote?.split(mission.quoteHighlight || "")[0]}
                             <span className="text-white font-medium">{mission?.quoteHighlight}</span>
                             {mission?.quote?.split(mission.quoteHighlight || "")[1]}

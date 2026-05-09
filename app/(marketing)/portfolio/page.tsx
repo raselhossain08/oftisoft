@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import PortfolioMain from "@/components/sections/portfolio/portfolio-main";
@@ -20,7 +20,7 @@ export default function PortfolioPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Compiling Case Studies...
                 </div>
             </div>
@@ -28,7 +28,7 @@ export default function PortfolioPage() {
     }
 
     return (
-        <main className="flex min-h-screen flex-col bg-background text-foreground overflow-hidden">
+        <main className="flex min-h-screen flex-col bg-background text-foreground overflow-hidden pt-20">
             <PortfolioMain />
             <SuccessStories />
             <TechBreakdown />
@@ -36,3 +36,4 @@ export default function PortfolioPage() {
         </main>
     );
 }
+

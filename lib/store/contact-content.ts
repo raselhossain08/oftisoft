@@ -65,34 +65,34 @@ interface ContactContentState {
 
 const defaultContent: ContactPageContent = {
     header: {
-        badge: "Communication Interface",
-        titlePrefix: "Initiate",
-        titleHighlight: "Sync",
+        badge: "Contact",
+        titlePrefix: "Start a",
+        titleHighlight: "Conversation",
         titleSuffix: ".",
-        description: "Connect with our architectural core for bespoke implementations, system consultations, or infrastructure support."
+        description: "Reach out for website content, SEO improvements, blog work, or a full page rewrite."
     },
     contactInfo: [
-        { id: "info-1", title: "Global Headquarters", value: "San Francisco, CA / Distributed Hubs", iconName: "MapPin", color: "text-blue-500", order: 1 },
+        { id: "info-1", title: "Location", value: "Dhaka, Bangladesh / Remote", iconName: "MapPin", color: "text-blue-500", order: 1 },
         { id: "info-2", title: "Secure Email Sync", value: "hq@oftisoft.com", iconName: "Mail", color: "text-primary", order: 2 },
-        { id: "info-3", title: "Arch: Support Node", value: "support.oftisoft.com", iconName: "Headset", color: "text-green-500", order: 3 },
+        { id: "info-3", title: "Support", value: "support@oftisoft.com", iconName: "Headset", color: "text-green-500", order: 3 },
     ],
     statusNode: {
-        title: "Support Node Sync",
+        title: "Response Status",
         status: "ACTIVE",
-        latencyText: "Current artifact deployment latency is sub-10s across all global edge proxies."
+        latencyText: "We usually reply within one business day."
     },
     form: {
-        title: "Transmission Node",
-        description: "Construct your communication payload below and commit to our primary processing core.",
-        nameLabel: "Identity Token (Name)",
-        emailLabel: "Communication Proxy (Email)",
-        subjectLabel: "Request Subject Node",
-        messageLabel: "Context Payload (Message)",
-        buttonText: "Commit Transmission"
+        title: "Send a message",
+        description: "Tell us what you need and we’ll come back with a clear next step.",
+        nameLabel: "Your name",
+        emailLabel: "Your email",
+        subjectLabel: "Subject",
+        messageLabel: "Message",
+        buttonText: "Send Message"
     },
     footer: {
-        encryptedText: "P2P Encrypted Data Transfer Protocols ACTIVE",
-        agentText: "Neural Processing Agents Dispatched on Commit"
+        encryptedText: "Secure message handling",
+        agentText: "Human follow-up on every request"
     },
     lastUpdated: new Date().toISOString()
 };
@@ -100,7 +100,7 @@ const defaultContent: ContactPageContent = {
 export const useContactContentStore = create<ContactContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -159,7 +159,7 @@ export const useContactContentStore = create<ContactContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'contact-content-storage',
@@ -167,3 +167,4 @@ export const useContactContentStore = create<ContactContentState>()(
         }
     )
 );
+

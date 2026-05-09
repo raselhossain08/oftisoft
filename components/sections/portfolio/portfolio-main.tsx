@@ -37,6 +37,8 @@ export default function PortfolioMain() {
     const [search, setSearch] = useState("");
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+    if (!content) return null;
+
     const filteredProjects = projects.filter(p =>
         (filter === "All" || p.category === filter) &&
         (p.title.toLowerCase().includes(search.toLowerCase()) || p.tags.some(t => t.toLowerCase().includes(search.toLowerCase())))
@@ -57,7 +59,7 @@ export default function PortfolioMain() {
                     >
                         <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20">
                             <Sparkles className="w-4 h-4" />
-                            {header?.badge || "World Class Engineering"}
+                            {header?.badge ?? ""}
                         </Badge>
                     </motion.div>
                     
@@ -67,7 +69,7 @@ export default function PortfolioMain() {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-foreground/50"
                     >
-                        {header?.title || "Success Stories"}
+                        {header?.title ?? ""}
                     </motion.h1>
                     
                     <motion.p 
@@ -76,7 +78,7 @@ export default function PortfolioMain() {
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="text-lg md:text-xl text-muted-foreground max-w-2xl px-4"
                     >
-                        {header?.description || "We build digital products that scale. Explore our portfolio of award-winning applications and systems."}
+                        {header?.description ?? ""}
                     </motion.p>
                 </div>
 
@@ -87,7 +89,7 @@ export default function PortfolioMain() {
                     transition={{ delay: 0.3 }}
                     className="sticky top-4 z-40 mb-12"
                 >
-                    <div className="mx-auto  bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-2 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="mx-auto bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl p-2 flex flex-col md:flex-row gap-4 items-center justify-between">
                         
                         {/* Scrollable Categories */}
                         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0 mask-gradient-right px-2">
@@ -145,7 +147,7 @@ export default function PortfolioMain() {
                                         <div className="absolute inset-0 opacity-[0.1] bg-grain mix-blend-overlay" />
                                         
                                         <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="text-4xl font-black text-foreground/5 group-hover:text-foreground/10 transition-colors uppercase tracking-tighter">
+                                            <span className="text-4xl font-semibold text-foreground/5 group-hover:text-foreground/10 transition-colors tracking-tighter">
                                                 {project.category}
                                             </span>
                                         </div>
@@ -215,7 +217,7 @@ export default function PortfolioMain() {
                             
                             <motion.div
                                 layoutId={`project-${selectedProject.id}`} 
-                                className="relative w-full  h-[85vh] md:max-h-[90vh] overflow-y-auto bg-background rounded-t-[2rem] md:rounded-[2rem] shadow-2xl border border-border/50 no-scrollbar"
+                                className="relative w-full h-[85vh] md:max-h-[90vh] overflow-y-auto bg-background rounded-t-[2rem] md:rounded-[2rem] shadow-2xl border border-border/50 no-scrollbar"
                                 initial={{ opacity: 0, scale: 0.95, y: 100 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 100 }}
@@ -224,7 +226,7 @@ export default function PortfolioMain() {
                                 <div className="relative h-56 md:h-96 w-full overflow-hidden">
                                      <div className={cn("absolute inset-0 bg-gradient-to-br", selectedProject.gradient)} />
                                      <div className="absolute inset-0 flex items-center justify-center">
-                                         <h2 className="text-5xl md:text-7xl font-black text-white/10 uppercase tracking-tighter">
+                                         <h2 className="text-5xl md:text-7xl font-semibold text-white/10 tracking-tighter">
                                              {selectedProject.category}
                                          </h2>
                                      </div>
@@ -246,7 +248,7 @@ export default function PortfolioMain() {
                                         <div className="flex-1 space-y-6 md:space-y-8">
                                             <div>
                                                 <div className="flex items-center gap-3 mb-4">
-                                                    <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary uppercase tracking-wider">
+                                                    <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary tracking-wider">
                                                         {selectedProject.category}
                                                     </Badge>
                                                 </div>
@@ -258,7 +260,7 @@ export default function PortfolioMain() {
 
                                             {/* Tech Stack */}
                                             <div>
-                                                <h3 className="text-sm font-bold text-foreground uppercase tracking-widest mb-4">Technologies Used</h3>
+                                                <h3 className="text-sm font-bold text-foreground tracking-widest mb-4">Technologies Used</h3>
                                                 <div className="flex flex-wrap gap-2">
                                                     {selectedProject.tags.map(tag => (
                                                         <Badge key={tag} variant="secondary" className="px-4 py-2 rounded-lg text-sm font-medium">
@@ -285,7 +287,7 @@ export default function PortfolioMain() {
                                         <div className="w-full lg:w-80 space-y-6">
                                             <div className="bg-muted/30 border border-border rounded-3xl p-6 md:p-8 space-y-6 md:space-y-8">
                                                 <div>
-                                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Results & Impact</h4>
+                                                    <h4 className="text-xs font-bold text-muted-foreground tracking-widest mb-4">Results & Impact</h4>
                                                     <div className="grid grid-cols-2 lg:grid-cols-1 gap-6">
                                                         {selectedProject.stats.map((stat, i) => (
                                                             <div key={i} className="space-y-1">
@@ -299,7 +301,7 @@ export default function PortfolioMain() {
                                                 <div className="w-full h-px bg-border/50" />
                                                 
                                                 <div>
-                                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Client</h4>
+                                                    <h4 className="text-xs font-bold text-muted-foreground tracking-widest mb-2">Client</h4>
                                                     <div className="text-lg font-bold">{selectedProject.client}</div>
                                                 </div>
                                             </div>

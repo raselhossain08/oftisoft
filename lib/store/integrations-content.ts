@@ -49,49 +49,49 @@ interface IntegrationsContentState {
 
 const defaultContent: IntegrationsPageContent = {
     header: {
-        badge: "Global Interoperability Hub",
+        badge: "Integrations",
         titlePrefix: "Integrations",
-        titleHighlight: "Matrix",
-        description: "Connect your Oftisoft environment with the world's most powerful developer tools and neural services."
+        titleHighlight: "That Fit",
+        description: "Connect the site with the tools your team already uses for content, support, publishing, and tracking."
     },
     integrations: [
         {
             id: "int-1",
-            name: "GitHub Protocol",
-            description: "Instant sync with your repository pipelines for continuous artifact deployment.",
+            name: "GitHub",
+            description: "Keep code and content changes in one repo with a clear publishing workflow.",
             iconName: "Github",
             status: "Active",
             order: 1
         },
         {
             id: "int-2",
-            name: "Slack Signal",
-            description: "Real-time notifications for proposal activations and delivery status updates.",
+            name: "Slack",
+            description: "Send updates when new pages, posts, or releases are ready to review.",
             iconName: "Slack",
             status: "Beta",
             order: 2
         },
         {
             id: "int-3",
-            name: "OpenAI Neural",
-            description: "Powering the core intelligence of your bot templates and RAG systems.",
+            name: "OpenAI",
+            description: "Support drafting, editing, and summarizing content where useful.",
             iconName: "Bot",
             status: "Live",
             order: 3
         },
         {
             id: "int-4",
-            name: "Mobile Edge",
-            description: "Dedicated push-sync for cross-platform application frameworks.",
+            name: "Mobile Alerts",
+            description: "Share launch updates and support messages through mobile-friendly channels.",
             iconName: "Smartphone",
             status: "Live",
             order: 4
         },
     ],
     cta: {
-        title: "Custom API Access",
-        description: "Building something unique? Access our full neural API suite and forge your own custom integrations.",
-        buttonText: "Request API Access Node"
+        title: "Need a custom workflow?",
+        description: "We can wire your content, publishing, and support tools together cleanly.",
+        buttonText: "Request Integration Help"
     },
     lastUpdated: new Date().toISOString()
 };
@@ -99,7 +99,7 @@ const defaultContent: IntegrationsPageContent = {
 export const useIntegrationsContentStore = create<IntegrationsContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -144,7 +144,7 @@ export const useIntegrationsContentStore = create<IntegrationsContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'integrations-content-storage',
@@ -152,3 +152,4 @@ export const useIntegrationsContentStore = create<IntegrationsContentState>()(
         }
     )
 );
+

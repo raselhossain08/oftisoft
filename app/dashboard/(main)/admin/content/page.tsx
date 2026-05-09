@@ -1,1048 +1,1206 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { 
-    Layout, 
-    FileText, 
-    Image as ImageIcon, 
-    Search, 
-    Plus, 
-    MoreVertical, 
-    Edit, 
-    Trash2, 
-    Eye, 
-    Globe, 
-    Zap, 
-    ArrowUpRight,
-    RefreshCcw,
-    CheckCircle2,
-    Clock,
-    Monitor,
-    Smartphone,
-    Tablet,
-    Settings,
-    Layers,
-    Type,
-    Component,
-    Save,
-    ExternalLink,
-    SearchCode,
-    Sparkles,
-    UploadCloud,
-    History,
-    Menu,
-    Check
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Layout,
+  FileText,
+  Image as ImageIcon,
+  Search,
+  Plus,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Eye,
+  Globe,
+  RefreshCcw,
+  CheckCircle2,
+  Clock,
+  Save,
+  Upload,
+  Download,
+  History,
+  Menu,
+  Check,
+  Sparkles,
+  Code,
+  FileJson,
+  Copy,
+  X,
+  AlertCircle,
+  Settings,
+  Layers,
+  Home,
+  Briefcase,
+  Mail,
+  ShieldCheck,
+  ScrollText,
+  MessageSquare,
+  Link as LinkIcon,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  FileDown,
+  Undo,
+  Redo,
+  EyeOff,
+  Palette,
+  Monitor,
+  Tablet,
+  Smartphone,
+  ArrowLeft,
 } from "lucide-react";
-import { useNavbarContentStore } from "@/lib/store/navbar-content";
-import { useFooterContentStore } from "@/lib/store/footer-content";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { 
-    DropdownMenu, 
-    DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuTrigger,
-    DropdownMenuSeparator 
-} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { ImageUpload } from "@/components/dashboard/image-upload";
-import { useFiles } from "@/lib/api/content-queries";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
-import { Logo } from "@/components/ui/logo";
-import Link from "next/link";
-import { CMS_SCHEMA, PageKey } from "@/lib/cms/schema";
-import { 
-    usePageContent, 
-    useUpdatePageContent, 
-    useAllPages, 
-    usePublishPageContent 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+
+import {
+  usePageContent,
+  useUpdatePageContent,
+  useAllPages,
+  usePublishPageContent,
+  useGenerateWithAI,
 } from "@/lib/api/content-queries";
-import { 
-    Home, 
-    Briefcase, 
-    History as HistoryIcon, 
-    Mail, 
-    Zap as ZapIcon, 
-    Link as LinkIcon, 
-    MessageSquare,
-    ShieldCheck,
-    ScrollText,
-} from "lucide-react";
+import { CMS_SCHEMA, PageKey } from "@/lib/cms/schema";
+import { ImageUploader, MultiImageUploader } from "@/components/cms/image-uploader";
+import { RichTextEditor, MarkdownPreview } from "@/components/cms/rich-text-editor";
+import { Logo } from "@/components/ui/logo";
 
-// Icon mapping helper
-const getSchemaIcon = (iconName: string) => {
-    const icons: any = {
-        Home: Home,
-        Users: Globe,
-        Briefcase: Briefcase,
-        History: HistoryIcon,
-        Mail: Mail,
-        Zap: ZapIcon,
-        Link: LinkIcon,
-        FileText: FileText,
-        Settings: Settings,
-        Globe: Globe,
-        MessageSquare: MessageSquare,
-        ShieldCheck: ShieldCheck,
-        ScrollText: ScrollText,
-    };
-    return icons[iconName] || FileText;
-};
+// Type definitions
+type FieldType = "text" | "textarea" | "richtext" | "image" | "boolean" | "tags" | "group" | "array" | "number";
 
-function formatBytes(bytes: number, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+interface SchemaField {
+  name: string;
+  label: string;
+  type: FieldType;
+  fields?: SchemaField[];
+  itemLabel?: string;
 }
 
+interface SchemaSection {
+  id: string;
+  label: string;
+  fields: SchemaField[];
+}
 
-function GlobalEditor() {
-    const { data: globalData, isLoading } = usePageContent("global");
-    const updateMutation = useUpdatePageContent();
-    
-    // State to handle local edits before saving to backend
-    const [localNavbar, setLocalNavbar] = useState<any>(null);
-    const [localFooter, setLocalFooter] = useState<any>(null);
+interface PageSchema {
+  label: string;
+  icon: string;
+  sections: SchemaSection[];
+}
 
-    // Sync from backend
-    useEffect(() => {
-        if (globalData?.content) {
-            setLocalNavbar(globalData.content.navbar || {});
-            setLocalFooter(globalData.content.footer || {});
-        }
-    }, [globalData]);
-
-    // Also sync to global stores for the simulator
-    const { setContent: setNavbarStore } = useNavbarContentStore();
-    const { setContent: setFooterStore } = useFooterContentStore();
-
-    useEffect(() => {
-        if (localNavbar) setNavbarStore(localNavbar);
-    }, [localNavbar, setNavbarStore]);
-
-    useEffect(() => {
-        if (localFooter) setFooterStore(localFooter);
-    }, [localFooter, setFooterStore]);
-
-    const handleSave = () => {
-        updateMutation.mutate({
-            pageKey: "global",
-            content: {
-                navbar: localNavbar,
-                footer: localFooter
-            }
-        }, {
-            onSuccess: () => {
-                toast.success("Global architectural nodes synchronized across production clusters.", {
-                    description: "Nexus propagate successful. CDNs are updating with new navigation nodes.",
-                });
-            }
+// Generate empty template for a field
+function generateFieldTemplate(field: SchemaField): any {
+  switch (field.type) {
+    case "text":
+    case "textarea":
+    case "richtext":
+    case "image":
+      return "";
+    case "number":
+      return 0;
+    case "boolean":
+      return false;
+    case "tags":
+      return [];
+    case "group":
+      const groupObj: Record<string, any> = {};
+      field.fields?.forEach((subField) => {
+        groupObj[subField.name] = generateFieldTemplate(subField);
+      });
+      return groupObj;
+    case "array":
+      if (field.fields && field.fields.length > 0) {
+        const sampleItem: Record<string, any> = {};
+        field.fields.forEach((itemField) => {
+          sampleItem[itemField.name] = generateFieldTemplate(itemField);
         });
-    };
+        return [sampleItem];
+      }
+      return [];
+    default:
+      return "";
+  }
+}
 
-    if (isLoading || !localNavbar || !localFooter) {
+// Generate empty template for entire page
+function generatePageTemplate(pageKey: PageKey): Record<string, any> {
+  const schema = CMS_SCHEMA[pageKey] as PageSchema;
+  const template: Record<string, any> = {};
+
+  schema?.sections?.forEach((section) => {
+    if (section.id === "_root" || !section.id) {
+      section.fields?.forEach((field) => {
+        template[field.name] = generateFieldTemplate(field);
+      });
+    } else {
+      template[section.id] = {};
+      section.fields?.forEach((field) => {
+        template[section.id][field.name] = generateFieldTemplate(field);
+      });
+    }
+  });
+
+  return template;
+}
+
+// Icon mapping
+const getSchemaIcon = (iconName: string): React.ElementType => {
+  const icons: Record<string, React.ElementType> = {
+    Home: Home,
+    Users: Globe,
+    Briefcase: Briefcase,
+    History: Clock,
+    Mail: Mail,
+    Zap: Sparkles,
+    Link: LinkIcon,
+    FileText: FileText,
+    Settings: Settings,
+    Globe: Globe,
+    MessageSquare: MessageSquare,
+    ShieldCheck: ShieldCheck,
+    ScrollText: ScrollText,
+  };
+  return icons[iconName] || FileText;
+};
+
+// Content page public paths
+const CONTENT_PAGE_PUBLIC_PATH: Partial<Record<PageKey, string | null>> = {
+  home: "/",
+  about: "/about",
+  services: "/services",
+  terms: "/terms",
+  privacy: "/privacy",
+  support: "/support",
+  settings: null,
+  global: null,
+};
+
+// Page card component
+function PageCard({
+  pageKey,
+  schema,
+  isSelected,
+  onClick,
+}: {
+  pageKey: PageKey;
+  schema: PageSchema;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  const Icon = getSchemaIcon(schema.icon);
+  const publicPath = CONTENT_PAGE_PUBLIC_PATH[pageKey];
+
+  const totalFields = schema.sections?.reduce((acc: number, s: SchemaSection) => acc + (s?.fields?.length || 0), 0) || 0;
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02, y: -2 }}
+      whileTap={{ scale: 0.98 }}
+      className={cn(
+        "group cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300",
+        isSelected
+          ? "border-primary bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg shadow-primary/10"
+          : "border-border bg-card hover:border-primary/40 hover:shadow-md"
+      )}
+      onClick={onClick}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className={cn(
+          "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
+          isSelected
+            ? "bg-primary text-white shadow-lg shadow-primary/30"
+            : "bg-primary/10 text-primary group-hover:bg-primary/20"
+        )}>
+          <Icon className="w-7 h-7" />
+        </div>
+        {publicPath && (
+          <Link
+            href={publicPath}
+            target="_blank"
+            className="text-muted-foreground hover:text-primary transition-colors p-2 rounded-lg hover:bg-muted"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Eye className="w-4 h-4" />
+          </Link>
+        )}
+      </div>
+      <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">{schema.label}</h3>
+      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+        {schema.sections?.length || 0} sections • {totalFields} fields
+      </p>
+      <div className="flex items-center gap-2">
+        <Badge variant="secondary" className="text-xs font-medium">
+          {schema.sections?.length || 0} sections
+        </Badge>
+        {isSelected && (
+          <Badge className="text-xs bg-primary text-white">
+            <Check className="w-3 h-3 mr-1" />
+            Editing
+          </Badge>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// Field editor component
+function FieldEditor({
+  field,
+  value,
+  onChange,
+  onGenerate,
+  isGenerating,
+  depth = 0,
+}: {
+  field: SchemaField;
+  value: any;
+  onChange: (value: any) => void;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
+  depth?: number;
+}) {
+  const renderInput = () => {
+    switch (field.type) {
+      case "text":
         return (
-            <div className="flex items-center justify-center p-20">
-                <RefreshCcw className="w-10 h-10 animate-spin text-primary opacity-20" />
+          <Input
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={`Enter ${field.label.toLowerCase()}`}
+            className="h-11 rounded-xl bg-background/50 border-border/50 focus:border-primary/50"
+          />
+        );
+      case "textarea":
+        return (
+          <Textarea
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={`Enter ${field.label.toLowerCase()}`}
+            rows={4}
+            className="rounded-xl bg-background/50 border-border/50 focus:border-primary/50 resize-none"
+          />
+        );
+      case "richtext":
+        return (
+          <div className="space-y-2">
+            <Tabs defaultValue="edit" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 h-9">
+                <TabsTrigger value="edit" className="text-xs rounded-lg">Edit</TabsTrigger>
+                <TabsTrigger value="preview" className="text-xs rounded-lg">Preview</TabsTrigger>
+              </TabsList>
+              <TabsContent value="edit" className="mt-2">
+                <RichTextEditor
+                  value={value || ""}
+                  onChange={onChange}
+                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                  minHeight={150}
+                />
+              </TabsContent>
+              <TabsContent value="preview" className="mt-2">
+                <div className="min-h-[150px] rounded-xl border bg-background/50 p-4">
+                  {value ? (
+                    <MarkdownPreview content={value} />
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Preview will appear here...</p>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        );
+      case "image":
+        return (
+          <ImageUploader
+            value={value || ""}
+            onChange={onChange}
+            label={field.label}
+            maxSize={10}
+            previewClassName="aspect-video"
+          />
+        );
+      case "boolean":
+        return (
+          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border">
+            <Label className="font-normal">{field.label}</Label>
+            <Switch
+              checked={value || false}
+              onCheckedChange={onChange}
+            />
+          </div>
+        );
+      case "tags":
+        const tags = Array.isArray(value) ? value : [];
+        const [tagInput, setTagInput] = useState("");
+        return (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag: string, idx: number) => (
+                <Badge key={idx} variant="secondary" className="px-3 py-1.5 rounded-lg gap-1.5">
+                  {tag}
+                  <button
+                    onClick={() => onChange(tags.filter((_: any, i: number) => i !== idx))}
+                    className="ml-1 hover:text-destructive transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
             </div>
+            <div className="flex gap-2">
+              <Input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="Add tag..."
+                className="h-10 rounded-xl bg-background/50"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && tagInput.trim()) {
+                    e.preventDefault();
+                    onChange([...tags, tagInput.trim()]);
+                    setTagInput("");
+                  }
+                }}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 px-4 rounded-xl"
+                onClick={() => {
+                  if (tagInput.trim()) {
+                    onChange([...tags, tagInput.trim()]);
+                    setTagInput("");
+                  }
+                }}
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        );
+      case "number":
+        return (
+          <Input
+            type="number"
+            value={value ?? ""}
+            onChange={(e) => onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+            placeholder={`Enter ${field.label.toLowerCase()}`}
+            className="h-11 rounded-xl bg-background/50 border-border/50"
+          />
+        );
+      case "group":
+        const groupValue = value || {};
+        return (
+          <div className="space-y-4 p-5 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border">
+            {field.fields?.map((subField) => (
+              <FieldEditor
+                key={subField.name}
+                field={subField}
+                value={groupValue[subField.name]}
+                onChange={(v) => onChange({ ...groupValue, [subField.name]: v })}
+                depth={depth + 1}
+              />
+            ))}
+          </div>
+        );
+      case "array":
+        const arrayValue = Array.isArray(value) ? value : [];
+        return (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">{arrayValue.length} items</span>
+            </div>
+            {arrayValue.map((item: any, idx: number) => (
+              <div key={idx} className="flex gap-3 items-start p-4 rounded-xl bg-muted/30 border group">
+                {field.fields ? (
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {field.itemLabel || "Item"} {idx + 1}
+                      </span>
+                    </div>
+                    {field.fields.map((subField) => (
+                      <FieldEditor
+                        key={subField.name}
+                        field={subField}
+                        value={item[subField.name]}
+                        onChange={(v) => {
+                          const newArray = [...arrayValue];
+                          newArray[idx] = { ...item, [subField.name]: v };
+                          onChange(newArray);
+                        }}
+                        depth={depth + 1}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <Input
+                    value={item}
+                    onChange={(e) => {
+                      const newArray = [...arrayValue];
+                      newArray[idx] = e.target.value;
+                      onChange(newArray);
+                    }}
+                    className="h-10 rounded-xl bg-background/50 flex-1"
+                  />
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 text-destructive hover:bg-destructive/10 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => onChange(arrayValue.filter((_: any, i: number) => i !== idx))}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full rounded-xl h-10 border-dashed"
+              onClick={() => {
+                const newItem = field.fields
+                  ? field.fields.reduce((acc, f) => ({ ...acc, [f.name]: generateFieldTemplate(f) }), {})
+                  : "";
+                onChange([...arrayValue, newItem]);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add {field.itemLabel || "Item"}
+            </Button>
+          </div>
+        );
+      default:
+        return (
+          <Input
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={`Enter ${field.label.toLowerCase()}`}
+            className="h-11 rounded-xl bg-background/50 border-border/50"
+          />
         );
     }
+  };
 
-    return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {/* Navbar Editor */}
-            <Card className="rounded-[40px] border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col">
-                <CardHeader className="p-10 border-b border-border/50 bg-primary/[0.02]">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-xl font-black italic tracking-tight uppercase">Navbar Architecture</CardTitle>
-                            <CardDescription className="italic font-medium">Configure global navigation links and core branding nodes.</CardDescription>
-                        </div>
-                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                            <Menu className="w-6 h-6 text-primary" />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-10 space-y-10 flex-1">
-                    <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase italic tracking-[0.2em] text-primary ml-1 flex items-center gap-2">
-                             Instance Brand Identity
-                        </label>
-                        <Input 
-                            value={localNavbar.brandName || ""} 
-                            onChange={(e) => setLocalNavbar({ ...localNavbar, brandName: e.target.value })}
-                            className="h-14 rounded-2xl bg-background/50 font-black italic text-lg px-6 border-border/50 focus-visible:ring-primary/20" 
-                        />
-                    </div>
-                    
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <label className="text-[10px] font-black uppercase italic tracking-[0.2em] text-primary ml-1 flex items-center gap-2">
-                                Navigation Node Matrix
-                            </label>
-                            <Button variant="outline" size="sm" className="h-8 rounded-xl gap-2 font-black italic text-[9px] border-primary/20 bg-primary/5 hover:bg-primary/10" onClick={() => {
-                                const newLinks = [...(localNavbar.links || []), { label: "New Link", href: "/" }];
-                                setLocalNavbar({ ...localNavbar, links: newLinks });
-                            }}>
-                                <Plus size={12} /> INITIALIZE NODE
-                            </Button>
-                        </div>
-                        <div className="space-y-3">
-                            {localNavbar.links?.map((link: any, idx: number) => (
-                                <div key={idx} className="flex gap-3 items-center group">
-                                    <div className="flex-1 grid grid-cols-2 gap-3 bg-muted/20 p-2 rounded-2xl border border-transparent group-hover:border-primary/10 transition-all shadow-inner">
-                                        <Input 
-                                            value={link.label} 
-                                            onChange={(e) => {
-                                                const newLinks = [...localNavbar.links];
-                                                newLinks[idx] = { ...link, label: e.target.value };
-                                                setLocalNavbar({ ...localNavbar, links: newLinks });
-                                            }}
-                                            placeholder="Label (e.g. Services)" 
-                                            className="h-10 rounded-xl bg-background border-none font-bold italic text-[11px] focus-visible:ring-0 shadow-sm" 
-                                        />
-                                        <Input 
-                                            value={link.href} 
-                                            onChange={(e) => {
-                                                const newLinks = [...localNavbar.links];
-                                                newLinks[idx] = { ...link, href: e.target.value };
-                                                setLocalNavbar({ ...localNavbar, links: newLinks });
-                                            }}
-                                            placeholder="HREF (e.g. /services)" 
-                                            className="h-10 rounded-xl bg-background border-none font-mono text-[10px] text-muted-foreground focus-visible:ring-0 shadow-sm" 
-                                        />
-                                    </div>
-                                    <Button variant="ghost" size="icon" className="h-10 w-10 text-destructive/40 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all rounded-xl" onClick={() => {
-                                        setLocalNavbar({ ...localNavbar, links: localNavbar.links.filter((_: any, i: number) => i !== idx) });
-                                    }}>
-                                        <Trash2 size={14} />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </CardContent>
-                <CardFooter className="p-10 pt-0">
-                    <Button 
-                        onClick={handleSave} 
-                        disabled={updateMutation.isPending}
-                        className="w-full h-16 rounded-[24px] bg-primary text-white font-black italic text-lg shadow-2xl shadow-primary/30 gap-4 group hover:scale-[1.02] transition-transform"
-                    >
-                        {updateMutation.isPending ? <RefreshCcw className="animate-spin w-5 h-5" /> : <Check size={20} className="transition-transform group-hover:scale-110" />} 
-                        COMMIT NAVBAR UPDATES
-                    </Button>
-                </CardFooter>
-            </Card>
-
-            {/* Footer Editor */}
-            <Card className="rounded-[40px] border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col">
-                <CardHeader className="p-10 border-b border-border/50 bg-purple-500/[0.02]">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-xl font-black italic tracking-tight uppercase">Footer Infrastructure</CardTitle>
-                            <CardDescription className="italic font-medium">Manage global footer columns and bottom-bar nodes.</CardDescription>
-                        </div>
-                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                            <Layers className="w-6 h-6 text-purple-500" />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-10 space-y-10 flex-1">
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase italic tracking-[0.2em] text-purple-500 ml-1 flex items-center gap-2">
-                            Global Footer Tagline
-                        </label>
-                        <Textarea 
-                            value={localFooter.tagline || ""} 
-                            onChange={(e) => setLocalFooter({ ...localFooter, tagline: e.target.value })}
-                            className="min-h-[100px] rounded-2xl bg-background/50 font-bold italic text-sm p-6 border-border/50 focus-visible:ring-purple-500/20" 
-                        />
-                    </div>
-
-                    <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase italic tracking-[0.2em] text-purple-500 ml-1 flex items-center gap-2 mb-4">
-                            Column Architectural Matrix
-                        </label>
-                        <div className="grid gap-6">
-                            {localFooter.columns?.map((col: any, cIdx: number) => (
-                                <div key={cIdx} className="p-6 rounded-[28px] border border-border/50 bg-muted/10 space-y-4 group/col hover:border-purple-500/20 transition-all">
-                                    <div className="flex items-center justify-between">
-                                        <Input 
-                                            value={col.title} 
-                                            onChange={(e) => {
-                                                const newCols = [...localFooter.columns];
-                                                newCols[cIdx] = { ...col, title: e.target.value };
-                                                setLocalFooter({ ...localFooter, columns: newCols });
-                                            }}
-                                            className="w-1/2 h-8 font-black uppercase tracking-[0.2em] text-[10px] bg-transparent border-none text-purple-600 focus-visible:ring-0 p-0" 
-                                        />
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive/40 hover:text-destructive hover:bg-destructive/10 rounded-lg opacity-0 group-hover/col:opacity-100" onClick={() => {
-                                            setLocalFooter({ ...localFooter, columns: localFooter.columns.filter((_: any, i: number) => i !== cIdx) });
-                                        }}>
-                                            <Trash2 size={12} />
-                                        </Button>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {col.links?.map((link: any, lIdx: number) => (
-                                            <div key={lIdx} className="grid grid-cols-2 gap-2 p-1 group/link">
-                                                <Input 
-                                                    value={link.label} 
-                                                    onChange={(e) => {
-                                                        const newCols = [...localFooter.columns];
-                                                        const newLinks = [...col.links];
-                                                        newLinks[lIdx] = { ...link, label: e.target.value };
-                                                        newCols[cIdx] = { ...col, links: newLinks };
-                                                        setLocalFooter({ ...localFooter, columns: newCols });
-                                                    }}
-                                                    className="h-8 text-[10px] font-black italic rounded-xl bg-background/80" 
-                                                />
-                                                <Input 
-                                                    value={link.href} 
-                                                    onChange={(e) => {
-                                                        const newCols = [...localFooter.columns];
-                                                        const newLinks = [...col.links];
-                                                        newLinks[lIdx] = { ...link, href: e.target.value };
-                                                        newCols[cIdx] = { ...col, links: newLinks };
-                                                        setLocalFooter({ ...localFooter, columns: newCols });
-                                                    }}
-                                                    className="h-8 text-[9px] font-mono rounded-xl bg-background/80" 
-                                                />
-                                            </div>
-                                        ))}
-                                        <Button variant="ghost" size="sm" className="w-full h-8 text-[9px] font-black italic uppercase tracking-widest gap-2 bg-background/40 hover:bg-background rounded-xl border border-dashed border-border/50" onClick={() => {
-                                            const newCols = [...localFooter.columns];
-                                            const newLinks = [...(col.links || []), { label: "New Link", href: "/" }];
-                                            newCols[cIdx] = { ...col, links: newLinks };
-                                            setLocalFooter({ ...localFooter, columns: newCols });
-                                        }}>
-                                            <Plus size={10} /> INJECT LINK NODE
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                            <Button variant="outline" className="h-14 rounded-2xl border-dashed border-2 font-black italic text-xs gap-3 group border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/40" onClick={() => {
-                                const newCols = [...(localFooter.columns || []), { title: "NEW COLUMN", links: [] }];
-                                setLocalFooter({ ...localFooter, columns: newCols });
-                            }}>
-                                <Plus size={16} className="group-hover:rotate-90 transition-transform duration-500" /> EXPAND COLUMN MATRIX
-                            </Button>
-                        </div>
-                    </div>
-                </CardContent>
-                <CardFooter className="p-10 pt-0">
-                    <Button 
-                        onClick={handleSave} 
-                        disabled={updateMutation.isPending}
-                        className="w-full h-16 rounded-[24px] bg-purple-600 text-white font-black italic text-lg shadow-2xl shadow-purple-600/30 gap-4 group hover:scale-[1.02] transition-transform"
-                    >
-                        {updateMutation.isPending ? <RefreshCcw className="animate-spin w-5 h-5" /> : <Check size={20} className="transition-transform group-hover:scale-110" />} 
-                        SYNC FOOTER CORE
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
-    );
+  return (
+    <div className={cn("space-y-2", depth > 0 && "")}>
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-medium text-foreground">
+          {field.label}
+        </label>
+        {onGenerate && field.type !== "boolean" && field.type !== "array" && field.type !== "group" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-3 text-primary hover:bg-primary/10 rounded-lg"
+            onClick={onGenerate}
+            disabled={isGenerating}
+          >
+            <Sparkles className={cn("w-3.5 h-3.5 mr-1.5", isGenerating && "animate-pulse")} />
+            AI Generate
+          </Button>
+        )}
+      </div>
+      {renderInput()}
+    </div>
+  );
 }
 
-function SimulatedNavbar() {
-    const { content } = useNavbarContentStore();
-    return (
-        <div className="flex items-center justify-between px-8 py-4 bg-background/50 backdrop-blur-md border-b border-border/10">
-            <div className="flex items-center gap-2">
-                <Logo size="sm" />
-                <span className="font-black italic text-sm uppercase">{content?.brandName || "OFTISOFT"}</span>
-            </div>
-            <div className="hidden md:flex items-center gap-6">
-                {content?.links.slice(0, 4).map(link => (
-                    <span key={link.id} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary cursor-pointer transition-colors">{link.label}</span>
-                ))}
-            </div>
-            <div className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20" />
-            </div>
+// Section editor with collapsible
+function SectionEditor({
+  section,
+  content,
+  onChange,
+  onGenerateField,
+  generatingField,
+}: {
+  section: SchemaSection;
+  content: Record<string, any>;
+  onChange: (content: Record<string, any>) => void;
+  onGenerateField: (fieldName: string, field: SchemaField) => void;
+  generatingField: string | null;
+}) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  const sectionContent = section.id === "_root" || !section.id
+    ? content
+    : content[section.id] || {};
+
+  const handleFieldChange = (fieldName: string, value: any) => {
+    if (section.id === "_root" || !section.id) {
+      onChange({ ...content, [fieldName]: value });
+    } else {
+      onChange({
+        ...content,
+        [section.id]: { ...sectionContent, [fieldName]: value }
+      });
+    }
+  };
+
+  return (
+    <Card className="rounded-2xl border-border/50 bg-card/80 backdrop-blur-xl overflow-hidden shadow-sm">
+      <CardHeader
+        className="cursor-pointer px-6 py-4 border-b border-border/50 bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/60 hover:to-muted/40 transition-all"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+            <CardTitle className="text-base font-semibold">{section.label}</CardTitle>
+          </div>
+          <Badge variant="secondary" className="text-xs font-medium">
+            {section.fields?.length || 0} fields
+          </Badge>
         </div>
-    );
+      </CardHeader>
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <CardContent className="p-6 space-y-6">
+              {section.fields?.map((field) => (
+                <FieldEditor
+                  key={field.name}
+                  field={field}
+                  value={sectionContent[field.name]}
+                  onChange={(v) => handleFieldChange(field.name, v)}
+                  onGenerate={() => onGenerateField(field.name, field)}
+                  isGenerating={generatingField === field.name}
+                />
+              ))}
+            </CardContent>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Card>
+  );
 }
 
-function SimulatedFooter() {
-    const { content } = useFooterContentStore();
-    return (
-        <div className="p-12 bg-[#020202]/95 backdrop-blur-xl text-white space-y-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div className="col-span-2 space-y-4">
-                    <div className="flex items-center gap-2">
-                        <Logo size="sm" variant="white" />
-                        <span className="font-black italic text-sm uppercase tracking-tighter">{content?.brandName || "OFTISOFT"}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground max-w-xs italic font-medium">{content?.tagline || "Envisioning the future of architectural digital experiences."}</p>
-                </div>
-                {content?.columns.slice(0, 2).map((col) => (
-                    <div key={col.id}>
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-primary">{col.title}</h4>
-                        <div className="flex flex-col gap-2 text-[10px] text-muted-foreground font-bold italic">
-                            {col.links.slice(0, 3).map((link) => (
-                                <span key={link.id}>{link.label}</span>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <div className="pt-8 border-t border-white/5 flex justify-between items-center">
-                <span className="text-[9px] text-muted-foreground uppercase font-black italic">© {new Date().getFullYear()} OFTISOFT NODES</span>
-                <div className="flex items-center gap-2 text-[8px] text-muted-foreground/60 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    SIM_LIVE
-                </div>
-            </div>
-        </div>
-    );
-}
+// JSON Import Dialog
+function JsonImportDialog({
+  open,
+  onClose,
+  onImport,
+  pageKey,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onImport: (data: Record<string, any>) => void;
+  pageKey: PageKey | null;
+}) {
+  const [jsonText, setJsonText] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-function ForgeEditor() {
-    const { data: globalSettings } = usePageContent("settings");
-    const { mutate: updateSettings } = useUpdatePageContent();
-    const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
-    const [localState, setLocalState] = useState<any>({});
-    
-    // Sync local state with remote data when loaded
-    useEffect(() => {
-        if (globalSettings?.content) {
-            setLocalState(globalSettings.content);
-        }
-    }, [globalSettings]);
+  const handleImport = () => {
+    try {
+      const parsed = JSON.parse(jsonText);
+      if (typeof parsed !== "object" || parsed === null) {
+        setError("JSON must be an object");
+        return;
+      }
+      onImport(parsed);
+      onClose();
+      setJsonText("");
+      setError(null);
+      toast.success("Content imported successfully");
+    } catch {
+      setError("Invalid JSON format");
+    }
+  };
 
-    const handleSave = () => {
-        updateSettings({ 
-            pageKey: "settings", 
-            content: { ...globalSettings?.content, ...localState } 
-        });
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      setJsonText(text);
     };
+    reader.readAsText(file);
+  };
 
-    const updateField = (key: string, value: any) => {
-        setLocalState((prev: any) => ({ ...prev, [key]: value }));
-    };
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      setJsonText(text);
+      toast.success("Pasted from clipboard");
+    } catch {
+      toast.error("Failed to paste from clipboard");
+    }
+  };
 
-    return (
-        <div className="flex flex-col xl:grid xl:grid-cols-12 gap-8">
-            {/* Editor Controls */}
-            <div className="xl:col-span-4 space-y-6">
-                <Card className="border-border/50 bg-card/80 backdrop-blur-xl rounded-[40px] overflow-hidden shadow-2xl">
-                    <CardHeader className="p-10 border-b border-border/50 flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="text-lg font-black uppercase italic tracking-tighter">Forge settings</CardTitle>
-                            <CardDescription className="italic">Global visual style parameters.</CardDescription>
-                        </div>
-                        <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                    </CardHeader>
-                    <CardContent className="p-10 space-y-8">
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase text-muted-foreground italic ml-1 tracking-widest">Primary Hero Node</label>
-                            <Input 
-                                value={localState.heroTitle || "Oftisoft - Hyper-Scale Growth"} 
-                                onChange={(e) => updateField('heroTitle', e.target.value)}
-                                className="rounded-2xl bg-background/50 h-14 font-black italic text-lg px-6 border-border/50" 
-                            />
-                        </div>
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase text-muted-foreground italic ml-1 tracking-widest">Global Path Node</label>
-                            <div className="flex items-center gap-4 bg-muted/30 p-2 pl-6 rounded-2xl border border-border/50">
-                                <span className="text-lg font-black italic text-muted-foreground">/</span>
-                                <Input 
-                                    value={localState.pathNode || "home"} 
-                                    onChange={(e) => updateField('pathNode', e.target.value)}
-                                    className="rounded-xl bg-transparent border-none h-10 font-black italic text-lg focus-visible:ring-0 px-0" 
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-6 pt-6 border-t border-border/50">
-                            <div className="flex items-center justify-between p-5 rounded-[24px] bg-primary/[0.03] border border-primary/10 group hover:border-primary/30 transition-all">
-                                <div className="space-y-1">
-                                    <span className="text-xs font-black italic block">Glassmorphism Mode</span>
-                                    <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Visual Layer Protocol</span>
-                                </div>
-                                <Switch 
-                                    checked={localState.glassmorphism !== false} 
-                                    onCheckedChange={(c) => updateField('glassmorphism', c)}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between p-5 rounded-[24px] bg-primary/[0.03] border border-primary/10 group hover:border-primary/30 transition-all">
-                                <div className="space-y-1">
-                                    <span className="text-xs font-black italic block">Motion Graphics</span>
-                                    <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Oftisoft Animation Engine</span>
-                                </div>
-                                <Switch 
-                                    checked={localState.motion !== false} 
-                                    onCheckedChange={(c) => updateField('motion', c)}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between p-5 rounded-[24px] bg-primary/[0.03] border border-primary/10 group hover:border-primary/30 transition-all">
-                                <div className="space-y-1">
-                                    <span className="text-xs font-black italic block">Advanced VFX</span>
-                                    <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Special Effects Cluster</span>
-                                </div>
-                                <Switch 
-                                    checked={localState.vfx !== false} 
-                                    onCheckedChange={(c) => updateField('vfx', c)}
-                                />
-                            </div>
-                        </div>
-                    </CardContent>
-                    <CardFooter className="p-10 pt-0">
-                            <Button 
-                            onClick={handleSave}
-                            className="w-full rounded-[24px] h-16 bg-primary text-white font-black italic shadow-2xl shadow-primary/30 text-lg gap-4 group transition-all hover:scale-[1.02]"
-                        >
-                            <Save className="w-6 h-6 transition-transform group-hover:scale-110" /> Commit Architectural Sync
-                        </Button>
-                    </CardFooter>
-                </Card>
+  const handleLoadTemplate = () => {
+    if (pageKey) {
+      const template = generatePageTemplate(pageKey);
+      setJsonText(JSON.stringify(template, null, 2));
+      toast.success("Template loaded");
+    }
+  };
 
-                <Card className="border-border/50 bg-muted/10 rounded-[40px] p-8 relative overflow-hidden">
-                    <div className="flex items-center gap-6">
-                        <div className="h-16 w-3 h-full bg-primary/20 rounded-full" />
-                        <div>
-                            <p className="text-[10px] font-black uppercase text-primary tracking-[0.3em] mb-2 italic">System Sync Status</p>
-                            <p className="text-2xl font-black italic tracking-tighter">100.0% Optimized</p>
-                            <p className="text-xs text-muted-foreground italic font-medium mt-1">Live production synchronization active.</p>
-                        </div>
-                    </div>
-                </Card>
-            </div>
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <FileJson className="w-5 h-5 text-primary" />
+            Import Content from JSON
+          </DialogTitle>
+          <DialogDescription className="text-sm">
+            Paste, upload, or load a template to import content data.
+          </DialogDescription>
+        </DialogHeader>
 
-            {/* Preview Area */}
-            <div className="xl:col-span-8 space-y-6">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-card/40 backdrop-blur-md p-6 rounded-[32px] border border-border/50 shadow-xl">
-                    <div className="flex gap-2 bg-muted/20 backdrop-blur-md p-1.5 rounded-2xl border border-border/50 shadow-inner">
-                        {[
-                            { id: "desktop", icon: Monitor, label: "Standard" },
-                            { id: "tablet", icon: Tablet, label: "Tablet" },
-                            { id: "mobile", icon: Smartphone, label: "Neural" },
-                        ].map((mode) => (
-                            <Button 
-                                key={mode.id}
-                                variant="ghost" 
-                                className={cn(
-                                    "h-11 px-4 gap-2 rounded-xl transition-all duration-500 font-black italic group",
-                                    previewMode === mode.id ? "bg-background text-primary shadow-xl ring-1 ring-primary/10" : "text-muted-foreground/60 hover:bg-background/40"
-                                )}
-                                onClick={() => setPreviewMode(mode.id as any)}
-                            >
-                                <mode.icon size={16} className={cn("transition-all duration-500", previewMode === mode.id ? "scale-110 rotate-0" : "-rotate-12 group-hover:rotate-0")} />
-                                <span className="text-[10px] uppercase tracking-wider">{mode.label}</span>
-                            </Button>
-                        ))}
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <div className="hidden md:flex flex-col text-right">
-                            <span className="text-[9px] font-black text-muted-foreground uppercase italic tracking-widest">Latest Production Sync</span>
-                            <span className="text-[10px] font-black italic text-primary">SYNC_PROD_OK - 2M AGO</span>
-                        </div>
-                        <Button variant="ghost" className="h-12 px-6 rounded-2xl gap-3 text-xs font-black italic text-primary hover:bg-primary/5 group">
-                            Launch Full Simulator <ExternalLink size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                        </Button>
-                    </div>
-                </div>
+        <div className="space-y-4 py-4">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload File
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none"
+              onClick={handlePasteFromClipboard}
+            >
+              <Copy className="w-4 h-4 mr-2" />
+              Paste from Clipboard
+            </Button>
+            {pageKey && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 sm:flex-none"
+                onClick={handleLoadTemplate}
+              >
+                <FileDown className="w-4 h-4 mr-2" />
+                Load Template
+              </Button>
+            )}
+          </div>
 
-                <Card className={cn(
-                    "border-border/50 bg-black/[0.02] rounded-[60px] overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)]",
-                    previewMode === "desktop" ? "w-full min-h-[700px]" : 
-                    previewMode === "tablet" ? "max-w-[768px] min-h-[900px] mx-auto" : "max-w-[400px] min-h-[850px] mx-auto border-[12px] border-card shadow-2xl"
-                )}>
-                    <div className="p-6 bg-card/30 backdrop-blur-md border-b border-border/30 flex items-center justify-center gap-2 relative">
-                        <div className="absolute left-8 flex gap-2">
-                            <div className="w-3 h-3 rounded-full bg-red-500/20" />
-                            <div className="w-3 h-3 rounded-full bg-orange-500/20" />
-                            <div className="w-3 h-3 rounded-full bg-green-500/20" />
-                        </div>
-                        <div className="bg-background/80 backdrop-blur-md rounded-2xl h-10 w-full max-w-md flex items-center px-6 border border-border/50 shadow-inner">
-                            <span className="text-[11px] text-muted-foreground font-mono font-bold tracking-tight">https://oftisoft.com/marketing/forge-sim</span>
-                        </div>
-                    </div>
-                    
-                    {/* Simulated Content Wrapper */}
-                    <div className="flex flex-col min-h-full">
-                        <SimulatedNavbar />
-                        
-                        <div className="flex-1 p-20 flex flex-col items-center justify-center min-h-[600px] text-center space-y-12">
-                                <motion.div 
-                                animate={localState.motion !== false ? { rotate: [12, -12, 12] } : {}}
-                                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                                className={cn(
-                                    "w-32 h-32 rounded-[40px] bg-gradient-to-br from-primary to-purple-600 shadow-3xl shadow-primary/40 flex items-center justify-center",
-                                    localState.glassmorphism !== false && "backdrop-blur-md bg-opacity-80"
-                                )}
-                            >
-                                <Sparkles className="w-16 h-16 text-white" />
-                            </motion.div>
-                            <div className="space-y-6 max-w-2xl px-6">
-                                <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter bg-gradient-to-b from-foreground to-foreground/50 bg-clip-text text-transparent">
-                                    {localState.heroTitle || "OFTISOFT FORGE"}
-                                </h1>
-                                <p className="text-muted-foreground text-xl md:text-2xl font-medium leading-relaxed italic">
-                                    Real-time page layout simulation. Adjust stylistic parameters to preview how sections will render across different device architectures.
-                                </p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-6 pt-8">
-                                <div className="h-16 w-56 rounded-[24px] bg-primary shadow-2xl shadow-primary/20 flex items-center justify-center text-white font-black italic text-lg">Primary Action</div>
-                                <div className={cn(
-                                    "h-16 w-56 rounded-[24px] bg-card/50 border border-border/50 backdrop-blur-lg flex items-center justify-center font-black italic text-lg",
-                                    localState.glassmorphism !== false && "bg-card/30"
-                                )}>Secondary node</div>
-                            </div>
-                        </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
 
-                        <SimulatedFooter />
-                    </div>
-                </Card>
-            </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">JSON Content</label>
+            <Textarea
+              value={jsonText}
+              onChange={(e) => {
+                setJsonText(e.target.value);
+                setError(null);
+              }}
+              placeholder='{\n  "title": "My Title",\n  "description": "My Description",\n  ...'
+              rows={12}
+              className="font-mono text-xs sm:text-sm rounded-xl bg-muted/30"
+            />
+            {error && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </p>
+            )}
+          </div>
         </div>
-    );
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto rounded-xl">
+            Cancel
+          </Button>
+          <Button onClick={handleImport} disabled={!jsonText.trim()} className="w-full sm:w-auto rounded-xl">
+            <Check className="w-4 h-4 mr-2" />
+            Import Content
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
-const getPageSlug = (key: string) => {
-    if (key === 'home') return '/';
-    return `/${key}`;
-};
+// JSON Export Dialog
+function JsonExportDialog({
+  open,
+  onClose,
+  data,
+  pageName,
+}: {
+  open: boolean;
+  onClose: () => void;
+  data: Record<string, any>;
+  pageName: string;
+}) {
+  const jsonText = JSON.stringify(data, null, 2);
 
-export default function ContentManagementPage() {
-    const { data: files } = useFiles();
-    const { data: dbPages } = useAllPages();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
-    const [isSyncing, setIsSyncing] = useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(jsonText);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Failed to copy");
+    }
+  };
 
-    const pagesList = Object.entries(CMS_SCHEMA).map(([key, schema]: [string, any]) => {
-        const dbPage = dbPages?.find(p => p.pageKey === key);
-        return {
-            id: key,
-            name: schema.label || key,
-            slug: getPageSlug(key),
-            status: dbPage?.status || 'draft',
-            lastEdit: dbPage?.updatedAt ? new Date(dbPage.updatedAt).toISOString().split('T')[0] : '—',
-            views: '—' // Views would come from analytics integration
-        };
+  const handleDownload = () => {
+    const blob = new Blob([jsonText], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${pageName.toLowerCase().replace(/\s+/g, "-")}-content.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("File downloaded");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Download className="w-5 h-5 text-primary" />
+            Export Content as JSON
+          </DialogTitle>
+          <DialogDescription className="text-sm">
+            Copy or download the content data in JSON format.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="relative">
+            <pre className="p-4 rounded-xl bg-muted/30 border overflow-auto max-h-[300px] sm:max-h-[400px] text-xs sm:text-sm font-mono">
+              {jsonText}
+            </pre>
+          </div>
+        </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={handleCopy} className="w-full sm:w-auto rounded-xl">
+            <Copy className="w-4 h-4 mr-2" />
+            Copy to Clipboard
+          </Button>
+          <Button onClick={handleDownload} className="w-full sm:w-auto rounded-xl">
+            <Download className="w-4 h-4 mr-2" />
+            Download File
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Template Dialog
+function TemplateDialog({
+  open,
+  onClose,
+  pageKeys,
+}: {
+  open: boolean;
+  onClose: () => void;
+  pageKeys: PageKey[];
+}) {
+  const handleDownloadTemplate = (pageKey: PageKey) => {
+    const template = generatePageTemplate(pageKey);
+    const schema = CMS_SCHEMA[pageKey] as PageSchema;
+    const jsonText = JSON.stringify(template, null, 2);
+
+    const blob = new Blob([jsonText], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${pageKey}-template.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.success(`Template for ${schema?.label || pageKey} downloaded`);
+  };
+
+  const handleDownloadAll = () => {
+    pageKeys.forEach((pageKey, idx) => {
+      setTimeout(() => handleDownloadTemplate(pageKey), idx * 100);
     });
+  };
 
-    const filteredPages = pagesList.filter(p => 
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.slug.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <FileDown className="w-5 h-5 text-primary" />
+            Download Empty Templates
+          </DialogTitle>
+          <DialogDescription className="text-sm">
+            Download JSON templates with the correct structure for each page.
+          </DialogDescription>
+        </DialogHeader>
 
-    const handleSync = async () => {
-        setIsSyncing(true);
-        try {
-            await toast.promise(
-                new Promise(resolve => setTimeout(resolve, 2000)),
-                {
-                    loading: 'Synchronizing global edge nodes...',
-                    success: 'All architectural sections are now live.',
-                    error: 'Node propagation failed.',
-                }
+        <div className="space-y-2 py-4 max-h-[400px] overflow-y-auto">
+          {pageKeys.map((pageKey) => {
+            const schema = CMS_SCHEMA[pageKey] as PageSchema;
+            const Icon = getSchemaIcon(schema?.icon || "FileText");
+            return (
+              <div
+                key={pageKey}
+                className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{schema?.label || pageKey}</p>
+                    <p className="text-xs text-muted-foreground">{pageKey}.json</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDownloadTemplate(pageKey)}
+                  className="rounded-lg"
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+              </div>
             );
-        } finally {
-            setIsSyncing(false);
-        }
-    };
-
-    const handleCreatePage = () => {
-        toast.info("Initializing new content node creation...", {
-            description: "Opening the Dynamic Forge interface."
-        });
-    };
-
-    return (
-        <div className="space-y-8 pb-20">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-black italic tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                        Oftisoft Content Forge
-                    </h1>
-                    <p className="text-muted-foreground font-medium mt-1">Manage all production pages, media assets, and marketing sections for the Oftisoft platform.</p>
-                </div>
-                <div className="flex gap-3">
-                    <Button 
-                        variant="outline" 
-                        onClick={handleSync}
-                        disabled={isSyncing}
-                        className="rounded-2xl gap-2 font-black italic h-11 border-border/50 bg-card/50 backdrop-blur-sm group"
-                    >
-                        <RefreshCcw className={cn("w-4 h-4 text-primary transition-transform duration-500", isSyncing && "animate-spin")} />
-                        {isSyncing ? "Syncing Nodes..." : "Sync All Sections"}
-                    </Button>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button className="rounded-2xl gap-2 font-black italic h-11 bg-primary text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95">
-                                <Plus className="w-4 h-4" /> Create New Node
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="rounded-[2.5rem] p-10">
-                            <DialogHeader>
-                                <DialogTitle className="text-3xl font-black italic">Initialize New Page Node</DialogTitle>
-                                <DialogDescription className="italic">Specify the architectural parameters for the new content node.</DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-6 py-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase italic tracking-widest text-muted-foreground">Node Name</label>
-                                    <Input placeholder="e.g. Enterprise Solutions" className="h-12 rounded-2xl" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase italic tracking-widest text-muted-foreground">Path Segment</label>
-                                    <Input placeholder="e.g. enterprise" className="h-12 rounded-2xl" />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button className="w-full rounded-2xl h-14 bg-primary text-white font-black italic shadow-xl" onClick={() => {
-                                    toast.success("New node initialized in the architectural matrix.");
-                                }}>Construct Node</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
-
-            <Tabs defaultValue="pages" className="space-y-8">
-                <div className="flex items-center gap-4">
-                    <TabsList className="bg-muted/20 backdrop-blur-xl p-1.5 rounded-[22px] h-16 w-fit border border-border/50 relative overflow-hidden shadow-2xl">
-                        {[
-                            { value: "pages", label: "Page Nodes", icon: FileText },
-                            { value: "global", label: "Global Core", icon: Globe },
-                            { value: "media", label: "Media Vault", icon: ImageIcon },
-                            { value: "sections", label: "Library", icon: Layers },
-                            { value: "editor", label: "Visual Forge", icon: Zap },
-                        ].map((tab) => (
-                            <TabsTrigger 
-                                key={tab.value}
-                                value={tab.value} 
-                                className="relative z-10 rounded-[18px] h-13 gap-3 data-[state=active]:text-primary transition-all duration-500 font-black italic px-8 group data-[state=active]:bg-background/80 data-[state=active]:shadow-xl data-[state=active]:scale-[1.02] border border-transparent data-[state=active]:border-primary/10"
-                            >
-                                <tab.icon className="w-4 h-4 transition-all duration-500 group-hover:scale-110 group-data-[state=active]:scale-110 group-data-[state=active]:animate-pulse" />
-                                <span className="relative">{tab.label}</span>
-                                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary/20 opacity-0 group-data-[state=active]:opacity-100 transition-all duration-700 blur-[4px]" />
-                                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary opacity-0 group-data-[state=active]:opacity-100 transition-all duration-1000 animate-pulse delay-500 shadow-[0_0_10px_rgba(var(--primary),0.8)]" />
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-                    
-                    <div className="hidden lg:flex items-center gap-3 px-6 py-3 rounded-2xl bg-primary/5 border border-primary/10">
-                        <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                        <span className="text-[10px] font-black uppercase italic tracking-widest text-primary/70">Visual Engine V4.2 ACTIVE</span>
-                    </div>
-                </div>
-
-                {/* Pages Index */}
-                <TabsContent value="pages" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="relative max-w-md w-full">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input 
-                                placeholder="Locate architectural page node..." 
-                                className="pl-11 h-12 rounded-2xl bg-card/40 border-border/50 focus:ring-primary/20 backdrop-blur-sm"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                             <Button variant="ghost" size="sm" className="h-10 rounded-xl gap-2 font-bold text-muted-foreground italic">
-                                <History size={14} /> Global History
-                             </Button>
-                        </div>
-                    </div>
-
-                    <div className="grid gap-4">
-                        {filteredPages.map((page, idx) => {
-                            const schema = CMS_SCHEMA[page.id as PageKey];
-                            const Icon = getSchemaIcon(schema?.icon || "FileText");
-
-                            return (
-                                <motion.div
-                                    key={page.id}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: idx * 0.05 }}
-                                >
-                                    <Card className="border-border/50 bg-card/40 backdrop-blur-md hover:border-primary/30 transition-all rounded-[32px] overflow-hidden group shadow-xl hover:shadow-primary/5">
-                                        <CardContent className="p-8 flex items-center justify-between gap-6">
-                                            <div className="flex items-center gap-6">
-                                                <div className="w-16 h-16 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary shadow-inner group-hover:bg-primary group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:-rotate-12">
-                                                    <Icon className="w-7 h-7" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-black italic text-2xl uppercase tracking-tighter group-hover:tracking-wider transition-all duration-500">{page.name}</h3>
-                                                    <div className="flex items-center gap-3 mt-1.5 font-bold italic">
-                                                        <Badge variant="secondary" className="text-[10px] font-mono font-bold bg-muted/50 px-3 py-1 rounded-lg border-border/50">
-                                                            {page.slug}
-                                                        </Badge>
-                                                        <span className="text-[10px] font-black text-muted-foreground uppercase px-3 py-1 border-l border-border/50 italic tracking-widest opacity-60">
-                                                            Cycle: {page.lastEdit}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-12">
-                                                <div className="hidden lg:flex flex-col text-right">
-                                                    <span className="text-[10px] font-black text-muted-foreground uppercase italic tracking-widest opacity-50">Engagement Matrix</span>
-                                                    <span className="font-black text-xl italic text-primary">{page.views}</span>
-                                                </div>
-                                                <div className="flex items-center gap-4">
-                                                    <Badge className={cn("text-[8px] h-7 px-4 font-black uppercase tracking-[0.2em] border-none shadow-sm", 
-                                                        page.status === "published" ? "bg-primary/20 text-primary" : "bg-amber-500/20 text-amber-500"
-                                                    )}>
-                                                        {page.status === "published" ? <CheckCircle2 className="w-3.5 h-3.5 mr-2" /> : <Clock className="w-3.5 h-3.5 mr-2 animate-pulse" />}
-                                                        {page.status === "published" ? "NODE_LIVE" : "DRAFT_INIT"}
-                                                    </Badge>
-                                                    <div className="flex gap-2">
-                                                        <Link href={`/dashboard/admin/content/${page.id}`}>
-                                                            <Button variant="outline" size="icon" className="h-12 w-12 rounded-2xl bg-background/50 border-border/50 hover:bg-primary hover:text-white transition-all shadow-sm">
-                                                                <Edit size={18} />
-                                                            </Button>
-                                                        </Link>
-                                                        <Button 
-                                                            variant="outline" 
-                                                            size="icon" 
-                                                            onClick={() => toast.success(`Viewing live deployment of ${page.name}`)}
-                                                            className="h-12 w-12 rounded-2xl bg-background/50 border-border/50 hover:bg-primary/10 text-primary transition-all"
-                                                        >
-                                                            <Eye size={18} />
-                                                        </Button>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-12 w-12 rounded-2xl border border-border/50 hover:bg-muted/30">
-                                                                    <MoreVertical size={18} />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 border-border/50 backdrop-blur-xl bg-background/95 shadow-2xl">
-                                                                <DropdownMenuItem className="rounded-xl gap-3 font-bold italic py-3 cursor-pointer">
-                                                                    <SearchCode className="w-4 h-4 text-primary" /> Inspect Nodes
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem className="rounded-xl gap-3 font-bold italic py-3 cursor-pointer">
-                                                                    <Zap className="w-4 h-4 text-amber-500" /> Optimize Cache
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuSeparator className="bg-border/50" />
-                                                                <Dialog>
-                                                                    <DialogTrigger asChild>
-                                                                        <DropdownMenuItem className="rounded-xl gap-3 font-bold italic py-3 cursor-pointer text-red-500 hover:bg-red-500/10" onSelect={(e) => e.preventDefault()}>
-                                                                            <Trash2 className="w-4 h-4" /> Archive Node
-                                                                        </DropdownMenuItem>
-                                                                    </DialogTrigger>
-                                                                    <DialogContent className="rounded-[2.5rem] p-10">
-                                                                        <DialogHeader>
-                                                                            <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Deconstruct Architectural Node?</DialogTitle>
-                                                                            <DialogDescription className="italic font-medium">
-                                                                                This will move the "{page.name}" node to the archive. All active edge deployments will be preserved but the node will no longer be editable.
-                                                                            </DialogDescription>
-                                                                        </DialogHeader>
-                                                                        <DialogFooter className="mt-8">
-                                                                            <Button variant="destructive" className="rounded-2xl w-full h-14 font-black italic uppercase tracking-widest text-[11px]" onClick={() => toast.success("Node archived.")}>Confirm Deconstruction</Button>
-                                                                        </DialogFooter>
-                                                                    </DialogContent>
-                                                                </Dialog>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                </TabsContent>
-                
-                <TabsContent value="global" className="space-y-8">
-                    <GlobalEditor />
-                </TabsContent>
-
-                {/* Media Vault */}
-                {/* Media Vault */}
-                <TabsContent value="media" className="space-y-8 animate-in fade-in duration-500">
-                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <Card className="md:col-span-1 border-border/50 bg-card/40 backdrop-blur-md rounded-[32px] overflow-hidden self-start sticky top-6">
-                            <CardHeader className="p-8 border-b border-border/50">
-                                <CardTitle className="text-sm font-black uppercase italic tracking-widest">Storage Overview</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-8 space-y-6">
-                                <div className="space-y-4">
-                                     <div className="flex justify-between items-end">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase italic underline decoration-primary/20">Total Used Space</p>
-                                        <p className="text-xl font-black italic">
-                                            {formatBytes(files?.reduce((acc, f) => acc + f.size, 0) || 0)}
-                                        </p>
-                                     </div>
-                                     <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary w-[32%] shadow-[0_0_10px_rgba(var(--primary),0.3)]" />
-                                     </div>
-                                </div>
-                                <div className="space-y-3">
-                                    {[
-                                        { label: "Total Artifacts", count: files?.length || 0 },
-                                        { label: "Images (PNG/JPG)", count: files?.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)).length || 0 },
-                                        { label: "Documents", count: files?.filter(f => !/\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)).length || 0 },
-                                    ].map((stat, i) => (
-                                        <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-muted/30 border border-border/50 group hover:bg-primary/5 transition-colors">
-                                            <span className="text-[11px] font-bold italic">{stat.label}</span>
-                                            <span className="text-xs font-black italic text-primary">{stat.count}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="pt-6 border-t border-border/50">
-                                    <ImageUpload 
-                                        onChange={(url) => toast.success("Asset added to Vault Librarian.")} 
-                                        className="w-full"
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                        
-                        <div className="md:col-span-3 space-y-6">
-                            {/* File Grid */}
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                {files?.map((file) => (
-                                    <Card key={file.name} className="group relative border-border/50 bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden hover:border-primary/50 transition-all cursor-pointer">
-                                        <div className="aspect-square bg-muted/50 relative overflow-hidden">
-                                            {/\.(jpg|jpeg|png|gif|webp)$/i.test(file.name) ? (
-                                                <img 
-                                                    src={file.url} 
-                                                    alt={file.name} 
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                                    <FileText size={48} strokeWidth={1} />
-                                                </div>
-                                            )}
-                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                <Button 
-                                                    size="icon" 
-                                                    variant="secondary"
-                                                    className="rounded-xl h-8 w-8"
-                                                    onClick={() => {
-                                                        navigator.clipboard.writeText(file.url);
-                                                        toast.success("URL copied to clipboard");
-                                                    }}
-                                                >
-                                                    <ExternalLink size={14} />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        <div className="p-3">
-                                            <p className="text-xs font-bold truncate mb-1" title={file.name}>{file.name}</p>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-[10px] text-muted-foreground">{formatBytes(file.size)}</span>
-                                                <Badge variant="outline" className="text-[9px] h-4 px-1 rounded-md border-border/50 bg-background/50">
-                                                    {file.name.split('.').pop()?.toUpperCase()}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                ))}
-                                {(!files || files.length === 0) && (
-                                    <div className="col-span-full py-20 text-center text-muted-foreground">
-                                        <ImageIcon className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                                        <p className="italic">No artifacts found in the vault.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                     </div>
-                </TabsContent>
-
-                {/* Section Librarian */}
-                <TabsContent value="sections" className="space-y-8 animate-in fade-in duration-500">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {(() => {
-                            const stats = {
-                                pages: Object.keys(CMS_SCHEMA).length,
-                                sections: Object.values(CMS_SCHEMA).reduce((acc: number, page: any) => acc + page.sections.length, 0),
-                                fields: Object.values(CMS_SCHEMA).reduce((acc: number, page: any) => acc + page.sections.reduce((sAcc: number, sec: any) => sAcc + (sec.fields?.length || 0), 0), 0),
-                                arrays: Object.values(CMS_SCHEMA).reduce((acc: number, page: any) => acc + page.sections.reduce((sAcc: number, sec: any) => sAcc + (sec.fields?.filter((f: any) => f.type === 'array').length || 0), 0), 0),
-                            };
-                            
-                            const categories = [
-                                { name: "Page Schemas", count: stats.pages, icon: Layout, color: "text-orange-500", desc: "Registered page definitions." },
-                                { name: "Content Sections", count: stats.sections, icon: Layers, color: "text-blue-500", desc: "Modular content blocks across all pages." },
-                                { name: "Data Fields", count: stats.fields, icon: Type, color: "text-purple-500", desc: "Individual editable data points." },
-                                { name: "Collections", count: stats.arrays, icon: Component, color: "text-green-500", desc: "Repeatable list structures." },
-                                { name: "Media Nodes", count: files?.length || 0, icon: ImageIcon, color: "text-indigo-500", desc: "Stored media assets in the vault." },
-                                { name: "System Configs", count: 3, icon: Settings, color: "text-red-500", desc: "Global registry configurations." },
-                            ];
-
-                            return categories.map((category, idx) => (
-                                <motion.div
-                                    key={category.name}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: idx * 0.05 }}
-                                >
-                                    <Card className="border-border/50 bg-card/60 rounded-[40px] hover:border-primary/40 transition-all cursor-pointer group shadow-lg overflow-hidden relative">
-                                        <div className={cn("absolute top-0 right-0 w-32 h-32 blur-[40px] rounded-full opacity-10 transition-opacity group-hover:opacity-20", category.color.replace('text', 'bg'))} />
-                                        <CardContent className="p-10 space-y-6">
-                                            <div className={cn("w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:-rotate-12 group-hover:shadow-2xl", category.color)}>
-                                                <category.icon size={32} />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <h4 className="font-black italic text-2xl tracking-tight">{category.name}</h4>
-                                                <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">{category.desc}</p>
-                                            </div>
-                                            <div className="flex justify-between items-end pt-4 border-t border-border/50">
-                                                <span className="text-[10px] font-black uppercase text-primary italic tracking-[0.2em]">{category.count} Nodes</span>
-                                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                                                    <ArrowUpRight className="w-5 h-5" />
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            ));
-                        })()}
-                    </div>
-                </TabsContent>
-
-                {/* Visual Forge */}
-                <TabsContent value="editor" className="space-y-8 animate-in fade-in duration-500">
-                    <ForgeEditor />
-                </TabsContent>
-            </Tabs>
-
-            {/* Infrastructure Insight */}
-            <div className="mt-16 p-16 rounded-[70px] bg-primary/[0.03] border-2 border-primary/10 relative overflow-hidden group shadow-2xl">
-                <div className="absolute -right-20 -bottom-20 w-[500px] h-[500px] bg-primary/10 blur-[150px] rounded-full pointer-events-none group-hover:bg-primary/20 transition-all duration-1000" />
-                <div className="flex flex-col lg:flex-row items-center gap-16 relative z-10">
-                    <div className="w-40 h-40 rounded-[50px] bg-background flex items-center justify-center border border-primary/20 shadow-3xl group-hover:scale-110 group-hover:-rotate-12 transition-all duration-1000">
-                        <Monitor className="w-20 h-20 text-primary shadow-2xl shadow-primary/10" />
-                    </div>
-                    <div className="flex-1 text-center lg:text-left space-y-6">
-                        <h3 className="text-4xl font-black tracking-tighter italic">Global Content Infrastructure</h3>
-                        <p className="text-muted-foreground max-w-4xl font-black text-xl leading-relaxed italic opacity-80">
-                            Enterprise-grade page management powered by the Oftisoft Edge Network. 
-                            Our Headless Forge technology ensures rapid deployment cycles and optimal performance across all global regions.
-                        </p>
-                    </div>
-                    <Button variant="outline" className="rounded-[32px] px-12 h-20 font-black italic border-2 border-primary/20 shadow-2xl bg-background hover:bg-primary hover:text-white transition-all text-xl">
-                        Production Status: ACTIVE
-                    </Button>
-                </div>
-            </div>
+          })}
         </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto rounded-xl">
+            Close
+          </Button>
+          <Button onClick={handleDownloadAll} className="w-full sm:w-auto rounded-xl">
+            <FileDown className="w-4 h-4 mr-2" />
+            Download All Templates
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Main Content Editor
+export default function ContentEditorPage() {
+  const [selectedPage, setSelectedPage] = useState<PageKey | null>(null);
+  const [localContent, setLocalContent] = useState<Record<string, any>>({});
+  const [isJsonImportOpen, setIsJsonImportOpen] = useState(false);
+  const [isJsonExportOpen, setIsJsonExportOpen] = useState(false);
+  const [isTemplateOpen, setIsTemplateOpen] = useState(false);
+  const [generatingField, setGeneratingField] = useState<string | null>(null);
+  const [undoStack, setUndoStack] = useState<Record<string, any>[]>([]);
+  const [redoStack, setRedoStack] = useState<Record<string, any>[]>([]);
+
+  const { data: pageContent, isLoading } = usePageContent(selectedPage || "home");
+  const updateMutation = useUpdatePageContent();
+  const generateMutation = useGenerateWithAI();
+
+  // Sync local content from backend
+  useEffect(() => {
+    if (pageContent?.content) {
+      setLocalContent(pageContent.content);
+      setUndoStack([]);
+      setRedoStack([]);
+    }
+  }, [pageContent]);
+
+  const handleContentChange = (newContent: Record<string, any>) => {
+    setUndoStack((prev) => [...prev.slice(-19), localContent]);
+    setRedoStack([]);
+    setLocalContent(newContent);
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length > 0) {
+      const prev = undoStack[undoStack.length - 1];
+      setRedoStack((prevStack) => [...prevStack, localContent]);
+      setUndoStack((prevStack) => prevStack.slice(0, -1));
+      setLocalContent(prev);
+    }
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length > 0) {
+      const next = redoStack[redoStack.length - 1];
+      setUndoStack((prevStack) => [...prevStack, localContent]);
+      setRedoStack((prevStack) => prevStack.slice(0, -1));
+      setLocalContent(next);
+    }
+  };
+
+  const handleGenerateField = async (fieldName: string, field: SchemaField) => {
+    setGeneratingField(fieldName);
+    try {
+      const res = await generateMutation.mutateAsync({
+        prompt: `Generate ${field.label} for a ${selectedPage} page.`,
+        fieldType: field.type === "richtext" || field.type === "textarea" ? "description" : "title",
+        pageKey: selectedPage || "home",
+      });
+      setUndoStack((prev) => [...prev.slice(-19), localContent]);
+      setLocalContent((prev) => ({
+        ...prev,
+        [fieldName]: res.text,
+      }));
+      toast.success("Content generated successfully");
+    } catch {
+      toast.error("Failed to generate content");
+    } finally {
+      setGeneratingField(null);
+    }
+  };
+
+  const handleSave = () => {
+    if (!selectedPage) return;
+
+    updateMutation.mutate(
+      {
+        pageKey: selectedPage,
+        content: localContent,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Content saved successfully");
+        },
+        onError: () => {
+          toast.error("Failed to save content");
+        },
+      }
     );
+  };
+
+  const handleJsonImport = (data: Record<string, any>) => {
+    setUndoStack((prev) => [...prev.slice(-19), localContent]);
+    setLocalContent(data);
+  };
+
+  const pageKeys = Object.keys(CMS_SCHEMA) as PageKey[];
+
+  if (!selectedPage) {
+    return (
+      <div className="space-y-6 sm:space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Content Management</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Select a page to edit its content and settings.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={() => setIsTemplateOpen(true)} variant="outline" size="sm" className="rounded-xl">
+              <FileDown className="w-4 h-4 mr-2" />
+              Templates
+            </Button>
+            <Button onClick={() => setIsJsonImportOpen(true)} variant="outline" size="sm" className="rounded-xl">
+              <FileJson className="w-4 h-4 mr-2" />
+              Import JSON
+            </Button>
+          </div>
+        </div>
+
+        {/* Page Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {pageKeys.map((pageKey) => {
+            const schema = CMS_SCHEMA[pageKey] as PageSchema;
+            return (
+              <PageCard
+                key={pageKey}
+                pageKey={pageKey}
+                schema={schema}
+                isSelected={false}
+                onClick={() => setSelectedPage(pageKey)}
+              />
+            );
+          })}
+        </div>
+
+        <JsonImportDialog
+          open={isJsonImportOpen}
+          onClose={() => setIsJsonImportOpen(false)}
+          onImport={(data) => {
+            toast.info("Select a page first to import content");
+            setIsJsonImportOpen(false);
+          }}
+          pageKey={null}
+        />
+
+        <TemplateDialog
+          open={isTemplateOpen}
+          onClose={() => setIsTemplateOpen(false)}
+          pageKeys={pageKeys}
+        />
+      </div>
+    );
+  }
+
+  const schema = CMS_SCHEMA[selectedPage] as PageSchema;
+  const sections = schema?.sections || [];
+  const totalFields = sections.reduce((acc: number, s: SchemaSection) => acc + (s.fields?.length || 0), 0);
+
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSelectedPage(null)}
+            className="rounded-xl shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-lg sm:text-xl font-bold">{schema?.label || "Content Editor"}</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm">
+              {sections.length} sections • {totalFields} fields
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleUndo}
+              disabled={undoStack.length === 0}
+              title="Undo"
+              className="rounded-lg"
+            >
+              <Undo className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRedo}
+              disabled={redoStack.length === 0}
+              title="Redo"
+              className="rounded-lg"
+            >
+              <Redo className="w-4 h-4" />
+            </Button>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsJsonImportOpen(true)}
+            className="rounded-xl"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsJsonExportOpen(true)}
+            className="rounded-xl"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          {CONTENT_PAGE_PUBLIC_PATH[selectedPage] && (
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="rounded-xl"
+            >
+              <Link href={CONTENT_PAGE_PUBLIC_PATH[selectedPage]!} target="_blank">
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </Link>
+            </Button>
+          )}
+          <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending} className="rounded-xl">
+            {updateMutation.isPending ? (
+              <RefreshCcw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Save Changes
+          </Button>
+        </div>
+      </div>
+
+      {/* Section Editors */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <RefreshCcw className="w-8 h-8 animate-spin text-primary opacity-30" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {sections.map((section: SchemaSection) => (
+            <SectionEditor
+              key={section.id}
+              section={section}
+              content={localContent}
+              onChange={handleContentChange}
+              onGenerateField={handleGenerateField}
+              generatingField={generatingField}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* JSON Import/Export Dialogs */}
+      <JsonImportDialog
+        open={isJsonImportOpen}
+        onClose={() => setIsJsonImportOpen(false)}
+        onImport={handleJsonImport}
+        pageKey={selectedPage}
+      />
+
+      <JsonExportDialog
+        open={isJsonExportOpen}
+        onClose={() => setIsJsonExportOpen(false)}
+        data={localContent}
+        pageName={schema?.label || "content"}
+      />
+    </div>
+  );
 }

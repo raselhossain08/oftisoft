@@ -1,11 +1,10 @@
 
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { Users, Workflow, Cpu, Headphones, Shield, Zap, Target, Award } from "lucide-react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
-import { useHomeContentStore } from "@/lib/store/home-content";
 
 const iconMap: Record<string, any> = {
     Users,
@@ -21,30 +20,15 @@ const iconMap: Record<string, any> = {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-export default function WhyUs() {
-    // Get content from CMS store
-    const { content } = useHomeContentStore();
-    const whyUsContent = content?.whyUs || {
-        title: "Why Visionaries",
-        subtitle: "Choose Us.",
-        badge: "The Ofitsoft Edge",
-        description: "We bridge the gap between creative ambition and technical reality.",
-        features: [],
-        stats: [
-            { value: "98%", label: "Retention" },
-            { value: "150+", label: "Launches" },
-            { value: "Top 3%", label: "Global Talent" }
-        ]
-    };
-
-    const features = whyUsContent.features || [];
-    const stats = whyUsContent.stats || [];
+export default function WhyUs({ data }: { data?: any }) {
+    // Get content from the page payload
+    const whyUsContent = data?.whyUs;
+    const features = whyUsContent?.features || [];
+    const stats = whyUsContent?.stats || [];
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "end start"]
-    });
+
+    if (!whyUsContent) return null;
 
     return (
         <section ref={containerRef} className="py-24 md:py-32 bg-transparent relative overflow-hidden z-10" id="why-us">
@@ -62,7 +46,7 @@ export default function WhyUs() {
                         transition={{ duration: 0.8 }}
                         className="text-center lg:text-left"
                     >
-                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5">
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 font-semibold text-xs">
                             {whyUsContent.badge}
                         </Badge>
                         <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -85,20 +69,20 @@ export default function WhyUs() {
                     >
                          <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-center">
                             <CardContent className="p-6">
-                                <h4 className="text-3xl md:text-4xl font-bold text-white mb-1">{stats[0]?.value || "98%"}</h4>
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest">{stats[0]?.label || "Retention"}</p>
+                                <h4 className="text-3xl md:text-4xl font-bold text-white mb-1">{stats[0]?.value ?? ""}</h4>
+                                <p className="text-xs text-muted-foreground tracking-wide">{stats[0]?.label ?? ""}</p>
                             </CardContent>
                          </Card>
                          <Card className="bg-primary/10 border-primary/20 backdrop-blur-sm text-center">
                             <CardContent className="p-6">
-                                <h4 className="text-3xl md:text-4xl font-bold text-primary mb-1">{stats[1]?.value || "150+"}</h4>
-                                <p className="text-xs text-primary/80 uppercase tracking-widest">{stats[1]?.label || "Launches"}</p>
+                                <h4 className="text-3xl md:text-4xl font-bold text-primary mb-1">{stats[1]?.value ?? ""}</h4>
+                                <p className="text-xs text-primary/80 tracking-wide">{stats[1]?.label ?? ""}</p>
                             </CardContent>
                          </Card>
                          <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-center col-span-2">
                             <CardContent className="p-6">
-                                <h4 className="text-3xl md:text-4xl font-bold text-white mb-1">{stats[2]?.value || "Top 3%"}</h4>
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest">{stats[2]?.label || "Global Talent"}</p>
+                                <h4 className="text-3xl md:text-4xl font-bold text-white mb-1">{stats[2]?.value ?? ""}</h4>
+                                <p className="text-xs text-muted-foreground tracking-wide">{stats[2]?.label ?? ""}</p>
                             </CardContent>
                          </Card>
                     </motion.div>

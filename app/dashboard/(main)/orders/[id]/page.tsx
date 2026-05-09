@@ -11,7 +11,6 @@ import {
     Package, 
     Truck, 
     Receipt,
-    ExternalLink,
     MapPin,
     CreditCard,
     RotateCcw,
@@ -43,13 +42,14 @@ export default function OrderDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const id = params?.id as string;
-    const { order, isLoading, updateStatus, downloadInvoice, isDownloadingInvoice } = useOrders(id);
-    const [status, setStatus] = useState<string>('');
-    const [isRefunding, setIsRefunding] = useState(false);
+    const { order, isLoading, updateStatus, updateOrder, downloadInvoice, isDownloadingInvoice, isUpdatingStatus } = useOrders(id);
+    const [status, setStatus] = useState<string>("");
+    const [internalNotes, setInternalNotes] = useState("");
 
     useEffect(() => {
         if (order) {
             setStatus(order.status);
+            setInternalNotes(order.internalNotes ?? "");
         }
     }, [order]);
 
@@ -80,12 +80,19 @@ export default function OrderDetailsPage() {
     };
 
     const handleRefund = () => {
-        setIsRefunding(true);
-        updateStatus(id, 'refunded');
-        setTimeout(() => {
-            setIsRefunding(false);
-            toast.success("Refund processed successfully.");
-        }, 1000);
+        updateStatus(id, "refunded");
+    };
+
+    const handleSaveNotes = () => {
+        if (id) updateOrder(id, { internalNotes: internalNotes.trim() || undefined });
+    };
+
+    const handleEmailReceipt = () => {
+        if (order?.user?.email) {
+            window.location.href = `mailto:${order.user.email}?subject=Order%20Receipt%20${order.id.slice(0, 8)}&body=Thank%20you%20for%20your%20order.`;
+        } else {
+            toast.info("Customer email not available.");
+        }
     };
 
     return (
@@ -102,7 +109,7 @@ export default function OrderDetailsPage() {
                             <h1 className="text-3xl font-black tracking-tighter">Order {order.id.substring(0, 8)}...</h1>
                             <StatusBadge status={status} className="text-base px-3 py-1" />
                         </div>
-                        <p className="text-muted-foreground text-sm">Placed on {format(new Date(order.createdAt), 'PPP')} • {order.items.length} items</p>
+                        <p className="text-muted-foreground text-sm">Placed on {format(new Date(order.createdAt), "PPP")} • {order.items?.length ?? 0} items</p>
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -123,7 +130,7 @@ export default function OrderDetailsPage() {
                         <Download className="w-4 h-4" />
                         {isDownloadingInvoice ? "Downloading..." : "Invoice"}
                     </Button>
-                    <Button className="gap-2 rounded-xl h-11 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 px-6">
+                    <Button className="gap-2 rounded-xl h-11 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 px-6" onClick={handleEmailReceipt}>
                         <Mail className="w-4 h-4" />
                         Email Receipt
                     </Button>
@@ -143,7 +150,7 @@ export default function OrderDetailsPage() {
                         </CardHeader>
                         <CardContent className="p-0">
                             <div className="divide-y divide-border/50">
-                                {order.items.map((item) => (
+                                {(order.items ?? []).map((item) => (
                                     <div key={item.id} className="p-6 flex items-center justify-between group hover:bg-muted/5 transition-colors">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
@@ -191,35 +198,32 @@ export default function OrderDetailsPage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-1">
-                                        <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Carrier</p>
-                                        <p className="font-bold">FedEx Priority</p>
+                                        <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Tracking</p>
+                                        <p className="font-bold">{order.trackingNumber ? "Shipped" : "Pending"}</p>
                                         <p className="text-xs text-muted-foreground mt-4">Tracking Number</p>
-                                        <Link href="#" className="font-mono text-primary font-bold hover:underline flex items-center gap-2">
-                                            {order.trackingNumber || 'Pending'} <ExternalLink className="w-3 h-3" />
-                                        </Link>
+                                        <span className="font-mono text-primary font-bold">{order.trackingNumber || "—"}</span>
                                     </div>
                                     <div className="space-y-4">
-                                         {/* Mock tracking steps based on status */}
                                         <div className="flex gap-4">
                                             <div className="shrink-0 w-8 flex flex-col items-center">
-                                                <div className={`w-2 h-2 rounded-full ring-4 ${status !== 'pending' ? 'bg-primary ring-primary/20' : 'bg-muted ring-muted/20'}`} />
+                                                <div className={`w-2 h-2 rounded-full ring-4 ${status !== "pending" ? "bg-primary ring-primary/20" : "bg-muted ring-muted/20"}`} />
                                                 <div className="w-0.5 h-12 bg-border" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold">Order Processed</p>
-                                                <p className="text-[10px] text-muted-foreground">{format(new Date(order.createdAt), 'MMM d, h:mm a')}</p>
+                                                <p className="text-sm font-bold">Order placed</p>
+                                                <p className="text-[10px] text-muted-foreground">{format(new Date(order.createdAt), "MMM d, h:mm a")}</p>
                                             </div>
                                         </div>
-                                        {order.status === 'completed' && (
+                                        {(status === "processing" || status === "completed") && (
                                             <div className="flex gap-4">
                                                 <div className="shrink-0 w-8 flex flex-col items-center">
                                                     <div className="w-2 h-2 rounded-full bg-primary ring-4 ring-primary/20" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-primary">Delivered</p>
-                                                    <p className="text-[10px] text-muted-foreground">{format(new Date(order.updatedAt), 'MMM d, h:mm a')}</p>
+                                                    <p className="text-sm font-bold text-primary">{status === "completed" ? "Completed" : "Processing"}</p>
+                                                    <p className="text-[10px] text-muted-foreground">{order.updatedAt ? format(new Date(order.updatedAt), "MMM d, h:mm a") : "—"}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -240,7 +244,7 @@ export default function OrderDetailsPage() {
                         <CardContent className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-xs font-black uppercase text-muted-foreground">Status</label>
-                                <Select value={status} onValueChange={handleStatusChange} disabled={status === 'cancelled' || status === 'refunded'}>
+                                <Select value={status} onValueChange={handleStatusChange} disabled={status === "cancelled" || status === "refunded" || isUpdatingStatus}>
                                     <SelectTrigger className="rounded-xl h-11 font-bold">
                                         <SelectValue />
                                     </SelectTrigger>
@@ -256,14 +260,14 @@ export default function OrderDetailsPage() {
                             
                             {status !== 'refunded' && status !== 'cancelled' && (
                                 <div className="pt-4 space-y-2">
-                                    <Button 
-                                        variant="outline" 
-                                        className="w-full rounded-xl gap-2 font-bold h-11 text-destructive hover:bg-destructive/5 hover:text-destructive" 
+                                    <Button
+                                        variant="outline"
+                                        className="w-full rounded-xl gap-2 font-bold h-11 text-destructive hover:bg-destructive/5 hover:text-destructive"
                                         onClick={handleRefund}
-                                        disabled={isRefunding}
+                                        disabled={isUpdatingStatus}
                                     >
-                                        <RotateCcw className={cn("w-4 h-4", isRefunding && "animate-spin")} />
-                                        {isRefunding ? "Processing Refund..." : "Process Full Refund"}
+                                        <RotateCcw className={cn("w-4 h-4", isUpdatingStatus && "animate-spin")} />
+                                        {isUpdatingStatus ? "Processing..." : "Process Full Refund"}
                                     </Button>
                                     <p className="text-[10px] text-center text-muted-foreground uppercase font-black">Process takes 3-5 business days</p>
                                 </div>
@@ -282,8 +286,8 @@ export default function OrderDetailsPage() {
                         <CardContent className="space-y-6">
                             <div>
                                 <p className="text-xs font-black uppercase text-muted-foreground mb-1">Name</p>
-                                <p className="font-bold">{order.user.name}</p>
-                                <p className="text-sm text-primary">{order.user.email}</p>
+                                <p className="font-bold">{order.user?.name ?? "—"}</p>
+                                <p className="text-sm text-primary">{order.user?.email ?? "—"}</p>
                             </div>
                             
                             {order.shippingAddress && (
@@ -318,9 +322,16 @@ export default function OrderDetailsPage() {
                                 Internal Notes
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <p className="text-xs text-muted-foreground mb-4 italic">No internal notes added yet.</p>
-                            <Button variant="ghost" className="w-full rounded-xl text-xs h-8 border border-dashed opacity-60">Add Internal Note</Button>
+                        <CardContent className="space-y-3">
+                            <textarea
+                                className="w-full min-h-[100px] rounded-xl border border-border/50 bg-background px-4 py-3 text-sm resize-y"
+                                placeholder="Add internal notes (not visible to customer)..."
+                                value={internalNotes}
+                                onChange={(e) => setInternalNotes(e.target.value)}
+                            />
+                            <Button variant="outline" size="sm" className="w-full rounded-xl font-bold" onClick={handleSaveNotes}>
+                                Save notes
+                            </Button>
                         </CardContent>
                     </Card>
                 </div>

@@ -77,7 +77,7 @@ export default function UserDetailsPage() {
 
     if (!user) return (
         <div className="p-40 text-center">
-            <h2 className="text-4xl font-black italic opacity-20">Entity Not Found</h2>
+            <h2 className="text-4xl font-black opacity-20">User Not Found</h2>
             <Button asChild className="mt-8 rounded-xl font-black tracking-widest px-10 h-12 italic">
                 <Link href="/dashboard/admin/users">Return to Grid</Link>
             </Button>
@@ -118,7 +118,7 @@ export default function UserDetailsPage() {
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-4xl font-black tracking-[ -0.05em] italic uppercase">Entity Profile</h1>
+                        <h1 className="text-4xl font-black tracking-[ -0.05em] uppercase">User Profile</h1>
                         <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mt-1 opacity-70">Secured Record ID: {user.id.slice(0, 8)}... Linked {new Date(user.createdAt).toLocaleDateString()}</p>
                     </div>
                 </div>
@@ -147,7 +147,7 @@ export default function UserDetailsPage() {
                                     <Avatar className="h-28 w-28 border-[6px] border-background shadow-2xl">
                                         <AvatarImage src={user.avatarUrl} />
                                         <AvatarFallback className="text-3xl font-black bg-primary/10 text-primary italic">
-                                            {user.name.split(" ").map(n => n[0]).join("")}
+                                            {(user.name || "U").split(" ").filter(Boolean).map((n) => n[0]).join("").toUpperCase() || "U"}
                                         </AvatarFallback>
                                     </Avatar>
                                     {user.isActive && (
@@ -155,17 +155,17 @@ export default function UserDetailsPage() {
                                     )}
                                 </div>
                                 <div className="mt-6 uppercase">
-                                    <h3 className="text-2xl font-black italic tracking-tighter leading-tight">{user.name}</h3>
-                                    <p className="text-[10px] text-primary font-black tracking-widest opacity-80 mt-1">{user.email}</p>
+                                    <h3 className="text-2xl font-black tracking-tighter leading-tight">{user.name || "—"}</h3>
+                                    <p className="text-[10px] text-primary font-black tracking-widest opacity-80 mt-1">{user.email || "—"}</p>
                                     <div className="flex items-center justify-center gap-2 mt-4">
-                                        <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic">
+                                        <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase">
                                             <Star className="w-3 h-3 fill-primary" /> {user.role}
                                         </Badge>
                                         <Badge variant="outline" className={cn(
                                             "h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic border-2 transition-all",
                                             user.isActive ? "border-green-500/20 text-green-500 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.1)]" : "border-muted text-muted italic opacity-50"
                                         )}>
-                                            {user.isActive ? "NODE_ACTIVE" : "NODE_LOCKED"}
+                                            {user.isActive ? "Active" : "Inactive"}
                                         </Badge>
                                     </div>
                                 </div>
@@ -178,19 +178,20 @@ export default function UserDetailsPage() {
                                     <div className="w-8 h-8 rounded-xl bg-muted/30 flex items-center justify-center transition-colors group-hover:bg-primary/10">
                                         <MapPin className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
                                     </div>
-                                    <span className="opacity-70 italic">{user.city || "EXTERNAL"}, {user.state || "GW"}</span>
+                                    <span className="opacity-70">{(user.city || user.state) ? `${user.city || ""}${user.city && user.state ? ", " : ""}${user.state || ""}` : "—"}
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest group">
                                     <div className="w-8 h-8 rounded-xl bg-muted/30 flex items-center justify-center transition-colors group-hover:bg-primary/10">
                                         <Globe className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
                                     </div>
-                                    <span className="opacity-70 italic">NET_PROTOCOL_TCPv4</span>
+                                    <span className="opacity-70">Account Status</span>
                                 </div>
                                 <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest group">
                                     <div className="w-8 h-8 rounded-xl bg-muted/30 flex items-center justify-center transition-colors group-hover:bg-primary/10">
                                         <Calendar className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
                                     </div>
-                                    <span className="opacity-70 italic">STREAMS_ESTABLISHED {new Date(user.createdAt).getFullYear()}</span>
+                                    <span className="opacity-70">Member Since {new Date(user.createdAt).getFullYear()}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -216,7 +217,7 @@ export default function UserDetailsPage() {
                                     </div>
                                     <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Lifetime Value</span>
                                 </div>
-                                <span className="text-2xl font-black text-primary italic leading-none">${stats?.ltv || "0.00"}</span>
+                                <span className="text-2xl font-black text-primary leading-none">${stats?.ltv || "0.00"}</span>
                             </div>
                             <div className="flex items-center justify-between p-6 rounded-[2rem] bg-muted/10 border border-border group hover:bg-muted/20 transition-all">
                                 <div className="flex items-center gap-4">
@@ -225,7 +226,7 @@ export default function UserDetailsPage() {
                                     </div>
                                     <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Total Orders</span>
                                 </div>
-                                <span className="text-2xl font-black italic leading-none">{stats?.orderCount || 0}</span>
+                                <span className="text-2xl font-black leading-none">{stats?.orderCount || 0}</span>
                             </div>
                             <div className="flex items-center justify-between p-6 rounded-[2rem] bg-muted/10 border border-border group hover:bg-muted/20 transition-all">
                                 <div className="flex items-center gap-4">
@@ -234,7 +235,7 @@ export default function UserDetailsPage() {
                                     </div>
                                     <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Requests</span>
                                 </div>
-                                <span className="text-2xl font-black italic leading-none">{stats?.ticketCount || 0}</span>
+                                <span className="text-2xl font-black leading-none">{stats?.ticketCount || 0}</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -244,10 +245,10 @@ export default function UserDetailsPage() {
                 <div className="lg:col-span-2 space-y-8">
                     <Tabs defaultValue="activity" className="w-full">
                         <TabsList className="bg-muted/30 p-1.5 rounded-[1.5rem] h-16 w-fit border border-border/50 backdrop-blur-md mb-8">
-                            <TabsTrigger value="activity" className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all">
+                            <TabsTrigger value="activity" className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 py-3 transition-all">
                                 <History className="w-4 h-4" /> Activity Log
                             </TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all">
+                            <TabsTrigger value="settings" className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 py-3 transition-all">
                                 <ShieldAlert className="w-4 h-4" /> Security Ledger
                             </TabsTrigger>
                         </TabsList>
@@ -262,14 +263,14 @@ export default function UserDetailsPage() {
                                                     <Globe className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
                                                 </div>
                                                 <div className="flex flex-col gap-1">
-                                                    <div className="text-[11px] font-black uppercase tracking-widest text-foreground">VISITED_NODE: {activity.page}</div>
+                                                    <div className="text-[11px] font-black uppercase tracking-widest text-foreground">Visited: {activity.page}</div>
                                                     <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-tighter text-muted-foreground opacity-60">
                                                         <Clock className="w-3 h-3" /> {new Date(activity.timestamp).toLocaleString()} UTC
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-[9px] font-black text-primary uppercase tracking-[0.2em] italic">SIGNAL_STABLE</div>
+                                                <div className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Active</div>
                                                 <div className="text-[8px] font-mono text-muted-foreground opacity-40 uppercase mt-1">{activity.ip}</div>
                                             </div>
                                         </div>
@@ -281,7 +282,7 @@ export default function UserDetailsPage() {
                                         <History className="w-10 h-10 text-muted-foreground/30" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-2xl italic tracking-tighter">Zero Signals Recorded</h4>
+                                        <h4 className="font-black text-2xl tracking-tighter">No Records Found</h4>
                                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground max-w-[300px] mx-auto mt-3 opacity-60">The entity has not established any recorded sessions within the current terminal cycle.</p>
                                     </div>
                                 </div>
@@ -293,7 +294,7 @@ export default function UserDetailsPage() {
                                 <CardHeader className="p-8 pb-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <CardTitle className="text-2xl font-black italic uppercase">Security Keys & Role</CardTitle>
+                                            <CardTitle className="text-2xl font-black uppercase">Security Keys & Role</CardTitle>
                                             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1 opacity-60">ADMINISTRATIVE_ENCRYPTION_PROTOCOL_v4</p>
                                         </div>
                                         <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center">
@@ -335,7 +336,7 @@ export default function UserDetailsPage() {
                                     
                                     <div className="flex flex-col md:flex-row gap-6">
                                         <div className="flex-1 p-6 rounded-3xl bg-muted/20 border border-border/50 flex flex-col justify-center gap-4">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Identity Verification</p>
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Email Verification</p>
                                             <div className="flex items-center gap-3">
                                                 <div className={cn("w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px]", user.isEmailVerified ? "bg-primary shadow-primary/50" : "bg-muted shadow-muted-foreground/20")} />
                                                 <Badge variant={user.isEmailVerified ? "default" : "secondary"} className="rounded-lg h-8 px-4 font-black text-[9px] tracking-widest uppercase italic">
@@ -361,7 +362,7 @@ export default function UserDetailsPage() {
             
             {/* Email Dialog */}
             <Dialog open={isEmailOpen} onOpenChange={setIsEmailOpen}>
-                <DialogContent className="sm:max-w-[500px] rounded-3xl border-border/50">
+                <DialogContent className="w-[95vw] max-w-lg sm:max-w-[500px] rounded-3xl border-border/50">
                     <DialogHeader>
                         <div className="w-12 h-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
                             <Mail className="w-6 h-6 text-primary" />
@@ -393,7 +394,7 @@ export default function UserDetailsPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Message Dialog (Mock Chat) */}
+            {/* Message Dialog */}
             <Dialog open={isMessageOpen} onOpenChange={setIsMessageOpen}>
                 <DialogContent className="sm:max-w-[425px] rounded-3xl border-border/50">
                     <DialogHeader>
@@ -402,7 +403,7 @@ export default function UserDetailsPage() {
                         </div>
                         <DialogTitle className="text-2xl font-black">Direct Message</DialogTitle>
                         <DialogDescription>
-                            Send a real-time notification to {user.name}'s dashboard.
+                            Send a real-time notification to {(user.name || "this user")}'s dashboard.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
@@ -461,7 +462,7 @@ export default function UserDetailsPage() {
                         </div>
                         <DialogTitle className="text-2xl font-black">Terminate Account</DialogTitle>
                         <DialogDescription>
-                            Are you absolutely sure? This will purge all data for <span className="font-bold text-foreground">{user.name}</span>. This action is irreversible.
+                            Are you absolutely sure? This will purge all data for <span className="font-bold text-foreground">{user.name || "this user"}</span>. This action is irreversible.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex gap-2 sm:gap-2 pt-4">

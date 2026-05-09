@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore, getAuthCheckComplete, setAuthCheckComplete } from "@/store/useAuthStore";
 
 const LOGIN_PATH = "/dashboard/login";
 
 /**
  * Protects routes requiring auth. Redirects to login if not authenticated.
+ * Uses global authCheckComplete flag to prevent duplicate checks.
  */
 export function useProtectedRoute() {
   const router = useRouter();
@@ -13,24 +14,23 @@ export function useProtectedRoute() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
   const checkAuth = useAuthStore((s) => s.checkAuth);
-  const hasChecked = useRef(false);
   const hasRedirected = useRef(false);
 
   useEffect(() => {
-    // 1. Skip if we are already on the login page or registering
-    if (pathname === LOGIN_PATH || pathname?.includes("/register")) return;
+    // Skip if we are already on the login page
+    if (pathname === LOGIN_PATH) return;
 
     const verify = async () => {
-      // 2. Only run checkAuth if we haven't checked yet
-      if (!hasChecked.current) {
-        hasChecked.current = true;
+      // Only check auth once globally per session
+      if (!getAuthCheckComplete()) {
         await checkAuth();
+        setAuthCheckComplete(true);
       }
 
-      // 3. Get the absolute latest state
+      // Get the latest state after check
       const state = useAuthStore.getState();
 
-      // 4. If not loading, not authenticated, and not already on login -> Redirect
+      // Redirect to login if not authenticated
       if (!state.isLoading && !state.isAuthenticated && !hasRedirected.current) {
         hasRedirected.current = true;
         router.replace(LOGIN_PATH);
@@ -38,8 +38,7 @@ export function useProtectedRoute() {
     };
 
     verify();
-  }, [pathname, router]); // Removed checkAuth from deps to avoid store-change loops
-
+  }, [pathname, router, checkAuth]);
 
   return { isAuthenticated, isLoading };
 }

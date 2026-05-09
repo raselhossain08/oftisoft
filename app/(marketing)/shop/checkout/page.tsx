@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import { billingAPI, systemAPI } from "@/lib/api";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 export default function CheckoutPage() {
-    const { items: cartItems, total, clearCart } = useCart();
+    const { items: cartItems, clearCart, getTotalPrice } = useCart();
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
     const [clientSecret, setClientSecret] = useState("");
@@ -47,17 +47,17 @@ export default function CheckoutPage() {
                 setStripePromise(loadStripe(config.stripePublishableKey));
             } else {
                  // Fallback to env var if not set in DB
-                 setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_sample"));
+                 setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ""));
             }
             if (config.paypalClientId) {
                 setPaypalClientId(config.paypalClientId);
             } else {
-                setPaypalClientId(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "sb");
+                setPaypalClientId(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "");
             }
         }).catch(() => {
             // Fallback
-             setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_sample"));
-             setPaypalClientId(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "sb");
+             setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ""));
+             setPaypalClientId(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "");
         });
 
     }, [finalTotal]);
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
                                     <div key={item.id} className="flex gap-4">
                                         <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0 border border-border">
                                             <Image 
-                                                src={item.image || "/placeholder.png"} 
+                                                src={item.image ?? ""} 
                                                 alt={item.name} 
                                                 fill 
                                                 className="object-cover"
@@ -267,3 +267,4 @@ export default function CheckoutPage() {
         </div>
     );
 }
+

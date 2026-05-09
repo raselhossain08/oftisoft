@@ -2,30 +2,29 @@
 "use client";
 
 import { useState } from "react";
-import { 
-    Search, 
-    Filter, 
-    MoreHorizontal, 
-    Eye, 
-    Download, 
-    Trash2, 
+import {
+    Search,
+    Filter,
+    MoreHorizontal,
+    Eye,
+    Download,
     Calendar,
     ArrowUpRight,
     ShoppingBag,
     CheckCircle2,
     Clock,
     XCircle,
-    RotateCcw
+    ShoppingCart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from "@/components/ui/table";
 import {
     DropdownMenu,
@@ -35,34 +34,54 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import Link from "next/link";
 import { useOrders } from "@/hooks/useOrders";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import { StatusBadge } from "@/components/orders/status-badge";
 
 const OrdersPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const { orders, isLoading, exportReport, isExportingReport, downloadInvoice } = useOrders();
+    const [cancelTarget, setCancelTarget] = useState<{ id: string } | null>(null);
+    const { orders = [], isLoading, exportReport, isExportingReport, downloadInvoice, updateStatus } = useOrders();
 
-    const filteredOrders = orders?.filter(o => {
-        const matchesStatus = statusFilter === 'all' || o.status.toLowerCase() === statusFilter.toLowerCase();
-        const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              o.status.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredOrders = orders.filter(o => {
+        const matchesStatus = statusFilter === "all" || o.status.toLowerCase() === statusFilter.toLowerCase();
+        const matchesSearch =
+            !searchQuery ||
+            o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            o.status.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesStatus && matchesSearch;
-    }) || [];
+    });
 
-    // Calculate Stats
-    const totalOrders = orders.length;
-    const pendingOrders = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
-    const completedOrders = orders.filter(o => o.status === 'completed').length;
-    const totalRevenue = orders.filter(o => o.status !== 'cancelled' && o.status !== 'refunded').reduce((acc, curr) => acc + Number(curr.total), 0);
-    const successRate = totalOrders > 0 ? (completedOrders / totalOrders * 100).toFixed(1) : 0;
-    const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : 0;
+    const orderList = orders ?? [];
+    const totalOrders = orderList.length;
+    const pendingOrders = orderList.filter(o => o.status === "pending" || o.status === "processing").length;
+    const completedOrders = orderList.filter(o => o.status === "completed").length;
+    const totalRevenue = orderList
+        .filter(o => o.status !== "cancelled" && o.status !== "refunded")
+        .reduce((acc, curr) => acc + Number(curr.total), 0);
+    const successRate = totalOrders > 0 ? ((completedOrders / totalOrders) * 100).toFixed(1) : "0";
+    const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : "0.00";
+
+    const handleConfirmCancel = () => {
+        if (cancelTarget) {
+            updateStatus(cancelTarget.id, "cancelled");
+            setCancelTarget(null);
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -186,8 +205,18 @@ const OrdersPage = () => {
                                 ))
                             ) : filteredOrders.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">
-                                        No orders found.
+                                    <TableCell colSpan={6} className="h-40 text-center">
+                                        <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                                            <ShoppingCart className="w-12 h-12 opacity-50" />
+                                            <p className="font-medium">
+                                                {orders.length === 0 ? "No orders yet." : "No orders match your filters."}
+                                            </p>
+                                            {orders.length > 0 && (
+                                                <Button variant="outline" size="sm" onClick={() => { setSearchQuery(""); setStatusFilter("all"); }}>
+                                                    Clear filters
+                                                </Button>
+                                            )}
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -228,16 +257,23 @@ const OrdersPage = () => {
                                                             <Eye className="w-4 h-4" /> View Details
                                                         </Link>
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem 
+                                                    <DropdownMenuItem
                                                         className="flex items-center gap-2 cursor-pointer"
                                                         onClick={() => downloadInvoice(o.id)}
                                                     >
                                                         <Download className="w-4 h-4" /> Download Invoice
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="flex items-center gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
-                                                        <Trash2 className="w-4 h-4" /> Archive Order
-                                                    </DropdownMenuItem>
+                                                    {o.status !== "cancelled" && o.status !== "refunded" && (
+                                                        <>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                className="flex items-center gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                                                                onClick={() => setCancelTarget({ id: o.id })}
+                                                            >
+                                                                <XCircle className="w-4 h-4" /> Cancel order
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -248,6 +284,29 @@ const OrdersPage = () => {
                     </Table>
                 </CardContent>
             </Card>
+
+            <AlertDialog open={!!cancelTarget} onOpenChange={(open) => !open && setCancelTarget(null)}>
+                <AlertDialogContent className="rounded-2xl border-border/50 max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <XCircle className="w-5 h-5 text-destructive" /> Cancel order?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will mark the order as cancelled. The customer can place a new order if needed.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel className="rounded-xl font-bold">Keep order</AlertDialogCancel>
+                        <AlertDialogAction
+                            variant="destructive"
+                            className="rounded-xl font-bold bg-destructive text-destructive-foreground"
+                            onClick={handleConfirmCancel}
+                        >
+                            Cancel order
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

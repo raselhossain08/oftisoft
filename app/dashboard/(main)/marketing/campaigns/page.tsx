@@ -43,8 +43,19 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 
 interface Coupon {
@@ -76,6 +87,7 @@ export default function PricingMarketingPage() {
         products, 
         subscriptionPlans, 
         isLoading, 
+        refresh,
         createCoupon, 
         updateCoupon, 
         deleteCoupon, 
@@ -87,6 +99,8 @@ export default function PricingMarketingPage() {
         updateSubscriptionPlan,
         deleteSubscriptionPlan
     } = useMarketing();
+    
+    const [couponSearch, setCouponSearch] = useState("");
     
     // Coupon Form State
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -113,6 +127,7 @@ export default function PricingMarketingPage() {
     };
 
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ type: 'coupon' | 'bundle' | 'subscription'; id: string; name: string } | null>(null);
 
     const resetCouponForm = () => {
         setEditingId(null);
@@ -248,6 +263,9 @@ export default function PricingMarketingPage() {
     const [subPrice, setSubPrice] = useState("");
     const [subInterval, setSubInterval] = useState("month");
     const [subIcon, setSubIcon] = useState("Zap");
+    const [subDescription, setSubDescription] = useState("");
+    const [subFeatures, setSubFeatures] = useState("");
+    const [subButtonText, setSubButtonText] = useState("Get started");
 
     const resetSubscriptionForm = () => {
         setEditingSubscriptionId(null);
@@ -255,6 +273,9 @@ export default function PricingMarketingPage() {
         setSubPrice("");
         setSubInterval("month");
         setSubIcon("Zap");
+        setSubDescription("");
+        setSubFeatures("");
+        setSubButtonText("Get started");
     };
 
     const handleCreateSubscription = async () => {
@@ -263,12 +284,19 @@ export default function PricingMarketingPage() {
             return;
         }
 
-        const data = {
+        const featuresArray = subFeatures
+            ? subFeatures.split(/[\n,]+/).map(s => s.trim()).filter(Boolean)
+            : undefined;
+
+        const data: any = {
             name: subName,
             price: Number(subPrice),
             interval: subInterval,
             iconName: subIcon
         };
+        if (subDescription) data.description = subDescription;
+        if (featuresArray?.length) data.features = featuresArray;
+        if (subButtonText) data.buttonText = subButtonText;
 
         let success;
         if (editingSubscriptionId) {
@@ -288,22 +316,36 @@ export default function PricingMarketingPage() {
         setEditingSubscriptionId(plan.id);
         setSubName(plan.name);
         setSubPrice(String(plan.price));
-        setSubInterval(plan.interval);
-        setSubIcon(plan.iconName);
+        setSubInterval(plan.interval || "month");
+        setSubIcon(plan.iconName || "Zap");
+        setSubDescription(plan.description ?? "");
+        setSubFeatures(Array.isArray(plan.features) ? plan.features.join("\n") : "");
+        setSubButtonText(plan.buttonText ?? "Get started");
         setIsCreateSubscriptionOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteTarget) return;
+        if (deleteTarget.type === "coupon") deleteCoupon(deleteTarget.id);
+        if (deleteTarget.type === "bundle") deleteBundle(deleteTarget.id);
+        if (deleteTarget.type === "subscription") deleteSubscriptionPlan(deleteTarget.id);
+        setDeleteTarget(null);
     };
 
     return (
         <div className="space-y-8 pb-20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black italic tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Pricing & Marketing</h1>
+                    <h1 className="text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Pricing & Marketing</h1>
                     <p className="text-muted-foreground font-medium mt-1">Boost sales with smart coupons, product bundles, and seasonal campaigns.</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" className="gap-2 rounded-xl h-11 border-border/50 bg-card/50 backdrop-blur-sm font-bold">
+                    <Button variant="outline" className="gap-2 rounded-xl h-11 border-border/50 bg-card/50 backdrop-blur-sm font-bold" onClick={() => toast.info("Campaign analytics will show performance by coupon and bundle.")}>
                         <TrendingUp className="w-4 h-4" />
                         Campaign Analytics
+                    </Button>
+                    <Button variant="outline" className="gap-2 rounded-xl h-11 border-border/50 bg-card/50 backdrop-blur-sm font-bold" onClick={refresh} disabled={isLoading}>
+                        Refresh
                     </Button>
                     <Dialog open={isCreateOpen} onOpenChange={(open) => {
                         setIsCreateOpen(open);
@@ -317,7 +359,7 @@ export default function PricingMarketingPage() {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[500px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                             <DialogHeader>
-                                <DialogTitle className="text-2xl font-black italic tracking-tight text-center">{editingId ? "Edit Coupon" : "Create New Coupon"}</DialogTitle>
+                                <DialogTitle className="text-2xl font-black  tracking-tight text-center">{editingId ? "Edit Coupon" : "Create New Coupon"}</DialogTitle>
                                 <DialogDescription className="text-center font-medium">Define the parameters for your promotional campaign.</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6 mt-4">
@@ -345,8 +387,8 @@ export default function PricingMarketingPage() {
                                     <div className="space-y-2">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Value</Label>
                                         <div className="relative">
-                                            <Input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} placeholder="20" className="h-auto rounded-xl font-medium pl-8" />
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-xs">$</span>
+                                            <Input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} placeholder={discountType === "percentage" ? "20" : "10"} className="h-auto rounded-xl font-medium pl-8" />
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-xs">{discountType === "percentage" ? "%" : "$"}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -363,14 +405,14 @@ export default function PricingMarketingPage() {
                             </div>
                             <DialogFooter className="mt-8">
                                 <Button variant="outline" onClick={() => setIsCreateOpen(false)} className="rounded-xl h-auto font-bold px-8">Cancel</Button>
-                                <Button onClick={handleCreateCoupon} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Create Coupon</Button>
+                                <Button onClick={handleCreateCoupon} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">{editingId ? "Save changes" : "Create Coupon"}</Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
                 </div>
             </div>
 
-            {/* Strategy Insight Bar */}
+            {/* Quick deploy suggestion */}
             <div className="bg-primary/5 border border-primary/20 rounded-[32px] p-8 flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden relative group hover:border-primary/40 transition-all">
                 <div className="absolute -right-20 -top-20 w-80 h-80 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-colors" />
                 <div className="flex items-center gap-6 relative z-10 w-full md:w-auto">
@@ -378,12 +420,12 @@ export default function PricingMarketingPage() {
                         <Sparkles className="w-8 h-8 animate-pulse" />
                     </div>
                     <div>
-                        <h3 className="font-black text-xl italic tracking-tight">Predictive Strategy: "Weekend Flash Sale"</h3>
-                        <p className="text-sm font-medium text-muted-foreground mt-1 max-w-xl leading-relaxed">Our AI suggests a 15% discount on UI Kits this weekend based on high browsing traffic patterns detected in the last 48 hours.</p>
+                        <h3 className="font-black text-xl  tracking-tight">Quick deploy: Weekend-style campaign</h3>
+                        <p className="text-sm font-medium text-muted-foreground mt-1 max-w-xl leading-relaxed">Create a 15% weekend coupon (WEEKEND15) valid for 2 days with 100 uses. Edit details in the form after creation.</p>
                     </div>
                 </div>
-                <Button className="w-full md:w-auto rounded-2xl h-14 px-8 relative font-black italic bg-foreground text-background hover:bg-foreground/90 shadow-xl shrink-0">
-                    Deploy Campaign <ArrowUpRight className="ml-2 w-4 h-4" />
+                <Button onClick={handleDeployCampaign} disabled={isLoading} className="w-full md:w-auto rounded-2xl h-14 px-8 relative font-black  bg-foreground text-background hover:bg-foreground/90 shadow-xl shrink-0">
+                    Deploy suggested campaign <ArrowUpRight className="ml-2 w-4 h-4" />
                 </Button>
             </div>
 
@@ -407,10 +449,10 @@ export default function PricingMarketingPage() {
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="relative flex-1 max-w-md">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input placeholder="Search coupons..." className="pl-11 h-auto rounded-2xl bg-background border-border/50 focus:ring-primary/20" />
+                                    <Input placeholder="Search coupons by code or description..." value={couponSearch} onChange={(e) => setCouponSearch(e.target.value)} className="pl-11 h-auto rounded-2xl bg-background border-border/50 focus:ring-primary/20" />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button variant="outline" size="sm" className="h-10 px-4 gap-2 rounded-xl font-bold border-border/50"><Filter className="w-4 h-4" /> Filters</Button>
+                                    <Button variant="outline" size="sm" className="h-10 px-4 gap-2 rounded-xl font-bold border-border/50" onClick={() => setCouponSearch("")} disabled={!couponSearch}><Filter className="w-4 h-4" /> Clear</Button>
                                 </div>
                             </div>
                         </CardHeader>
@@ -427,7 +469,34 @@ export default function PricingMarketingPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {coupons.map((coupon) => (
+                                    {(() => {
+                                        const displayCoupons = couponSearch
+                                            ? coupons.filter(c => c.code?.toLowerCase().includes(couponSearch.toLowerCase()) || c.description?.toLowerCase().includes(couponSearch.toLowerCase()))
+                                            : coupons;
+                                        if (displayCoupons.length === 0) {
+                                            return (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="h-64 text-center">
+                                                        <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                                                            {couponSearch ? (
+                                                                <>
+                                                                    <p className="font-medium">No coupons match your search.</p>
+                                                                    <Button variant="outline" size="sm" onClick={() => setCouponSearch("")}>Clear search</Button>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center">
+                                                                        <Tag className="w-8 h-8 opacity-20" />
+                                                                    </div>
+                                                                    <p className="font-medium">No coupons active. Create one to get started.</p>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        }
+                                        return displayCoupons.map((coupon) => (
                                         <TableRow key={coupon.id} className="group hover:bg-primary/[0.02] transition-colors border-border/50">
                                             <TableCell className="pl-6 py-4">
                                                 <div className="flex items-center gap-3">
@@ -448,7 +517,7 @@ export default function PricingMarketingPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
-                                                <div className="flex items-center gap-2 font-black text-lg italic text-foreground/80">
+                                                <div className="flex items-center gap-2 font-black text-lg  text-foreground/80">
                                                     <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
                                                         <Percent className="w-4 h-4" />
                                                     </div>
@@ -482,23 +551,12 @@ export default function PricingMarketingPage() {
                                             <TableCell className="text-right pr-6 py-4">
                                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                                                     <Button variant="ghost" size="icon" onClick={() => handleEditCoupon(coupon)} className="h-9 w-9 rounded-xl hover:bg-background hover:shadow-sm border border-transparent hover:border-border/50"><Edit size={14} /></Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => deleteCoupon(coupon.id)} className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive border border-transparent hover:border-destructive/20"><Trash2 size={14} /></Button>
+                                                    <Button variant="ghost" size="icon" onClick={() => setDeleteTarget({ type: 'coupon', id: coupon.id, name: coupon.code })} className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive border border-transparent hover:border-destructive/20"><Trash2 size={14} /></Button>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
-                                    {coupons.length === 0 && (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="h-64 text-center">
-                                                <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-                                                    <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center">
-                                                        <Tag className="w-8 h-8 opacity-20" />
-                                                    </div>
-                                                    <p className="font-medium">No coupons active. Create one to get started.</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
+                                    ));
+                                    })()}
                                 </TableBody>
                             </Table>
                         </CardContent>
@@ -508,6 +566,16 @@ export default function PricingMarketingPage() {
                 {/* Bundles Tab */}
                 <TabsContent value="bundles">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {bundles.length === 0 && (
+                            <div className="col-span-full flex flex-col items-center justify-center py-20 rounded-[32px] border-2 border-dashed border-border/50 bg-muted/5">
+                                <Package className="w-12 h-12 text-muted-foreground/50 mb-4" />
+                                <p className="font-bold text-muted-foreground">No bundles yet.</p>
+                                <p className="text-sm text-muted-foreground mt-1">Create a bundle to combine products and offer discounts.</p>
+                                <Button onClick={() => { resetBundleForm(); setIsCreateBundleOpen(true); }} className="mt-6 rounded-xl gap-2 bg-primary text-white font-bold">
+                                    <Plus className="w-4 h-4" /> Create first bundle
+                                </Button>
+                            </div>
+                        )}
                         {bundles.map(bundle => (
                             <Card key={bundle.id} className="border-border/50 hover:border-primary/50 transition-all group overflow-hidden rounded-[32px] bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-lg hover:shadow-primary/5">
                                 <div className="h-40 bg-muted relative overflow-hidden">
@@ -515,7 +583,7 @@ export default function PricingMarketingPage() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                                     <Badge className="absolute top-4 right-4 bg-primary text-white shadow-lg shadow-primary/20 font-bold uppercase text-[10px] tracking-wider border-none">Active Bundle</Badge>
                                     <div className="absolute bottom-4 left-6 right-6">
-                                        <CardTitle className="text-xl font-black italic text-white tracking-tight">{bundle.name}</CardTitle>
+                                        <CardTitle className="text-xl font-black  text-white tracking-tight">{bundle.name}</CardTitle>
                                         <CardDescription className="text-xs mt-1 text-white/70 line-clamp-1 font-medium">{bundle.description}</CardDescription>
                                     </div>
                                 </div>
@@ -529,8 +597,8 @@ export default function PricingMarketingPage() {
                                         <div>
                                             <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Bundle Price</p>
                                             <div className="flex items-baseline gap-2">
-                                                <p className="font-black text-2xl italic tracking-tight">${bundle.price}</p>
-                                                {bundle.originalPrice && <span className="text-sm text-muted-foreground line-through decoration-destructive/50 italic font-bold">${bundle.originalPrice}</span>}
+                                                <p className="font-black text-2xl  tracking-tight">${bundle.price}</p>
+                                                {bundle.originalPrice && <span className="text-sm text-muted-foreground line-through decoration-destructive/50  font-bold">${bundle.originalPrice}</span>}
                                             </div>
                                         </div>
                                         {bundle.originalPrice && (
@@ -542,7 +610,7 @@ export default function PricingMarketingPage() {
                                 </CardContent>
                                 <CardFooter className="p-6 pt-0 flex gap-3">
                                     <Button variant="outline" onClick={() => handleEditBundle(bundle)} className="flex-1 text-xs font-bold rounded-xl h-10 border-border/50 shadow-sm">Edit Bundle</Button>
-                                    <Button variant="ghost" onClick={() => deleteBundle(bundle.id)} className="w-10 h-10 p-0 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 size={16} /></Button>
+                                    <Button variant="ghost" onClick={() => setDeleteTarget({ type: 'bundle', id: bundle.id, name: bundle.name })} className="w-10 h-10 p-0 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 size={16} /></Button>
                                 </CardFooter>
                             </Card>
                         ))}
@@ -557,13 +625,13 @@ export default function PricingMarketingPage() {
                                     <div className="w-16 h-16 rounded-[24px] bg-background border border-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-primary/50 transition-all shadow-lg shadow-primary/5">
                                         <Plus className="w-8 h-8 text-primary opacity-50 group-hover:opacity-100 transition-opacity" />
                                     </div>
-                                    <h4 className="font-black text-lg italic tracking-tight text-foreground/80 group-hover:text-primary transition-colors">Create New Bundle</h4>
+                                    <h4 className="font-black text-lg  tracking-tight text-foreground/80 group-hover:text-primary transition-colors">Create New Bundle</h4>
                                     <p className="text-xs font-medium text-muted-foreground max-w-[200px] mt-2 leading-relaxed">Combine multiple assets into a high-value package to increase average order value.</p>
                                 </div>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[600px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black italic tracking-tight text-center">{editingBundleId ? "Edit Bundle" : "Create Bundle"}</DialogTitle>
+                                    <DialogTitle className="text-2xl font-black  tracking-tight text-center">{editingBundleId ? "Edit Bundle" : "Create Bundle"}</DialogTitle>
                                     <DialogDescription className="text-center font-medium">Combine products into a single offering.</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-6 mt-4">
@@ -607,7 +675,7 @@ export default function PricingMarketingPage() {
                                 </div>
                                 <DialogFooter className="mt-8">
                                     <Button variant="outline" onClick={() => setIsCreateBundleOpen(false)} className="rounded-xl h-auto font-bold px-8">Cancel</Button>
-                                    <Button onClick={handleCreateBundle} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Create Bundle</Button>
+                                    <Button onClick={handleCreateBundle} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">{editingBundleId ? "Save changes" : "Create Bundle"}</Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
@@ -639,7 +707,7 @@ export default function PricingMarketingPage() {
                                             </div>
                                             <Badge className="ml-auto bg-green-500/10 text-green-500 border-none text-[9px] font-black uppercase tracking-widest px-2 py-1">Growth Status</Badge>
                                         </div>
-                                        <CardTitle className="text-xl font-black italic tracking-tight">{plan.name}</CardTitle>
+                                        <CardTitle className="text-xl font-black  tracking-tight">{plan.name}</CardTitle>
                                         <CardDescription className="text-xs font-medium mt-1">Managed recurring service plan.</CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-8 pt-4">
@@ -663,7 +731,7 @@ export default function PricingMarketingPage() {
                                         <Button variant="outline" onClick={() => handleEditSubscription(plan)} className="flex-1 rounded-2xl h-auto text-xs font-bold gap-2 group border border-border/50 hover:bg-primary hover:text-white transition-all shadow-sm">
                                             Manage Plan <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                                         </Button>
-                                        <Button variant="ghost" onClick={() => deleteSubscriptionPlan(plan.id)} className="w-12 h-auto p-0 rounded-2xl text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 size={16} /></Button>
+                                        <Button variant="ghost" onClick={() => setDeleteTarget({ type: 'subscription', id: plan.id, name: plan.name })} className="w-12 h-auto p-0 rounded-2xl text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 size={16} /></Button>
                                     </CardFooter>
                                 </Card>
                             );
@@ -676,7 +744,7 @@ export default function PricingMarketingPage() {
                     }}>
                         <DialogContent className="sm:max-w-[500px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                             <DialogHeader>
-                                <DialogTitle className="text-2xl font-black italic tracking-tight text-center">{editingSubscriptionId ? "Edit Plan" : "Create Plan"}</DialogTitle>
+                                <DialogTitle className="text-2xl font-black  tracking-tight text-center">{editingSubscriptionId ? "Edit Plan" : "Create Plan"}</DialogTitle>
                                 <DialogDescription className="text-center font-medium">Configure subscription details.</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6 mt-4">
@@ -703,6 +771,18 @@ export default function PricingMarketingPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
+                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Description (optional)</Label>
+                                    <Textarea value={subDescription} onChange={(e) => setSubDescription(e.target.value)} placeholder="Short description for the plan" className="min-h-[80px] rounded-xl font-medium" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Features (one per line or comma-separated)</Label>
+                                    <Textarea value={subFeatures} onChange={(e) => setSubFeatures(e.target.value)} placeholder="Feature one&#10;Feature two&#10;Feature three" className="min-h-[100px] rounded-xl font-medium text-sm" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Button text (optional)</Label>
+                                    <Input value={subButtonText} onChange={(e) => setSubButtonText(e.target.value)} placeholder="Get started" className="h-auto rounded-xl font-medium" />
+                                </div>
+                                <div className="space-y-2">
                                     <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Icon Style</Label>
                                     <div className="flex gap-4">
                                         {['Zap', 'Sparkles', 'TrendingUp'].map((icon) => (
@@ -721,12 +801,29 @@ export default function PricingMarketingPage() {
                             </div>
                             <DialogFooter className="mt-8">
                                 <Button variant="outline" onClick={() => setIsCreateSubscriptionOpen(false)} className="rounded-xl h-auto font-bold px-8">Cancel</Button>
-                                <Button onClick={handleCreateSubscription} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">Save Plan</Button>
+                                <Button onClick={handleCreateSubscription} className="rounded-xl h-auto font-bold px-8 bg-primary text-white shadow-lg shadow-primary/20">{editingSubscriptionId ? "Save changes" : "Create Plan"}</Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
                 </TabsContent>
             </Tabs>
+
+            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+                <AlertDialogContent className="rounded-2xl border-border/50 max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {deleteTarget?.type === "coupon" ? "coupon" : deleteTarget?.type === "bundle" ? "bundle" : "plan"}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently remove <span className="font-semibold text-foreground">{deleteTarget?.name}</span>. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" className="rounded-xl font-bold bg-destructive text-destructive-foreground" onClick={handleConfirmDelete}>
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

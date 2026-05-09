@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +44,7 @@ export default function TermsPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="relative min-h-screen pt-32 pb-24 bg-[#020202] flex items-center justify-center">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Syncing Governance Nodes...
                 </div>
             </div>
@@ -68,14 +68,14 @@ export default function TermsPage() {
                 {/* Header Section */}
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-black italic tracking-[0.3em] text-[10px] uppercase">
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px]">
                             {header.badge}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-black italic tracking-tighter text-white"
+                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {header.title.split(" ").map((word, i) => (
                             <span key={i} className={cn(word.toLowerCase() === "sync." ? "text-primary NOT-italic" : "")}>
@@ -83,7 +83,7 @@ export default function TermsPage() {
                             </span>
                         ))}
                     </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium italic max-w-2xl mx-auto">
+                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
                         {header.description}
                     </motion.p>
                 </div>
@@ -93,12 +93,12 @@ export default function TermsPage() {
                     {/* Navigation Rail */}
                     <div className="lg:col-span-4 space-y-8 hidden lg:block">
                         <Card className="border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] p-8 sticky top-32">
-                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic mb-6">{navigationRail.title}</h3>
+                            <h3 className="text-[10px] font-semibold tracking-[0.3em] text-primary mb-6">{navigationRail.title}</h3>
                             <ul className="space-y-6">
                                 {navigationRail.items.map((item, idx) => (
                                     <li key={idx} className="flex items-center gap-4 group cursor-pointer hover:text-primary transition-all">
                                         <div className="w-1 h-1 rounded-full bg-border group-hover:bg-primary transition-all group-hover:scale-150" />
-                                        <span className="text-sm font-bold italic text-muted-foreground group-hover:text-white transition-all">{item}</span>
+                                        <span className="text-sm font-bold text-muted-foreground group-hover:text-white transition-all">{item}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -121,9 +121,9 @@ export default function TermsPage() {
                                             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                                                 <Icon size={32} />
                                             </div>
-                                            <h3 className="text-3xl font-black italic text-white tracking-tight">{section.title}</h3>
+                                            <h3 className="text-3xl font-semibold text-white tracking-tight">{section.title}</h3>
                                         </div>
-                                        <p className="text-xl text-muted-foreground font-medium italic leading-relaxed">
+                                        <p className="text-xl text-muted-foreground font-medium leading-relaxed">
                                             {section.content}
                                         </p>
                                     </Card>
@@ -133,7 +133,7 @@ export default function TermsPage() {
 
                         {/* Revision Node */}
                         <div className="pt-12 text-center lg:text-left">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4rem] text-muted-foreground italic">
+                            <p className="text-[10px] font-semibold tracking-[0.4rem] text-muted-foreground">
                                 {revision.prefix} {revision.updatedAt}
                             </p>
                         </div>
@@ -143,4 +143,5 @@ export default function TermsPage() {
         </div>
     );
 }
+
 

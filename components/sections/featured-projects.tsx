@@ -61,7 +61,7 @@ export default function FeaturedProjects() {
                             viewport={{ once: true }}
                             className="mb-4"
                         >
-                            <Badge variant="outline" className="border-primary/20 text-primary uppercase tracking-widest px-3 py-1">
+                            <Badge variant="outline" className="border-primary/20 text-primary tracking-wide px-3 py-1 font-semibold text-xs">
                                 {projectsContent.badge}
                             </Badge>
                         </motion.div>
@@ -168,7 +168,7 @@ export default function FeaturedProjects() {
                                             {(project.stats || []).map((stat: any, i: number) => (
                                                 <div key={i}>
                                                     <div className="text-xl md:text-2xl font-bold text-white">{stat.value}</div>
-                                                    <div className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest">{stat.label}</div>
+                                                    <div className="text-[10px] md:text-xs text-muted-foreground tracking-wide">{stat.label}</div>
                                                 </div>
                                             ))}
                                         </div>

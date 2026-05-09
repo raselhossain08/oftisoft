@@ -68,64 +68,64 @@ interface PartnersContentState {
 
 const defaultContent: PartnersPageContent = {
     header: {
-        badge: "Global Alliance Matrix",
+        badge: "Partners",
         titlePrefix: "Strategic",
         titleHighlight: "Partners",
-        description: "Collaborating with the world's most innovative neural operatives to expand the Oftisoft architectural meta-layer.",
+        description: "We work with teams that care about content quality, brand clarity, and a site that feels finished.",
         videoUrl: ""
     },
     partners: [
         {
             id: "part-1",
-            name: "Neural Foundry",
-            role: "Intelligence Infrastructure",
-            desc: "Collaborating on the core RAG engines that power Oftisoft's visual forge.",
+            name: "Content Studio",
+            role: "Copy & Messaging",
+            desc: "Helps shape clear page language, page titles, and supporting descriptions.",
             iconName: "Zap",
             color: "text-primary",
             order: 1
         },
         {
             id: "part-2",
-            name: "Edge Stream",
-            role: "CDN Optimization",
-            desc: "Ensuring sub-10ms delivery of development artifacts across 48+ global zones.",
+            name: "Search Partner",
+            role: "SEO Support",
+            desc: "Helps refine metadata, headings, and content structure for discoverability.",
             iconName: "Globe",
             color: "text-blue-500",
             order: 2
         },
         {
             id: "part-3",
-            name: "Artifact Labs",
-            role: "UI Kit Distribution",
-            desc: "Primary contributor to our baseline 2026 aesthetics and primitive UI nodes.",
+            name: "Design Partner",
+            role: "UI Refinement",
+            desc: "Keeps the visual language consistent across page sections and content cards.",
             iconName: "Sparkles",
             color: "text-purple-500",
             order: 3
         },
         {
             id: "part-4",
-            name: "Sync Security",
-            role: "Identity Governance",
-            desc: "Powering the hyper-secure MFA and biometric neural verification protocols.",
+            name: "Support Partner",
+            role: "Launch Operations",
+            desc: "Helps keep contact, support, and status information current after launch.",
             iconName: "ShieldCheck",
             color: "text-green-500",
             order: 4
         }
     ],
     cta: {
-        title: "Join the Alliance.",
-        description: "Are you building the next generation of neural design tools or high-fidelity development infrastructure? Sync with our partnership core.",
-        buttonText: "Initiate Partnership Node",
-        subText: "Alliance Sync Response: Sub-48h Cycle"
+        title: "Want to collaborate?",
+        description: "We’re open to teams that want practical help with content, SEO, and website quality.",
+        buttonText: "Talk Partnership",
+        subText: "Replies within 2 business days"
     },
     ecosystem: {
-        title: "Synchronized Ecosystem Operatives",
+        title: "Aligned Ecosystem",
         brands: [
-            { id: "brand-1", name: "NEURAL" },
-            { id: "brand-2", name: "FORGE" },
-            { id: "brand-3", name: "EDGE" },
-            { id: "brand-4", name: "SYNC" },
-            { id: "brand-5", name: "VAULT" }
+            { id: "brand-1", name: "CONTENT" },
+            { id: "brand-2", name: "SEO" },
+            { id: "brand-3", name: "DESIGN" },
+            { id: "brand-4", name: "SUPPORT" },
+            { id: "brand-5", name: "LAUNCH" }
         ]
     },
     lastUpdated: new Date().toISOString()
@@ -134,7 +134,7 @@ const defaultContent: PartnersPageContent = {
 export const usePartnersContentStore = create<PartnersContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -210,7 +210,7 @@ export const usePartnersContentStore = create<PartnersContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'partners-content-storage',
@@ -218,3 +218,4 @@ export const usePartnersContentStore = create<PartnersContentState>()(
         }
     )
 );
+

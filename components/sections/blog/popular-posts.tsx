@@ -43,7 +43,7 @@ export default function PopularPosts() {
                         >
                             <Badge variant="outline" className="gap-2 py-1.5 px-4 text-orange-500 border-orange-500/20 bg-orange-500/5 rounded-full">
                                 <Flame className="w-4 h-4 animate-pulse fill-orange-500/20" />
-                                <span className="uppercase tracking-widest text-xs font-bold">Trending Now</span>
+                                <span className="tracking-widest text-xs font-bold">Trending Now</span>
                             </Badge>
                         </motion.div>
                         <motion.h2 
@@ -105,8 +105,8 @@ export default function PopularPosts() {
                                     className="group relative h-[380px] md:h-[400px] rounded-[2rem] overflow-hidden cursor-pointer"
                                 >
                                 {/* Floating Rank Number */}
-                                <div className="absolute -top-6 md:-top-10 left-6 text-7xl md:text-8xl font-black text-foreground/5 z-0 group-hover:text-primary/10 transition-colors duration-500 pointer-events-none select-none">
-                                    {post.popularRank || "00"}
+                                <div className="absolute -top-6 md:-top-10 left-6 text-7xl md:text-8xl font-bold text-foreground/5 z-0 group-hover:text-primary/10 transition-colors duration-500 pointer-events-none select-none">
+                                    {post.popularRank ?? ""}
                                 </div>
 
                                 {/* Card Background */}
@@ -123,7 +123,7 @@ export default function PopularPosts() {
                                 <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between z-10">
                                     <div className="flex justify-between items-start">
                                         <Badge variant="secondary" className="backdrop-blur-md bg-white/20 border-white/10 text-white hover:bg-white/30">
-                                            {categories.find(c => c.id === post.category)?.label || "Article"}
+                                            {categories.find(c => c.id === post.category)?.label ?? ""}
                                         </Badge>
                                     </div>
 
@@ -131,11 +131,11 @@ export default function PopularPosts() {
                                         <div className="flex items-center gap-4 text-white/70 text-xs font-medium mb-3">
                                             <div className="flex items-center gap-1">
                                                 <Eye className="w-3.5 h-3.5" />
-                                                <span>{post.views}</span>
+                                                <span>{post.views ?? ""}</span>
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <Clock className="w-3.5 h-3.5" />
-                                                <span>{post.readTime}</span>
+                                                <span>{post.readTime ?? ""}</span>
                                             </div>
                                         </div>
 

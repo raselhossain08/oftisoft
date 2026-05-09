@@ -4,11 +4,32 @@ import {
   type User,
 } from "@/lib/services/auth.service";
 
+// Global flag to prevent token refresh during logout
+let isLoggingOut = false;
+let authCheckComplete = false;
+
+export function setLoggingOut(value: boolean) {
+  isLoggingOut = value;
+}
+
+export function getIsLoggingOut() {
+  return isLoggingOut;
+}
+
+export function setAuthCheckComplete(value: boolean) {
+  authCheckComplete = value;
+}
+
+export function getAuthCheckComplete() {
+  return authCheckComplete;
+}
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  authCheckComplete: boolean;
 
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
@@ -19,7 +40,7 @@ interface AuthState {
     email: string,
     password: string,
     remember?: boolean
-  ) => Promise<void>;
+  ) => Promise<{ requires2FA: boolean; tempToken?: string; user?: User } | void>;
   register: (
     name: string,
     email: string,
@@ -36,6 +57,7 @@ interface AuthState {
   setup2FA: () => Promise<{ secret: string; qrCode: string }>;
   verify2FA: (code: string) => Promise<void>;
   disable2FA: (code: string) => Promise<void>;
+  verify2FALogin: (tempToken: string, code: string, remember?: boolean) => Promise<void>;
 }
 
 export type { User };
@@ -45,6 +67,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  authCheckComplete: false,
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
   setLoading: (loading) => set({ isLoading: loading }),
@@ -54,9 +77,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (email, password, remember = false) => {
     set({ isLoading: true, error: null });
     try {
-      const { user } = await authService.login(email, password, remember);
+      const result = await authService.login(email, password, remember);
+      
+      // Check if 2FA is required
+      if (result.requires2FA) {
+        set({
+          isLoading: false,
+          error: null,
+        });
+        // Return a special result for 2FA
+        return { requires2FA: true, tempToken: result.tempToken, user: result.user };
+      }
+      
       set({
-        user,
+        user: result.user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -73,11 +107,42 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
+  verify2FALogin: async (tempToken: string, code: string, remember = false) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { user } = await authService.verify2FALogin(tempToken, code, remember);
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "2FA verification failed";
+      set({
+        error: message,
+        isLoading: false,
+      });
+      throw err;
+    }
+  },
+
   register: async (name, email, phone, password) => {
     set({ isLoading: true, error: null });
     try {
-      await authService.register(name, email, phone, password);
-      set({ isLoading: false, error: null });
+      const result = await authService.register(name, email, phone, password);
+      // If auto-login is enabled, set user and authenticated state
+      if (result.isAutoLogin && result.user) {
+        set({
+          user: result.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+          authCheckComplete: true,
+        });
+      } else {
+        set({ isLoading: false, error: null });
+      }
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Registration failed";
@@ -89,19 +154,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
+      // Set flag to prevent token refresh attempts
+      setLoggingOut(true);
+
+      // Clear all React Query caches to prevent stale API calls
+      const { queryClient } = await import("@/lib/api/queries");
+      queryClient.cancelQueries(); // Cancel any in-flight requests
+      queryClient.clear(); // Clear all query caches
+
       await authService.logout();
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
+        authCheckComplete: false, // Reset auth check for next login
       });
     } catch {
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
+        authCheckComplete: false,
       });
+    } finally {
+      // Reset the logging out flag after a short delay to ensure cleanup
+      setTimeout(() => setLoggingOut(false), 500);
     }
   },
 
@@ -121,12 +199,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isAuthenticated: true,
           isLoading: false,
           error: null,
+          authCheckComplete: true,
         });
       } else {
         set({
           user: null,
           isAuthenticated: false,
           isLoading: false,
+          authCheckComplete: true,
         });
       }
     } catch {
@@ -134,6 +214,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: null,
         isAuthenticated: false,
         isLoading: false,
+        authCheckComplete: true,
       });
     }
   },

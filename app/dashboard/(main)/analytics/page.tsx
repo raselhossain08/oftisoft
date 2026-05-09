@@ -8,7 +8,6 @@ import {
   ShoppingCart,
   Users,
   Download,
-  Calendar,
   CheckCircle2,
   Clock,
   ArrowUpRight,
@@ -45,18 +44,19 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { mockAnalyticsData } from "@/lib/shop-data";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { Loader2, Globe, MousePointer2, ExternalLink } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2, Globe, MousePointer2 } from "lucide-react";
+import { toast } from "sonner";
 
-const PERFORMANCE_DATA = [
-  { name: "Mon", completed: 4, active: 10, velocity: 42 },
-  { name: "Tue", completed: 3, active: 12, velocity: 38 },
-  { name: "Wed", completed: 7, active: 8, velocity: 45 },
-  { name: "Thu", completed: 2, active: 15, velocity: 35 },
-  { name: "Fri", completed: 6, active: 11, velocity: 50 },
-  { name: "Sat", completed: 3, active: 7, velocity: 44 },
-  { name: "Sun", completed: 1, active: 5, velocity: 40 },
+const FALLBACK_PRODUCTIVITY = [
+  { name: "Mon", completed: 0, active: 0, velocity: 0 },
+  { name: "Tue", completed: 0, active: 0, velocity: 0 },
+  { name: "Wed", completed: 0, active: 0, velocity: 0 },
+  { name: "Thu", completed: 0, active: 0, velocity: 0 },
+  { name: "Fri", completed: 0, active: 0, velocity: 0 },
+  { name: "Sat", completed: 0, active: 0, velocity: 0 },
+  { name: "Sun", completed: 0, active: 0, velocity: 0 },
 ];
 
 // Chart colors - vibrant & visible on dark background
@@ -67,18 +67,13 @@ const CHART_TEXT = "#94a3b8";
 const CHART_CARD_BG = "#0f172a";
 const CHART_BORDER = "#1e293b";
 
-const TASK_DISTRIBUTION = [
-  { name: "Design", value: 35, color: "#ec4899" },
-  { name: "Development", value: 45, color: "#6366f1" },
-  { name: "QA & Testing", value: 20, color: "#10b981" },
-];
-
-const GEO_COLORS = ["#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ec4899"];
+const GEO_COLORS = ["#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
 
 export default function UnifiedAnalyticsHub() {
+  const { user } = useAuth();
   const { stats, isLoading, refresh } = useAnalytics();
-  const [userRole] = useState<"admin" | "user">("admin");
-  const [timeRange, setTimeRange] = useState("week");
+  const [timeRange, setTimeRange] = useState<"day" | "week" | "month">("week");
+  const isAdmin = user?.role === "Admin" || user?.role === "Editor";
 
   if (isLoading && !stats) {
     return (
@@ -94,11 +89,11 @@ export default function UnifiedAnalyticsHub() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-black italic tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Intelligence Hub
           </h1>
           <p className="text-muted-foreground font-medium mt-1 text-sm sm:text-base">
-            {userRole === "admin"
+            {isAdmin
               ? "Unified overview of project velocity, business health, and financial trajectory."
               : "Performance metrics and productivity insights for your current projects."}
           </p>
@@ -107,7 +102,7 @@ export default function UnifiedAnalyticsHub() {
           <Button
             variant="outline"
             size="sm"
-            onClick={refresh}
+            onClick={() => refresh(timeRange)}
             className="rounded-xl h-9 sm:h-11 border-border/50 bg-card/50 gap-2 font-bold text-xs sm:text-sm"
           >
             <RefreshCw className="w-4 h-4 text-primary shrink-0" />
@@ -116,6 +111,7 @@ export default function UnifiedAnalyticsHub() {
           <Button
             size="sm"
             className="rounded-xl h-9 sm:h-11 bg-primary text-primary-foreground gap-2 font-bold text-xs sm:text-sm"
+            onClick={() => toast.info("Export feature coming soon")}
           >
             <Download className="w-4 h-4 shrink-0" />
             Export Intel
@@ -133,7 +129,7 @@ export default function UnifiedAnalyticsHub() {
             >
               <Gauge className="w-4 h-4 shrink-0" /> Productivity
             </TabsTrigger>
-            {userRole === "admin" && (
+            {isAdmin && (
               <>
                 <TabsTrigger
                   value="live"
@@ -163,7 +159,7 @@ export default function UnifiedAnalyticsHub() {
                 key={t}
                 variant="ghost"
                 size="sm"
-                onClick={() => setTimeRange(t)}
+                onClick={() => { setTimeRange(t as "day" | "week" | "month"); refresh(t as "day" | "week" | "month"); }}
                 className={cn(
                   "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all h-8 sm:h-9",
                   timeRange === t
@@ -186,32 +182,32 @@ export default function UnifiedAnalyticsHub() {
             {[
               {
                 label: "Completion Rate",
-                value: "87%",
-                trend: "+2.5%",
+                value: stats?.performance?.completionRate ?? "0%",
+                trend: "+0%",
                 icon: CheckCircle2,
                 color: "text-green-500",
                 bg: "bg-green-500",
               },
               {
                 label: "Avg. Turnaround",
-                value: "1.2 Days",
-                trend: "-0.4 Days",
+                value: stats?.performance?.avgTurnaround ?? "—",
+                trend: "—",
                 icon: Clock,
                 color: "text-blue-500",
                 bg: "bg-blue-500",
               },
               {
                 label: "Critical Bugs",
-                value: "3",
-                trend: "+1",
+                value: String(stats?.performance?.criticalBugs ?? 0),
+                trend: "—",
                 icon: Bug,
                 color: "text-red-500",
                 bg: "bg-red-500",
               },
               {
                 label: "Team Velocity",
-                value: "42 pts",
-                trend: "+5 pts",
+                value: `${stats?.performance?.teamVelocity ?? 0} pts`,
+                trend: "—",
                 icon: Zap,
                 color: "text-orange-500",
                 bg: "bg-orange-500",
@@ -228,21 +224,19 @@ export default function UnifiedAnalyticsHub() {
                   )}
                 />
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase italic text-muted-foreground tracking-widest">
+                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
                     {stat.label}
                   </CardTitle>
                   <stat.icon className={cn("h-4 w-4 shrink-0", stat.color)} />
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                  <div className="text-2xl sm:text-3xl font-black italic tracking-tighter">
+                  <div className="text-2xl sm:text-3xl font-black  tracking-tighter">
                     {stat.value}
                   </div>
                   <div
                     className={cn(
-                      "flex items-center gap-1 text-[10px] font-black uppercase italic mt-1",
-                      stat.trend.startsWith("+")
-                        ? "text-green-500"
-                        : "text-red-500"
+                      "flex items-center gap-1 text-[10px] font-black uppercase  mt-1",
+                      stat.trend === "—" ? "text-muted-foreground" : stat.trend.startsWith("+") ? "text-green-500" : "text-red-500"
                     )}
                   >
                     {stat.trend}{" "}
@@ -259,10 +253,10 @@ export default function UnifiedAnalyticsHub() {
             <Card className="lg:col-span-8 border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
               <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50 flex flex-row items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <CardTitle className="text-lg sm:text-xl font-black italic">
+                  <CardTitle className="text-lg sm:text-xl font-black ">
                     Productivity Flow
                   </CardTitle>
-                  <CardDescription className="italic text-xs sm:text-sm">
+                  <CardDescription className=" text-xs sm:text-sm">
                     Task completion trends across active architectural nodes.
                   </CardDescription>
                 </div>
@@ -270,13 +264,14 @@ export default function UnifiedAnalyticsHub() {
                   variant="ghost"
                   size="icon"
                   className="shrink-0 h-9 w-9 text-muted-foreground hover:text-foreground hover:rotate-180 transition-transform duration-500"
+                  onClick={() => refresh(timeRange)}
                 >
                   <RefreshCw className="w-4 h-4" />
                 </Button>
               </CardHeader>
               <CardContent className="h-[280px] sm:h-[350px] md:h-[400px] p-4 sm:p-6 md:p-8">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={stats?.productivity || PERFORMANCE_DATA} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <AreaChart data={stats?.productivity?.length ? stats.productivity : FALLBACK_PRODUCTIVITY} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={CHART_PRIMARY} stopOpacity={0.6} />
@@ -324,10 +319,10 @@ export default function UnifiedAnalyticsHub() {
 
             <Card className="lg:col-span-4 border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
               <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50">
-                <CardTitle className="text-lg sm:text-xl font-black italic">
+                <CardTitle className="text-lg sm:text-xl font-black ">
                   Operative Split
                 </CardTitle>
-                <CardDescription className="italic text-xs sm:text-sm">
+                <CardDescription className=" text-xs sm:text-sm">
                   Distribution of tasks by department.
                 </CardDescription>
               </CardHeader>
@@ -335,7 +330,7 @@ export default function UnifiedAnalyticsHub() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={TASK_DISTRIBUTION}
+                      data={stats?.taskDistribution ?? [{ name: "No Data", value: 100, color: "#64748b" }]}
                       innerRadius={55}
                       outerRadius={90}
                       paddingAngle={4}
@@ -343,7 +338,7 @@ export default function UnifiedAnalyticsHub() {
                       stroke={CHART_BORDER}
                       strokeWidth={2}
                     >
-                      {TASK_DISTRIBUTION.map((entry, index) => (
+                      {(stats?.taskDistribution ?? []).map((entry: { color: string }, index: number) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -359,16 +354,16 @@ export default function UnifiedAnalyticsHub() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
-                  <span className="text-3xl sm:text-4xl font-black italic tracking-tighter">
-                    142
+                  <span className="text-3xl sm:text-4xl font-black  tracking-tighter">
+                    {stats?.totalTasks ?? 0}
                   </span>
-                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest italic">
+                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ">
                     Total Tasks
                   </span>
                 </div>
               </CardContent>
               <CardFooter className="p-4 sm:p-6 md:p-8 border-t border-border/50 bg-muted/20 flex flex-col gap-3">
-                {TASK_DISTRIBUTION.map((item, i) => (
+                {(stats?.taskDistribution ?? []).map((item: { name: string; value: number; color: string }, i: number) => (
                   <div
                     key={i}
                     className="flex items-center justify-between w-full"
@@ -378,11 +373,11 @@ export default function UnifiedAnalyticsHub() {
                         className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: item.color }}
                       />
-                      <span className="text-xs font-bold italic">
+                      <span className="text-xs font-bold ">
                         {item.name}
                       </span>
                     </div>
-                    <span className="text-xs font-black italic">
+                    <span className="text-xs font-black ">
                       {item.value}%
                     </span>
                   </div>
@@ -393,15 +388,15 @@ export default function UnifiedAnalyticsHub() {
         </TabsContent>
         
         {/* Live Traffic Tab */}
-        {userRole === "admin" && (
+        {isAdmin && (
           <TabsContent value="live" className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0">
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                 <Card className="lg:col-span-2 border-border/50 bg-card/40 backdrop-blur-md rounded-[2.5rem] overflow-hidden">
                     <CardHeader className="p-8 border-b border-border/50 bg-primary/[0.02]">
                         <div className="flex justify-between items-center">
                             <div>
-                                <CardTitle className="text-2xl font-black italic">Live Site Traffic</CardTitle>
-                                <CardDescription className="italic">In-flight connections and behavioral streaming.</CardDescription>
+                                <CardTitle className="text-2xl font-black ">Live Site Traffic</CardTitle>
+                                <CardDescription className="">In-flight connections and behavioral streaming.</CardDescription>
                             </div>
                             <div className="flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20">
                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
@@ -435,14 +430,14 @@ export default function UnifiedAnalyticsHub() {
                                             <td className="p-6 text-[10px] font-medium text-muted-foreground truncate max-w-[200px]">
                                                 {visit.userAgent}
                                             </td>
-                                            <td className="p-6 text-[10px] font-black uppercase italic text-muted-foreground/50 tabular-nums">
-                                                {new Date(visit.timestamp).toLocaleTimeString()}
+                                            <td className="p-6 text-[10px] font-black uppercase  text-muted-foreground/50 tabular-nums">
+                                                {visit.timestamp ? new Date(visit.timestamp).toLocaleTimeString() : "—"}
                                             </td>
                                         </tr>
                                     ))}
                                     {(!stats?.liveTracking?.recentVisits || stats.liveTracking.recentVisits.length === 0) && (
                                         <tr>
-                                            <td colSpan={4} className="p-20 text-center opacity-30 italic font-medium">No active signals detected in the current node.</td>
+                                            <td colSpan={4} className="p-20 text-center opacity-30  font-medium">No active signals detected in the current node.</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -453,18 +448,13 @@ export default function UnifiedAnalyticsHub() {
 
                 <div className="space-y-6">
                     <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-[2.5rem] p-8">
-                        <h3 className="font-black italic text-lg mb-6 flex items-center gap-3">
+                        <h3 className="font-black  text-lg mb-6 flex items-center gap-3">
                             <Target className="w-5 h-5 text-primary" /> Acquisition Heat
                         </h3>
                         <div className="space-y-6">
-                            {[
-                                { name: "Direct Traffic", value: 45, color: "bg-primary" },
-                                { name: "Search Engines", value: 30, color: "bg-blue-500" },
-                                { name: "Social Referrals", value: 15, color: "bg-pink-500" },
-                                { name: "Backlinks", value: 10, color: "bg-orange-500" },
-                            ].map((item) => (
+                            {(stats?.acquisition ?? [{ name: "Direct Traffic", value: 100, color: "bg-primary" }]).map((item: { name: string; value: number; color: string }) => (
                                 <div key={item.name} className="space-y-2">
-                                    <div className="flex justify-between text-[10px] font-black uppercase italic tracking-widest text-muted-foreground">
+                                    <div className="flex justify-between text-[10px] font-black uppercase  tracking-widest text-muted-foreground">
                                         <span>{item.name}</span>
                                         <span className="text-foreground">{item.value}%</span>
                                     </div>
@@ -478,9 +468,9 @@ export default function UnifiedAnalyticsHub() {
 
                     <Card className="border-border/50 bg-primary shadow-xl shadow-primary/20 rounded-[2.5rem] p-8 text-primary-foreground relative overflow-hidden group">
                         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
-                        <h3 className="font-black italic text-lg mb-2 z-10 relative">Growth Acceleration</h3>
+                        <h3 className="font-black  text-lg mb-2 z-10 relative">Growth Acceleration</h3>
                         <p className="text-sm opacity-80 mb-6 z-10 relative leading-relaxed">Optimization algorithms suggest prioritizing Search Engine node expanding.</p>
-                        <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl h-12 font-black italic tracking-tight z-10 relative">
+                        <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl h-12 font-black  tracking-tight z-10 relative" onClick={() => toast.info("SEO tools coming soon")}>
                             Deploy SEO Core
                         </Button>
                     </Card>
@@ -490,7 +480,7 @@ export default function UnifiedAnalyticsHub() {
         )}
 
         {/* Business Intel Tab */}
-        {userRole === "admin" && (
+        {isAdmin && (
           <TabsContent
             value="business"
             className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0"
@@ -499,60 +489,57 @@ export default function UnifiedAnalyticsHub() {
               {[
                 {
                   label: "Total Revenue",
-                  value: `$${(stats?.overview?.revenue || 0).toLocaleString()}`,
-                  growth: "+12.5%",
+                  value: `$${(stats?.overview?.revenue ?? 0).toLocaleString()}`,
+                  growth: stats?.overview?.growthRevenue ?? "—",
                   icon: DollarSign,
-                  trend: "up" as const,
                 },
                 {
                   label: "Total Orders",
-                  value: (stats?.overview?.orders || 0).toString(),
-                  growth: "+8.2%",
+                  value: String(stats?.overview?.orders ?? 0),
+                  growth: stats?.overview?.growthOrders ?? "—",
                   icon: ShoppingCart,
-                  trend: "up" as const,
                 },
                 {
                   label: "Active Customers",
-                  value: (stats?.overview?.customers || 0).toLocaleString(),
-                  growth: "+14.1%",
+                  value: (stats?.overview?.customers ?? 0).toLocaleString(),
+                  growth: "—",
                   icon: Users,
-                  trend: "up" as const,
                 },
                 {
                   label: "Conversion Rate",
-                  value: stats?.overview?.conversion || "0.0%",
-                  growth: "-0.4%",
+                  value: stats?.overview?.conversion ?? "0.0%",
+                  growth: "—",
                   icon: Activity,
-                  trend: "down" as const,
                 },
-              ].map((kpi) => (
+              ].map((kpi) => {
+                const g = String(kpi.growth);
+                const trend = g === "—" ? "neutral" : g.startsWith("-") ? "down" : "up";
+                return (
                 <Card
                   key={kpi.label}
                   className="border-border/50 bg-card/40 backdrop-blur-md overflow-hidden relative"
                 >
                   <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-4 sm:p-6">
-                    <CardTitle className="text-[10px] font-black uppercase italic text-muted-foreground tracking-widest">
+                    <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
                       {kpi.label}
                     </CardTitle>
                     <kpi.icon className="h-4 w-4 text-primary shrink-0" />
                   </CardHeader>
                   <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                    <div className="text-2xl sm:text-3xl font-black italic tracking-tighter">
+                    <div className="text-2xl sm:text-3xl font-black  tracking-tighter">
                       {kpi.value}
                     </div>
                     <div
                       className={cn(
-                        "flex items-center gap-1 text-[10px] font-black uppercase italic mt-1",
-                        kpi.trend === "up"
-                          ? "text-green-500"
-                          : "text-red-500"
+                        "flex items-center gap-1 text-[10px] font-black uppercase  mt-1",
+                        trend === "neutral" ? "text-muted-foreground" : trend === "up" ? "text-green-500" : "text-red-500"
                       )}
                     >
-                      {kpi.trend === "up" ? (
+                      {trend === "up" ? (
                         <ArrowUpRight className="w-3 h-3 shrink-0" />
-                      ) : (
+                      ) : trend === "down" ? (
                         <ArrowDownRight className="w-3 h-3 shrink-0" />
-                      )}
+                      ) : null}
                       {kpi.growth}{" "}
                       <span className="text-muted-foreground font-medium ml-1 tracking-normal">
                         trailing month
@@ -560,22 +547,23 @@ export default function UnifiedAnalyticsHub() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              );
+              })}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
                 <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50">
-                  <CardTitle className="text-lg sm:text-xl font-black italic">
+                  <CardTitle className="text-lg sm:text-xl font-black ">
                     Revenue Matrix
                   </CardTitle>
-                  <CardDescription className="italic text-xs sm:text-sm">
+                  <CardDescription className=" text-xs sm:text-sm">
                     Global revenue distribution across product nodes.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-[300px] sm:h-[400px] p-4 sm:p-6 md:p-8">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={mockAnalyticsData.productPerformance} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <BarChart data={(stats?.productPerformance?.length ? stats.productPerformance : [{ name: "No data", revenue: 0 }])} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor={CHART_SECONDARY} />
@@ -617,10 +605,10 @@ export default function UnifiedAnalyticsHub() {
 
               <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
                 <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50">
-                  <CardTitle className="text-lg sm:text-xl font-black italic">
+                  <CardTitle className="text-lg sm:text-xl font-black ">
                     Market Geographics
                   </CardTitle>
-                  <CardDescription className="italic text-xs sm:text-sm">
+                  <CardDescription className=" text-xs sm:text-sm">
                     Customer base distribution by global region.
                   </CardDescription>
                 </CardHeader>
@@ -628,7 +616,7 @@ export default function UnifiedAnalyticsHub() {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={mockAnalyticsData.customerDemographics}
+                        data={(stats?.customerDemographics?.length ? stats.customerDemographics : [{ name: "No Data", value: 100 }])}
                         cx="50%"
                         cy="50%"
                         innerRadius={65}
@@ -638,8 +626,8 @@ export default function UnifiedAnalyticsHub() {
                         stroke={CHART_BORDER}
                         strokeWidth={2}
                       >
-                        {mockAnalyticsData.customerDemographics.map(
-                          (entry, index) => (
+                        {(stats?.customerDemographics?.length ? stats.customerDemographics : [{ name: "No Data", value: 100 }]).map(
+                          (entry: { name: string; value: number }, index: number) => (
                             <Cell
                               key={`cell-${index}`}
                               fill={GEO_COLORS[index % GEO_COLORS.length]}
@@ -660,9 +648,9 @@ export default function UnifiedAnalyticsHub() {
                   </ResponsiveContainer>
                 </CardContent>
                 <CardFooter className="p-4 sm:p-6 md:p-8 border-t border-border/50 bg-muted/20 grid grid-cols-2 gap-4">
-                  {mockAnalyticsData.customerDemographics.map((entry, index) => (
+                  {(stats?.customerDemographics?.length ? stats.customerDemographics : [{ name: "No Data", value: 100 }]).map((entry: { name: string; value: number }, index: number) => (
                     <div key={entry.name} className="space-y-1">
-                      <div className="flex justify-between items-center text-[10px] font-black uppercase italic">
+                      <div className="flex justify-between items-center text-[10px] font-black uppercase ">
                         <span className="text-muted-foreground truncate pr-2">
                           {entry.name}
                         </span>
@@ -688,7 +676,7 @@ export default function UnifiedAnalyticsHub() {
         )}
 
         {/* Financials Tab */}
-        {userRole === "admin" && (
+        {isAdmin && (
           <TabsContent
             value="financial"
             className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0"
@@ -699,15 +687,15 @@ export default function UnifiedAnalyticsHub() {
                   <TrendingUp className="w-6 h-6 text-primary opacity-20" />
                 </div>
                 <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase italic text-muted-foreground tracking-widest">
+                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
                     Operating Profit
                   </CardTitle>
-                  <div className="text-3xl sm:text-4xl font-black italic tracking-tighter mt-2 text-primary">
-                    $124,500
+                  <div className="text-3xl sm:text-4xl font-black  tracking-tighter mt-2 text-primary">
+                    ${(stats?.financial?.operatingProfit ?? 0).toLocaleString()}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                  <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
+                  <p className="text-xs text-muted-foreground font-medium  leading-relaxed">
                     Adjusted for global technical overhead and operational
                     expenditures.
                   </p>
@@ -718,15 +706,15 @@ export default function UnifiedAnalyticsHub() {
                   <DollarSign className="w-6 h-6 text-green-500 opacity-20" />
                 </div>
                 <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase italic text-muted-foreground tracking-widest">
+                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
                     Fiscal Reserves
                   </CardTitle>
-                  <div className="text-3xl sm:text-4xl font-black italic tracking-tighter mt-2 text-green-500">
-                    $32,000
+                  <div className="text-3xl sm:text-4xl font-black  tracking-tighter mt-2 text-green-500">
+                    ${(stats?.financial?.fiscalReserves ?? 0).toLocaleString()}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                  <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
+                  <p className="text-xs text-muted-foreground font-medium  leading-relaxed">
                     Liquidity nodes maintained for R&D and rapid infrastructure
                     deployment.
                   </p>
@@ -737,15 +725,15 @@ export default function UnifiedAnalyticsHub() {
                   <Target className="w-6 h-6 text-orange-500 opacity-20" />
                 </div>
                 <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase italic text-muted-foreground tracking-widest">
+                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
                     Marketing Spend
                   </CardTitle>
-                  <div className="text-3xl sm:text-4xl font-black italic tracking-tighter mt-2 text-orange-500">
-                    $18,450
+                  <div className="text-3xl sm:text-4xl font-black  tracking-tighter mt-2 text-orange-500">
+                    ${(stats?.financial?.marketingSpend ?? 0).toLocaleString()}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                  <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
+                  <p className="text-xs text-muted-foreground font-medium  leading-relaxed">
                     Budget allocation for tactical acquisition campaigns and
                     brand awareness.
                   </p>
@@ -756,16 +744,17 @@ export default function UnifiedAnalyticsHub() {
             <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[40px] overflow-hidden">
               <CardHeader className="p-4 sm:p-6 md:p-10 border-b border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <CardTitle className="text-xl sm:text-2xl font-black italic">
+                  <CardTitle className="text-xl sm:text-2xl font-black ">
                     Profit & Loss Summary
                   </CardTitle>
-                  <CardDescription className="italic text-xs sm:text-sm">
+                  <CardDescription className=" text-xs sm:text-sm">
                     Detailed breakdown of organizational income and expenditures.
                   </CardDescription>
                 </div>
                 <Button
                   size="sm"
                   className="rounded-xl sm:rounded-2xl h-10 sm:h-14 px-6 sm:px-8 bg-primary text-primary-foreground font-bold gap-2 sm:gap-3 shrink-0"
+                  onClick={() => toast.info("PDF export coming soon")}
                 >
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />{" "}
                   Generate PDF Ledger
@@ -773,84 +762,56 @@ export default function UnifiedAnalyticsHub() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-border/50">
-                  {[
-                    {
-                      category: "Marketplace Artifact Sales",
-                      income: "$450,230",
-                      expense: "$0",
-                      net: "+$450,230",
-                      color: "text-green-500",
-                    },
-                    {
-                      category: "Global Edge Infrastructure",
-                      income: "$0",
-                      expense: "$42,500",
-                      net: "-$42,500",
-                      color: "text-red-500",
-                    },
-                    {
-                      category: "Managed Service Delivery",
-                      income: "$124,000",
-                      expense: "$85,000",
-                      net: "+$39,000",
-                      color: "text-green-500",
-                    },
-                    {
-                      category: "Intelligence Operative Salaries",
-                      income: "$0",
-                      expense: "$120,000",
-                      net: "-$120,000",
-                      color: "text-red-500",
-                    },
-                    {
-                      category: "Acquisition & Marketing",
-                      income: "$0",
-                      expense: "$18,450",
-                      net: "-$18,450",
-                      color: "text-red-500",
-                    },
-                  ].map((row, i) => (
+                  {(() => {
+                    const rev = stats?.overview?.revenue ?? 0;
+                    const profit = stats?.financial?.operatingProfit ?? rev;
+                    const items = rev > 0 ? [
+                      { category: "Order Revenue", income: rev, expense: 0, net: rev, color: "text-green-500" },
+                      { category: "Operating Profit", income: profit, expense: 0, net: profit, color: "text-green-500" },
+                    ] : [{ category: "No revenue data yet", income: 0, expense: 0, net: 0, color: "text-muted-foreground" }];
+                    return items.map((row, i) => (
                     <div
                       key={i}
                       className="p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-primary/[0.02] transition-colors"
                     >
                       <div className="space-y-1 min-w-0">
-                        <h5 className="font-black italic text-base sm:text-lg">
+                        <h5 className="font-black  text-base sm:text-lg">
                           {row.category}
                         </h5>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest italic">
-                          Fiscal Node ID: FX-{(i + 1) * 12}
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ">
+                          Analytics data
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-4 sm:gap-16 text-right">
                         <div className="hidden md:block space-y-1">
-                          <p className="text-[9px] font-black uppercase text-muted-foreground italic tracking-widest">
+                          <p className="text-[9px] font-black uppercase text-muted-foreground  tracking-widest">
                             Gross Inflow
                           </p>
-                          <p className="font-bold tabular-nums">{row.income}</p>
+                          <p className="font-bold tabular-nums">${Number(row.income).toLocaleString()}</p>
                         </div>
                         <div className="hidden md:block space-y-1">
-                          <p className="text-[9px] font-black uppercase text-muted-foreground italic tracking-widest">
+                          <p className="text-[9px] font-black uppercase text-muted-foreground  tracking-widest">
                             Gross Outflow
                           </p>
-                          <p className="font-bold tabular-nums">{row.expense}</p>
+                          <p className="font-bold tabular-nums">${Number(row.expense).toLocaleString()}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[9px] font-black uppercase text-muted-foreground italic tracking-widest">
+                          <p className="text-[9px] font-black uppercase text-muted-foreground  tracking-widest">
                             Net Trajectory
                           </p>
                           <p
                             className={cn(
-                              "font-black italic tabular-nums text-base sm:text-lg",
+                              "font-black  tabular-nums text-base sm:text-lg",
                               row.color
                             )}
                           >
-                            {row.net}
+                            {row.net >= 0 ? '+' : ''}${Number(row.net).toLocaleString()}
                           </p>
                         </div>
                       </div>
                     </div>
-                  ))}
+                                      ));
+                  })()}
                 </div>
               </CardContent>
             </Card>

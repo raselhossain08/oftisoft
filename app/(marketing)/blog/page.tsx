@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import { useBlogContentStore } from "@/lib/store/blog-content";
@@ -22,7 +22,7 @@ export default function BlogPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-background flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Initializing Editorial Node...
                 </div>
             </div>
@@ -40,4 +40,5 @@ export default function BlogPage() {
         </main>
     );
 }
+
 

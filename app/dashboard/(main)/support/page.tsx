@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { 
     Search, 
-    Filter, 
     MessageCircle, 
     Clock, 
     CheckCircle2, 
@@ -58,7 +57,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockFAQs } from "@/lib/shop-data";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -115,6 +113,7 @@ export default function SupportHubPage() {
     const [isNewKbOpen, setIsNewKbOpen] = useState(false);
     const [selectedEmail, setSelectedEmail] = useState<any | null>(null);
     const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
+    const [statusFilter, setStatusFilter] = useState<string>("all");
     
     const queryClient = useQueryClient();
 
@@ -138,10 +137,10 @@ export default function SupportHubPage() {
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-    // Fetch Tickets
+    // Fetch Tickets (with optional status filter)
     const { data: tickets = [], isLoading: isLoadingTickets } = useQuery({
-        queryKey: ["tickets"],
-        queryFn: () => supportAPI.getTickets(),
+        queryKey: ["tickets", statusFilter],
+        queryFn: () => supportAPI.getTickets(statusFilter === "all" ? undefined : statusFilter),
     });
 
     // Fetch Stats
@@ -162,6 +161,7 @@ export default function SupportHubPage() {
         mutationFn: (data: any) => supportAPI.createTicket(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tickets"] });
+            queryClient.invalidateQueries({ queryKey: ["support-stats"] });
             toast.success("Ticket created successfully");
             setIsNewTicketOpen(false);
             reset();
@@ -186,9 +186,27 @@ export default function SupportHubPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tickets"] });
             queryClient.invalidateQueries({ queryKey: ["ticket", selectedTicketId] });
+            queryClient.invalidateQueries({ queryKey: ["support-stats"] });
             toast.success("Status updated");
         },
     });
+
+    const handleBulkMarkResolved = async () => {
+        if (selectedTicketIds.length === 0) return;
+        const count = selectedTicketIds.length;
+        try {
+            await Promise.all(
+                selectedTicketIds.map((id) => supportAPI.updateTicketStatus(id, "resolved"))
+            );
+            queryClient.invalidateQueries({ queryKey: ["tickets"] });
+            queryClient.invalidateQueries({ queryKey: ["ticket", selectedTicketId] });
+            queryClient.invalidateQueries({ queryKey: ["support-stats"] });
+            setSelectedTicketIds([]);
+            toast.success(`${count} ticket(s) marked resolved`);
+        } catch {
+            toast.error("Failed to update some tickets");
+        }
+    };
 
     const { register, handleSubmit, reset, formState: { errors }, control } = useForm<TicketFormValues>({
         resolver: zodResolver(ticketSchema),
@@ -372,13 +390,13 @@ export default function SupportHubPage() {
                 </div>
             </div>
 
-            {/* Support KPIs */}
+            {/* Support KPIs - all from API */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                    { label: "Active Tickets", value: stats?.activeTickets ?? "0", icon: MessageSquare, sub: stats?.urgentCount ? `${stats.urgentCount} urgent needs` : "No urgent needs", color: "text-primary" },
-                    { label: "Avg Response", value: stats?.avgResponse ?? "0m", icon: Clock, sub: "Top 5% speed", color: "text-blue-500" },
-                    { label: "Live Chats", value: stats?.liveChats ?? "0", icon: MessageCircle, sub: "2 agents active", color: "text-green-500" },
-                    { label: "CSAT Score", value: stats?.csatScore ?? "0.0", icon: Star, sub: "Industry high", color: "text-amber-500" },
+                    { label: "Active Tickets", value: String(stats?.activeTickets ?? 0), icon: MessageSquare, sub: stats?.urgentCount ? `${stats.urgentCount} urgent` : "Open tickets", color: "text-primary" },
+                    { label: "Avg Response", value: stats?.avgResponse ?? "—", icon: Clock, sub: "Response time", color: "text-blue-500" },
+                    { label: "Live Chats", value: String(stats?.liveChats ?? 0), icon: MessageCircle, sub: "Active chats", color: "text-green-500" },
+                    { label: "CSAT Score", value: String(stats?.csatScore ?? "—"), icon: Star, sub: "Satisfaction", color: "text-amber-500" },
                 ].map((kpi) => (
                     <Card key={kpi.label} className="border-border/50 bg-card/50 backdrop-blur-sm">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -435,9 +453,18 @@ export default function SupportHubPage() {
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button variant="outline" size="sm" className="gap-2 rounded-lg text-xs border-border/50 font-bold">
-                                        <Filter className="h-3 w-3" /> Refine
-                                    </Button>
+                                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                        <SelectTrigger className="w-[140px] h-10 rounded-xl border-border/50">
+                                            <SelectValue placeholder="Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All statuses</SelectItem>
+                                            <SelectItem value={TicketStatus.OPEN}>Open</SelectItem>
+                                            <SelectItem value={TicketStatus.PENDING}>Pending</SelectItem>
+                                            <SelectItem value={TicketStatus.RESOLVED}>Resolved</SelectItem>
+                                            <SelectItem value={TicketStatus.CLOSED}>Closed</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </CardHeader>
@@ -477,10 +504,18 @@ export default function SupportHubPage() {
                                                         <Search className="w-8 h-8 text-muted-foreground/30" />
                                                     </div>
                                                     <div className="space-y-1">
-                                                        <h3 className="font-bold text-lg">No tickets located</h3>
-                                                        <p className="text-sm text-muted-foreground max-w-[250px] mx-auto">We couldn't find any results matching your current filters or search query.</p>
+                                                        <h3 className="font-bold text-lg">No tickets found</h3>
+                                                        <p className="text-sm text-muted-foreground max-w-[250px] mx-auto">
+                                                            {statusFilter !== "all" || searchQuery
+                                                                ? "No results for the current filters or search."
+                                                                : "Create a ticket to get started."}
+                                                        </p>
                                                     </div>
-                                                    <Button variant="outline" size="sm" className="mt-2 rounded-xl h-9" onClick={() => setSearchQuery("")}>Clear Search</Button>
+                                                    <div className="flex gap-2 mt-2">
+                                                        {(statusFilter !== "all" || searchQuery) && (
+                                                            <Button variant="outline" size="sm" className="rounded-xl h-9" onClick={() => { setSearchQuery(""); setStatusFilter("all"); }}>Clear filters</Button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -558,14 +593,14 @@ export default function SupportHubPage() {
                                     <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">Tickets Selected</span>
                                 </div>
                                 <div className="flex items-center gap-2 flex-1">
-                                    <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-primary/10">
+                                    <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-primary/10" onClick={handleBulkMarkResolved}>
                                         <CheckCircle2 className="w-4 h-4" /> <span className="hidden md:inline">Mark Resolved</span>
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-amber-500/10 hover:text-amber-500">
+                                    <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-amber-500/10 hover:text-amber-500" onClick={() => toast.info("Open a ticket to change its status.")}>
                                         <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Update Status</span>
                                     </Button>
                                     <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-red-500/10 hover:text-red-500" onClick={() => setSelectedTicketIds([])}>
-                                        <Trash2 className="w-4 h-4" /> <span className="hidden md:inline">Delete</span>
+                                        <Trash2 className="w-4 h-4" /> <span className="hidden md:inline">Clear</span>
                                     </Button>
                                 </div>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setSelectedTicketIds([])}>
@@ -628,7 +663,7 @@ export default function SupportHubPage() {
                                             </div>
                                             <SheetFooter className="pt-4 border-t border-border/50">
                                                 <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest" onClick={() => {
-                                                    toast.success("Article published (Simulation)");
+                                                    toast.info("KB publish: connect a knowledge base API to add articles.");
                                                     setIsNewKbOpen(false);
                                                 }}>Publish to KB</Button>
                                             </SheetFooter>
@@ -648,23 +683,17 @@ export default function SupportHubPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {mockFAQs.map((faq) => (
-                                            <TableRow 
-                                                key={faq.id} 
-                                                className="group cursor-pointer hover:bg-muted/30 transition-colors"
-                                                onClick={() => setSelectedKbArticle(faq)}
-                                            >
-                                                <TableCell className="font-bold text-sm max-w-[200px] truncate">{faq.title}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary" className="text-[10px] border-none">{faq.category}</Badge>
+                                        {[].length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={5} className="h-40 text-center text-muted-foreground">
+                                                    <div className="flex flex-col items-center justify-center gap-2">
+                                                        <BookOpen className="w-10 h-10 opacity-30" />
+                                                        <p className="font-bold">No KB articles yet</p>
+                                                        <p className="text-xs">Knowledge base articles will appear here when the API is connected.</p>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="text-xs font-mono font-bold flex items-center gap-1.5">
-                                                    <Eye className="w-3 h-3 text-muted-foreground" /> {faq.views.toLocaleString()}
-                                                </TableCell>
-                                                <TableCell className="text-[10px] font-medium text-muted-foreground">{faq.updatedAt}</TableCell>
-                                                <TableCell>{getStatusBadge(faq.status)}</TableCell>
                                             </TableRow>
-                                        ))}
+                                        ) : null}
                                     </TableBody>
                                 </Table>
                             </CardContent>
@@ -678,13 +707,13 @@ export default function SupportHubPage() {
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-muted-foreground font-medium">Article Coverage</span>
-                                        <span className="font-bold">92%</span>
+                                        <span className="font-bold">—</span>
                                     </div>
                                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary" style={{ width: "92%" }} />
+                                        <div className="h-full bg-primary w-0" />
                                     </div>
                                     <p className="text-[10px] text-muted-foreground leading-relaxed pt-2">
-                                        High coverage reduced direct technical tickets by <span className="text-primary font-bold">14%</span> this week.
+                                        Add KB articles to enable self-service and reduce ticket volume.
                                     </p>
                                 </CardContent>
                             </Card>
@@ -701,46 +730,18 @@ export default function SupportHubPage() {
                                     <h3 className="font-bold">Support Inbox</h3>
                                     <Badge className="bg-primary/20 text-primary border-none">Unified</Badge>
                                 </div>
-                                <div className="text-xs text-muted-foreground font-medium italic">3 unread emails</div>
+                                <div className="text-xs text-muted-foreground font-medium italic">No inbox API</div>
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
-                            {[
-                                { from: "Hancock Ventures", subject: "Enterprise licensing for 20 developers", time: "10:42 AM", priority: "high" },
-                                { from: "Michael Scott", subject: "Problem with the icons package download", time: "Yesterday", priority: "medium" },
-                                { from: "Tech Solutions", subject: "Refund request: duplicate transaction", time: "Feb 05", priority: "urgent", content: "Hi support, I noticed I was charged twice for my subscription. Can you refund one?" },
-                            ].map((email, idx) => (
-                                <div 
-                                    key={idx} 
-                                    className="p-6 flex items-center justify-between border-b border-border/50 last:border-0 hover:bg-primary/[0.01] transition-colors cursor-pointer group"
-                                    onClick={() => setSelectedEmail(email)}
-                                >
-                                    <div className="flex items-center gap-6">
-                                        <div className="relative">
-                                            <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
-                                                <AvatarFallback className="font-black text-xs text-primary">{email.from.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            {idx === 0 && <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary rounded-full border-2 border-background" />}
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="font-bold text-sm leading-none mb-1">{email.from}</p>
-                                            <p className="text-xs text-muted-foreground truncate max-w-[400px]">{email.subject}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3 md:gap-6">
-                                        <div className="text-right flex flex-col items-end">
-                                            <p className="text-[9px] md:text-[10px] text-muted-foreground font-medium">{email.time}</p>
-                                            <Badge variant="outline" className={cn("mt-1 text-[8px] font-black uppercase tracking-tighter h-4 border-none px-1.5", 
-                                                email.priority === "urgent" ? "text-red-500 bg-red-500/10" : "text-muted-foreground bg-muted/50"
-                                            )}>{email.priority}</Badge>
-                                        </div>
-                                        <ChevronRight className="w-4 h-4 md:w-5 h-5 text-muted-foreground opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-all group-hover:translate-x-1" />
-                                    </div>
-                                </div>
-                            ))}
+                            <div className="p-12 flex flex-col items-center justify-center text-center text-muted-foreground">
+                                <Mail className="w-12 h-12 opacity-30 mb-3" />
+                                <p className="font-bold">No inbox messages</p>
+                                <p className="text-xs max-w-[280px] mt-1">Connect a support email or inbox API to see messages here.</p>
+                            </div>
                         </CardContent>
                         <CardFooter className="bg-muted/5 justify-center py-4 border-t border-border/50">
-                            <Button variant="ghost" className="text-xs font-black text-primary hover:bg-transparent px-8">Load More Messages</Button>
+                            <Button variant="ghost" className="text-xs font-black text-primary hover:bg-transparent px-8" onClick={() => toast.info("Inbox integration coming soon.")}>Load More Messages</Button>
                         </CardFooter>
                      </Card>
                 </TabsContent>
@@ -770,7 +771,7 @@ export default function SupportHubPage() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Select 
-                                            defaultValue={selectedTicket.status} 
+                                            value={selectedTicket.status} 
                                             onValueChange={(status) => updateStatusMutation.mutate({ id: selectedTicket.id, status })}
                                         >
                                             <SelectTrigger className="w-[130px] h-8 text-[10px] font-bold">

@@ -1,16 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
-    Download, Search, Filter, Calendar, ChevronDown,
-    MoreHorizontal, CheckCircle2, Clock, AlertCircle, Plus,
-    FileText, Eye, ShieldAlert, Trash2, Printer, History
+    Download, Search, Filter, MoreHorizontal, CheckCircle2, Clock, AlertCircle, Plus,
+    FileText, Eye, ShieldAlert, Printer, History, RefreshCw, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { useInvoices } from "@/hooks/useInvoices";
 import { billingAPI, Transaction } from "@/lib/api";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -20,7 +21,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -30,6 +30,13 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 const STATUS_STYLES = {
     "completed": "bg-green-500/10 text-green-500 border-green-500/20",
@@ -39,14 +46,16 @@ const STATUS_STYLES = {
 };
 
 export default function InvoicesPage() {
-    const { invoices, isLoading, fetchInvoices } = useInvoices();
+    const { invoices, isLoading, isError, refetch } = useInvoices();
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-    
+    const [statusFilter, setStatusFilter] = useState<string>("all");
+
     // Create Dialog State
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
     const [newInvoice, setNewInvoice] = useState({
-        invoiceId: `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        invoiceId: `INV-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`,
         amount: "",
         type: "Professional Services",
         status: "pending"
@@ -56,11 +65,14 @@ export default function InvoicesPage() {
     const [selectedInvoice, setSelectedInvoice] = useState<Transaction | null>(null);
 
     const filteredInvoices = useMemo(() => {
-        return invoices.filter(inv => 
-            inv.invoiceId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            inv.type.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }, [invoices, searchQuery]);
+        return invoices.filter(inv => {
+            const matchesSearch =
+                inv.invoiceId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                inv.type.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesStatus = statusFilter === "all" || inv.status?.toLowerCase() === statusFilter.toLowerCase();
+            return matchesSearch && matchesStatus;
+        });
+    }, [invoices, searchQuery, statusFilter]);
 
     const toggleSelect = (id: string) => {
         if (selectedIds.includes(id)) setSelectedIds(selectedIds.filter(i => i !== id));
@@ -72,58 +84,81 @@ export default function InvoicesPage() {
             toast.error("Please enter an amount");
             return;
         }
-        
+        const amount = parseFloat(newInvoice.amount);
+        if (isNaN(amount) || amount <= 0) {
+            toast.error("Please enter a valid amount");
+            return;
+        }
+        setIsCreating(true);
         try {
             await billingAPI.createTransaction({
-                ...newInvoice,
-                amount: `$${parseFloat(newInvoice.amount).toLocaleString()}`
+                invoiceId: newInvoice.invoiceId,
+                amount: `$${amount.toFixed(2)}`,
+                type: newInvoice.type,
+                status: newInvoice.status
             });
-            toast.success("Invoice created successfully");
+            toast.success("Ledger entry created");
             setIsCreateOpen(false);
-            fetchInvoices();
-        } catch (err) {
-            toast.error("Failed to create invoice");
+            setNewInvoice({ ...newInvoice, invoiceId: `INV-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`, amount: "" });
+            refetch();
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Failed to create invoice");
+        } finally {
+            setIsCreating(false);
         }
     };
 
-    const handleDownload = async (id: string) => {
-        const toastId = toast.loading(`Decrypting financial record ${id}...`, {
-            description: "Establishing secure tunnel to ledger nodes."
-        });
-        
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        toast.success("Ready for delivery", {
-            id: toastId,
-            description: "Invoice artifact transmitted successfully."
-        });
-        
-        // Simple mock download
-        const link = document.createElement('a');
-        link.href = '#';
-        link.setAttribute('download', `invoice-${id}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownload = (id: string) => {
+        toast.info("Invoice PDF download coming soon. View details or export to CSV.");
     };
 
     const handlePrint = (id: string) => {
-        toast.info(`Generating pixel-perfect render for ${id}...`, {
-            description: "Optimizing for high-fidelity output."
-        });
-        setTimeout(() => window.print(), 1000);
+        window.print();
     };
 
     const handleReport = (id: string) => {
-        toast.promise(
-            new Promise((resolve) => setTimeout(resolve, 2000)),
-            {
-                loading: 'Initializing security audit and dispute protocol...',
-                success: 'Case filed. Our compliance team will review within 24 hours.',
-                error: 'Communication interrupted.',
-            }
-        );
+        toast.info("Dispute support: contact billing support with invoice reference " + id);
     };
+
+    const handleExportCSV = () => {
+        if (filteredInvoices.length === 0) {
+            toast.error("No invoices to export");
+            return;
+        }
+        const headers = ["Reference", "Type", "Date", "Amount", "Status"];
+        const rows = filteredInvoices.map(inv => [
+            inv.invoiceId,
+            inv.type,
+            new Date(inv.createdAt).toLocaleDateString(),
+            inv.amount,
+            inv.status
+        ]);
+        const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoices-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Export complete");
+    };
+
+    if (isError) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
+                <AlertCircle className="w-16 h-16 text-red-500/80" />
+                <h3 className="text-xl font-bold">Failed to load ledger</h3>
+                <p className="text-muted-foreground text-sm text-center max-w-sm">Something went wrong. Please try again.</p>
+                <Button onClick={() => refetch()} className="gap-2 rounded-xl">
+                    <RefreshCw className="w-4 h-4" /> Retry
+                </Button>
+                <Link href="/dashboard/billing">
+                    <Button variant="outline" className="rounded-xl">Back to Billing</Button>
+                </Link>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 pb-20">
@@ -135,14 +170,21 @@ export default function InvoicesPage() {
                     </h1>
                     <p className="text-muted-foreground">Detailed ledger of your transactions and billing movements.</p>
                 </div>
-                
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => refetch()} disabled={isLoading} className="rounded-xl gap-2 font-bold">
+                        <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} /> Refresh
+                    </Button>
+                    <Link href="/dashboard/billing">
+                        <Button variant="ghost" className="rounded-xl font-bold">Back to Billing</Button>
+                    </Link>
+                </div>
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
                         <Button className="rounded-xl h-auto gap-2 font-bold shadow-lg shadow-primary/20">
                             <Plus className="w-5 h-5" /> Generate Invoice
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] rounded-3xl border-border/50">
+                    <DialogContent className="w-[95vw] max-w-lg sm:max-w-[425px] rounded-3xl border-border/50">
                         <DialogHeader>
                             <DialogTitle className="text-2xl font-black">Create New Invoice</DialogTitle>
                             <DialogDescription>
@@ -181,8 +223,8 @@ export default function InvoicesPage() {
                         </div>
                         <DialogFooter>
                             <Button variant="ghost" className="rounded-xl h-11" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-                            <Button className="rounded-xl h-11 px-8 font-bold shadow-lg shadow-primary/20" onClick={handleCreateInvoice}>
-                                Save Ledger Entry
+                            <Button className="rounded-xl h-11 px-8 font-bold shadow-lg shadow-primary/20" onClick={handleCreateInvoice} disabled={isCreating}>
+                                {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Ledger Entry"}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
@@ -201,10 +243,20 @@ export default function InvoicesPage() {
                     />
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1 h-auto rounded-2xl border-border/50 gap-2 font-bold hover:bg-muted/50 transition-all">
-                        <Filter className="w-4 h-4" /> Filters
-                    </Button>
-                    <Button variant="outline" className="flex-1 h-auto rounded-2xl border-border/50 gap-2 font-bold hover:bg-muted/50 transition-all">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[140px] h-auto rounded-2xl border-border/50 gap-2 font-bold">
+                            <Filter className="w-4 h-4" />
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="paid">Paid</SelectItem>
+                            <SelectItem value="failed">Failed</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button variant="outline" className="h-auto rounded-2xl border-border/50 gap-2 font-bold" onClick={handleExportCSV}>
                         <Download className="w-4 h-4" /> Export
                     </Button>
                 </div>
@@ -333,7 +385,7 @@ export default function InvoicesPage() {
 
             {/* Detail Dialog */}
             <Dialog open={!!selectedInvoice} onOpenChange={(open) => !open && setSelectedInvoice(null)}>
-                <DialogContent className="sm:max-w-[600px] rounded-[2rem] border-border/50 overflow-hidden p-0">
+                <DialogContent className="w-[95vw] max-w-lg sm:max-w-[600px] rounded-[2rem] border-border/50 overflow-hidden p-0">
                     {selectedInvoice && (
                         <div className="flex flex-col">
                             <div className="bg-primary/5 p-8 border-b border-border/50">

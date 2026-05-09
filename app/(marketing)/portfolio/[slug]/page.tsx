@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ExternalLink, Github, Calendar, Layers, Cpu, Globe, ArrowRight, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import CTA from "@/components/sections/cta";
 
@@ -20,7 +20,8 @@ import { cn } from "@/lib/utils";
 import { usePortfolioContentStore } from "@/lib/store/portfolio-content";
 import { notFound, useRouter } from "next/navigation";
 
-export default function ProjectDetailPage({ params }: { params: { slug: string } }) {
+export default function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = use(params);
     const { pageContent, isLoading } = usePageContent('portfolio');
     const setContent = usePortfolioContentStore((state) => state.setContent);
 
@@ -33,9 +34,9 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
     const { content } = usePortfolioContentStore();
 
     const router = useRouter();
-    
+
     // Find project by ID (slug)
-    const project = content?.projects.find(p => p.id === params.slug);
+    const project = content?.projects.find(p => p.id === slug);
 
     // Fallback if not found (should be handled by middleware or static generation usually, but here client-side)
     useEffect(() => {
@@ -57,13 +58,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
 
     if (!isMounted || !project) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-pulse bg-primary/20 w-12 h-12 rounded-full" /></div>;
 
-    // Use fallback images if none provided
-    const galleryImages = [
-        "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1472851294608-415522f96319?q=80&w=2070&auto=format&fit=crop"
-    ];
+    const galleryImages = project.image ? [project.image] : [];
 
     return (
         <main ref={containerRef} className="min-h-screen bg-background relative overflow-hidden">
@@ -93,13 +88,15 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                 >
                     <div className={cn("absolute inset-0 bg-gradient-to-br opacity-30", project.gradient)} />
                     {/* Placeholder image logic since we don't have real uploaded images yet */}
-                    <Image 
-                        src={galleryImages[0]} 
-                        alt={project.title} 
-                        fill 
-                        className="object-cover"
-                        priority
-                    />
+                    {galleryImages[0] ? (
+                        <Image
+                            src={galleryImages[0]}
+                            alt={project.title}
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                    ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                     <div className="absolute inset-0 bg-black/20" />
                 </motion.div>
@@ -114,12 +111,12 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-background/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm font-bold uppercase tracking-wider mb-6 shadow-xl">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-background/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm font-bold tracking-wider mb-6 shadow-xl">
                                 <Layers className="w-4 h-4" />
                                 <span>{project.category}</span>
                             </div>
                             
-                            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white mb-6 tracking-tighter leading-[0.9]">
+                            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 tracking-tighter leading-[0.9]">
                                 {project.title}
                             </h1>
                             
@@ -133,7 +130,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                         <Globe className="w-5 h-5" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs uppercase tracking-widest text-white/60">Client</span>
+                                        <span className="text-xs tracking-widest text-white/60">Client</span>
                                         <span>{project.client}</span>
                                     </div>
                                 </div>
@@ -142,7 +139,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                         <Calendar className="w-5 h-5" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs uppercase tracking-widest text-white/60">Project ID</span>
+                                        <span className="text-xs tracking-widest text-white/60">Project ID</span>
                                         <span className="text-xs">{project.id.slice(0, 8)}...</span>
                                     </div>
                                 </div>
@@ -243,7 +240,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                 
                                 {/* Key Metrics */}
                                 <div className="bg-card/50 backdrop-blur-xl border border-border p-8 rounded-3xl shadow-xl">
-                                    <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-8">Impact & Results</h4>
+                                    <h4 className="text-sm font-bold tracking-widest text-muted-foreground mb-8">Impact & Results</h4>
                                     <div className="grid grid-cols-1 gap-6">
                                         {project.stats.map((result, i) => (
                                             <motion.div 
@@ -255,7 +252,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                                                 className="flex items-center justify-between group"
                                             >
                                                 <span className="text-sm font-medium text-muted-foreground">{result.label}</span>
-                                                <span className="text-2xl font-black text-foreground group-hover:text-primary transition-colors">{result.value}</span>
+                                                <span className="text-2xl font-semibold text-foreground group-hover:text-primary transition-colors">{result.value}</span>
                                             </motion.div>
                                         ))}
                                     </div>
@@ -263,7 +260,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
 
                                 {/* Tech Stack Tags */}
                                 <div>
-                                    <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-6 flex items-center gap-2">
+                                    <h4 className="text-sm font-bold tracking-widest text-muted-foreground mb-6 flex items-center gap-2">
                                         <Cpu className="w-4 h-4" />
                                         Technology Stack
                                     </h4>
@@ -301,8 +298,8 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
                 <div className="container px-4 mx-auto">
                     <div className="flex justify-between items-center group cursor-pointer">
                         <div className="text-left">
-                            <span className="text-sm text-muted-foreground uppercase tracking-widest mb-2 block">Next Project</span>
-                            <h2 className="text-3xl md:text-5xl font-black group-hover:text-primary transition-colors">FinTech Analytics Core</h2>
+                            <span className="text-sm text-muted-foreground tracking-widest mb-2 block">Next Project</span>
+                            <h2 className="text-3xl md:text-5xl font-semibold group-hover:text-primary transition-colors">FinTech Analytics Core</h2>
                         </div>
                         <div className="w-16 h-16 rounded-full border border-border flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:rotate-[-45deg]">
                             <ArrowRight className="w-6 h-6" />

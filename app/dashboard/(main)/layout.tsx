@@ -15,6 +15,8 @@ export default function DashboardLayout({
 }) {
     const { isAuthenticated, isLoading } = useProtectedRoute();
 
+    // Show loading spinner while checking auth
+    // This prevents hydration mismatches by rendering consistent UI
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
@@ -23,10 +25,8 @@ export default function DashboardLayout({
         );
     }
 
-    if (!isAuthenticated) {
-        return null;
-    }
-
+    // Always render the layout to avoid hydration mismatch
+    // useProtectedRoute will handle the redirect if not authenticated
     return (
         <DashboardProvider>
         <div className="flex min-h-screen bg-background text-foreground font-sans">

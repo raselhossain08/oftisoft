@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -76,7 +76,7 @@ export default function SupportPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Initializing Support Node...
                 </div>
             </div>
@@ -109,14 +109,14 @@ export default function SupportPage() {
                 {/* Header Section */}
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-black italic tracking-[0.3em] text-[10px] uppercase shadow-[0_0_20px_rgba(var(--primary),0.2)]">
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(var(--primary),0.2)]">
                             {header.badge}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-black italic tracking-tighter text-white"
+                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {header.title.split(" ").map((word, i) => (
                             <span key={i} className={cn(i === 1 ? "text-primary NOT-italic" : "")}>
@@ -136,7 +136,7 @@ export default function SupportPage() {
                             placeholder={header.searchPlaceholder}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="h-16 pl-16 rounded-[24px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic shadow-2xl transition-all"
+                            className="h-16 pl-16 rounded-[24px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold shadow-2xl transition-all"
                         />
                     </motion.div>
                 </div>
@@ -153,10 +153,10 @@ export default function SupportPage() {
                                             <Icon size={36} />
                                         </div>
                                         <div className="space-y-2">
-                                            <h3 className="text-2xl font-black italic text-white tracking-tight leading-tight">{channel.title}</h3>
-                                            <p className="text-sm text-muted-foreground font-medium italic leading-relaxed">{channel.desc}</p>
+                                            <h3 className="text-2xl font-semibold text-white tracking-tight leading-tight">{channel.title}</h3>
+                                            <p className="text-sm text-muted-foreground font-medium leading-relaxed">{channel.desc}</p>
                                         </div>
-                                        <Button variant="ghost" className="h-10 text-primary font-black uppercase tracking-widest text-[10px] italic hover:bg-transparent group/btn">
+                                        <Button variant="ghost" className="h-10 text-primary font-semibold tracking-widest text-[10px] hover:bg-transparent group/btn">
                                             Initiate Connection <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-2 transition-transform" />
                                         </Button>
                                     </CardContent>
@@ -170,7 +170,7 @@ export default function SupportPage() {
                 <div className="space-y-12">
                     <div className="text-center space-y-4">
                         <Badge variant="outline" className="px-6 py-2 rounded-full mb-2">{faq.badge}</Badge>
-                        <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white underline decoration-white/10 underline-offset-8">{faq.title}</h2>
+                        <h2 className="text-4xl md:text-6xl font-semibold tracking-tighter text-white underline decoration-white/10 underline-offset-8">{faq.title}</h2>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
@@ -182,14 +182,14 @@ export default function SupportPage() {
                                             <HelpCircle size={20} />
                                         </div>
                                         <div className="space-y-3">
-                                            <h4 className="text-xl font-black italic text-white tracking-tight leading-tight">{item.q}</h4>
-                                            <p className="text-base text-muted-foreground font-medium italic leading-relaxed">{item.a}</p>
+                                            <h4 className="text-xl font-semibold text-white tracking-tight leading-tight">{item.q}</h4>
+                                            <p className="text-base text-muted-foreground font-medium leading-relaxed">{item.a}</p>
                                         </div>
                                     </div>
                                 </Card>
                             ))
                         ) : (
-                            <div className="col-span-2 text-center text-muted-foreground italic py-12">
+                            <div className="col-span-2 text-center text-muted-foreground py-12">
                                 No answers found for your query. Please initiate a connection for personal assistance.
                             </div>
                         )}
@@ -203,9 +203,9 @@ export default function SupportPage() {
                         <div className="space-y-8 text-center lg:text-left">
                             <div className="flex flex-col lg:flex-row items-center gap-4 text-primary">
                                 <Headset size={48} />
-                                <h2 className="text-4xl md:text-7xl font-black italic tracking-tighter text-white">{priorityRelay.title}</h2>
+                                <h2 className="text-4xl md:text-7xl font-semibold tracking-tighter text-white">{priorityRelay.title}</h2>
                             </div>
-                            <p className="text-xl text-muted-foreground font-medium italic leading-relaxed">
+                            <p className="text-xl text-muted-foreground font-medium leading-relaxed">
                                 {priorityRelay.description}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -234,9 +234,9 @@ export default function SupportPage() {
                                     <Card key={metric.id} className="bg-white/2 border-white/5 rounded-3xl p-8 space-y-4">
                                         <div className="flex items-center gap-3 text-primary">
                                             <MetricIcon size={20} />
-                                            <span className="text-[10px] font-black uppercase tracking-widest italic">{metric.label}</span>
+                                            <span className="text-[10px] font-semibold tracking-widest">{metric.label}</span>
                                         </div>
-                                        <h4 className="text-3xl font-black italic text-white tracking-tight">{metric.value}</h4>
+                                        <h4 className="text-3xl font-semibold text-white tracking-tight">{metric.value}</h4>
                                     </Card>
                                 );
                             })}
@@ -247,3 +247,4 @@ export default function SupportPage() {
         </div>
     );
 }
+

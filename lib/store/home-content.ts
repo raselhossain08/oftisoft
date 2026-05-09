@@ -621,7 +621,7 @@ const defaultContent: HomePageContent = {
 export const useHomeContentStore = create<HomeContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -719,7 +719,7 @@ export const useHomeContentStore = create<HomeContentState>()(
 
             getRevisions: (): ContentRevision[] => [],
 
-            reset: () => set({ content: defaultContent, error: null }),
+            reset: () => set({ content: null, error: null }),
         })),
         {
             name: 'home-content-storage',
@@ -734,3 +734,4 @@ export const getHomeContentRevisions = (): ContentRevision[] => {
     const state = useHomeContentStore.getState();
     return state.content?.revisions || [];
 };
+

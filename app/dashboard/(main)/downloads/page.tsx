@@ -54,10 +54,9 @@ import {
   DialogTitle as ShadcnDialogTitle,
   DialogDescription as ShadcnDialogDescription,
 } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
 
 export default function DigitalLibraryPage() {
-    const { inventory, history, notifications, isLoading, recordDownload, getVersions, getChangelog } = useDownloads();
+    const { inventory, history, notifications, isLoading, error, isError, refresh, recordDownload, getVersions, getChangelog } = useDownloads();
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     
@@ -69,9 +68,6 @@ export default function DigitalLibraryPage() {
     const [isStackOpen, setIsStackOpen] = useState(false);
     const [activeProduct, setActiveProduct] = useState<any>(null);
     
-    // Upgrade Simulation
-    const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
-    const [upgradeProgress, setUpgradeProgress] = useState(0);
 
     const copyLicense = (id: string, key: string) => {
         navigator.clipboard.writeText(key);
@@ -87,76 +83,39 @@ export default function DigitalLibraryPage() {
         return `${parts[0]}.${parts[1]}.***.***`;
     };
 
-    const handleDownload = async (assetId: string) => {
-        const toastId = toast.loading("Verifying license and preparing build...", {
-            description: "Synchronizing with global edge nodes."
-        });
-        
+    const handleDownload = async (item: { id: string; demoUrl?: string | null; name: string }) => {
+        const toastId = toast.loading("Verifying license and preparing build...");
         try {
-            await recordDownload(assetId);
-            // Simulate build generation delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            toast.success("Build ready for deployment", {
-                id: toastId,
-                description: "Artifact encrypted and transmitted."
-            });
-            
-            window.open('https://github.com/oftisoft/sample-build/archive/refs/heads/main.zip', '_blank');
-        } catch (error) {
-            toast.error("Security verification failed", {
-                id: toastId,
-                description: "Please try again or contact support."
-            });
+            await recordDownload(item.id);
+            toast.success("Download recorded", { id: toastId });
+            if (item.demoUrl) {
+                window.open(item.demoUrl, '_blank');
+            } else {
+                toast.info("Build link not configured for this product. Check your email or the product page.");
+            }
+        } catch {
+            toast.error("Download could not be recorded. Please try again or contact support.", { id: toastId });
         }
     };
 
     const handleViewVersions = async (product: any) => {
         setActiveProduct(product);
         const versions = await getVersions(product.productId || product.id);
-        // Fallback if no real data yet
-        if (versions.length === 0) {
-            setActiveVersions([
-                { version: product.version, releaseDate: 'Current', changelog: 'Initial stable release' },
-                { version: 'v1.0.0', releaseDate: 'Jan 01, 2026', changelog: 'Alpha build' }
-            ]);
-        } else {
-            setActiveVersions(versions);
-        }
+        setActiveVersions(Array.isArray(versions) ? versions : []);
         setIsVersionsOpen(true);
     };
 
     const handleViewChangelog = async (product: any) => {
         setActiveProduct(product);
         const log = await getChangelog(product.productId || product.id);
-        if (!log) {
-            setActiveChangelog({ 
-                version: product.version, 
-                changelog: "Stability improvements and UI polish.\nFixed minor layout shifts in mobile view.\nOptimized bundle size by 14%." 
-            });
-        } else {
-            setActiveChangelog(log);
-        }
+        setActiveChangelog(log ? { version: log.version, changelog: log.changelog } : { version: product?.version, changelog: null });
         setIsChangelogOpen(true);
     };
 
-    const executeUpgrade = (noteId: string) => {
-        setIsUpgrading(noteId);
-        setUpgradeProgress(0);
-        
-        const interval = setInterval(() => {
-            setUpgradeProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    setIsUpgrading(null);
-                    toast.success("Artifact upgrade successful!", {
-                        description: "Your build has been synchronized with the latest release."
-                    });
-                    return 100;
-                }
-                return prev + 5;
-            });
-        }, 100);
+    const executeUpgrade = () => {
+        toast.info("Upgrade assistance", {
+            description: "Contact support or use Deploy Latest Build from the Asset Inventory to get the latest version."
+        });
     };
 
     const filteredProducts = inventory.filter(p => 
@@ -171,13 +130,21 @@ export default function DigitalLibraryPage() {
                     <motion.h1 
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="text-4xl font-black italic tracking-tight bg-gradient-to-r from-foreground via-foreground/80 to-foreground/50 bg-clip-text text-transparent italic"
+                        className="text-4xl font-black  tracking-tight bg-gradient-to-r from-foreground via-foreground/80 to-foreground/50 bg-clip-text text-transparent "
                     >
                         Downloads & Resources
                     </motion.h1>
                     <p className="text-muted-foreground font-medium mt-1">Acquire builds, documentation, and exclusive bonuses from your purchased inventory.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                    <Button 
+                        variant="outline" 
+                        className="rounded-xl gap-2 font-bold h-11 border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card transition-all"
+                        onClick={refresh}
+                        disabled={isLoading}
+                    >
+                        <Loader2 className={cn("w-4 h-4", isLoading && "animate-spin")} /> Refresh
+                    </Button>
                     <Button 
                         variant="outline" 
                         className="rounded-xl gap-2 font-bold h-11 border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card transition-all"
@@ -224,7 +191,12 @@ export default function DigitalLibraryPage() {
                     </div>
 
                     <div className="grid gap-8">
-                        {isLoading ? (
+                        {isError ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-6 rounded-[40px] border-2 border-dashed border-destructive/30 bg-destructive/5 p-12">
+                                <p className="font-black text-destructive text-center max-w-md">Failed to load downloads. {error?.message || "Please try again."}</p>
+                                <Button onClick={refresh} variant="outline" className="rounded-2xl font-black" size="lg">Retry</Button>
+                            </div>
+                        ) : isLoading ? (
                             <div className="py-40 flex flex-col items-center justify-center gap-4 opacity-50">
                                 <Loader2 className="w-12 h-auto animate-spin text-primary" />
                                 <p className="font-black uppercase tracking-widest text-[10px]">Syncing with global distribution network...</p>
@@ -243,7 +215,11 @@ export default function DigitalLibraryPage() {
                                                 {/* Product Details */}
                                                 <div className="p-12 flex flex-col md:flex-row gap-12 flex-1 relative">
                                                     <div className="relative w-48 h-48 rounded-[40px] overflow-hidden bg-muted shrink-0 border border-border/50 shadow-2xl group-hover:scale-105 transition-transform duration-700">
-                                                        <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                                        {item.image ? (
+                                                            <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Package className="w-16 h-16" /></div>
+                                                        )}
                                                     </div>
                                                     <div className="space-y-8 flex-1">
                                                         <div className="space-y-3">
@@ -256,7 +232,7 @@ export default function DigitalLibraryPage() {
                                                                     {item.compatibility} Build
                                                                 </span>
                                                             </div>
-                                                            <h3 className="font-black text-4xl tracking-tighter leading-none italic group-hover:text-primary transition-colors">{item.name}</h3>
+                                                            <h3 className="font-black text-4xl tracking-tighter leading-none  group-hover:text-primary transition-colors">{item.name}</h3>
                                                             <p className="text-muted-foreground text-sm font-medium">Acquired on {item.date}</p>
                                                         </div>
                                                         
@@ -267,7 +243,7 @@ export default function DigitalLibraryPage() {
                                                                 </div>
                                                                 <div>
                                                                     <p className="text-[10px] uppercase font-black text-muted-foreground mb-0.5 tracking-widest">Knowledge Base</p>
-                                                                    <p className="text-sm font-black italic flex items-center gap-2">Read Guides <ExternalLink className="w-3.5 h-3.5" /></p>
+                                                                    <p className="text-sm font-black  flex items-center gap-2">Read Guides <ExternalLink className="w-3.5 h-3.5" /></p>
                                                                 </div>
                                                             </Link>
 
@@ -280,7 +256,7 @@ export default function DigitalLibraryPage() {
                                                                 </div>
                                                                 <div>
                                                                     <p className="text-[10px] uppercase font-black text-muted-foreground mb-0.5 tracking-widest">Digital Bonus Acquired</p>
-                                                                    <p className="text-sm font-black italic leading-tight group-hover:text-orange-600 transition-colors">{item.bonusAsset}</p>
+                                                                    <p className="text-sm font-black  leading-tight group-hover:text-orange-600 transition-colors">{item.bonusAsset}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -329,7 +305,7 @@ export default function DigitalLibraryPage() {
                                                     </div>
                                                     <div className="flex flex-col gap-4">
                                                         <Button 
-                                                            onClick={() => handleDownload(item.id)}
+                                                            onClick={() => handleDownload(item)}
                                                             className="w-full rounded-[28px] h-20 gap-4 font-black text-lg bg-primary text-white shadow-2xl shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all group/deploy"
                                                         >
                                                             <Download className="w-7 h-7 group-hover/deploy:animate-bounce" />
@@ -364,10 +340,10 @@ export default function DigitalLibraryPage() {
                                         </CardContent>
                                         <div className="bg-muted/5 px-12 py-6 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center bg-primary/[0.03] gap-6">
                                             <div className="flex items-center gap-10">
-                                                <p className="text-[11px] font-black text-muted-foreground uppercase italic flex items-center gap-2.5">
+                                                <p className="text-[11px] font-black text-muted-foreground uppercase  flex items-center gap-2.5">
                                                     <ShieldCheck className="w-5 h-5 text-green-500" /> Identity Secured
                                                 </p>
-                                                <p className="text-[11px] font-black text-muted-foreground uppercase italic flex items-center gap-2.5">
+                                                <p className="text-[11px] font-black text-muted-foreground uppercase  flex items-center gap-2.5">
                                                     <RotateCcw className="w-5 h-5 text-blue-500" /> Dynamic Version: {item.version}
                                                 </p>
                                             </div>
@@ -396,7 +372,7 @@ export default function DigitalLibraryPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <h3 className="font-black text-2xl tracking-tight uppercase">Spectral Analysis: Zero Matches</h3>
-                                    <p className="text-muted-foreground font-medium text-lg italic mt-2">Try refining your search vector or visit the storefront for more templated logic.</p>
+                                    <p className="text-muted-foreground font-medium text-lg  mt-2">Try refining your search vector or visit the storefront for more templated logic.</p>
                                 </div>
                                 <Link href="/shop">
                                     <Button className="rounded-2xl px-10 h-14 font-black uppercase tracking-widest bg-primary hover:scale-105 transition-all">Navigate to Shop</Button>
@@ -414,7 +390,7 @@ export default function DigitalLibraryPage() {
                                 <div className="w-20 h-20 rounded-[30px] bg-green-500/10 flex items-center justify-center text-green-500">
                                     <ShieldCheck className="w-10 h-10" />
                                 </div>
-                                <h3 className="text-2xl font-black italic">Systems Optimized</h3>
+                                <h3 className="text-2xl font-black ">Systems Optimized</h3>
                                 <p className="text-muted-foreground font-medium">All acquired artifacts are currently operating on the latest version.</p>
                             </div>
                         ) : notifications.map((note) => (
@@ -435,7 +411,7 @@ export default function DigitalLibraryPage() {
                                         </div>
                                         <div className="space-y-4 flex-1">
                                             <div className="flex flex-wrap items-center gap-4">
-                                                <h4 className="font-black text-3xl italic tracking-tighter">{note.productName}</h4>
+                                                <h4 className="font-black text-3xl  tracking-tighter">{note.productName}</h4>
                                                 <Badge variant="outline" className={cn("text-[10px] font-black uppercase tracking-widest px-4 h-7 border-2", 
                                                     note.importance === "major" ? "border-primary/30 text-primary bg-primary/5" : 
                                                     note.importance === "security" ? "border-red-500/30 text-red-500 bg-red-500/5 animate-pulse" :
@@ -448,33 +424,22 @@ export default function DigitalLibraryPage() {
                                                 <span className="text-primary font-black text-2xl">{note.newVersion}</span>
                                             </div>
                                             
-                                            {isUpgrading === note.id && (
-                                                <div className="space-y-2 max-w-md">
-                                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-primary">
-                                                        <span>Decrypting Build Pack</span>
-                                                        <span>{upgradeProgress}%</span>
-                                                    </div>
-                                                    <Progress value={upgradeProgress} className="h-2 bg-muted border border-border/50" />
-                                                </div>
-                                            )}
-
-                                            <p className="text-[11px] text-muted-foreground font-black uppercase italic tracking-widest bg-muted/40 w-fit px-4 py-2 rounded-2xl border border-border/30">
+                                            <p className="text-[11px] text-muted-foreground font-black uppercase  tracking-widest bg-muted/40 w-fit px-4 py-2 rounded-2xl border border-border/30">
                                                 Target Release Cycle: {note.date}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-4 min-w-[240px]">
                                         <Button 
-                                            disabled={isUpgrading !== null}
-                                            onClick={() => executeUpgrade(note.id)}
-                                            className="rounded-[24px] font-black italic text-base h-16 bg-primary text-white shadow-2xl shadow-primary/30 hover:scale-[1.05] active:scale-[0.95] transition-all"
+                                            onClick={executeUpgrade}
+                                            className="rounded-[24px] font-black  text-base h-16 bg-primary text-white shadow-2xl shadow-primary/30 hover:scale-[1.05] active:scale-[0.95] transition-all"
                                         >
-                                            {isUpgrading === note.id ? "Syncing..." : "Execute Upgrade"}
+                                            Execute Upgrade
                                         </Button>
                                         <Button 
                                             variant="outline" 
                                             className="rounded-[22px] font-black h-14 border-border/50 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-background"
-                                            onClick={() => handleViewChangelog(note)}
+                                            onClick={() => handleViewChangelog({ productId: note.productId, version: note.newVersion })}
                                         >
                                             Review Ledger Archive
                                         </Button>
@@ -489,7 +454,7 @@ export default function DigitalLibraryPage() {
                 <TabsContent value="history" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <Card className="border-border/50 bg-card/80 backdrop-blur-md overflow-hidden rounded-[50px] shadow-2xl">
                         <CardHeader className="bg-muted/5 border-b border-border/50 px-12 py-10">
-                            <CardTitle className="text-3xl font-black italic tracking-tighter">Temporal Request Ledger</CardTitle>
+                            <CardTitle className="text-3xl font-black  tracking-tighter">Temporal Request Ledger</CardTitle>
                             <CardDescription className="text-base font-medium text-muted-foreground/70">Tracking all artifact retrieval events synchronized via global edge nodes.</CardDescription>
                         </CardHeader>
                         <CardContent className="p-0">
@@ -500,7 +465,7 @@ export default function DigitalLibraryPage() {
                                         <TableHead className="font-black uppercase text-[11px] tracking-widest text-foreground/40">Build Level</TableHead>
                                         <TableHead className="font-black uppercase text-[11px] tracking-widest text-foreground/40">Request Timestamp</TableHead>
                                         <TableHead className="font-black uppercase text-[11px] tracking-widest text-foreground/40">Origin Interface</TableHead>
-                                        <TableHead className="text-right px-12 font-black uppercase text-[11px] tracking-widest text-primary italic">Intelligence</TableHead>
+                                        <TableHead className="text-right px-12 font-black uppercase text-[11px] tracking-widest text-primary ">Intelligence</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody className="divide-y divide-border/30">
@@ -520,7 +485,7 @@ export default function DigitalLibraryPage() {
                                                     <div className="w-10 h-10 rounded-[14px] bg-background border border-border shadow-sm flex items-center justify-center text-muted-foreground group-hover:text-primary transition-all group-hover:rotate-12">
                                                         <Package size={20} />
                                                     </div>
-                                                    <span className="font-black italic text-lg tracking-tight">{dl.productName}</span>
+                                                    <span className="font-black  text-lg tracking-tight">{dl.productName}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
@@ -553,20 +518,26 @@ export default function DigitalLibraryPage() {
             <ShadcnDialog open={isVersionsOpen} onOpenChange={setIsVersionsOpen}>
                 <ShadcnDialogContent className="max-w-2xl rounded-[40px] border-border/50 bg-card/95 backdrop-blur-xl p-10">
                     <ShadcnDialogHeader>
-                        <ShadcnDialogTitle className="text-3xl font-black italic tracking-tighter">Build Lineage: {activeProduct?.name}</ShadcnDialogTitle>
+                        <ShadcnDialogTitle className="text-3xl font-black  tracking-tighter">Build Lineage: {activeProduct?.name}</ShadcnDialogTitle>
                         <ShadcnDialogDescription className="text-base font-medium">Historical archive of all deployed versions for this artifact.</ShadcnDialogDescription>
                     </ShadcnDialogHeader>
                     <div className="mt-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        {activeVersions.map((v: any, i: number) => (
-                            <div key={i} className="p-6 rounded-[28px] bg-muted/20 border border-border/30 hover:bg-muted/30 transition-all group">
+                        {activeVersions.length === 0 ? (
+                            <div className="py-12 text-center text-muted-foreground font-medium rounded-[28px] bg-muted/10 border border-border/30">
+                                No version history available for this product.
+                            </div>
+                        ) : activeVersions.map((v: any, i: number) => (
+                            <div key={v.id ?? i} className="p-6 rounded-[28px] bg-muted/20 border border-border/30 hover:bg-muted/30 transition-all group">
                                 <div className="flex justify-between items-center mb-4">
                                     <div className="flex items-center gap-3">
                                         <Badge className="bg-primary/10 text-primary border-primary/20 font-black">{v.version}</Badge>
-                                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{v.releaseDate}</span>
+                                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                                            {typeof v.releaseDate === 'string' ? v.releaseDate : v.releaseDate ? new Date(v.releaseDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '—'}
+                                        </span>
                                     </div>
-                                    <Button size="sm" variant="ghost" className="rounded-xl h-8 text-[10px] font-black uppercase hover:bg-primary hover:text-white transition-all">Rollback</Button>
+                                    <span className="text-[10px] font-medium text-muted-foreground uppercase">Current</span>
                                 </div>
-                                <p className="text-sm font-medium text-muted-foreground leading-relaxed italic">{v.changelog}</p>
+                                <p className="text-sm font-medium text-muted-foreground leading-relaxed ">{v.changelog || '—'}</p>
                             </div>
                         ))}
                     </div>
@@ -577,11 +548,11 @@ export default function DigitalLibraryPage() {
             <ShadcnDialog open={isChangelogOpen} onOpenChange={setIsChangelogOpen}>
                 <ShadcnDialogContent className="max-w-2xl rounded-[40px] border-border/50 bg-card/95 backdrop-blur-xl p-10">
                     <ShadcnDialogHeader>
-                        <ShadcnDialogTitle className="text-3xl font-black italic tracking-tighter">Release Intelligence: {activeChangelog?.version}</ShadcnDialogTitle>
+                        <ShadcnDialogTitle className="text-3xl font-black  tracking-tighter">Release Intelligence: {activeChangelog?.version}</ShadcnDialogTitle>
                         <ShadcnDialogDescription className="text-base font-medium">Detailed logic modifications and architectural upgrades in this build.</ShadcnDialogDescription>
                     </ShadcnDialogHeader>
-                    <div className="mt-8 p-8 rounded-[32px] bg-muted/20 border border-border/40 font-medium text-lg leading-relaxed italic whitespace-pre-wrap max-h-[500px] overflow-y-auto">
-                        {activeChangelog?.changelog}
+                    <div className="mt-8 p-8 rounded-[32px] bg-muted/20 border border-border/40 font-medium text-lg leading-relaxed  whitespace-pre-wrap max-h-[500px] overflow-y-auto">
+                        {activeChangelog?.changelog ?? 'No changelog available for this release.'}
                     </div>
                     <div className="mt-4 flex justify-end">
                         <Button variant="outline" className="rounded-2xl font-black" onClick={() => setIsChangelogOpen(false)}>Acknowledged</Button>
@@ -593,7 +564,7 @@ export default function DigitalLibraryPage() {
             <ShadcnDialog open={isStackOpen} onOpenChange={setIsStackOpen}>
                 <ShadcnDialogContent className="max-w-2xl rounded-[40px] border-border/50 bg-card/95 backdrop-blur-xl p-10">
                     <ShadcnDialogHeader>
-                        <ShadcnDialogTitle className="text-3xl font-black italic tracking-tighter">Technological Blueprint</ShadcnDialogTitle>
+                        <ShadcnDialogTitle className="text-3xl font-black  tracking-tighter">Technological Blueprint</ShadcnDialogTitle>
                         <ShadcnDialogDescription className="text-base font-medium">Core dependencies and architectural stack assigned to this artifact.</ShadcnDialogDescription>
                     </ShadcnDialogHeader>
                     <div className="mt-8 grid grid-cols-2 gap-4">
@@ -609,7 +580,7 @@ export default function DigitalLibraryPage() {
                         ].map((item, i) => (
                             <div key={i} className="p-4 rounded-[20px] bg-muted/20 border border-border/30">
                                 <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">{item.label}</p>
-                                <p className="font-black italic text-primary">{item.value}</p>
+                                <p className="font-black  text-primary">{item.value}</p>
                             </div>
                         ))}
                     </div>
@@ -629,14 +600,14 @@ export default function DigitalLibraryPage() {
                         <DownloadCloud className="w-20 h-20 text-primary animate-pulse shadow-xl shadow-primary/10" />
                     </div>
                     <div className="flex-1 text-center lg:text-left space-y-6">
-                        <h3 className="text-4xl font-black tracking-tighter italic">Hyper-Scale Asset Distribution</h3>
-                        <p className="text-muted-foreground max-w-4xl font-black text-xl leading-relaxed italic opacity-80 decoration-primary/20 underline decoration-4 underline-offset-8">
+                        <h3 className="text-4xl font-black tracking-tighter ">Hyper-Scale Asset Distribution</h3>
+                        <p className="text-muted-foreground max-w-4xl font-black text-xl leading-relaxed  opacity-80 decoration-primary/20 underline decoration-4 underline-offset-8">
                             All artifacts are synchronized via the Oftisoft Global Edge Network. Your downloads are cryptographically verified 
                             and served with multi-region redundancy. Legacy builds and documentation archives are maintained for long-term project support.
                         </p>
                     </div>
                     <div className="flex flex-col gap-4">
-                        <Button variant="outline" className="rounded-[32px] px-12 h-20 font-black italic border-2 border-primary/20 shadow-2xl bg-background hover:bg-primary hover:text-white transition-all text-lg group/status">
+                        <Button variant="outline" className="rounded-[32px] px-12 h-20 font-black  border-2 border-primary/20 shadow-2xl bg-background hover:bg-primary hover:text-white transition-all text-lg group/status">
                             Infrastructure Live 
                             <div className="ml-4 w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_20px_rgba(34,197,94,0.8)] group-hover/status:scale-125 transition-transform" />
                         </Button>

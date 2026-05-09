@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Check, Trash2, Archive, Clock, AlertTriangle, FileText, UserPlus, CreditCard, Settings, Bell } from "lucide-react";
+import { Check, Trash2, Archive, ArchiveRestore, Clock, AlertTriangle, FileText, UserPlus, CreditCard, Settings, Bell, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 import { Notification } from "@/hooks/useNotifications";
 
 interface NotificationItemProps {
@@ -9,7 +10,8 @@ interface NotificationItemProps {
     filter: string;
     onMarkAsRead: (id: string) => void;
     onArchive: (id: string) => void;
-    onDelete: (id: string) => void;
+    onUnarchive: (id: string) => void;
+    onDelete: (id: string, title: string) => void;
     index: number;
 }
 
@@ -35,17 +37,24 @@ const NotificationBg = ({ type }: { type: string }) => {
     }
 };
 
-export function NotificationItem({ notification: notif, filter, onMarkAsRead, onArchive, onDelete, index }: NotificationItemProps) {
+export function NotificationItem({ notification: notif, filter, onMarkAsRead, onArchive, onUnarchive, onDelete, index }: NotificationItemProps) {
+    const canMarkAsReadOnClick = !notif.read && filter !== "archived";
+
     return (
         <motion.div
             layout
+            role={canMarkAsReadOnClick ? "button" : undefined}
+            tabIndex={canMarkAsReadOnClick ? 0 : undefined}
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ delay: index * 0.05 }}
+            onClick={canMarkAsReadOnClick ? () => onMarkAsRead(notif.id) : undefined}
+            onKeyDown={canMarkAsReadOnClick ? (e) => e.key === "Enter" && onMarkAsRead(notif.id) : undefined}
             className={cn(
                 "flex items-start gap-5 p-6 rounded-[24px] border transition-all hover:shadow-lg relative group bg-card",
-                !notif.read && filter !== 'archived' ? "border-l-4 border-l-primary border-t border-r border-b border-border shadow-md bg-primary/[0.02]" : "border-border/50 hover:border-primary/20",
+                canMarkAsReadOnClick && "cursor-pointer",
+                !notif.read && filter !== "archived" ? "border-l-4 border-l-primary border-t border-r border-b border-border shadow-md bg-primary/[0.02]" : "border-border/50 hover:border-primary/20",
             )}
         >
             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110", NotificationBg({ type: notif.type }))}>
@@ -62,31 +71,62 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 md:line-clamp-none mb-3">{notif.description}</p>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-4 pt-1 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                    {!notif.read && filter !== 'archived' && (
-                        <button 
+                {/* Action Buttons - stopPropagation so card click doesn't fire when clicking actions */}
+                <div className="flex flex-wrap items-center gap-4 pt-1 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0" onClick={(e) => e.stopPropagation()}>
+                    {notif.link && (
+                        notif.link.startsWith("/") ? (
+                            <Link
+                                href={notif.link}
+                                className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
+                            >
+                                <ExternalLink className="w-3.5 h-3.5" /> View
+                            </Link>
+                        ) : (
+                            <a
+                                href={notif.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
+                            >
+                                <ExternalLink className="w-3.5 h-3.5" /> View
+                            </a>
+                        )
+                    )}
+                    {!notif.read && filter !== "archived" && (
+                        <button
+                            type="button"
                             onClick={() => onMarkAsRead(notif.id)}
                             className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
                         >
                             <Check className="w-3.5 h-3.5" /> Mark as read
                         </button>
                     )}
-                    {filter !== 'archived' && (
-                        <button 
+                    {filter !== "archived" && (
+                        <button
+                            type="button"
                             onClick={() => onArchive(notif.id)}
                             className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"
                         >
                             <Archive className="w-3.5 h-3.5" /> Archive
                         </button>
                     )}
-                    {filter === 'archived' && (
-                         <button 
-                            onClick={() => onDelete(notif.id)}
-                            className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1.5 transition-colors"
-                        >
-                            <Trash2 className="w-3.5 h-3.5" /> Delete Forever
-                        </button>
+                    {filter === "archived" && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => onUnarchive(notif.id)}
+                                className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
+                            >
+                                <ArchiveRestore className="w-3.5 h-3.5" /> Restore
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => onDelete(notif.id, notif.title || "Notification")}
+                                className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1.5 transition-colors"
+                            >
+                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                            </button>
+                        </>
                     )}
                 </div>
             </div>

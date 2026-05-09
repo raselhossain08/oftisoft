@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-blue-500 font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-blue-500 font-semibold animate-pulse tracking-[0.3em]">
                     Syncing Privacy Protocols...
                 </div>
             </div>
@@ -66,19 +66,19 @@ export default function PrivacyPage() {
                 {/* Header Section */}
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-blue-500/30 bg-blue-500/5 text-blue-400 font-black italic tracking-[0.3em] text-[10px] uppercase">
-                            {header?.badge || "Intelligence Protection Node"}
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-blue-500/30 bg-blue-500/5 text-blue-400 font-semibold tracking-[0.3em] text-[10px]">
+                            {header?.badge ?? ""}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-black italic tracking-tighter text-white"
+                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
-                        {header?.titlePrefix || "Privacy"} <span className="text-blue-500 NOT-italic">{header?.titleHighlight || "Protocol"}</span>.
+                        {header?.titlePrefix ?? ""} <span className="text-blue-500">{header?.titleHighlight ?? ""}</span>.
                     </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium italic max-w-2xl mx-auto">
-                        {header?.description || "High-fidelity data governance and identity protection protocols for the Oftisoft architect community."}
+                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
+                        {header?.description ?? ""}
                     </motion.p>
                 </div>
 
@@ -99,8 +99,8 @@ export default function PrivacyPage() {
                                         <Icon size={28} />
                                     </div>
                                     <div className="space-y-4">
-                                        <h3 className="text-2xl font-black italic text-white tracking-tight leading-tight">{item.title}</h3>
-                                        <p className="text-sm text-muted-foreground font-medium italic leading-relaxed">{item.description}</p>
+                                        <h3 className="text-2xl font-semibold text-white tracking-tight leading-tight">{item.title}</h3>
+                                        <p className="text-sm text-muted-foreground font-medium leading-relaxed">{item.description}</p>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -117,17 +117,17 @@ export default function PrivacyPage() {
                             <div className="space-y-6">
                                 <div className="flex items-center gap-4 text-blue-500">
                                     <ShieldCheck size={40} />
-                                    <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white">{guarantee?.title || "Trust the Core."}</h2>
+                                    <h2 className="text-4xl md:text-6xl font-semibold tracking-tighter text-white">{guarantee?.title ?? ""}</h2>
                                 </div>
-                                <p className="text-xl text-muted-foreground font-medium italic leading-relaxed">
-                                    {guarantee?.description || "Our commitment to professional privacy is encoded into the very logic-nodes of the Oftisoft engine. We don't just protect data; we engineer trust into the foundation of your digital ecosystem."}
+                                <p className="text-xl text-muted-foreground font-medium leading-relaxed">
+                                    {guarantee?.description ?? ""}
                                 </p>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-end">
                                 {guarantee?.stats.map((stat, i) => (
                                     <Card key={i} className="bg-white/5 border-white/10 rounded-3xl p-6 text-center space-y-2">
-                                        <h4 className="text-2xl font-black text-white italic tracking-tight">{stat.value}</h4>
-                                        <p className="text-[9px] font-black uppercase text-blue-400 tracking-widest italic">{stat.label}</p>
+                                        <h4 className="text-2xl font-semibold text-white tracking-tight">{stat.value}</h4>
+                                        <p className="text-[9px] font-semibold text-blue-400 tracking-widest">{stat.label}</p>
                                     </Card>
                                 ))}
                             </div>
@@ -136,11 +136,12 @@ export default function PrivacyPage() {
 
                 {/* Sub-Footer Meta */}
                 <div className="pt-12 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.4rem] text-muted-foreground italic">
-                        {footer?.status || "Digital Privacy Sync Status: OPERATIONAL / 2026.4.2"}
+                    <p className="text-[10px] font-semibold tracking-[0.4rem] text-muted-foreground">
+                        {footer?.status ?? ""}
                     </p>
                 </div>
             </div>
         </div>
     );
 }
+

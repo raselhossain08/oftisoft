@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, CheckCircle2, Zap, Shield, ArrowLeft, Loader2, Sparkles } from "lucide-react";
+import { Check, Zap, Shield, ArrowLeft, Loader2, Sparkles, RefreshCw, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
     Dialog,
     DialogContent,
@@ -43,9 +43,32 @@ const SUBSCRIPTION_PLANS = [
 ];
 
 export default function SubscriptionPage() {
-    const { subscription, isLoading, updateSubscription } = useSubscription();
+    const { subscription, isLoading, isError, updateSubscription, refetch } = useSubscription();
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const handleRefresh = useCallback(async () => {
+        setIsRefreshing(true);
+        await refetch();
+        setIsRefreshing(false);
+    }, [refetch]);
+
+    if (isError) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
+                <AlertCircle className="w-16 h-16 text-red-500/80" />
+                <h3 className="text-xl font-bold">Failed to load subscription</h3>
+                <p className="text-muted-foreground text-sm text-center max-w-sm">Something went wrong. Please try again.</p>
+                <Button onClick={handleRefresh} className="gap-2 rounded-xl">
+                    <RefreshCw className="w-4 h-4" /> Retry
+                </Button>
+                <Link href="/dashboard/billing">
+                    <Button variant="outline" className="rounded-xl">Back to Billing</Button>
+                </Link>
+            </div>
+        );
+    }
 
     const handlePlanSelect = (planName: string) => {
         if (subscription?.plan === planName) {
@@ -93,9 +116,9 @@ export default function SubscriptionPage() {
     return (
         <div className="mx-auto py-10 space-y-12">
             
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <Link href="/dashboard/settings/billing" className="p-2 bg-muted/50 rounded-xl hover:bg-muted transition-colors">
+                    <Link href="/dashboard/billing" className="p-2 bg-muted/50 rounded-xl hover:bg-muted transition-colors">
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div>
@@ -103,13 +126,17 @@ export default function SubscriptionPage() {
                         <p className="text-muted-foreground">Select the computational power that fits your workflow.</p>
                     </div>
                 </div>
-
-                {subscription && (
-                    <div className="px-5 py-2.5 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                        <span className="text-sm font-bold">Current: <span className="text-primary">{subscription.plan}</span></span>
-                    </div>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                    <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} className="rounded-xl gap-2 font-bold">
+                        <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} /> Refresh
+                    </Button>
+                    {subscription && (
+                        <div className="px-5 py-2.5 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                            <span className="text-sm font-bold">Current: <span className="text-primary">{subscription.plan}</span></span>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

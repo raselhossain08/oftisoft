@@ -168,7 +168,7 @@ function TechCard({ domain, index }: { domain: typeof domains[0], index: number 
                         </div>
                         <div className="text-right">
                             <span className="text-3xl font-bold text-foreground">{domain.level}%</span>
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">Mastery</div>
+                            <div className="text-xs text-muted-foreground tracking-wider">Mastery</div>
                         </div>
                     </div>
 

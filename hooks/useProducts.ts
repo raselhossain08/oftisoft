@@ -63,8 +63,20 @@ export function useProducts(productId?: string, search?: string, category?: stri
         stats,
         isLoading: productId ? productLoading : productsLoading,
         isStatsLoading: statsLoading,
-        createProduct: (data: Partial<Product>) => createProductMutation.mutate(data),
-        updateProduct: (id: string, data: Partial<Product>) => updateProductMutation.mutate({ id, data }),
+        createProduct: (data: Partial<Product>, options?: { onSuccess?: () => void }) => {
+            createProductMutation.mutate(data, {
+                onSuccess: () => {
+                    options?.onSuccess?.();
+                }
+            });
+        },
+        updateProduct: (id: string, data: Partial<Product>, options?: { onSuccess?: () => void }) => {
+            updateProductMutation.mutate({ id, data }, {
+                onSuccess: () => {
+                    options?.onSuccess?.();
+                }
+            });
+        },
         deleteProduct: (id: string) => deleteProductMutation.mutate(id),
         isCreating: createProductMutation.isPending,
         isUpdating: updateProductMutation.isPending,

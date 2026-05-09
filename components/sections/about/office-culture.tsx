@@ -7,11 +7,9 @@ import { X, ZoomIn, PlayCircle, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAboutContentStore } from "@/lib/store/about-content";
 
 export default function OfficeCulture({ data }: { data?: any }) {
-    const { content: storeContent } = useAboutContentStore();
-    const culture = data || storeContent?.culture;
+    const culture = data;
     const items = culture?.items || [];
 
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -28,13 +26,13 @@ export default function OfficeCulture({ data }: { data?: any }) {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                     >
-                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5 rounded-full">
-                            {culture?.badge || "Life at Ofitsoft"}
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
+                            {culture?.badge ?? ""}
                         </Badge>
                         <h3 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-                            {culture?.titleLine1 || "Where Culture Meets"} <br />
+                            {culture?.titleLine1 ?? ""} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                {culture?.titleLine2 || "Creativity."}
+                                {culture?.titleLine2 ?? ""}
                             </span>
                         </h3>
                     </motion.div>
@@ -76,7 +74,7 @@ export default function OfficeCulture({ data }: { data?: any }) {
                                 </div>
 
                                 <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                    <div className="flex items-center gap-2 text-xs font-medium text-primary mb-2 uppercase tracking-wider">
+                                    <div className="flex items-center gap-2 text-xs font-medium text-primary mb-2 tracking-wide">
                                         <MapPin className="w-3 h-3" />
                                         {item.location}
                                     </div>
@@ -106,7 +104,7 @@ export default function OfficeCulture({ data }: { data?: any }) {
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.9, opacity: 0 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="relative w-full  aspect-video bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+                                className="relative w-full aspect-video bg-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
                             >
                                 {selectedItem.type === 'video' ? (
                                     <video 
@@ -120,7 +118,7 @@ export default function OfficeCulture({ data }: { data?: any }) {
                                     selectedItem.thumb && (selectedItem.thumb.startsWith('data:') || selectedItem.thumb.startsWith('http') || selectedItem.thumb.startsWith('/')) ? (
                                         <img src={selectedItem.thumb} alt={selectedItem.title} className="absolute inset-0 w-full h-full object-cover" />
                                     ) : (
-                                        <div className={cn("absolute inset-0 flex items-center justify-center text-white/20 text-4xl font-bold uppercase", selectedItem.thumb)}>
+                                        <div className={cn("absolute inset-0 flex items-center justify-center text-white/20 text-4xl font-bold", selectedItem.thumb)}>
                                             {selectedItem.title} Preview
                                         </div>
                                     )

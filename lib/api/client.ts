@@ -7,6 +7,12 @@ import ky from 'ky';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
+// Helper to get auth token
+const getAuthToken = (): string | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('auth_token');
+};
+
 export const apiClient = ky.create({
     prefixUrl: API_BASE_URL,
     timeout: 30000,
@@ -20,6 +26,11 @@ export const apiClient = ky.create({
         beforeRequest: [
             (request) => {
                 request.headers.set('X-Client-Version', '1.0.0');
+                // Add auth token if available
+                const token = getAuthToken();
+                if (token) {
+                    request.headers.set('Authorization', `Bearer ${token}`);
+                }
             },
         ],
         beforeError: [
@@ -87,6 +98,7 @@ export const endpoints = {
         publish: (id: string) => `content/${id}/publish`,
         upload: 'content/upload',
         list: 'content/files',
+        aiGenerate: 'content/ai-generate',
     },
     analytics: {
         overview: 'analytics/overview',

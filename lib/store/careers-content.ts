@@ -149,7 +149,7 @@ const defaultContent: CareersPageContent = {
 export const useCareersContentStore = create<CareersContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -204,7 +204,7 @@ export const useCareersContentStore = create<CareersContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'careers-content-storage',
@@ -212,3 +212,4 @@ export const useCareersContentStore = create<CareersContentState>()(
         }
     )
 );
+

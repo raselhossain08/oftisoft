@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 export function useQuotes(quoteId?: string) {
     const queryClient = useQueryClient();
 
-    const { data: quotes = [], isLoading: quotesLoading } = useQuery({
+    const { data: quotes = [], isLoading: quotesLoading, isError: quotesError, refetch: refetchQuotes } = useQuery({
         queryKey: ['quotes'],
         queryFn: quotesAPI.getQuotes,
         enabled: !quoteId
@@ -78,6 +78,8 @@ export function useQuotes(quoteId?: string) {
         quotes: quotes as Quote[],
         quote: quote as Quote,
         isLoading: quoteId ? quoteLoading : quotesLoading,
+        isError: !quoteId && quotesError,
+        refetch: refetchQuotes,
         createQuote: createQuoteMutation.mutate,
         updateQuote: (id: string, data: Partial<Quote>) => updateQuoteMutation.mutate({ id, data }),
         updateStatus: (id: string, status: string) => updateStatusMutation.mutate({ id, status }),

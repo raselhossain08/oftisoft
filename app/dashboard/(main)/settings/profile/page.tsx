@@ -45,7 +45,7 @@ export default function ProfileSettings() {
                 id: updatedUser.id,
                 name: updatedUser.name,
                 email: updatedUser.email,
-                role: 'user', 
+                role: (updatedUser.role as 'admin' | 'user') || 'user',
             });
             toast.success("Profile information updated successfully!", {
                 description: "Your digital identity has been synchronized across all nodes.",

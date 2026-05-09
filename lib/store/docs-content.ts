@@ -62,28 +62,28 @@ interface DocsContentState {
 
 const defaultContent: DocsPageContent = {
     header: {
-        badge: "Intelligence Repositorium",
+        badge: "Docs",
         title: "Documentation",
-        highlight: "Protocol",
-        placeholder: "Find architectural intelligence nodes..."
+        highlight: "Guides",
+        placeholder: "Search docs and guides..."
     },
     categories: [
-        { id: "cat-1", title: "Core Architectural Nodes", iconName: "Layers", count: "12 Articles", color: "text-primary", order: 1 },
-        { id: "cat-2", title: "Neural Forge Integration", iconName: "Cpu", count: "8 Articles", color: "text-blue-500", order: 2 },
-        { id: "cat-3", title: "Identity & Security Governance", iconName: "ShieldCheck", count: "6 Articles", color: "text-green-500", order: 3 },
-        { id: "cat-4", title: "Global SDK & Protocols", iconName: "Terminal", count: "15 Articles", color: "text-purple-500", order: 4 },
-        { id: "cat-5", title: "Dashboard Implementation", iconName: "Zap", count: "24 Articles", color: "text-orange-500", order: 5 },
-        { id: "cat-6", title: "API Configuration Engine", iconName: "Code2", count: "10 Articles", color: "text-indigo-500", order: 6 },
+        { id: "cat-1", title: "Getting Started", iconName: "Layers", count: "12 Articles", color: "text-primary", order: 1 },
+        { id: "cat-2", title: "Content Models", iconName: "Cpu", count: "8 Articles", color: "text-blue-500", order: 2 },
+        { id: "cat-3", title: "SEO Setup", iconName: "ShieldCheck", count: "6 Articles", color: "text-green-500", order: 3 },
+        { id: "cat-4", title: "Page Components", iconName: "Terminal", count: "15 Articles", color: "text-purple-500", order: 4 },
+        { id: "cat-5", title: "Blog Publishing", iconName: "Zap", count: "24 Articles", color: "text-orange-500", order: 5 },
+        { id: "cat-6", title: "Support & Contact", iconName: "Code2", count: "10 Articles", color: "text-indigo-500", order: 6 },
     ],
     cta: {
-        title: "Advanced SDK Guides",
-        description: "Unlock the full architectural potential of your development environment with our hyper-scaled SDK documentation nodes.",
-        primaryButton: "Explore SDK Repo",
-        secondaryButton: "View GitHub"
+        title: "Practical Guides",
+        description: "Find the instructions that help you edit content, structure pages, and keep the site consistent.",
+        primaryButton: "Explore Docs",
+        secondaryButton: "View Source"
     },
     support: [
-        { id: "sup-1", title: "Support Node ACTIVE", description: "Direct architectural assistance protocols.", iconName: "MessageSquare", color: "text-blue-500" },
-        { id: "sup-2", title: "Status Operational", description: "99.99% Node uptime across all proxies.", iconName: "Zap", color: "text-green-500" }
+        { id: "sup-1", title: "Support Ready", description: "Practical help for page content and site updates.", iconName: "MessageSquare", color: "text-blue-500" },
+        { id: "sup-2", title: "System Healthy", description: "Documentation and content links stay organized and current.", iconName: "Zap", color: "text-green-500" }
     ],
     lastUpdated: new Date().toISOString()
 };
@@ -91,7 +91,7 @@ const defaultContent: DocsPageContent = {
 export const useDocsContentStore = create<DocsContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -146,7 +146,7 @@ export const useDocsContentStore = create<DocsContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'docs-content-storage',
@@ -154,3 +154,4 @@ export const useDocsContentStore = create<DocsContentState>()(
         }
     )
 );
+

@@ -148,7 +148,7 @@ export default function MyOrdersPage() {
     const [statusFilter, setStatusFilter] = useState<string>("all");
     
     const { orders, isLoading, downloadInvoice, exportReport, isDownloadingInvoice, isExportingReport } = useOrders();
-    const { addItem, openCart } = useCart();
+    const { addItem } = useCart();
     const router = useRouter();
 
     const filteredOrders = orders?.filter(o => {
@@ -184,12 +184,11 @@ export default function MyOrdersPage() {
                 name: item.productName,
                 price: item.price,
                 image: "", // Image isn't usually in order item, handled by cart logic or placeholder
-                quantity: item.quantity,
+                slug: item.productSlug || `product-${item.productId}`,
                 type: 'product'
             });
         });
         toast.success(`Items from order #${order.id.substring(0, 8)} added to cart!`);
-        openCart();
     };
 
     const handleDownloadInvoice = (orderId: string) => {
@@ -225,7 +224,7 @@ export default function MyOrdersPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black italic tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         My Purchases
                     </h1>
                     <p className="text-muted-foreground mt-1 text-sm font-medium">Access your digital assets, track active orders, and manage invoices.</p>
@@ -260,7 +259,7 @@ export default function MyOrdersPage() {
                                 </div>
                                 <CardHeader className="pb-2">
                                     <CardDescription className="text-[10px] uppercase font-black tracking-widest text-primary/60">Active Shipment</CardDescription>
-                                    <CardTitle className="text-lg font-black italic">Order #{activeOrder.id.substring(0, 8)}</CardTitle>
+                                    <CardTitle className="text-lg font-black">Order #{activeOrder.id.substring(0, 8)}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center justify-between text-xs">
@@ -439,7 +438,7 @@ export default function MyOrdersPage() {
                                         <div className="flex flex-col items-center justify-center gap-4 opacity-50">
                                             <ShoppingBag className="w-16 h-16 text-muted-foreground" />
                                             <div className="space-y-1">
-                                                <p className="font-black italic text-xl">No Orders Found</p>
+                                                <p className="font-black text-xl">No Orders Found</p>
                                                 <p className="text-sm font-medium">Try adjusting your filters or search query.</p>
                                             </div>
                                         </div>

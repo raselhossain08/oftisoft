@@ -50,7 +50,7 @@ export default function TechStack() {
             <div className="absolute inset-0 bg-transparent" />
             
             <div className="container px-4 mx-auto mb-16 text-center">
-                 <Badge variant="outline" className="text-base py-2 px-6 border-white/10 text-white/80 tracking-widest uppercase bg-white/5 backdrop-blur-sm">
+                 <Badge variant="outline" className="text-sm py-2 px-6 border-white/10 text-white/80 tracking-wide bg-white/5 backdrop-blur-sm font-semibold">
                     {techStackContent.badge}
                 </Badge>
             </div>

@@ -69,7 +69,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockTransactions, mockPayouts } from "@/lib/shop-data";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -122,7 +121,7 @@ export default function FinanceManagementPage() {
       case "paid":
       case "completed":
         return (
-          <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic">
+          <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase ">
             <CheckCircle2 className="w-3 h-3 fill-primary" /> NODE_SETTLED
           </Badge>
         );
@@ -130,18 +129,18 @@ export default function FinanceManagementPage() {
       case "processing":
       case "scheduled":
         return (
-          <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic animate-pulse">
+          <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase  animate-pulse">
             <Clock className="w-3 h-3" /> {s.toUpperCase()}_QUEUE
           </Badge>
         );
       case "failed":
         return (
-          <Badge className="bg-destructive/10 text-destructive border-destructive/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic">
+          <Badge className="bg-destructive/10 text-destructive border-destructive/20 gap-2 h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase ">
             <AlertCircle className="w-3 h-3" /> SIGNAL_DROP
           </Badge>
         );
       default:
-        return <Badge variant="outline" className="h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase italic border-2">{s}</Badge>;
+        return <Badge variant="outline" className="h-7 px-3 font-black text-[9px] tracking-widest rounded-lg uppercase  border-2">{s}</Badge>;
     }
   };
 
@@ -154,8 +153,7 @@ export default function FinanceManagementPage() {
   );
 
   const handleDownloadStatement = () => {
-    toast.info("Generating Ledger Export Protocol...");
-    setTimeout(() => toast.success("Ledger Exported Successfully"), 1500);
+    toast.info("Export: use Transactions tab and export when your backend supports CSV/PDF.");
   };
 
   const handleProcessPayout = () => {
@@ -179,15 +177,15 @@ export default function FinanceManagementPage() {
   };
 
   const handleConfigureGateway = () => {
-    toast.info("GATEWAY_SYNC_INITIATED");
+    toast.info("Configure gateways in Settings → Payments (Stripe/PayPal).");
   };
 
   const handleGatewaySettings = (name: string) => {
-    toast.info(`${name.toUpperCase()}_TUNNEL_OPEN`);
+    toast.info(`Configure ${name} in Settings → Payments.`);
   };
 
   const handleCustomizeInvoice = () => {
-    toast.info("DESIGN_TOKEN_LOADED");
+    toast.info("Invoice design: use Billing/Invoices or document template settings when available.");
   };
 
   const handleEditSchedule = () => {
@@ -195,7 +193,7 @@ export default function FinanceManagementPage() {
   };
 
   const handleSaveSchedule = () => {
-    toast.success(`CYCLE_COMMIT_SUCCESS: ${scheduleType.toUpperCase()}`);
+    toast.success(`Payout schedule set to ${scheduleType}. Save to backend when schedule API is available.`);
     setIsScheduleDialogOpen(false);
   };
 
@@ -210,7 +208,7 @@ export default function FinanceManagementPage() {
 
   const handleResetDefaults = () => {
     setSandboxMode(false);
-    toast.info("FACTORY_RESET_NODE_INITIATED");
+    toast.info("Sandbox mode reset to off. Click WRITE_CFG_TO_LEDGER to save.");
   };
 
   return (
@@ -218,7 +216,7 @@ export default function FinanceManagementPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-[-0.05em] italic uppercase">
+          <h1 className="text-4xl font-black tracking-[-0.05em] uppercase">
             Fiscal Operations
           </h1>
           <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mt-1 opacity-70">
@@ -228,13 +226,13 @@ export default function FinanceManagementPage() {
         <div className="flex flex-wrap gap-3 shrink-0">
           <Button
             variant="ghost"
-            className="rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest border border-border/50 hover:bg-muted/20 uppercase italic transition-all"
+            className="rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest border border-border/50 hover:bg-muted/20 uppercase transition-all"
             onClick={handleDownloadStatement}
           >
             <Download className="w-4 h-4 mr-3" /> EXPORT_LEDGER
           </Button>
           <Button
-            className="rounded-[1.2rem] h-12 px-8 font-black text-[10px] tracking-widest shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform uppercase italic"
+            className="rounded-[1.2rem] h-12 px-8 font-black text-[10px] tracking-widest shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform uppercase"
             onClick={handleProcessPayout}
           >
             <Plus className="w-4 h-4 mr-3" /> Payout_DISPATCH
@@ -285,10 +283,10 @@ export default function FinanceManagementPage() {
               <stat.icon className={cn("h-5 w-5 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity", stat.color)} />
             </CardHeader>
             <CardContent className="px-6 pb-6 pt-0">
-              <div className="text-2xl font-black italic tracking-tighter leading-none mb-2">
+              <div className="text-2xl font-black tracking-tighter leading-none mb-2">
                 {stat.value}
               </div>
-              <div className="text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-40 italic">
+              <div className="text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-40">
                 {stat.sub}
               </div>
             </CardContent>
@@ -304,25 +302,25 @@ export default function FinanceManagementPage() {
         <TabsList className="bg-muted/30 p-1.5 rounded-[1.5rem] h-16 w-fit border border-border/50 backdrop-blur-md mb-8">
           <TabsTrigger
             value="overview"
-            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all"
+            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 py-3 transition-all"
           >
             <Layout className="w-4 h-4" /> Overview
           </TabsTrigger>
           <TabsTrigger
             value="transactions"
-            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all"
+            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 py-3 transition-all"
           >
             <History className="w-4 h-4" /> Transactions
           </TabsTrigger>
           <TabsTrigger
             value="payouts"
-            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all"
+            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 py-3 transition-all"
           >
             <Zap className="w-4 h-4" /> Payouts
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 transition-all"
+            className="rounded-xl h-full gap-3 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black text-[10px] tracking-widest uppercase px-8 py-3 transition-all"
           >
             <Settings className="w-4 h-4" /> Config
           </TabsTrigger>
@@ -336,10 +334,10 @@ export default function FinanceManagementPage() {
                 <CardHeader className="p-8">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-2xl font-black italic uppercase">Connected Gateways</CardTitle>
+                      <CardTitle className="text-2xl font-black uppercase">Connected Gateways</CardTitle>
                       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1 opacity-60">Primary Payment Settlement Nodes</p>
                     </div>
-                    <Badge className="bg-primary/20 text-primary border-none font-black text-[9px] tracking-widest px-4 h-7 rounded-lg uppercase italic">
+                    <Badge className="bg-primary/20 text-primary border-none font-black text-[9px] tracking-widest px-4 h-7 rounded-lg uppercase">
                       LIVE_SYNC
                     </Badge>
                   </div>
@@ -374,7 +372,7 @@ export default function FinanceManagementPage() {
                           {gateway.icon}
                         </div>
                         <div>
-                          <p className="font-black italic text-lg uppercase leading-none">{gateway.name}</p>
+                          <p className="font-black text-lg uppercase leading-none">{gateway.name}</p>
                           <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mt-2 opacity-50">
                             ID: {gateway.account}
                           </p>
@@ -386,13 +384,13 @@ export default function FinanceManagementPage() {
                             gateway.status === "Inactive" ? "outline" : "secondary"
                           }
                           className={cn(
-                            "h-8 px-4 font-black text-[9px] tracking-widest rounded-lg uppercase italic border-2 transition-all",
+                            "h-8 px-4 font-black text-[9px] tracking-widest rounded-lg uppercase  border-2 transition-all",
                             gateway.status === "Inactive"
                               ? "opacity-30"
                               : "bg-primary/10 text-primary border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
                           )}
                         >
-                          {gateway.status === "Inactive" ? "NODE_OFFLINE" : "NODE_ACTIVE"}
+                          {gateway.status === "Inactive" ? "Offline" : "Active"}
                         </Badge>
                         <Button
                           variant="ghost"
@@ -409,7 +407,7 @@ export default function FinanceManagementPage() {
                 <CardFooter className="bg-muted/10 border-t border-border/20 px-8 py-5">
                   <Button
                     variant="link"
-                    className="text-primary font-black text-[10px] tracking-[0.2em] gap-3 p-0 h-auto uppercase italic"
+                    className="text-primary font-black text-[10px] tracking-[0.2em] gap-3 p-0 h-auto uppercase"
                     onClick={handleConfigureGateway}
                   >
                     Configure New Gateway <Plus className="w-4 h-4" />
@@ -419,7 +417,7 @@ export default function FinanceManagementPage() {
 
               <Card className="border-border/40 rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md shadow-sm">
                 <CardHeader className="p-8">
-                  <CardTitle className="text-2xl font-black italic uppercase">Tax & VAT Ledger</CardTitle>
+                  <CardTitle className="text-2xl font-black uppercase">Tax & VAT Ledger</CardTitle>
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1 opacity-60">Global Jurisdictional Nexus Settings</p>
                 </CardHeader>
                 <CardContent className="grid sm:grid-cols-2 gap-6 p-8 pt-0">
@@ -428,7 +426,7 @@ export default function FinanceManagementPage() {
                       Standard VAT
                     </p>
                     <div className="flex items-end justify-between">
-                      <span className="text-3xl font-black italic tracking-tighter text-primary">
+                      <span className="text-3xl font-black tracking-tighter text-primary">
                         20.00%
                       </span>
                       <Badge variant="outline" className="text-[8px] font-black uppercase tracking-widest h-6 px-3 rounded-md border-2">
@@ -441,7 +439,7 @@ export default function FinanceManagementPage() {
                       US Sales Tax
                     </p>
                     <div className="flex items-end justify-between">
-                      <span className="text-3xl font-black italic tracking-tighter text-primary">
+                      <span className="text-3xl font-black tracking-tighter text-primary">
                         VARIABLE
                       </span>
                       <Badge variant="outline" className="text-[8px] font-black uppercase tracking-widest h-6 px-3 rounded-md border-2">
@@ -456,26 +454,26 @@ export default function FinanceManagementPage() {
             <div className="space-y-8">
               <Card className="border-border/40 rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md shadow-sm">
                 <CardHeader className="bg-primary/5 border-b border-border/20 p-6">
-                  <CardTitle className="text-sm font-black italic uppercase flex items-center gap-3">
+                  <CardTitle className="text-sm font-black uppercase flex items-center gap-3">
                     <FileText className="w-4 h-4 text-primary" /> Invoice_MANIFEST
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div
-                    className="aspect-[3/4] rounded-[2rem] border-2 border-dashed border-border/50 flex flex-col items-center justify-center p-8 text-center bg-muted/10 hover:bg-muted/20 hover:border-primary/40 transition-all cursor-pointer group"
+                    className="aspect-3/4 rounded-[2rem] border-2 border-dashed border-border/50 flex flex-col items-center justify-center p-8 text-center bg-muted/10 hover:bg-muted/20 hover:border-primary/40 transition-all cursor-pointer group"
                     onClick={handleCustomizeInvoice}
                   >
                     <div className="w-16 h-16 rounded-full bg-background flex items-center justify-center border-2 border-border shadow-lg group-hover:scale-110 transition-transform mb-4">
                       <Pencil className="w-6 h-6 text-primary" />
                     </div>
-                    <p className="text-xs font-black uppercase tracking-widest italic">Standard_DESIGN</p>
+                    <p className="text-xs font-black uppercase tracking-widest">Standard Plan</p>
                     <p className="text-[10px] font-mono text-muted-foreground mt-2 opacity-50 uppercase">
                       REF: 2026_V1.PDF
                     </p>
                   </div>
                   <Button
                     variant="outline"
-                    className="w-full mt-6 rounded-xl h-11 font-black text-[10px] tracking-widest uppercase italic border-2"
+                    className="w-full mt-6 rounded-xl h-11 px-6 font-black text-[10px] tracking-widest uppercase border-2"
                     onClick={handleCustomizeInvoice}
                   >
                     MOD_DESIGN_CORE
@@ -485,23 +483,23 @@ export default function FinanceManagementPage() {
 
               <Card className="border-border/40 rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md shadow-sm">
                 <CardHeader className="p-6">
-                  <CardTitle className="text-sm font-black italic uppercase flex items-center gap-3">
+                  <CardTitle className="text-sm font-black uppercase flex items-center gap-3">
                     <ShieldCheck className="w-4 h-4 text-primary" /> Security_PROTOCOL
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 px-6 pb-6 pt-0">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Settlement_LAG</span>
-                    <span className="text-xs font-black italic tracking-widest uppercase">3-5_CYCLES</span>
+                    <span className="text-xs font-black tracking-widest uppercase">3-5_CYCLES</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-widest opacity-60">FX_SYNC_CHANNEL</span>
-                    <div className="flex items-center gap-2 text-primary font-black text-[10px] tracking-widest italic uppercase">
+                    <div className="flex items-center gap-2 text-primary font-black text-[10px] tracking-widest  uppercase">
                       <Globe className="w-3 h-3 animate-spin-slow" /> LIVE_PULSE
                     </div>
                   </div>
                   <Separator className="bg-border/30" />
-                  <p className="text-[9px] font-black text-muted-foreground italic leading-relaxed uppercase tracking-wider opacity-60">
+                  <p className="text-[9px] font-black text-muted-foreground leading-relaxed uppercase tracking-wider opacity-60">
                     PCI-DSS Level 1 Compliant. Assets encrypted via Quantum-Grade Protocol. Managed by Tier-1 Fiscal Nodes.
                   </p>
                 </CardContent>
@@ -510,7 +508,7 @@ export default function FinanceManagementPage() {
               {/* Related pages */}
               <Card className="border-border/40 rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md shadow-sm">
                 <CardHeader className="p-6">
-                  <CardTitle className="text-sm font-black italic uppercase flex items-center gap-3">
+                  <CardTitle className="text-sm font-black uppercase flex items-center gap-3">
                     <Link2 className="w-4 h-4 text-primary" /> Cross_LINKS
                   </CardTitle>
                 </CardHeader>
@@ -532,9 +530,9 @@ export default function FinanceManagementPage() {
                         <link.icon className="w-4 h-4 text-muted-foreground group-hover:text-white transition-colors" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-[10px] font-black uppercase italic tracking-widest">{link.label}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest">{link.label}</p>
                       </div>
-                      <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 italic transition-opacity">
+                      <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 transition-opacity">
                         {link.sub}
                       </span>
                     </Link>
@@ -553,7 +551,7 @@ export default function FinanceManagementPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   placeholder="SEARCH_LEDGER_BY_HASH_OR_IDENTITY..."
-                  className="pl-12 h-12 rounded-xl bg-muted/20 border-border/40 font-black text-[10px] tracking-widest uppercase italic"
+                  className="pl-12 h-12 rounded-xl bg-muted/20 border-border/40 font-black text-[10px] tracking-widest uppercase "
                   value={transactionSearch}
                   onChange={(e) => setTransactionSearch(e.target.value)}
                 />
@@ -563,19 +561,19 @@ export default function FinanceManagementPage() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="rounded-xl h-12 px-6 gap-3 font-black text-[10px] tracking-widest uppercase italic border-2"
+                      className="rounded-xl h-12 px-6 gap-3 font-black text-[10px] tracking-widest uppercase  border-2"
                     >
                       <Filter className="w-4 h-4" /> Filter_SIGNAL
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
-                    <DropdownMenuItem className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 italic">
+                    <DropdownMenuItem className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 ">
                       Filter by Status
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 italic">
+                    <DropdownMenuItem className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 ">
                       Filter by Date
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 italic">
+                    <DropdownMenuItem className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 ">
                       Filter by Amount
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -587,17 +585,29 @@ export default function FinanceManagementPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/10 border-b border-border/20">
-                      <TableHead className="px-8 h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Hash_REF</TableHead>
-                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Entity</TableHead>
-                      <TableHead className="hidden md:table-cell h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Description</TableHead>
-                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Signal_TYPE</TableHead>
-                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic text-primary">Value</TableHead>
-                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Pulse</TableHead>
+                      <TableHead className="px-8 h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50">Reference</TableHead>
+                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50">User</TableHead>
+                      <TableHead className="hidden md:table-cell h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50">Description</TableHead>
+                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50">Type</TableHead>
+                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 text-primary">Value</TableHead>
+                      <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 ">Pulse</TableHead>
                       <TableHead className="text-right w-[80px] pr-8 h-14"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredTransactions.map((txn) => (
+                    {isLoading && transactions.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="h-32 text-center text-muted-foreground text-sm">
+                          Loading transactions...
+                        </TableCell>
+                      </TableRow>
+                    ) : filteredTransactions.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="h-32 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60 ">
+                          No transactions found
+                        </TableCell>
+                      </TableRow>
+                    ) : filteredTransactions.map((txn) => (
                       <TableRow
                         key={txn.id}
                         className="group hover:bg-primary/5 border-b border-border/10 transition-colors"
@@ -610,7 +620,7 @@ export default function FinanceManagementPage() {
                             href={`/dashboard/admin/users/${txn.user?.id}`}
                             className="flex flex-col group/link"
                           >
-                            <span className="text-sm font-black italic uppercase tracking-tight group-hover/link:text-primary transition-colors">
+                            <span className="text-sm font-black uppercase tracking-tight group-hover/link:text-primary transition-colors">
                               {txn.user?.name || "SYSTEM_PROTOCOL"}
                             </span>
                             <span className="text-[10px] font-mono text-muted-foreground opacity-50">
@@ -624,12 +634,12 @@ export default function FinanceManagementPage() {
                         <TableCell>
                           <Badge
                             variant="outline"
-                            className="h-6 px-3 font-black text-[8px] tracking-widest rounded-md uppercase italic border-2 bg-muted/20"
+                            className="h-6 px-3 font-black text-[8px] tracking-widest rounded-md uppercase  border-2 bg-muted/20"
                           >
                             {txn.invoiceId ? "LEDGER_INV" : "EXT_SETTLE"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-black text-sm italic tracking-tighter text-primary">
+                        <TableCell className="font-black text-sm  tracking-tighter text-primary">
                           {txn.amount}
                         </TableCell>
                         <TableCell>{getStatusBadge(txn.status)}</TableCell>
@@ -645,13 +655,13 @@ export default function FinanceManagementPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="rounded-xl p-2">
-                              <DropdownMenuItem asChild className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 italic">
+                              <DropdownMenuItem asChild className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 ">
                                 <Link href="/dashboard/orders">
                                   <Eye className="w-4 h-4 mr-3" /> Inspect Order
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 italic"
+                                className="rounded-lg font-black text-[10px] uppercase tracking-widest py-3 "
                                 onClick={() => {
                                   navigator.clipboard.writeText(txn.id);
                                   toast.success("ID_COPIED_TO_CLIPBOARD");
@@ -680,10 +690,10 @@ export default function FinanceManagementPage() {
                 <CardHeader className="p-8">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div>
-                      <CardTitle className="text-2xl font-black italic uppercase">Partner Payout Ledger</CardTitle>
+                      <CardTitle className="text-2xl font-black uppercase">Partner Payout Ledger</CardTitle>
                       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1 opacity-60">Disbursement History for External Nodes</p>
                     </div>
-                    <Button variant="ghost" className="rounded-xl h-12 px-6 gap-3 font-black text-[10px] tracking-widest uppercase italic border-2" asChild>
+                    <Button variant="ghost" className="rounded-xl h-12 px-6 gap-3 font-black text-[10px] tracking-widest uppercase  border-2" asChild>
                       <Link href="/dashboard/affiliate">
                         <Zap className="w-4 h-4" /> Affiliate_HUB
                       </Link>
@@ -695,18 +705,18 @@ export default function FinanceManagementPage() {
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-muted/10 border-b border-border/20">
-                          <TableHead className="px-8 h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">PAY_ID</TableHead>
-                          <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Identity</TableHead>
-                          <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Class</TableHead>
-                          <TableHead className="hidden sm:table-cell h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Timestamp</TableHead>
-                          <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic text-primary">Volume</TableHead>
-                          <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 italic">Pulse</TableHead>
+                          <TableHead className="px-8 h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 ">PAY_ID</TableHead>
+                          <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 ">Identity</TableHead>
+                          <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 ">Class</TableHead>
+                          <TableHead className="hidden sm:table-cell h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50 ">Timestamp</TableHead>
+                          <TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50  text-primary">Volume</TableHead>
+<TableHead className="h-14 font-black text-[10px] uppercase tracking-[0.2em] opacity-50">Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {payouts.length === 0 ? (
                           <TableRow>
-                            <TableCell colSpan={6} className="h-32 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40 italic">
+                            <TableCell colSpan={6} className="h-32 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40 ">
                                 NO_SIGNAL_DATA_FOUND
                             </TableCell>
                           </TableRow>
@@ -716,7 +726,7 @@ export default function FinanceManagementPage() {
                               <TableCell className="px-8 py-5 font-mono text-[10px] font-black text-muted-foreground tracking-widest">
                                 {p.id.toUpperCase()}
                               </TableCell>
-                              <TableCell className="text-sm font-black italic uppercase tracking-tight">
+                              <TableCell className="text-sm font-black uppercase tracking-tight">
                                 <Link
                                   href="/dashboard/affiliate"
                                   className="hover:text-primary transition-colors"
@@ -727,7 +737,7 @@ export default function FinanceManagementPage() {
                               <TableCell>
                                 <Badge
                                   variant="outline"
-                                  className="h-6 px-3 font-black text-[8px] tracking-widest rounded-md uppercase italic border-2 border-primary/20 text-primary"
+                                  className="h-6 px-3 font-black text-[8px] tracking-widest rounded-md uppercase  border-2 border-primary/20 text-primary"
                                 >
                                   {p.type.toUpperCase()}
                                 </Badge>
@@ -735,7 +745,7 @@ export default function FinanceManagementPage() {
                               <TableCell className="text-[10px] font-black text-muted-foreground hidden sm:table-cell uppercase tracking-widest opacity-60">
                                 {p.date}
                               </TableCell>
-                              <TableCell className="font-black text-sm italic tracking-tighter text-primary">
+                              <TableCell className="font-black text-sm  tracking-tighter text-primary">
                                 ${p.amount.toFixed(2)}
                               </TableCell>
                               <TableCell>{getStatusBadge(p.status)}</TableCell>
@@ -753,14 +763,14 @@ export default function FinanceManagementPage() {
             <div className="space-y-8">
               <Card className="border-border/40 rounded-[2.5rem] overflow-hidden bg-primary/5 backdrop-blur-md shadow-sm">
                 <CardHeader className="p-8">
-                  <CardTitle className="text-lg font-black italic uppercase">Payout_CONFIG</CardTitle>
+                  <CardTitle className="text-lg font-black uppercase">Payout_CONFIG</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-10 p-8 pt-0">
                   <div className="space-y-4">
                     <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground opacity-60">
                       Minimal_THRESHOLD
                     </Label>
-                    <div className="flex items-end gap-3 font-black italic tracking-tighter">
+                    <div className="flex items-end gap-3 font-black tracking-tighter">
                       <span className="text-3xl text-primary">$100.00</span>
                       <span className="text-[10px] mb-1 uppercase tracking-widest opacity-40">USD_UNIT</span>
                     </div>
@@ -769,12 +779,12 @@ export default function FinanceManagementPage() {
                     <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground opacity-60">
                       Disbursement_CYCLE
                     </Label>
-                    <p className="text-sm font-black uppercase italic tracking-tight">
+                    <p className="text-sm font-black uppercase  tracking-tight">
                       1st and 15th of every cycle
                     </p>
                   </div>
                   <Button
-                    className="w-full rounded-[1.2rem] h-14 font-black text-[10px] tracking-widest uppercase italic shadow-xl shadow-primary/10"
+                    className="w-full rounded-[1.2rem] h-14 font-black text-[10px] tracking-widest uppercase  shadow-xl shadow-primary/10"
                     onClick={handleEditSchedule}
                   >
                     MOD_CYCLE_PROTOCOL
@@ -789,13 +799,13 @@ export default function FinanceManagementPage() {
         <TabsContent value="settings" className="space-y-8 mt-0">
           <Card className="border-border/40 rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-md shadow-sm">
             <CardHeader className="p-8 border-b border-border/20">
-              <CardTitle className="text-2xl font-black italic uppercase">Fiscal_PROTOCOL_CFG</CardTitle>
+              <CardTitle className="text-2xl font-black uppercase">Fiscal_PROTOCOL_CFG</CardTitle>
               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1 opacity-60">System-wide Financial Governance & Gateway Controls</p>
             </CardHeader>
             <CardContent className="p-8 space-y-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 p-6 rounded-[2rem] border border-border/40 bg-muted/10">
                 <div className="space-y-2">
-                  <h4 className="text-sm font-black uppercase italic tracking-widest">GATEWAY_SANDBOX_MODE</h4>
+                  <h4 className="text-sm font-black uppercase  tracking-widest">GATEWAY_SANDBOX_MODE</h4>
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">
                     Toggle simulation layer for payment verification nodes.
                   </p>
@@ -809,7 +819,7 @@ export default function FinanceManagementPage() {
                   <Badge
                     variant="outline"
                     className={cn(
-                      "font-black text-[9px] tracking-[0.2em] px-4 h-7 rounded-lg uppercase italic border-2 transition-all",
+                      "font-black text-[9px] tracking-[0.2em] px-4 h-7 rounded-lg uppercase  border-2 transition-all",
                       sandboxMode
                         ? "bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                         : "bg-muted/10 text-muted-foreground border-border/50 opacity-40"
@@ -824,10 +834,10 @@ export default function FinanceManagementPage() {
                 <div className="space-y-4">
                   <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground opacity-60 ml-2">Audit_INTERVAL</Label>
                   <Select defaultValue="realtime">
-                    <SelectTrigger className="h-14 rounded-[1.2rem] bg-muted/20 border-border/40 font-black text-[10px] tracking-widest uppercase italic border-2">
+                    <SelectTrigger className="h-14 rounded-[1.2rem] bg-muted/20 border-border/40 font-black text-[10px] tracking-widest uppercase  border-2">
                       <SelectValue placeholder="Precision" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl p-2 font-black text-[10px] uppercase italic">
+                    <SelectContent className="rounded-2xl p-2 font-black text-[10px] uppercase ">
                       <SelectItem value="realtime">REAL_TIME_SYNC</SelectItem>
                       <SelectItem value="hourly">HOURLY_BATCH</SelectItem>
                       <SelectItem value="daily">DAILY_SETTLE</SelectItem>
@@ -837,10 +847,10 @@ export default function FinanceManagementPage() {
                 <div className="space-y-4">
                   <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground opacity-60 ml-2">Base_CURRENCY</Label>
                   <Select defaultValue="usd">
-                    <SelectTrigger className="h-14 rounded-[1.2rem] bg-muted/20 border-border/40 font-black text-[10px] tracking-widest uppercase italic border-2">
+                    <SelectTrigger className="h-14 rounded-[1.2rem] bg-muted/20 border-border/40 font-black text-[10px] tracking-widest uppercase  border-2">
                       <SelectValue placeholder="Currency" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl p-2 font-black text-[10px] uppercase italic">
+                    <SelectContent className="rounded-2xl p-2 font-black text-[10px] uppercase ">
                       <SelectItem value="usd">USD_STABLE</SelectItem>
                       <SelectItem value="eur">EUR_ZONE</SelectItem>
                       <SelectItem value="gbp">GBP_POUND</SelectItem>
@@ -852,13 +862,13 @@ export default function FinanceManagementPage() {
             <CardFooter className="bg-muted/10 border-t border-border/20 p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
               <Button
                 variant="ghost"
-                className="rounded-xl h-12 px-8 font-black text-[10px] tracking-widest uppercase italic opacity-60 hover:opacity-100"
+                className="rounded-xl h-12 px-8 font-black text-[10px] tracking-widest uppercase  opacity-60 hover:opacity-100"
                 onClick={handleResetDefaults}
               >
                 FACTORY_RESET_NODE
               </Button>
               <Button
-                className="rounded-xl h-12 px-10 font-black text-[10px] tracking-widest uppercase italic shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform"
+                className="rounded-xl h-12 px-10 font-black text-[10px] tracking-widest uppercase  shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform"
                 onClick={handleSaveConfig}
               >
                 WRITE_CFG_TO_LEDGER
@@ -875,7 +885,7 @@ export default function FinanceManagementPage() {
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
               <Zap className="w-7 h-7 text-primary" />
             </div>
-            <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Disburse Liquidity</DialogTitle>
+            <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Disburse Liquidity</DialogTitle>
             <DialogDescription className="text-[10px] font-black uppercase tracking-widest opacity-60 mt-1">Initiating direct fund transfer to network participant.</DialogDescription>
           </DialogHeader>
           <div className="p-8 pt-0 space-y-8">
@@ -884,7 +894,7 @@ export default function FinanceManagementPage() {
                 <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest opacity-60 mb-2">
                   AVAIL_LIQUIDITY
                 </p>
-                <p className="text-4xl font-black italic tracking-tighter text-primary">{stats ? `$${stats.availableBalance}` : "$0.00"}</p>
+                <p className="text-4xl font-black tracking-tighter text-primary">{stats ? `$${stats.availableBalance}` : "$0.00"}</p>
               </div>
               <div className="w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center animate-pulse">
                 <div className="w-2 h-2 rounded-full bg-primary" />
@@ -894,7 +904,7 @@ export default function FinanceManagementPage() {
                 <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-70">Target_IDENTITY</Label>
                     <Input 
-                        placeholder="ENTITY_HASH_OR_ALIAS" 
+                        placeholder="Affiliate referral code or user email" 
                         className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
                         value={payoutRecipient}
                         onChange={(e) => setPayoutRecipient(e.target.value)}
@@ -903,7 +913,7 @@ export default function FinanceManagementPage() {
                 <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-70">Volume_UNIT (USD)</Label>
                     <div className="relative">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-primary italic opacity-50">$</span>
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-primary  opacity-50">$</span>
                         <Input 
                             type="number" 
                             placeholder="0.00" 
@@ -916,8 +926,8 @@ export default function FinanceManagementPage() {
             </div>
           </div>
           <DialogFooter className="p-8 bg-muted/10 border-t border-border/20 flex gap-4">
-            <Button variant="ghost" className="rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest uppercase italic opacity-60 hover:opacity-100 flex-1" onClick={() => setIsPayoutDialogOpen(false)}>ABORT_DISBURSE</Button>
-            <Button className="rounded-[1.2rem] h-12 px-10 font-black text-[10px] tracking-widest uppercase italic shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform flex-1" onClick={handleConfirmPayout}>
+            <Button variant="ghost" className="rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest uppercase  opacity-60 hover:opacity-100 flex-1" onClick={() => setIsPayoutDialogOpen(false)}>ABORT_DISBURSE</Button>
+            <Button className="rounded-[1.2rem] h-12 px-10 font-black text-[10px] tracking-widest uppercase  shadow-xl shadow-primary/20 bg-primary hover:scale-[1.02] transition-transform flex-1" onClick={handleConfirmPayout}>
                 EXECUTE_PAYOUT
             </Button>
           </DialogFooter>
@@ -931,7 +941,7 @@ export default function FinanceManagementPage() {
             <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6">
               <Clock className="w-7 h-7 text-amber-500" />
             </div>
-            <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Cycle_SYNC_CFG</DialogTitle>
+            <DialogTitle className="text-3xl font-black tracking-tighter uppercase">Cycle_SYNC_CFG</DialogTitle>
             <DialogDescription className="text-[10px] font-black uppercase tracking-widest opacity-60 mt-1">Configure automated disbursement frequency for network nodes.</DialogDescription>
           </DialogHeader>
           <div className="p-8 pt-0 space-y-8">
@@ -952,18 +962,18 @@ export default function FinanceManagementPage() {
                               : "bg-muted/10 border-transparent hover:bg-muted/20"
                         )}
                     >
-                        <p className={cn("font-black italic text-xs uppercase tracking-tight", scheduleType === s.id ? "text-primary" : "text-muted-foreground opacity-60")}>{s.label}</p>
+                        <p className={cn("font-black text-xs uppercase tracking-tight", scheduleType === s.id ? "text-primary" : "text-muted-foreground opacity-60")}>{s.label}</p>
                         <p className="text-[9px] font-black uppercase tracking-widest opacity-40">{s.desc}</p>
                     </div>
                 ))}
             </div>
-            <div className="p-6 rounded-[1.2rem] bg-amber-500/5 border border-amber-500/20 text-[9px] font-black text-amber-500/70 uppercase tracking-widest leading-relaxed italic text-center">
+            <div className="p-6 rounded-[1.2rem] bg-amber-500/5 border border-amber-500/20 text-[9px] font-black text-amber-500/70 uppercase tracking-widest leading-relaxed  text-center">
                 KYC_GATE: ALL AUTOMATED CYCLES REQUIRE VALIDATED SIGNAL NODES. 48H AUDIT WINDOW ENFORCED.
             </div>
           </div>
           <DialogFooter className="p-8 bg-muted/10 border-t border-border/20 flex gap-4">
-            <Button variant="ghost" className="rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest uppercase italic opacity-60 hover:opacity-100 flex-1" onClick={() => setIsScheduleDialogOpen(false)}>CANCEL_MOD</Button>
-            <Button className="rounded-[1.2rem] h-12 px-10 font-black text-[10px] tracking-widest uppercase italic shadow-lg shadow-amber-500/20 bg-amber-500 text-white hover:scale-[1.02] transition-transform flex-1" onClick={handleSaveSchedule}>
+            <Button variant="ghost" className="rounded-[1.2rem] h-12 px-6 font-black text-[10px] tracking-widest uppercase  opacity-60 hover:opacity-100 flex-1" onClick={() => setIsScheduleDialogOpen(false)}>CANCEL_MOD</Button>
+            <Button className="rounded-[1.2rem] h-12 px-10 font-black text-[10px] tracking-widest uppercase  shadow-lg shadow-amber-500/20 bg-amber-500 text-white hover:scale-[1.02] transition-transform flex-1" onClick={handleSaveSchedule}>
                 COMMIT_CYCLE
             </Button>
           </DialogFooter>

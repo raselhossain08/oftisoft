@@ -12,6 +12,7 @@ import {
   Zap,
   LifeBuoy,
   X,
+  ShoppingCart,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -33,17 +34,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useDashboard } from "@/lib/dashboard-context";
 import { useAuth } from "@/hooks/useAuth";
-
-const NOTIFICATIONS = [
-  { id: 1, text: "New project assignment", time: "2m ago", unread: true },
-  { id: 2, text: "Server backup completed", time: "1h ago", unread: false },
-  { id: 3, text: "Alex commented on your task", time: "3h ago", unread: true },
-];
+import { NotificationCenter } from "./notification-center";
+import { CartDrawer } from "@/components/cart-drawer";
+import { useCart } from "@/hooks/use-cart";
 
 export default function Header() {
   const pathname = usePathname();
   const { setMobileSidebarOpen } = useDashboard();
   const { user, logout } = useAuth();
+  const { items: cartItems, getTotalPrice } = useCart();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -52,18 +51,20 @@ export default function Header() {
     .filter(Boolean)
     .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1));
 
-  const avatarSrc = user?.avatarUrl 
-    ? (user.avatarUrl.startsWith('http') 
-        ? user.avatarUrl 
+  const avatarSrc = user?.avatarUrl
+    ? (user.avatarUrl.startsWith('http')
+        ? user.avatarUrl
         : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${user.avatarUrl}`)
-    : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Alex'}`;
+    : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`;
 
-  const initials = user?.name 
+  const initials = user?.name
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : 'AM';
+    : 'U';
+
+  const cartItemCount = cartItems.length;
 
   return (
-    <header className="h-16 sm:h-20 border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-300">
+    <header className="h-16 sm:h-18 border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-300">
       {/* Left: Mobile Menu & Search */}
       <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
         <Button
@@ -119,7 +120,7 @@ export default function Header() {
                 </Button>
               ) : (
                 <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-                  <span className="text-xs">⌘</span>K
+                  <span className="text-xs">Ctrl</span>K
                 </kbd>
               )}
             </div>
@@ -140,7 +141,7 @@ export default function Header() {
                     <span
                       className={cn(
                         index === breadcrumbs.length - 1
-                          ? "font-bold text-foreground"
+                          ? "font-semibold text-foreground"
                           : "hover:text-foreground transition-colors"
                       )}
                     >
@@ -158,60 +159,40 @@ export default function Header() {
       <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 pl-2 shrink-0">
         <Badge
           variant="outline"
-          className="hidden lg:flex items-center gap-2 px-2.5 py-1 border-green-500/20 bg-green-500/10 text-green-600 text-[10px] font-bold uppercase"
+          className="hidden lg:flex items-center gap-2 px-2.5 py-1 border-green-500/20 bg-green-500/10 text-green-600 text-xs font-medium"
         >
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
           </span>
-          Systems Normal
+          All Systems Online
         </Badge>
 
         <Separator orientation="vertical" className="h-6 sm:h-8 hidden lg:block" />
 
+        {/* Cart */}
+        <CartDrawer>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "relative h-9 w-9 sm:h-10 sm:w-10 rounded-xl",
+              "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <ShoppingCart className="w-5 h-5" />
+            {cartItemCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full flex items-center justify-center">
+                {cartItemCount > 9 ? '9+' : cartItemCount}
+              </span>
+            )}
+          </Button>
+        </CartDrawer>
+
         {/* Notifications */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "relative h-9 w-9 sm:h-10 sm:w-10 rounded-xl",
-                "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background animate-pulse" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80 rounded-2xl p-0">
-            <div className="p-4 border-b border-border bg-muted/30">
-              <DropdownMenuLabel className="text-base font-bold p-0">
-                Notifications
-              </DropdownMenuLabel>
-            </div>
-            <div className="max-h-[300px] overflow-y-auto">
-              {NOTIFICATIONS.map((notif) => (
-                <DropdownMenuItem
-                  key={notif.id}
-                  className="flex gap-3 p-4 cursor-pointer rounded-none focus:bg-muted/50"
-                >
-                  <div className="w-2 h-2 mt-2 rounded-full bg-primary shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium leading-tight mb-1">
-                      {notif.text}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{notif.time}</p>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="justify-center py-3 font-bold text-primary focus:bg-primary/5">
-              <Link href="/dashboard/notifications">View All Activity</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <NotificationCenter />
+
+        <Separator orientation="vertical" className="h-6 sm:h-8 hidden sm:block" />
 
         {/* Profile Menu */}
         <DropdownMenu>
@@ -221,13 +202,13 @@ export default function Header() {
               className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 h-auto py-2"
             >
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold leading-none">{user?.name || "Anonymous"}</p>
-                <p className="text-xs text-muted-foreground">{user?.isActive ? "Verified Resident" : "Standby Identity"}</p>
+                <p className="text-sm font-semibold leading-none">{user?.name || "User"}</p>
+                <p className="text-xs text-muted-foreground">{user?.role || "Member"}</p>
               </div>
               <div className="relative">
                 <Avatar className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl border-2 border-background">
                   <AvatarImage src={avatarSrc} className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-white font-bold rounded-xl">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-white font-semibold rounded-xl">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -241,10 +222,10 @@ export default function Header() {
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-bold text-muted-foreground uppercase">
-                  Current Plan
+                <p className="text-xs font-semibold text-muted-foreground uppercase">
+                  Account
                 </p>
-                <p className="font-bold text-sm">Pro Enterprise</p>
+                <p className="font-semibold text-sm">{user?.role || "Member"}</p>
               </div>
             </div>
             <DropdownMenuSeparator />

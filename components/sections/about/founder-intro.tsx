@@ -11,11 +11,9 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAboutContentStore } from "@/lib/store/about-content";
 
 export default function FounderIntro({ data }: { data?: any }) {
-    const { content: storeContent } = useAboutContentStore();
-    const founder = data || storeContent?.founder;
+    const founder = data;
 
     // 3D Tilt Logic
     const x = useMotionValue(0);
@@ -98,12 +96,12 @@ export default function FounderIntro({ data }: { data?: any }) {
                                 className="absolute bottom-8 left-8 right-8"
                             >
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Badge variant="secondary" className="px-3 py-1 bg-primary/20 border-primary/20 text-primary text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-                                        {founder?.role || "Founder & CEO"}
+                                    <Badge variant="secondary" className="px-3 py-1 bg-primary/20 border-primary/20 text-primary text-xs font-semibold tracking-wide backdrop-blur-md">
+                                        {founder?.role ?? ""}
                                     </Badge>
                                 </div>
-                                <h3 className="text-3xl font-bold text-white mb-1">{founder?.name || "Rasel Hossain"}</h3>
-                                <p className="text-white/60 text-sm mb-6">{founder?.tagline || "Visionary . Engineer . Consultant"}</p>
+                                <h3 className="text-3xl font-bold text-white mb-1">{founder?.name ?? ""}</h3>
+                                <p className="text-white/60 text-sm mb-6">{founder?.tagline ?? ""}</p>
                                 
                                 {/* Socials */}
                                 <div className="flex gap-3">
@@ -150,26 +148,26 @@ export default function FounderIntro({ data }: { data?: any }) {
                                 viewport={{ once: true }}
                                 className="mb-4"
                             >
-                                <Badge variant="outline" className="gap-2 border-primary/20 text-primary uppercase tracking-widest px-3 py-1 bg-primary/5">
+                                <Badge variant="outline" className="gap-2 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 font-semibold text-xs">
                                     <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                                    {founder?.badgeTitle || "The Architect"}
+                                    {founder?.badgeTitle ?? ""}
                                 </Badge>
                             </motion.div>
                             
                             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                                {founder?.titleLine1 || "Coding the Future,"} <br />
+                                {founder?.titleLine1 ?? ""} <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                    {founder?.titleLine2 || "One Line at a Time."}
+                                    {founder?.titleLine2 ?? ""}
                                 </span>
                             </h2>
                         </div>
 
                         <div className="prose prose-invert prose-lg text-muted-foreground/80 leading-relaxed">
                             <p>
-                                {founder?.bioPar1 || "I am a passionate software engineer and technology consultant dedicated to building modern, scalable, and high-performance digital solutions."}
+                                {founder?.bioPar1 ?? ""}
                             </p>
                             <p>
-                                {founder?.bioPar2 || "With a vision to bridge the gap between complex engineering and intuitive design, I founded Ofitsoft. We don't just write code; we architect digital ecosystems that empower businesses to scale effortlessly in the AI era."}
+                                {founder?.bioPar2 ?? ""}
                             </p>
                         </div>
 
@@ -195,7 +193,7 @@ export default function FounderIntro({ data }: { data?: any }) {
                                         viewport={{ once: true }}
                                         transition={{ duration: 2, ease: "easeInOut" }}
                                     />
-                                    <text x="50" y="55" className="fill-white text-[10px] font-mono tracking-widest uppercase opacity-50">Founder's Signature</text>
+                                    <text x="50" y="55" className="fill-white text-[10px] font-mono tracking-wide opacity-50">Founder's Signature</text>
                                 </svg>
                             </div>
                             
@@ -226,7 +224,7 @@ function StatBlock({ num, label, suffix, delay }: { num: number, label: string, 
                 <CountUp end={num} duration={2.5} />
                 <span className="text-primary text-2xl ml-1">{suffix}</span>
             </div>
-            <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+            <div className="text-xs text-muted-foreground tracking-wide font-medium">
                 {label}
             </div>
         </motion.div>

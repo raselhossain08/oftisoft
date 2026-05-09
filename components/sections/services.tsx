@@ -51,6 +51,7 @@ export default function Services() {
         badge: "Capabilities",
         services: []
     };
+    const services = Array.isArray(servicesContent?.services) ? servicesContent.services : [];
 
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -70,7 +71,7 @@ export default function Services() {
                         style={{ y: headerY, opacity: headerOpacity }}
                         className="max-w-3xl w-full md:w-auto"
                     >
-                        <Badge variant="outline" className="mb-4 border-primary/20 text-primary uppercase tracking-[0.2em] px-4 py-1.5 backdrop-blur-sm">
+                        <Badge variant="outline" className="mb-4 border-primary/20 text-primary tracking-wide px-4 py-1.5 backdrop-blur-sm font-semibold text-xs">
                             {servicesContent.badge}
                         </Badge>
                         <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1]">
@@ -101,11 +102,11 @@ export default function Services() {
 
                 {/* Unified Responsive Grid Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {servicesContent.services.map((service: any, index: number) => {
+                    {services.map((service: any, index: number) => {
                         const Icon = iconMap[service.icon] || Globe;
                         return (
                             <motion.div
-                                key={service.id}
+                                key={service?.id ?? `service-${index}`}
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -144,9 +145,9 @@ export default function Services() {
                                         </p>
                                         
                                         <div className="flex flex-wrap gap-2 mt-auto">
-                                            {service.tags.map((tag: string) => (
+                                            {(Array.isArray(service?.tags) ? service.tags : []).map((tag: string, tagIdx: number) => (
                                                 <Badge 
-                                                    key={tag} 
+                                                    key={`${service?.id ?? index}-tag-${tagIdx}`} 
                                                     variant="secondary" 
                                                     className="bg-white/5 border-white/5 text-muted-foreground group-hover:text-white/90 group-hover:border-white/10 transition-colors"
                                                 >

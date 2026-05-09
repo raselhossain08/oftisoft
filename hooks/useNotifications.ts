@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationsAPI } from '@/lib/api';
@@ -12,6 +11,7 @@ export interface Notification {
     read: boolean;
     archived: boolean;
     priority: 'high' | 'normal' | 'low';
+    link?: string | null;
     createdAt: string;
 }
 
@@ -26,10 +26,18 @@ export function useNotifications() {
             : notificationsAPI.getNotifications(),
     });
 
+    const { data: counts } = useQuery({
+        queryKey: ['notifications', 'counts'],
+        queryFn: () => notificationsAPI.getCounts(),
+    });
+
     const markAsReadMutation = useMutation({
         mutationFn: notificationsAPI.markAsRead,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        },
+        onError: () => {
+            toast.error("Failed to mark as read");
         },
     });
 
@@ -39,6 +47,9 @@ export function useNotifications() {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
             toast.success("All caught up!", { description: "All notifications marked as read." });
         },
+        onError: () => {
+            toast.error("Failed to mark all as read");
+        },
     });
 
     const archiveMutation = useMutation({
@@ -47,6 +58,20 @@ export function useNotifications() {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
             toast.info("Notification archived");
         },
+        onError: () => {
+            toast.error("Failed to archive notification");
+        },
+    });
+
+    const unarchiveMutation = useMutation({
+        mutationFn: notificationsAPI.unarchive,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            toast.success("Notification restored to inbox");
+        },
+        onError: () => {
+            toast.error("Failed to unarchive notification");
+        },
     });
 
     const deleteMutation = useMutation({
@@ -54,6 +79,9 @@ export function useNotifications() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
             toast.success("Notification deleted permanently");
+        },
+        onError: () => {
+            toast.error("Failed to delete notification");
         },
     });
 
@@ -65,8 +93,10 @@ export function useNotifications() {
         return true;
     });
 
-    // Stats
-    const unreadCount = notifications.filter((n: Notification) => !n.read && !n.archived).length;
+    const activeList = filter === 'archived' ? [] : notifications;
+    const unreadCount = counts?.unread ?? activeList.filter((n: Notification) => !n.read).length;
+    const highPriorityCount = counts?.highPriority ?? activeList.filter((n: Notification) => n.priority === 'high').length;
+    const archivedCount = counts?.archived ?? (filter === 'archived' ? notifications.length : 0);
 
     return {
         notifications: filteredNotifications,
@@ -74,9 +104,14 @@ export function useNotifications() {
         filter,
         setFilter,
         unreadCount,
+        highPriorityCount,
+        archivedCount,
+        refetch: () => queryClient.refetchQueries({ queryKey: ['notifications'] }),
+        isMarkingAllRead: markAllReadMutation.isPending,
         markAsRead: (id: string) => markAsReadMutation.mutate(id),
         markAllAsRead: () => markAllReadMutation.mutate(),
         archive: (id: string) => archiveMutation.mutate(id),
+        unarchive: (id: string) => unarchiveMutation.mutate(id),
         deleteNotification: (id: string) => deleteMutation.mutate(id),
     };
 }

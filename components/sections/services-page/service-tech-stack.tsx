@@ -33,8 +33,10 @@ export default function ServiceTechStack() {
 
     return (
         <section className="py-16 md:py-24 bg-background relative overflow-hidden">
-            {/* Background Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px]" />
+            {/* Consistent Grid Background */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+            
+            {/* Ambient Background */}
             <div className="absolute top-0 right-0 w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
 
             <div className="container px-4 mx-auto relative z-10">
@@ -43,35 +45,47 @@ export default function ServiceTechStack() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="mb-6"
+                        className="mb-6 flex justify-center"
                     >
-                        <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-colors">
+                        <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-colors backdrop-blur-sm">
                             <Layers className="w-3.5 h-3.5" />
                             Our Toolkit
                         </Badge>
                     </motion.div>
                     
-                    <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
+                    <motion.h2 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 }}
+                        className="text-3xl md:text-5xl font-semibold mb-4 md:mb-6 tracking-tight"
+                    >
                         Powerful <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Technology Stack</span>
-                    </h2>
-                    <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
+                    </motion.h2>
+                    <motion.p 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2 }}
+                        className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto"
+                    >
                         We leverage the latest frameworks and tools to build future-proof, high-performance applications.
-                    </p>
+                    </motion.p>
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                     {/* Left: Sidebar Navigation (Scrollable on Mobile) */}
                     <div className="w-full lg:w-1/4">
-                        <div className="flex lg:flex-col overflow-x-auto pb-4 lg:pb-0 gap-2 lg:gap-2 sticky lg:top-24 no-scrollbar snap-x">
+                        <div className="flex lg:flex-col overflow-x-auto pb-4 lg:pb-0 gap-3 lg:gap-3 sticky lg:top-24 no-scrollbar snap-x">
                             {techCategories.map((cat) => (
                                 <button
                                     key={cat.id}
                                     onClick={() => setActiveTab(cat.id)}
                                     className={cn(
-                                        "min-w-[200px] lg:min-w-0 snap-center flex items-center gap-4 p-4 rounded-xl transition-all duration-300 border text-left group relative overflow-hidden",
+                                        "min-w-[240px] lg:min-w-0 snap-center flex items-center gap-4 p-4 rounded-xl transition-all duration-300 border text-left group relative overflow-hidden",
                                         activeTab === cat.id 
                                             ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" 
-                                            : "bg-card hover:bg-muted border-border text-muted-foreground hover:text-foreground"
+                                            : "bg-card/50 backdrop-blur-sm hover:bg-card border-border/50 text-muted-foreground hover:text-foreground"
                                     )}
                                 >
                                     {/* Active Indicator Splash */}
@@ -94,7 +108,7 @@ export default function ServiceTechStack() {
                                             })()}
                                         </div>
                                         <div className="shrink-0 max-w-[150px] lg:max-w-none">
-                                            <div className="font-bold truncate">{cat.label}</div>
+                                            <div className="font-bold truncate text-sm lg:text-base">{cat.label}</div>
                                             <div className={cn("text-xs opacity-80 truncate", activeTab === cat.id ? "text-primary-foreground" : "text-muted-foreground")}>
                                                 {cat.description}
                                             </div>
@@ -116,7 +130,85 @@ export default function ServiceTechStack() {
                                 transition={{ duration: 0.3 }}
                                 className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                             >
-                                {techCategories.find(c => c.id === activeTab)?.techs.map((tech, index) => (
+                                {techCategories.find(c => c.id === activeTab)?.techs.map((tech, index) => {
+                                    // Comprehensive mappings for Simple Icons
+                                    const slugMap: Record<string, string> = {
+                                        // Frontend
+                                        'react': 'react',
+                                        'react native': 'react',
+                                        'next.js': 'nextdotjs',
+                                        'next.js 13': 'nextdotjs',
+                                        'next.js 14': 'nextdotjs',
+                                        'next.js 15': 'nextdotjs',
+                                        'vue.js': 'vuedotjs',
+                                        'three.js': 'threedotjs',
+                                        'tailwind css': 'tailwindcss',
+                                        'framer motion': 'framermotion',
+                                        'typescript': 'typescript',
+                                        'redux': 'redux',
+                                        
+                                        // Backend
+                                        'node.js': 'nodedotjs',
+                                        'nestjs': 'nestjs',
+                                        'express.js': 'express',
+                                        'express': 'express',
+                                        'python': 'python',
+                                        'django': 'django',
+                                        'golang': 'go',
+                                        'graphql': 'graphql',
+                                        'websockets': 'socketdotio', // fallback
+                                        
+                                        // Database & Cloud
+                                        'aws': 'amazonwebservices',
+                                        'google cloud': 'googlecloud',
+                                        'github actions': 'githubactions',
+                                        'postgresql': 'postgresql',
+                                        'mongodb': 'mongodb',
+                                        'redis': 'redis',
+                                        'supabase': 'supabase',
+                                        'prisma': 'prisma',
+                                        'mysql': 'mysql',
+                                        'elasticsearch': 'elasticsearch',
+                                        'cloudflare': 'cloudflare',
+                                        'terraform': 'terraform',
+                                        
+                                        // AI & Tools
+                                        'openai': 'openai',
+                                        'openai api': 'openai',
+                                        'hugging face': 'huggingface',
+                                        'tensorflow': 'tensorflow',
+                                        'pytorch': 'pytorch',
+                                        'langchain': 'langchain',
+                                        'vercel': 'vercel',
+                                        'docker': 'docker',
+                                        'kubernetes': 'kubernetes',
+                                        'figma': 'figma',
+                                        'pinecone': 'pinecone', // might not exist, will fallback
+                                        'llamaindex': 'llamaindex', // might not exist
+                                        
+                                        // Mobile
+                                        'expo': 'expo',
+                                        'flutter': 'flutter',
+                                        'swift': 'swift',
+                                        'kotlin': 'kotlin',
+                                        'pwa': 'pwa'
+                                    };
+
+                                    let techSlug = tech.toLowerCase();
+                                    // Clean up version numbers if not explicitly mapped
+                                    if (!slugMap[techSlug]) {
+                                        techSlug = techSlug.replace(/\s\d+(\.\d+)?$/, '');
+                                    }
+
+                                    if (slugMap[techSlug]) {
+                                        techSlug = slugMap[techSlug];
+                                    } else {
+                                        techSlug = techSlug
+                                            .replace(/\./g, 'dot')
+                                            .replace(/\s+/g, '');
+                                    }
+
+                                    return (
                                     <motion.div
                                         key={tech}
                                         initial={{ opacity: 0, scale: 0.9 }}
@@ -124,27 +216,41 @@ export default function ServiceTechStack() {
                                         transition={{ delay: index * 0.05 }}
                                         whileHover={{ y: -5, scale: 1.05 }}
                                     >
-                                        <Card className="aspect-[4/3] relative group overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300">
+                                        <Card className="aspect-[4/3] relative group overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300 bg-card/30 backdrop-blur-sm shadow-sm hover:shadow-md">
                                             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 group-hover:opacity-100 transition-opacity" />
                                             
                                             {/* Glow Effect */}
                                             <div className="absolute inset-0 bg-primary/20 hover:bg-primary/30 blur-2xl rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
 
-                                            <CardContent className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-card/10 backdrop-blur-sm">
-                                                 {/* Placeholder for Tech Icon - Generative based on name first letter if no image */}
-                                                 <div className="w-12 h-12 mb-4 rounded-xl bg-gradient-to-br from-background to-muted shadow-inner flex items-center justify-center border border-white/10 group-hover:border-primary/20 transition-colors">
-                                                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-foreground to-muted-foreground group-hover:from-primary group-hover:to-purple-500">
-                                                        {tech.charAt(0)}
-                                                     </span>
+                                            <CardContent className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                                                 {/* Real Logo from CDN */}
+                                                 <div className="w-14 h-14 mb-4 rounded-2xl bg-gradient-to-br from-background to-muted shadow-inner flex items-center justify-center border border-white/10 group-hover:border-primary/20 transition-colors relative overflow-hidden p-2">
+                                                     <img 
+                                                        src={`https://cdn.simpleicons.org/${techSlug}`}
+                                                        alt={`${tech} logo`}
+                                                        className="w-full h-full object-contain opacity-70 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0"
+                                                        onError={(e) => {
+                                                            e.currentTarget.style.display = 'none';
+                                                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                                            e.currentTarget.nextElementSibling?.classList.add('flex');
+                                                        }}
+                                                    />
+                                                     {/* Text Fallback */}
+                                                     <div className="hidden absolute inset-0 bg-primary/10 opacity-100 items-center justify-center">
+                                                        <span className="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-b from-foreground to-muted-foreground group-hover:from-primary group-hover:to-purple-500 relative z-10">
+                                                            {tech.charAt(0)}
+                                                        </span>
+                                                     </div>
                                                  </div>
                                                  
-                                                 <span className="font-bold text-center text-sm text-muted-foreground group-hover:text-foreground transition-colors truncate w-full">
+                                                 <span className="font-bold text-center text-sm text-muted-foreground group-hover:text-foreground transition-colors truncate w-full px-2">
                                                      {tech}
                                                  </span>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
-                                ))}
+                                    );
+                                })}
                             </motion.div>
                         </AnimatePresence>
                     </div>

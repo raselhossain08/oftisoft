@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
@@ -45,7 +45,7 @@ export default function CommunityPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Initializing Community Grid...
                 </div>
             </div>
@@ -70,26 +70,26 @@ export default function CommunityPage() {
                 {/* Header Section */}
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-black italic tracking-[0.3em] text-[10px] uppercase shadow-[0_0_20px_rgba(var(--primary),0.2)]">
-                            {header?.badge || "Social Intelligence Hub"}
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(var(--primary),0.2)]">
+                            {header?.badge ?? ""}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-black italic tracking-tighter text-white"
+                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
-                        {header?.title || "Community"} <span className="text-primary NOT-italic">{header?.highlight || "Nexus"}</span>.
+                        {header?.title ?? ""} <span className="text-primary">{header?.highlight ?? ""}</span>.
                     </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium italic max-w-2xl mx-auto leading-relaxed">
-                        {header?.description || "Join the global grid of architects, neural engineers, and visual designers building the meta-layer of 2026."}
+                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+                        {header?.description ?? ""}
                     </motion.p>
                 </div>
 
                 {/* Grid */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {links.map((item, idx) => {
-                        const Icon = iconMap[item.iconName || 'Github'] || Github;
+                        const Icon = iconMap[item.iconName ?? ''] || Github;
                         return (
                         <motion.div
                             key={item.id}
@@ -104,8 +104,8 @@ export default function CommunityPage() {
                                             <Icon size={36} />
                                         </div>
                                         <div className="space-y-2">
-                                            <h3 className="text-2xl font-black italic text-white tracking-tight">{item.title}</h3>
-                                            <p className="text-sm text-muted-foreground font-medium italic">{item.label}</p>
+                                            <h3 className="text-2xl font-semibold text-white tracking-tight">{item.title}</h3>
+                                            <p className="text-sm text-muted-foreground font-medium">{item.label}</p>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -121,10 +121,10 @@ export default function CommunityPage() {
                         <div className="space-y-8 text-center lg:text-left">
                             <div className="flex flex-col lg:flex-row items-center gap-4 text-primary">
                                 <Bot size={48} />
-                                <h2 className="text-4xl md:text-7xl font-black italic tracking-tighter text-white">{newsletter?.title || "Neural Digest"}</h2>
+                                <h2 className="text-4xl md:text-7xl font-semibold tracking-tighter text-white">{newsletter?.title ?? ""}</h2>
                             </div>
-                            <p className="text-xl text-muted-foreground font-medium italic leading-relaxed">
-                                {newsletter?.description || "Receive high-fidelity platform updates, weekly artifact drops, and architectural intelligence nodes directly to your inbox."}
+                            <p className="text-xl text-muted-foreground font-medium leading-relaxed">
+                                {newsletter?.description ?? ""}
                             </p>
                         </div>
                         <div className="space-y-6">
@@ -132,18 +132,18 @@ export default function CommunityPage() {
                                 <div className="relative overflow-hidden rounded-[28px] bg-white/[0.03] border border-white/10 p-3 backdrop-blur-xl group-focus-within/form:border-primary/50 transition-all duration-500">
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <Input 
-                                            placeholder={newsletter?.placeholder || "Enter secure email interface..."}
-                                            className="h-16 border-none bg-transparent text-white placeholder:text-white/20 focus-visible:ring-0 text-lg font-bold italic px-8"
+                                            placeholder={newsletter?.placeholder ?? ""}
+                                            className="h-16 border-none bg-transparent text-white placeholder:text-white/20 focus-visible:ring-0 text-lg font-bold px-8"
                                         />
-                                        <Button className="h-16 px-12 rounded-[22px] bg-primary hover:bg-primary/90 text-white font-black italic text-lg shadow-2xl shadow-primary/30 transition-all active:scale-95 group/btn">
-                                            {newsletter?.buttonText || "Initiate Sync"} <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-2 transition-transform" />
+                                        <Button className="h-16 px-12 rounded-[22px] bg-primary hover:bg-primary/90 text-white font-semibold text-lg shadow-2xl shadow-primary/30 transition-all active:scale-95 group/btn">
+                                            {newsletter?.buttonText ?? ""} <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-2 transition-transform" />
                                         </Button>
                                     </div>
                                 </div>
                             </form>
                             <div className="flex items-center gap-4 justify-center lg:justify-start">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 italic">
-                                    {newsletter?.footerText || "Trusted by 14k+ Global Architects"}
+                                <p className="text-[10px] font-semibold tracking-[0.2em] text-white/30">
+                                    {newsletter?.footerText ?? ""}
                                 </p>
                             </div>
                         </div>
@@ -154,8 +154,8 @@ export default function CommunityPage() {
                 <div className="grid md:grid-cols-3 gap-12 pt-12 border-t border-white/5 opacity-40">
                     {stats.map((stat) => (
                         <div key={stat.id} className="flex flex-col items-center text-center space-y-2">
-                            <span className="text-4xl font-black italic text-white tracking-tighter">{stat.value}</span>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-primary italic">{stat.label}</span>
+                            <span className="text-4xl font-semibold text-white tracking-tighter">{stat.value}</span>
+                            <span className="text-[10px] font-semibold tracking-widest text-primary">{stat.label}</span>
                         </div>
                     ))}
                 </div>
@@ -163,3 +163,4 @@ export default function CommunityPage() {
         </div>
     );
 }
+

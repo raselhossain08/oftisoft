@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import { useEffect, useState, use } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +50,7 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Syncing Asset Details...
                 </div>
             </div>
@@ -94,7 +94,7 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
                                     className="absolute inset-0"
                                 >
                                     <Image
-                                        src={allScreenshots[activeScreenshot] || "/placeholder.png"}
+                                        src={allScreenshots[activeScreenshot] ?? ""}
                                         alt={product.name}
                                         fill
                                         className="object-cover"

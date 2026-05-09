@@ -74,28 +74,25 @@ export default function UsersPage() {
 
     const handleRefresh = async () => {
         setIsRefreshing(true);
-        const params: any = { search: searchQuery };
-        if (activeSegment === "Active Users") params.isActive = true;
-        if (activeSegment === "Deactivated") params.isActive = false;
-        if (activeSegment === "Admins") params.role = "Admin";
-        if (activeSegment === "Support Staff") params.role = "Support";
-        if (activeSegment === "Managers") params.role = "Editor";
-        
-        await fetchUsers(params);
+        await fetchUsers({ search: searchQuery });
         setTimeout(() => setIsRefreshing(false), 500);
         toast.success("User matrix synchronized");
     };
 
     useEffect(() => {
-        const params: any = { search: searchQuery };
-        if (activeSegment === "Active Users") params.isActive = true;
-        if (activeSegment === "Deactivated") params.isActive = false;
-        if (activeSegment === "Admins") params.role = "Admin";
-        if (activeSegment === "Support Staff") params.role = "Support";
-        if (activeSegment === "Managers") params.role = "Editor";
-        
-        fetchUsers(params);
-    }, [fetchUsers, searchQuery, activeSegment]);
+        fetchUsers({ search: searchQuery });
+    }, [fetchUsers, searchQuery]);
+
+    const filteredUsers = (() => {
+        switch (activeSegment) {
+            case "Active Users": return users.filter(u => u.isActive);
+            case "Deactivated": return users.filter(u => !u.isActive);
+            case "Admins": return users.filter(u => u.role === "Admin");
+            case "Support Staff": return users.filter(u => u.role === "Support");
+            case "Managers": return users.filter(u => u.role === "Editor");
+            default: return users;
+        }
+    })();
 
     const newUsersLast7Days = users.filter(u => {
         const createdDate = new Date(u.createdAt);
@@ -118,14 +115,34 @@ export default function UsersPage() {
     };
 
     const handleExport = () => {
-        toast.success("Preparing user data export...");
+        if (filteredUsers.length === 0) {
+            toast.info("No users to export for current segment.");
+            return;
+        }
+        const headers = ["Name", "Email", "Role", "Status", "Created"];
+        const rows = filteredUsers.map(u => [
+            (u.name || "").replace(/"/g, '""'),
+            (u.email || "").replace(/"/g, '""'),
+            u.role || "",
+            u.isActive ? "Active" : "Inactive",
+            new Date(u.createdAt).toISOString(),
+        ].map(c => `"${c}"`).join(","));
+        const csv = [headers.join(","), ...rows].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `users-export-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("User export downloaded");
     };
 
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tighter italic">Entity Management</h1>
+                    <h1 className="text-3xl font-black tracking-tighter">User Management</h1>
                     <p className="text-muted-foreground font-medium">Manage your relationships, segment users, and track customer lifetime value.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -138,11 +155,11 @@ export default function UsersPage() {
                         Export
                     </Button>
                     <Button 
-                        className="gap-2 rounded-xl h-11 shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 px-6 font-black italic"
+                        className="gap-2 rounded-xl h-11 shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 px-8 font-black"
                         onClick={() => setIsAddUserOpen(true)}
                     >
                         <UserPlus className="w-4 h-4" />
-                        Inject Entity
+                        Add User
                     </Button>
                 </div>
             </div>
@@ -163,34 +180,34 @@ export default function UsersPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="p-6 pt-0">
-                        <div className="text-4xl font-black italic">{users.length}</div>
-                        <p className="text-[9px] text-muted-foreground uppercase mt-2 font-black tracking-widest opacity-60 italic">Total Registered Nodes</p>
+                        <div className="text-4xl font-black">{users.length}</div>
+                        <p className="text-[9px] text-muted-foreground uppercase mt-2 font-black tracking-widest opacity-60">Total Registered Users</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-[2.5rem] overflow-hidden group hover:border-green-500/30 transition-all">
                     <CardHeader className="flex flex-row items-center justify-between pb-2 p-6">
-                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Active Streams</CardTitle>
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Active Users</CardTitle>
                         <div className="p-2 rounded-xl bg-green-500/10 text-green-500 group-hover:scale-110 transition-transform">
                             <Activity className="h-4 w-4" />
                         </div>
                     </CardHeader>
                     <CardContent className="p-6 pt-0">
-                        <div className="text-4xl font-black italic text-green-500">{users.filter(u => u.isActive).length}</div>
-                        <p className="text-[9px] text-green-500/60 uppercase mt-2 font-black tracking-widest italic font-black">Online / Ready</p>
+                        <div className="text-4xl font-black text-green-500">{users.filter(u => u.isActive).length}</div>
+                        <p className="text-[9px] text-green-500/60 uppercase mt-2 font-black tracking-widest font-black">Active</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-[2.5rem] overflow-hidden group hover:border-purple-500/30 transition-all">
                     <CardHeader className="flex flex-row items-center justify-between pb-2 p-6">
-                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Identity Verification</CardTitle>
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Email Verification</CardTitle>
                         <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 group-hover:scale-110 transition-transform">
                             <ShieldCheck className="h-4 w-4" />
                         </div>
                     </CardHeader>
                     <CardContent className="p-6 pt-0">
-                        <div className="text-4xl font-black italic">
+                        <div className="text-4xl font-black">
                             {users.length > 0 ? ((users.filter(u => u.isEmailVerified).length / users.length) * 100).toFixed(0) : 0}%
                         </div>
-                        <p className="text-[9px] text-muted-foreground uppercase mt-2 font-black tracking-widest opacity-60 italic">Compliance Rating</p>
+                        <p className="text-[9px] text-muted-foreground uppercase mt-2 font-black tracking-widest opacity-60">Compliance Rating</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50 bg-primary shadow-xl shadow-primary/20 rounded-[2.5rem] overflow-hidden group border-none relative">
@@ -202,8 +219,8 @@ export default function UsersPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="p-6 pt-0 relative z-10">
-                        <div className="text-4xl font-black italic text-white">+{newUsersLast7Days}</div>
-                        <p className="text-[9px] text-white/60 uppercase mt-2 font-black tracking-widest italic">New Node Acquisitions</p>
+                        <div className="text-4xl font-black text-white">+{newUsersLast7Days}</div>
+                        <p className="text-[9px] text-white/60 uppercase mt-2 font-black tracking-widest">New User Acquisitions</p>
                     </CardContent>
                 </Card>
             </div>
@@ -213,25 +230,25 @@ export default function UsersPage() {
                 <div className="space-y-6">
                     <Card className="border-border/50 h-fit rounded-[2.5rem] overflow-hidden shadow-sm bg-card/40 backdrop-blur-md">
                         <CardHeader className="p-8 pb-4">
-                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Entity Filters</CardTitle>
+                            <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">User Filters</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                             <div className="flex flex-col gap-1">
                                 {[
                                     { name: "All Users", count: users.length },
-                                    { name: "Active Users", count: users.filter(u => u.isActive).length },
-                                    { name: "Admins", count: users.filter(u => u.role === 'Admin').length },
-                                    { name: "Support Staff", count: users.filter(u => u.role === 'Support').length },
-                                    { name: "Managers", count: users.filter(u => u.role === 'Editor').length },
-                                    { name: "Deactivated", count: users.filter(u => !u.isActive).length },
+                                    { name: "Active Users", count: users.filter((u) => u.isActive).length },
+                                    { name: "Admins", count: users.filter((u) => u.role === "Admin").length },
+                                    { name: "Support Staff", count: users.filter((u) => u.role === "Support").length },
+                                    { name: "Managers", count: users.filter((u) => u.role === "Editor").length },
+                                    { name: "Deactivated", count: users.filter((u) => !u.isActive).length },
                                 ].map((segment) => (
                                     <button 
                                         key={segment.name}
                                         onClick={() => setActiveSegment(segment.name)}
                                         className={cn(
                                             "flex items-center justify-between px-6 py-4 rounded-2xl text-[11px] transition-all group",
-                                            activeSegment === segment.name 
-                                                ? "bg-primary text-white font-black shadow-lg shadow-primary/20 italic" 
+                                            activeSegment === segment.name
+                                                ? "bg-primary text-white font-black shadow-lg shadow-primary/20"
                                                 : "text-muted-foreground font-black hover:bg-primary/5 hover:text-primary"
                                         )}
                                     >
@@ -253,8 +270,8 @@ export default function UsersPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="px-6 pb-6 pt-0 space-y-4">
-                            <p className="text-[10px] font-black text-muted-foreground leading-relaxed uppercase tracking-tighter opacity-70 italic">Segments are synced with downstream services every 6 hours.</p>
-                            <Button variant="outline" className="w-full rounded-[1.2rem] bg-background text-[10px] h-10 font-black tracking-widest border-primary/20 text-primary hover:bg-primary hover:text-white transition-all" onClick={() => toast.success("Batch sync dispatched...")}>BATCH SYNC NOW</Button>
+                            <p className="text-[10px] font-black text-muted-foreground leading-relaxed uppercase tracking-tighter opacity-70">Segments are synced with downstream services every 6 hours.</p>
+                            <Button variant="outline" className="w-full rounded-[1.2rem] bg-background text-[10px] h-10 font-black tracking-widest border-primary/20 text-primary hover:bg-primary hover:text-white transition-all" onClick={handleRefresh}>BATCH SYNC NOW</Button>
                         </CardContent>
                     </Card>
                 </div>
@@ -274,7 +291,12 @@ export default function UsersPage() {
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button variant="outline" size="sm" className="gap-2 rounded-xl h-10 font-bold px-4">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="gap-2 rounded-xl h-10 font-bold px-4"
+                                        onClick={() => toast.info("Use segment filters on the left to filter by role and status.")}
+                                    >
                                         <Filter className="h-4 w-4" />
                                         Advanced
                                     </Button>
@@ -282,7 +304,24 @@ export default function UsersPage() {
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
-                            {users.length > 0 ? (
+                            {isLoading && users.length === 0 ? (
+                                <div className="py-32 flex flex-col items-center justify-center gap-6">
+                                    <div className="relative">
+                                        <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+                                        <RefreshCw className="h-10 w-10 text-primary animate-spin relative z-10" />
+                                    </div>
+                                    <p className="text-[11px] text-primary font-black uppercase tracking-[0.3em] animate-pulse">Syncing Entity Stream...</p>
+                                </div>
+                            ) : filteredUsers.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-32 bg-muted/5">
+                                    <div className="w-20 h-20 rounded-[2rem] bg-muted/20 flex items-center justify-center mb-6">
+                                        <SearchX className="h-10 w-10 text-muted-foreground/30" />
+                                    </div>
+                                    <h3 className="text-2xl font-black">No Records Found</h3>
+                                    <p className="text-muted-foreground text-[10px] font-black uppercase max-w-xs text-center mt-3 tracking-[0.2em] opacity-60">The current query or segment returned no entities.</p>
+                                    <Button variant="outline" className="mt-8 rounded-[1.2rem] font-black text-[10px] border-primary/20 text-primary px-10 h-11 tracking-widest hover:bg-primary hover:text-white transition-all" onClick={() => { setSearchQuery(""); setActiveSegment("All Users"); }}>RESET FILTERS</Button>
+                                </div>
+                            ) : (
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-muted/10 hover:bg-transparent border-b border-border/50">
@@ -294,7 +333,7 @@ export default function UsersPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {users.map((u) => (
+                                        {filteredUsers.map((u) => (
                                             <TableRow key={u.id} className="group hover:bg-primary/[0.02] transition-all border-b border-border/20">
                                                 <TableCell className="px-6 py-6">
                                                     <div className="flex items-center gap-4">
@@ -302,7 +341,7 @@ export default function UsersPage() {
                                                             <Avatar className="h-12 w-12 border-2 border-background shadow-xl">
                                                                 <AvatarImage src={u.avatarUrl} />
                                                                 <AvatarFallback className="bg-primary/10 text-primary font-black text-xs">
-                                                                    {u.name.split(" ").map(n => n[0]).join("")}
+                                                                    {(u.name || "U").split(" ").filter(Boolean).map((n) => n[0]).join("").toUpperCase() || "U"}
                                                                 </AvatarFallback>
                                                             </Avatar>
                                                             {u.isActive && (
@@ -310,22 +349,22 @@ export default function UsersPage() {
                                                             )}
                                                         </div>
                                                         <div className="flex flex-col">
-                                                            <span className="font-black text-sm tracking-tight">{u.name}</span>
-                                                            <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest opacity-60 italic">{u.email}</span>
+                                                            <span className="font-black text-sm tracking-tight">{u.name || "—"}</span>
+                                                            <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest opacity-60">{u.email || "—"}</span>
                                                         </div>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>{getRoleBadge(u.role)}</TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col gap-1">
-                                                        <div className="text-[11px] font-black italic">{new Date(u.createdAt).toLocaleDateString()}</div>
+                                                        <div className="text-[11px] font-black">{new Date(u.createdAt).toLocaleDateString()}</div>
                                                         <div className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground">{new Date(u.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} UTC</div>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
                                                         <div className={`w-2 h-2 rounded-full ${u.isActive ? "bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)]" : "bg-muted"}`} />
-                                                        <span className="text-[9px] font-black uppercase tracking-widest italic">{u.isActive ? "SIGNAL_ACTIVE" : "NODE_LOCKED"}</span>
+                                                        <span className="text-[9px] font-black uppercase tracking-widest">{u.isActive ? "Active" : "Inactive"}</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right px-6">
@@ -338,13 +377,13 @@ export default function UsersPage() {
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-2xl hover:bg-muted/50">
-                                                                    <MoreVertical className="h-5 h-5" />
+                                                                    <MoreVertical className="h-5 w-5" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end" className="w-64 rounded-[1.5rem] p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] border-border/50 backdrop-blur-xl">
                                                                 <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-3 py-2">Administrative Actions</DropdownMenuLabel>
                                                                 <DropdownMenuItem 
-                                                                    className="gap-3 cursor-pointer rounded-xl font-black italic py-3 text-xs" 
+                                                                    className="gap-3 cursor-pointer rounded-xl font-black py-3 text-xs" 
                                                                     onClick={() => {
                                                                         setSelectedUser(u);
                                                                         setIsEmailOpen(true);
@@ -353,7 +392,7 @@ export default function UsersPage() {
                                                                     <Mail className="w-4 h-4 text-primary" /> DISPATCH COMMUNIQUE
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem 
-                                                                    className="gap-3 cursor-pointer rounded-xl font-black italic py-3 text-xs" 
+                                                                    className="gap-3 cursor-pointer rounded-xl font-black py-3 text-xs" 
                                                                     onClick={() => {
                                                                         setSelectedUser(u);
                                                                         setIsMessageOpen(true);
@@ -363,17 +402,17 @@ export default function UsersPage() {
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuSeparator className="my-2 opacity-50" />
                                                                 <DropdownMenuItem 
-                                                                    className="gap-3 cursor-pointer rounded-xl font-black italic py-3 text-xs"
+                                                                    className="gap-3 cursor-pointer rounded-xl font-black py-3 text-xs"
                                                                     onClick={() => toggleUserStatus(u.id)}
                                                                 >
                                                                     <ShieldAlert className="w-4 h-4 text-amber-500" /> 
-                                                                    {u.isActive ? "LOCK_SIGNAL" : "BYPASS_ENCRYPTION"}
+                                                                    {u.isActive ? "Deactivate" : "Activate"}
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem 
-                                                                    className="gap-3 text-destructive focus:bg-destructive/10 cursor-pointer rounded-xl font-black italic py-3 text-xs"
+                                                                <DropdownMenuItem
+                                                                    className="gap-3 text-destructive focus:bg-destructive/10 cursor-pointer rounded-xl font-black py-3 text-xs"
                                                                     onClick={() => setDeleteId(u.id)}
                                                                 >
-                                                                    <Trash2 className="w-4 h-4" /> PURGE_ENTITY
+                                                                    <Trash2 className="w-4 h-4" /> Delete User
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
@@ -383,23 +422,6 @@ export default function UsersPage() {
                                         ))}
                                     </TableBody>
                                 </Table>
-                            ) : isLoading ? (
-                                <div className="py-32 flex flex-col items-center justify-center gap-6">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
-                                        <RefreshCw className="h-10 w-10 text-primary animate-spin relative z-10" />
-                                    </div>
-                                    <p className="text-[11px] text-primary font-black uppercase tracking-[0.3em] animate-pulse">Syncing Entity Stream...</p>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-32 bg-muted/5">
-                                    <div className="w-20 h-20 rounded-[2rem] bg-muted/20 flex items-center justify-center mb-6">
-                                        <SearchX className="h-10 w-10 text-muted-foreground/30" />
-                                    </div>
-                                    <h3 className="text-2xl font-black italic">Zero Signals Found</h3>
-                                    <p className="text-muted-foreground text-[10px] font-black uppercase max-w-xs text-center mt-3 tracking-[0.2em] opacity-60">The current query returned no active entities from the ledger.</p>
-                                    <Button variant="outline" className="mt-8 rounded-[1.2rem] font-black text-[10px] border-primary/20 text-primary px-10 h-11 tracking-widest hover:bg-primary hover:text-white transition-all" onClick={() => setSearchQuery("")}>RESET SEARCH</Button>
-                                </div>
                             )}
                         </CardContent>
                     </Card>
@@ -410,7 +432,7 @@ export default function UsersPage() {
 
             {/* Email Dialog */}
             <Dialog open={isEmailOpen} onOpenChange={setIsEmailOpen}>
-                <DialogContent className="sm:max-w-[500px] rounded-[2rem] border-border/50">
+                <DialogContent className="w-[95vw] max-w-lg sm:max-w-[500px] rounded-[2rem] border-border/50">
                     <DialogHeader>
                         <div className="w-12 h-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
                             <Mail className="w-6 h-6 text-primary" />
@@ -447,7 +469,7 @@ export default function UsersPage() {
 
             {/* Message Dialog */}
             <Dialog open={isMessageOpen} onOpenChange={setIsMessageOpen}>
-                <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-border/50">
+                <DialogContent className="w-[95vw] max-w-lg sm:max-w-[500px] rounded-[2rem] border-border/50">
                     <DialogHeader>
                         <div className="w-12 h-auto rounded-2xl bg-purple-500/10 flex items-center justify-center mb-4">
                             <MessageSquare className="w-6 h-6 text-purple-500" />
@@ -489,12 +511,17 @@ export default function UsersPage() {
                     <div className="p-4 text-center">
                         <p className="text-sm font-medium text-muted-foreground">This will permanently remove the record and all associated metadata. This action cannot be reversed.</p>
                     </div>
-                    <DialogFooter className="flex-col sm:flex-col gap-2 pt-4">
+                                    <DialogFooter className="flex-col sm:flex-col gap-2 pt-4">
                         <Button 
                             className="w-full bg-destructive hover:bg-destructive/90 rounded-xl h-auto font-black shadow-lg shadow-destructive/20"
-                            onClick={() => {
-                                if (deleteId) deleteUser(deleteId);
-                                setDeleteId(null);
+                            onClick={async () => {
+                                if (!deleteId) return;
+                                try {
+                                    await deleteUser(deleteId);
+                                    setDeleteId(null);
+                                } catch {
+                                    // Error toast from hook; keep dialog open
+                                }
                             }}
                         >
                             CONFIRM PURGE

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Facebook, Twitter, Instagram, Linkedin, Heart, Mail, MapPin, Phone, ArrowRight, Github, Send } from "lucide-react";
-import { useState } from "react";
+import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone, ArrowRight, Github } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useFooterContent } from "@/hooks/useFooterContent";
 import { useFooterContentStore } from "@/lib/store/footer-content";
 import { useLeads } from "@/hooks/useLeads";
 
@@ -21,10 +21,25 @@ const iconMap: Record<string, any> = {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+const isExternalHref = (href: string) =>
+    /^(https?:\/\/|mailto:|tel:)/i.test(href);
+
 export default function Footer() {
-    const { content } = useFooterContentStore();
+    const { footerContent, isLoading } = useFooterContent();
+    const { setContent } = useFooterContentStore();
     const { subscribe, isSubscribing } = useLeads();
     const [email, setEmail] = useState("");
+
+    // Sync backend data to store
+    useEffect(() => {
+        if (footerContent) {
+            setContent(footerContent);
+        }
+    }, [footerContent, setContent]);
+
+    const content = footerContent;
+
+    if (isLoading || !content) return null;
 
     const handleSubscribe = (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,8 +48,6 @@ export default function Footer() {
             onSuccess: () => setEmail("")
         });
     };
-
-    if (!content) return null;
 
     return (
         <footer className="relative bg-[#020202] pt-24 pb-12 overflow-hidden z-10 border-t border-white/5">
@@ -96,6 +109,8 @@ export default function Footer() {
                                 <a
                                     key={social.id || i}
                                     href={social.href}
+                                    target={isExternalHref(social.href) && social.href.startsWith("http") ? "_blank" : undefined}
+                                    rel={isExternalHref(social.href) && social.href.startsWith("http") ? "noreferrer" : undefined}
                                     className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
                                     aria-label={social.label}
                                 >
@@ -103,6 +118,12 @@ export default function Footer() {
                                 </a>
                             );
                         })}
+                        </div>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                            <p>Founder: Rasel Hossain</p>
+                            <p>Email: oftisoft@gmail.com</p>
+                            <p>Phone: +880 1410-615665</p>
+                            <p>Location: Sultanpur Sahapara, Satkhira, Bangladesh 9400</p>
                         </div>
                     </div>
 
@@ -112,12 +133,23 @@ export default function Footer() {
                             <ul className="space-y-4">
                                 {(column.links || []).map((link, j) => (
                                     <li key={link.id || j}>
-                                        <Link 
-                                            href={link.href} 
-                                            className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center group w-fit"
-                                        >
-                                            {link.label}
-                                        </Link>
+                                        {isExternalHref(link.href) ? (
+                                            <a
+                                                href={link.href}
+                                                target={link.href.startsWith("http") ? "_blank" : undefined}
+                                                rel={link.href.startsWith("http") ? "noreferrer" : undefined}
+                                                className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center group w-fit"
+                                            >
+                                                {link.label}
+                                            </a>
+                                        ) : (
+                                            <Link 
+                                                href={link.href} 
+                                                className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center group w-fit"
+                                            >
+                                                {link.label}
+                                            </Link>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

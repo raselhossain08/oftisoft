@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 export function useProjects(projectId?: string, status?: string) {
     const queryClient = useQueryClient();
 
-    const { data: projects = [], isLoading: projectsLoading } = useQuery({
+    const { data: projects = [], isLoading: projectsLoading, isError: projectsError, refetch: refetchProjects } = useQuery({
         queryKey: ['projects', status],
         queryFn: () => projectsAPI.getProjects(status),
         enabled: !projectId
@@ -74,6 +74,8 @@ export function useProjects(projectId?: string, status?: string) {
         project: project as Project,
         stats,
         isLoading: projectId ? projectLoading : projectsLoading,
+        isError: !projectId && projectsError,
+        refetch: refetchProjects,
         createProject: (data: Partial<Project>, options?: any) => createProjectMutation.mutate(data, options),
         updateProject: (id: string, data: Partial<Project>, options?: any) => updateProjectMutation.mutate({ id, data }, options),
         deleteProject: (id: string, options?: any) => deleteProjectMutation.mutate(id, options),

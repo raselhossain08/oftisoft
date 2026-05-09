@@ -72,32 +72,32 @@ interface StatusContentState {
 
 const defaultContent: StatusPageContent = {
     header: {
-        badge: "Infrastructure Pulse Node",
+        badge: "Status",
         title: "System Status.",
         mainStatus: {
-            title: "All Systems Operational",
-            description: "Sync Pulse Normal / Sub-10ms Architecture"
+            title: "All Core Pages Live",
+            description: "Content, SEO, and blog coverage are active across the marketing site"
         },
         videoUrl: ""
     },
     systems: [
-        { id: "edge", name: "Oftisoft Edge Proxy", status: "Operational", uptime: "99.99%", latency: "14ms", iconName: "Globe", color: "text-green-500" },
-        { id: "neural", name: "Neural Engine Core", status: "Operational", uptime: "100%", latency: "128ms", iconName: "Cpu", color: "text-green-500" },
-        { id: "forge", name: "Visual Forge API", status: "Operational", uptime: "99.95%", latency: "42ms", iconName: "Zap", color: "text-green-500" },
-        { id: "cdn", name: "Global CDN Nodes", status: "Degraded", uptime: "98.2%", latency: "210ms", iconName: "Server", color: "text-orange-500" },
-        { id: "identity", name: "Identity Governance", status: "Operational", uptime: "100%", latency: "8ms", iconName: "ShieldCheck", color: "text-green-500" },
-        { id: "vaults", name: "Digital Asset Vaults", status: "Operational", uptime: "99.99%", latency: "31ms", iconName: "Database", color: "text-green-500" },
+        { id: "edge", name: "Website Content", status: "Operational", uptime: "100%", latency: "14ms", iconName: "Globe", color: "text-green-500" },
+        { id: "neural", name: "Blog Library", status: "Operational", uptime: "100%", latency: "42ms", iconName: "Cpu", color: "text-green-500" },
+        { id: "forge", name: "SEO Pages", status: "Operational", uptime: "100%", latency: "38ms", iconName: "Zap", color: "text-green-500" },
+        { id: "cdn", name: "Media Delivery", status: "Degraded", uptime: "98.2%", latency: "210ms", iconName: "Server", color: "text-orange-500" },
+        { id: "identity", name: "Support Routes", status: "Operational", uptime: "100%", latency: "8ms", iconName: "ShieldCheck", color: "text-green-500" },
+        { id: "vaults", name: "Stored Content", status: "Operational", uptime: "100%", latency: "31ms", iconName: "Database", color: "text-green-500" },
     ],
     incidents: {
-        title: "Historical Nodes (Incidents)",
+        title: "Recent Updates",
         logs: [
-            { id: "i1", date: "Feb 06, 2026", title: "Edge Proxy Expansion Delay", desc: "Minor latency spikes detected in EU-West nodes during architectural expansion.", status: "Resolved", color: "bg-green-500" },
-            { id: "i2", date: "Jan 28, 2026", title: "Identity Layer Sync Interrupt", desc: "Systematic upgrade of MFA nodes caused partial de-sync for 14 minutes.", status: "Resolved", color: "bg-green-500" },
+            { id: "i1", date: "Apr 18, 2026", title: "Blog content refresh", desc: "The blog dataset was expanded with full article bodies and SEO-focused topics.", status: "Resolved", color: "bg-green-500" },
+            { id: "i2", date: "Apr 20, 2026", title: "Marketing page rewrite", desc: "Placeholder-style copy was replaced with original Oftisoft content across the site.", status: "Resolved", color: "bg-green-500" },
         ]
     },
     monitoring: {
-        note: "Systems are monitored 24/7/365 by our autonomous neural agents.",
-        nextSyncText: "Next Auto-Sync in 5s"
+        note: "We keep an eye on content freshness, page consistency, and user-facing copy quality.",
+        nextSyncText: "Next Refresh in 5m"
     },
     lastUpdated: new Date().toISOString()
 };
@@ -105,7 +105,7 @@ const defaultContent: StatusPageContent = {
 export const useStatusContentStore = create<StatusContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -188,7 +188,7 @@ export const useStatusContentStore = create<StatusContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'status-content-storage',
@@ -196,3 +196,4 @@ export const useStatusContentStore = create<StatusContentState>()(
         }
     )
 );
+

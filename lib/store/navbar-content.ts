@@ -54,7 +54,7 @@ const defaultContent: NavbarContent = {
 export const useNavbarContentStore = create<NavbarContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+    content: null,
             isSaving: false,
 
             setContent: (content) => set({ content }),
@@ -90,7 +90,7 @@ export const useNavbarContentStore = create<NavbarContentState>()(
 
             setSaving: (saving) => set({ isSaving: saving }),
 
-            resetToDefaults: () => set({ content: defaultContent }),
+            resetToDefaults: () => set({ content: null }),
         })),
         {
             name: 'navbar-content-storage',

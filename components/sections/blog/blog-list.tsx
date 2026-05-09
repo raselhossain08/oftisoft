@@ -14,9 +14,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useBlogContentStore, type BlogCategory } from "@/lib/store/blog-content";
 import { AdSlot } from "@/components/ads/ad-slot";
 
-// Remove static mock data
-
-
 // Map icon string names to components
 const iconMap: any = {
     Grid, Code, Smartphone, Brain, Cloud, Briefcase
@@ -139,7 +136,7 @@ export default function BlogList() {
                                     <Link href={`/blog/${post.slug || post.id}`} className="group relative flex flex-col h-full block">
                                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl -z-10 blur-xl" />
                                         
-                                        <Card className="h-full flex flex-col bg-card/50 backdrop-blur-md border-border/50 rounded-3xl overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2">
+                                        <Card className="py-0 h-full flex flex-col bg-card/50 backdrop-blur-md border-border/50 rounded-3xl overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2">
                                             
                                             {/* Image Area */}
                                             <div className="relative h-52 overflow-hidden bg-muted">

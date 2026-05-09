@@ -35,7 +35,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogPr
         name: "",
         email: "",
         password: "",
-        role: "User",
+        role: "Viewer",
         phone: ""
     });
 
@@ -51,7 +51,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogPr
                 name: "",
                 email: "",
                 password: "",
-                role: "User",
+                role: "Viewer",
                 phone: ""
             });
         } catch (error: any) {

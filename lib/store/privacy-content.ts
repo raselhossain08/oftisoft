@@ -64,66 +64,66 @@ interface PrivacyContentState {
 
 const defaultContent: PrivacyPageContent = {
     header: {
-        badge: "Intelligence Protection Node",
+        badge: "Privacy",
         titlePrefix: "Privacy",
-        titleHighlight: "Protocol",
-        description: "High-fidelity data governance and identity protection protocols for the Oftisoft architect community.",
+        titleHighlight: "Policy",
+        description: "We keep user data handling clear, responsible, and easy to understand.",
         videoUrl: ""
     },
     features: [
         {
             id: "feat-1",
-            title: "Zero-Knowledge Sync",
+            title: "Data Minimization",
             iconName: "Lock",
             color: "text-blue-500",
-            description: "Our global proxies utilize zero-knowledge architecture to ensure your professional artifacts remain private during node transmission."
+            description: "We only collect the information needed to operate the site and respond to messages."
         },
         {
             id: "feat-2",
-            title: "Identity Fingerprinting",
+            title: "Secure Access",
             iconName: "Fingerprint",
             color: "text-primary",
-            description: "Advanced MFA and biometric neural verification protect your administrative access to the platform's core-nodes."
+            description: "Administrative access is limited to the people who need it, with standard authentication controls."
         },
         {
             id: "feat-3",
-            title: "Encrypted Data Vaults",
+            title: "Encrypted Storage",
             iconName: "Database",
             color: "text-purple-500",
-            description: "All project intelligence and digital artifacts are stored in distributed, P2P encrypted repositories across our edge network."
+            description: "Submitted messages and project details are stored with common encryption practices."
         },
         {
             id: "feat-4",
-            title: "Anonymous Intelligence",
+            title: "No Unnecessary Sharing",
             iconName: "Eye",
             color: "text-green-500",
-            description: "We anonymize all neural training inputs to prevent the extraction of proprietary logic from your bespoke implementations."
+            description: "We do not sell personal data or use it for unrelated profiling."
         },
         {
             id: "feat-5",
-            title: "Edge Security Proxy",
+            title: "Secure Delivery",
             iconName: "Server",
             color: "text-orange-500",
-            description: "Sub-10ms secure tunneling for all visual engine previews and multi-device simulation requests."
+            description: "Forms and requests are routed through standard secure transport layers."
         },
         {
             id: "feat-6",
-            title: "Governance Compliance",
+            title: "Compliance Mindset",
             iconName: "Globe",
             color: "text-indigo-500",
-            description: "Oftisoft operates in full alignment with global data sovereignty frameworks including GDPR, CCPA, and 2026 Digital Acts."
+            description: "We aim to keep our handling of data aligned with common privacy expectations and applicable law."
         },
     ],
     guarantee: {
-        title: "Trust the Core.",
-        description: "Our commitment to professional privacy is encoded into the very logic-nodes of the Oftisoft engine. We don't just protect data; we engineer trust into the foundation of your digital ecosystem.",
+        title: "Trust built in.",
+        description: "We want privacy handling to feel clear, ordinary, and respectful instead of buried in jargon.",
         stats: [
-            { value: "AES-256-X", label: "Baseline Encryption" },
-            { value: "99.999%", label: "Identity Security" }
+            { value: "Clear", label: "Data Policy" },
+            { value: "Limited", label: "Collection Scope" }
         ]
     },
     footer: {
-        status: "Digital Privacy Sync Status: OPERATIONAL / 2026.4.2"
+        status: "Privacy review current as of 2026-04-22"
     },
     lastUpdated: new Date().toISOString()
 };
@@ -131,7 +131,7 @@ const defaultContent: PrivacyPageContent = {
 export const usePrivacyContentStore = create<PrivacyContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -204,7 +204,7 @@ export const usePrivacyContentStore = create<PrivacyContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'privacy-content-storage',
@@ -212,3 +212,4 @@ export const usePrivacyContentStore = create<PrivacyContentState>()(
         }
     )
 );
+

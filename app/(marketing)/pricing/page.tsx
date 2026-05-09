@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
+import { usePublicSubscriptionPlans, mapSubscriptionPlansToPricing } from "@/hooks/usePublicMarketing";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { useCart } from "@/hooks/use-cart";
 export default function PricingPage() {
     const { pageContent, isLoading } = usePageContent('pricing');
     const setContent = usePricingContentStore((state) => state.setContent);
+    const { data: apiPlans = [] } = usePublicSubscriptionPlans();
 
     useEffect(() => {
         if (pageContent?.content) {
@@ -26,6 +28,9 @@ export default function PricingPage() {
     const { content } = usePricingContentStore();
     const cart = useCart();
 
+    const plansFromApi = useMemo(() => mapSubscriptionPlansToPricing(apiPlans), [apiPlans]);
+    const plans = plansFromApi.length > 0 ? plansFromApi : (content?.plans || []);
+
     const handleAddToCart = (plan: any) => {
         const isNumeric = !isNaN(Number(plan.price));
         if (isNumeric) {
@@ -34,7 +39,7 @@ export default function PricingPage() {
                 name: `${plan.name} License`,
                 price: Number(plan.price),
                 image: '',
-                quantity: 1,
+                slug: `plan-${plan.name.toLowerCase().replace(/\s+/g, '-')}`,
                 type: 'service'
             });
         }
@@ -44,14 +49,13 @@ export default function PricingPage() {
 // ...
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Compiling Fiscal Matrix...
                 </div>
             </div>
         );
     }
 
-    const plans = content?.plans || [];
     const header = content?.header;
     const consultation = content?.consultation;
     return (
@@ -65,19 +69,19 @@ export default function PricingPage() {
             <div className="container px-6 mx-auto relative z-10 space-y-24">
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-black italic tracking-[0.3em] text-[10px] uppercase shadow-[0_0_20px_rgba(var(--primary),0.2)]">
-                            {header?.badge || "Fiscal Investment Matrix"}
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(var(--primary),0.2)]">
+                            {header?.badge ?? ""}
                         </Badge>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-black italic tracking-tighter text-white"
+                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
-                        {header?.titlePrefix || "Pricing"} <span className="text-primary NOT-italic underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight || "Protocol"}</span>.
+                        {header?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight ?? ""}</span>.
                     </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium italic max-w-2xl mx-auto leading-relaxed">
-                        {header?.description || "Secure high-fidelity development artifacts and architectural support via our subscription nodes."}
+                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+                        {header?.description ?? ""}
                     </motion.p>
                 </div>
 
@@ -96,19 +100,19 @@ export default function PricingPage() {
                             )}>
                                 {plan.popular && (
                                     <div className="absolute top-8 right-8">
-                                        <Badge className="bg-primary text-white font-black italic text-[9px] uppercase tracking-widest px-4 py-1.5 shadow-xl shadow-primary/20">
+                                        <Badge className="bg-primary text-white font-semibold text-[9px] tracking-widest px-4 py-1.5 shadow-xl shadow-primary/20">
                                             Architect Choice
                                         </Badge>
                                     </div>
                                 )}
                                 <CardHeader className="p-10 md:p-12 space-y-6 pb-6 border-b border-white/5 bg-white/[0.01]">
                                     <div className="space-y-2">
-                                        <h3 className="text-3xl font-black italic text-white tracking-tight leading-none">{plan.name}</h3>
-                                        <p className="text-sm text-muted-foreground font-medium italic">{plan.description}</p>
+                                        <h3 className="text-3xl font-semibold text-white tracking-tight leading-none">{plan.name}</h3>
+                                        <p className="text-sm text-muted-foreground font-medium">{plan.description}</p>
                                     </div>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-5xl font-black italic text-white tracking-tighter">${plan.price}</span>
-                                        <span className="text-muted-foreground font-black uppercase text-[10px] tracking-widest italic">/ {plan.period || "MoonCycle"}</span>
+                                        <span className="text-5xl font-semibold text-white tracking-tighter">${plan.price}</span>
+                                        <span className="text-muted-foreground font-semibold text-[10px] tracking-widest">/ {plan.period ?? ""}</span>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-10 md:p-12 space-y-8 flex-1">
@@ -118,7 +122,7 @@ export default function PricingPage() {
                                                 <div className="mt-1 w-5 h-5 rounded-lg bg-primary/10 flex items-center justify-center group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
                                                     <Check className="w-3 h-3 text-primary group-hover/item:text-white" />
                                                 </div>
-                                                <span className="text-base font-bold italic tracking-tight group-hover/item:text-white transition-colors">{feature}</span>
+                                                <span className="text-base font-bold tracking-tight group-hover/item:text-white transition-colors">{feature}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -156,11 +160,12 @@ export default function PricingPage() {
 
                 {/* FAQ Prompt */}
                 <div className="pt-12 text-center">
-                    <p className="text-muted-foreground font-medium italic text-lg">
-                        {consultation?.text || "Need a custom deployment configuration?"} <Link href="/contact" className="text-primary underline decoration-primary/20 hover:text-primary/70 transition-colors cursor-pointer">{consultation?.linkText || "Initiate Consultation Node"}</Link>
+                    <p className="text-muted-foreground font-medium text-lg">
+                        {consultation?.text ?? ""} <Link href="/contact" className="text-primary underline decoration-primary/20 hover:text-primary/70 transition-colors cursor-pointer">{consultation?.linkText ?? ""}</Link>
                     </p>
                 </div>
             </div>
         </div>
     );
 }
+

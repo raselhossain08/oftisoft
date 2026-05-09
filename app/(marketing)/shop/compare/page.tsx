@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { mockProducts } from "@/lib/shop-data";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -30,7 +30,7 @@ export default function ComparisonPage() {
                 <Button asChild variant="ghost" className="mb-4 -ml-4 gap-2">
                     <Link href="/shop"><ArrowLeft className="w-4 h-4" /> Back to Shop</Link>
                 </Button>
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter">Compare Products</h1>
+                <h1 className="text-4xl md:text-6xl font-semibold tracking-tighter">Compare Products</h1>
                 <p className="text-muted-foreground text-lg">Compare features side-by-side to make the best choice for your project.</p>
             </div>
 
@@ -38,7 +38,7 @@ export default function ComparisonPage() {
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent border-border/50">
-                            <TableHead className="w-[200px] font-black uppercase text-xs">Features</TableHead>
+                            <TableHead className="w-[200px] font-semibold text-xs">Features</TableHead>
                             {compareItems.map(product => (
                                 <TableHead key={product.id} className="min-w-[250px] p-6">
                                     <div className="space-y-4">
@@ -47,7 +47,7 @@ export default function ComparisonPage() {
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-base leading-tight mb-1">{product.name}</h3>
-                                            <p className="text-2xl font-black text-primary">${product.price}</p>
+                                            <p className="text-2xl font-semibold text-primary">${product.price}</p>
                                         </div>
                                         <Button className="w-full rounded-xl gap-2 h-10">
                                             <ShoppingCart className="w-4 h-4" />
@@ -111,3 +111,4 @@ export default function ComparisonPage() {
         </div>
     );
 }
+

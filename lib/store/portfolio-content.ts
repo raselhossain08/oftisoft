@@ -132,7 +132,7 @@ const defaultContent: PortfolioPageContent = {
 export const usePortfolioContentStore = create<PortfolioContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -170,7 +170,7 @@ export const usePortfolioContentStore = create<PortfolioContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'portfolio-content-storage',
@@ -178,3 +178,4 @@ export const usePortfolioContentStore = create<PortfolioContentState>()(
         }
     )
 );
+

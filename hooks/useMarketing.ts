@@ -6,27 +6,25 @@ export function useMarketing() {
     const [coupons, setCoupons] = useState<any[]>([]);
     const [bundles, setBundles] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-
     const [subscriptionPlans, setSubscriptionPlans] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
 
     const fetchCoupons = useCallback(async () => {
-        setIsLoading(true);
         try {
             const data = await marketingAPI.getCoupons();
-            setCoupons(data);
+            setCoupons(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Failed to fetch coupons", err);
+            setError(err instanceof Error ? err : new Error(String(err)));
             toast.error("Failed to load coupons");
-        } finally {
-            setIsLoading(false);
         }
     }, []);
 
     const fetchBundles = useCallback(async () => {
         try {
             const data = await marketingAPI.getBundles();
-            setBundles(data);
+            setBundles(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Failed to fetch bundles", err);
         }
@@ -35,7 +33,7 @@ export function useMarketing() {
     const fetchSubscriptionPlans = useCallback(async () => {
         try {
             const data = await marketingAPI.getSubscriptionPlans();
-            setSubscriptionPlans(data);
+            setSubscriptionPlans(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Failed to fetch subscription plans", err);
         }
@@ -44,11 +42,18 @@ export function useMarketing() {
     const fetchProducts = useCallback(async () => {
         try {
             const data = await marketingAPI.getProducts();
-            setProducts(data);
+            setProducts(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Failed to fetch products", err);
         }
     }, []);
+
+    const fetchAll = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        await Promise.all([fetchCoupons(), fetchBundles(), fetchSubscriptionPlans(), fetchProducts()]);
+        setIsLoading(false);
+    }, [fetchCoupons, fetchBundles, fetchSubscriptionPlans, fetchProducts]);
 
     const createCoupon = async (data: any) => {
         setIsLoading(true);
@@ -132,11 +137,8 @@ export function useMarketing() {
     };
 
     useEffect(() => {
-        fetchCoupons();
-        fetchBundles();
-        fetchProducts();
-        fetchSubscriptionPlans();
-    }, [fetchCoupons, fetchBundles, fetchProducts, fetchSubscriptionPlans]);
+        fetchAll();
+    }, [fetchAll]);
 
     const updateCoupon = async (id: string, data: any) => {
         try {
@@ -190,6 +192,8 @@ export function useMarketing() {
         products,
         subscriptionPlans,
         isLoading,
+        error,
+        isError: !!error,
         createCoupon,
         updateCoupon,
         deleteCoupon,
@@ -200,6 +204,6 @@ export function useMarketing() {
         createSubscriptionPlan,
         updateSubscriptionPlan,
         deleteSubscriptionPlan,
-        refresh: () => { fetchCoupons(); fetchBundles(); fetchProducts(); fetchSubscriptionPlans(); }
+        refresh: fetchAll,
     };
 }

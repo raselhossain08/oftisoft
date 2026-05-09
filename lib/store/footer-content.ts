@@ -119,7 +119,7 @@ const defaultContent: FooterContent = {
 export const useFooterContentStore = create<FooterContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+    content: null,
             isSaving: false,
 
             setContent: (content) => set({ content }),
@@ -209,7 +209,7 @@ export const useFooterContentStore = create<FooterContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent }),
+            resetToDefaults: () => set({ content: null }),
         })),
         {
             name: 'footer-content-storage',

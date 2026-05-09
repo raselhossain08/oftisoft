@@ -49,7 +49,7 @@ export default function AuthorSpotlight() {
                     </p>
                 </motion.div>
 
-                <div className=" mx-auto">
+                <div className="mx-auto">
                     <Swiper
                         modules={[Pagination, Autoplay, EffectCreative]}
                         effect={'creative'}
@@ -150,7 +150,7 @@ export default function AuthorSpotlight() {
                                                         className="text-center md:text-left"
                                                     >
                                                         <div className="font-bold text-xl md:text-2xl text-foreground">{stat.value}</div>
-                                                        <div className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</div>
+                                                        <div className="text-[10px] md:text-xs text-muted-foreground tracking-wider">{stat.label}</div>
                                                     </motion.div>
                                                 ))}
                                             </div>

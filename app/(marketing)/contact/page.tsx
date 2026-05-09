@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import { motion } from "framer-motion";
@@ -69,7 +69,7 @@ export default function ContactPage() {
     if (isLoading && !pageContent) {
         return (
             <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
+                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
                     Initializing Contact Interface...
                 </div>
             </div>
@@ -98,33 +98,33 @@ export default function ContactPage() {
                     <div className="lg:col-span-12 xl:col-span-5 space-y-12">
                         <div className="space-y-6">
                             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-                                <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-black italic tracking-[0.3em] text-[10px] uppercase">
-                                    {header?.badge || "Communication Interface"}
+                                <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px]">
+                                    {header?.badge ?? ""}
                                 </Badge>
                             </motion.div>
                             <motion.h1 
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-6xl md:text-8xl font-black italic tracking-tighter text-white leading-[0.9]"
+                                className="text-6xl md:text-8xl font-bold tracking-tighter text-white leading-[0.9]"
                             >
-                                {header?.titlePrefix || "Initiate"} <span className="text-primary NOT-italic underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight || "Sync"}</span>{header?.titleSuffix || "."}
+                                {header?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight ?? ""}</span>{header?.titleSuffix ?? ""}
                             </motion.h1>
-                            <motion.p className="text-xl text-muted-foreground font-medium italic leading-relaxed max-w-xl">
-                                {header?.description || "Connect with our architectural core for bespoke implementations, system consultations, or infrastructure support."}
+                            <motion.p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-xl">
+                                {header?.description ?? ""}
                             </motion.p>
                         </div>
 
                         <div className="space-y-8">
                             {contactInfo.map((item, idx) => {
-                                const Icon = iconMap[item.iconName || 'MapPin'] || MapPin;
+                                const Icon = iconMap[item.iconName ?? ''] || MapPin;
                                 return (
                                 <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center gap-6 group">
                                     <div className={cn("w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all group-hover:scale-110 group-hover:bg-white/10", item.color)}>
                                         <Icon size={28} />
                                     </div>
                                     <div className="space-y-1">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic">{item.title}</h4>
-                                        <p className="text-xl font-bold italic text-white tracking-tight">{item.value}</p>
+                                        <h4 className="text-[10px] font-semibold tracking-widest text-muted-foreground">{item.title}</h4>
+                                        <p className="text-xl font-bold text-white tracking-tight">{item.value}</p>
                                     </div>
                                 </motion.div>
                             );})}
@@ -133,10 +133,10 @@ export default function ContactPage() {
                         {/* Status Node */}
                         <Card className="border-primary/20 bg-primary/[0.03] backdrop-blur-2xl rounded-[40px] p-8 space-y-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-primary italic">{statusNode?.title || "Support Node Sync"}</span>
-                                <Badge className="bg-green-500 text-white font-black italic px-4 py-1 animate-pulse">{statusNode?.status || "ACTIVE"}</Badge>
+                                <span className="text-[10px] font-semibold tracking-widest text-primary">{statusNode?.title ?? ""}</span>
+                                <Badge className="bg-green-500 text-white font-semibold px-4 py-1 animate-pulse">{statusNode?.status ?? ""}</Badge>
                             </div>
-                            <p className="text-sm font-bold italic text-white/60">{statusNode?.latencyText || "Current artifact deployment latency is sub-10s across all global edge proxies."}</p>
+                            <p className="text-sm font-bold text-white/60">{statusNode?.latencyText ?? ""}</p>
                         </Card>
                     </div>
 
@@ -152,35 +152,35 @@ export default function ContactPage() {
                                 <CardHeader className="p-10 md:p-14 border-b border-white/5 space-y-4 relative z-10">
                                     <div className="flex items-center gap-4 text-primary">
                                         <Terminal size={32} />
-                                        <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-white">{form?.title || "Transmission Node"}</h2>
+                                        <h2 className="text-3xl md:text-5xl font-semibold tracking-tighter text-white">{form?.title ?? ""}</h2>
                                     </div>
-                                    <p className="text-lg text-muted-foreground font-medium italic">{form?.description || "Construct your communication payload below and commit to our primary processing core."}</p>
+                                    <p className="text-lg text-muted-foreground font-medium">{form?.description ?? ""}</p>
                                 </CardHeader>
                                 <CardContent className="p-10 md:p-14 space-y-8 relative z-10">
                                     <form id="contact-form" onSubmit={handleContactSubmit} className="space-y-8">
                                         <div className="grid md:grid-cols-2 gap-8">
                                             <div className="space-y-3">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.nameLabel || "Identity Token (Name)"}</label>
-                                                <Input name="name" required className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="Architect Alpha" />
+                                                <label className="text-[10px] font-semibold tracking-widest text-muted-foreground ml-2">{form?.nameLabel ?? ""}</label>
+                                                <Input name="name" required className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold px-8 transition-all" placeholder="Architect Alpha" />
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.emailLabel || "Communication Proxy (Email)"}</label>
-                                                <Input name="email" required type="email" className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="alpha@network.com" />
+                                                <label className="text-[10px] font-semibold tracking-widest text-muted-foreground ml-2">{form?.emailLabel ?? ""}</label>
+                                                <Input name="email" required type="email" className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold px-8 transition-all" placeholder="alpha@network.com" />
                                             </div>
                                         </div>
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.subjectLabel || "Request Subject Node"}</label>
-                                            <Input name="subject" required className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic px-8 transition-all" placeholder="Neural Engine Implementation" />
+                                            <label className="text-[10px] font-semibold tracking-widest text-muted-foreground ml-2">{form?.subjectLabel ?? ""}</label>
+                                            <Input name="subject" required className="h-16 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold px-8 transition-all" placeholder="Neural Engine Implementation" />
                                         </div>
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground italic ml-2">{form?.messageLabel || "Context Payload (Message)"}</label>
-                                            <Textarea name="message" required className="min-h-[160px] rounded-[32px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold italic p-8 transition-all resize-none" placeholder="Describe the scope of your communication node..." />
+                                            <label className="text-[10px] font-semibold tracking-widest text-muted-foreground ml-2">{form?.messageLabel ?? ""}</label>
+                                            <Textarea name="message" required className="min-h-[160px] rounded-[32px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold p-8 transition-all resize-none" placeholder="Describe the scope of your communication node..." />
                                         </div>
                                     </form>
                                 </CardContent>
                                 <CardFooter className="p-10 md:p-14 pt-0 relative z-10">
-                                    <Button type="submit" form="contact-form" disabled={isCreating} className="w-full h-18 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-black italic text-xl shadow-2xl shadow-primary/20 transition-all active:scale-[0.98] group">
-                                        {isCreating ? "Transmitting..." : (form?.buttonText || "Commit Transmission")} <Send className="w-6 h-6 ml-4 group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform" />
+                                    <Button type="submit" form="contact-form" disabled={isCreating} className="w-full h-18 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-semibold text-xl shadow-2xl shadow-primary/20 transition-all active:scale-[0.98] group">
+                                        {isCreating ? "Transmitting..." : (form?.buttonText ?? "")} <Send className="w-6 h-6 ml-4 group-hover:translate-x-2 group-hover:-translate-y-1 transition-transform" />
                                     </Button>
                                 </CardFooter>
                             </Card>
@@ -192,14 +192,15 @@ export default function ContactPage() {
                 <div className="mt-24 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40">
                     <div className="flex items-center gap-4">
                         <ShieldCheck className="w-6 h-6 text-primary" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white italic">{footer?.encryptedText || "P2P Encrypted Data Transfer Protocols ACTIVE"}</span>
+                        <span className="text-[10px] font-semibold tracking-widest text-white">{footer?.encryptedText ?? ""}</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <Bot className="w-6 h-6 text-primary" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white italic">{footer?.agentText || "Neural Processing Agents Dispatched on Commit"}</span>
+                        <span className="text-[10px] font-semibold tracking-widest text-white">{footer?.agentText ?? ""}</span>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+

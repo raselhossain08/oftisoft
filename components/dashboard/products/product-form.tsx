@@ -4,9 +4,7 @@ import { useState, useEffect } from "react";
 import { 
     ArrowLeft, 
     Save, 
-    Image as ImageIcon, 
     Layout, 
-    Code2, 
     FileArchive, 
     ShieldCheck, 
     Globe,
@@ -30,10 +28,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { shopCategories } from "@/lib/shop-data";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useProducts } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
 import { Product } from "@/lib/api";
 
 interface ProductFormProps {
@@ -44,6 +42,7 @@ interface ProductFormProps {
 export function ProductForm({ isEdit, initialData }: ProductFormProps) {
     const router = useRouter();
     const { createProduct, updateProduct, isCreating, isUpdating } = useProducts();
+    const { categories = [] } = useCategories();
     
     // Form state
     const [name, setName] = useState(initialData?.name || "");
@@ -75,6 +74,14 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
         }
     }, [name, isEdit]);
 
+    // When category changes, clear subcategory
+    useEffect(() => {
+        if (!category) setSubcategory("");
+    }, [category]);
+
+    const selectedCategory = categories.find((c) => c.name === category);
+    const subcategoryOptions = selectedCategory?.subcategories?.filter(Boolean) || [];
+
     const addFeature = () => setFeatures([...features, ""]);
     const removeFeature = (index: number) => setFeatures(features.filter((_, i) => i !== index));
     const updateFeature = (index: number, val: string) => {
@@ -99,7 +106,7 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
             slug,
             description,
             category,
-            subcategory,
+            subcategory: (subcategory || "").trim(),
             image: image || "/placeholder-product.jpg",
             features: features.filter(f => f.trim() !== ""),
             tags: tags.length > 0 ? tags : [category],
@@ -116,16 +123,12 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
             reviews: initialData?.reviews || 0,
         };
 
+        const onSuccess = () => router.push("/dashboard/products");
         if (isEdit && initialData?.id) {
-            updateProduct(initialData.id, productData);
+            updateProduct(initialData.id, productData, { onSuccess });
         } else {
-            createProduct(productData);
+            createProduct(productData, { onSuccess });
         }
-
-        // Navigate back after a short delay to allow toast to show
-        setTimeout(() => {
-            router.push("/dashboard/products");
-        }, 1000);
     };
 
     const handleCancel = () => {
@@ -238,21 +241,25 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {shopCategories.map(c => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+                                            {categories.map((c) => (
+                                                <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="subcategory">Sub-category</Label>
-                                    <Select value={subcategory} onValueChange={setSubcategory}>
+                                    <Select value={subcategory} onValueChange={setSubcategory} disabled={!category}>
                                         <SelectTrigger className="rounded-xl h-11">
-                                            <SelectValue placeholder="Select sub-category" />
+                                            <SelectValue placeholder={category ? "Select sub-category" : "Select category first"} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="mobile">Mobile Apps</SelectItem>
-                                            <SelectItem value="web">Web Templates</SelectItem>
-                                            <SelectItem value="ai">AI Solutions</SelectItem>
-                                            <SelectItem value="saas">SaaS Kits</SelectItem>
+                                            {subcategoryOptions.map((sub) => (
+                                                <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                                            ))}
+                                            {category && subcategoryOptions.length === 0 && (
+                                                <SelectItem value=" ">— None —</SelectItem>
+                                            )}
                                         </SelectContent>
                                     </Select>
                                 </div>

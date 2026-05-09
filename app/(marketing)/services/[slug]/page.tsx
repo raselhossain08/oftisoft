@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import CTA from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,16 +23,18 @@ import "swiper/css/effect-creative";
 
 import { cn } from "@/lib/utils";
 import { useServicesContentStore } from "@/lib/store/services-content";
+import ServicePackages from "@/components/sections/services-page/service-packages";
 
 // Icon mapping matching the CMS
 const iconMap: any = {
-    Plus, Save, Trash2, LayoutTemplate, Grid, HelpCircle, Server, Database, Cloud: Globe, 
+    Plus, Save, Trash2, LayoutTemplate, Grid, HelpCircle, Server, Database, Cloud, 
     Brain: Cpu, Smartphone, Layout, Video: Code, FileText: Box, Code2, 
     ClipboardCheck, Rocket, HeartPulse, Globe, Zap, Code, ShieldCheck, 
-    Sparkles, Layers, Crown, ArrowRight, Box, Cpu
+    Sparkles, Layers, Crown, ArrowRight, Box, Cpu, CheckCircle2
 };
 
-export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
+export default function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = use(params);
     const { pageContent, isLoading } = usePageContent('services');
     const setContent = useServicesContentStore((state) => state.setContent);
 
@@ -42,12 +45,16 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     }, [pageContent, setContent]);
 
     const { content } = useServicesContentStore();
-    const service = content?.overview.find(s => s.id === params.slug);
+    const service = content?.overview.find(s => s.id === slug);
     const globalProcess = content?.process || [];
     
     const [isMounted, setIsMounted] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({ target: containerRef });
+    
+    // Only initialize scroll tracking after mount to avoid hydration issues
+    const { scrollYProgress } = useScroll(
+        isMounted ? { target: containerRef } : {}
+    );
 
     // Parallax Effects
     const yHero = useTransform(scrollYProgress, [0, 0.2], [0, 100]);
@@ -56,6 +63,8 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    const [activeProcessIndex, setActiveProcessIndex] = useState(0);
 
     if (!isMounted) return null;
 
@@ -73,7 +82,12 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     }
 
     return (
-        <main ref={containerRef} className="min-h-screen bg-background relative overflow-hidden">
+        <main ref={containerRef} className="min-h-screen relative overflow-hidden">
+            {/* Scroll Progress Bar */}
+            <motion.div 
+                className="fixed top-0 left-0 right-0 h-1 bg-primary z-[60] origin-left"
+                style={{ scaleX: scrollYProgress }}
+            />
             
             {/* Top Navigation */}
             <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center pointer-events-none">
@@ -83,61 +97,129 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                 >
                     <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Link>
-                <Link 
-                    href="#contact" 
-                    className="pointer-events-auto px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 transition-all flex items-center gap-2"
-                >
-                    Book Consultation
-                </Link>
+
             </nav>
 
-            {/* Hero Section */}
-            <section className="relative min-h-[85vh] flex items-center pt-32 pb-20 overflow-hidden">
-                {/* Background Elements */}
+            {/* Premium Hero Section */}
+            <section className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-20 overflow-hidden">
+                
+                {/* Background: Subtle Grid & Ambient Light */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
-                     <div className={cn("absolute top-[-10%] right-[-5%] w-[60vw] h-[60vw] rounded-full blur-[120px] mix-blend-screen animate-pulse-slow opacity-20 bg-gradient-to-br", service.gradient)} />
-                     <div className="absolute inset-0 opacity-[0.04] bg-grain mix-blend-overlay" />
-                     {/* Grid pattern overlay */}
-                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow" />
                 </div>
 
                 <div className="container px-4 mx-auto relative z-10">
-                    <motion.div 
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className=" mx-auto text-center"
-                        style={{ y: yHero, opacity: opacityHero }}
-                    >
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold uppercase tracking-wider mb-8 shadow-glow">
-                            <Sparkles className="w-4 h-4" />
-                            <span>{service.label}</span>
-                        </div>
+                    <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
                         
-                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
-                            {service.title.split(" ").map((word, i) => (
-                                <span key={i} className="inline-block mr-4 bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground/90 to-foreground/50">
-                                    {word}
-                                </span>
-                            ))}
-                        </h1>
+                        {/* Eyebrow Label */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/50 backdrop-blur-md border border-white/10 text-primary text-sm font-bold tracking-widest shadow-[0_0_20px_-5px_rgba(var(--primary-rgb),0.3)] mb-8 hover:bg-white/5 transition-colors cursor-default"
+                        >
+                            <Sparkles className="w-4 h-4" />
+                            <span>Premium Solution</span>
+                        </motion.div>
 
+                        {/* Visual Icon Representation */}
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.8, delay: 0.1, type: "spring" }}
+                            className="mb-8 relative"
+                        >
+                            <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] bg-gradient-to-br from-background to-card border border-white/10 flex items-center justify-center shadow-2xl relative z-10 group">
+                                {(() => {
+                                    const Icon = iconMap[service.iconName] || Globe;
+                                    return <Icon className="w-12 h-12 md:w-16 md:h-16 text-primary drop-shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)] group-hover:scale-110 transition-transform duration-300" />;
+                                })()}
+                            </div>
+                            {/* Glow Behind Icon */}
+                            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 z-0 animate-pulse-slow" />
+                        </motion.div>
+                        
+                        {/* Main Title */}
+                        <motion.h1 
+                            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-8 leading-[0.85]"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                        >
+                            <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground via-foreground to-foreground/50">
+                                {service.title}
+                            </span>
+                        </motion.h1>
+
+                        {/* Subtitle */}
                         {service.subtitle && (
-                            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground/80 tracking-tight">
+                            <motion.h2 
+                                className="text-2xl md:text-3xl font-light mb-8 text-foreground/80 tracking-tight max-w-3xl"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.3 }}
+                            >
                                 {service.subtitle}
-                            </h2>
+                            </motion.h2>
                         )}
 
-                        <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-12 max-w-3xl mx-auto">
+                        {/* Description */}
+                        <motion.p 
+                            className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 max-w-2xl mx-auto"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.4 }}
+                        >
                             {service.description}
-                        </p>
+                        </motion.p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link href="/portfolio" className="border-b border-muted-foreground/50 hover:text-primary hover:border-primary transition-colors pb-0.5 text-sm font-medium">
-                                View Related Projects
-                            </Link>
+                        {/* CTAs */}
+                        <motion.div 
+                            className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                        >
+                            <Button size="lg" className="rounded-full h-14 px-8 text-lg font-bold shadow-[0_0_30px_-5px_rgba(var(--primary-rgb),0.4)] hover:shadow-[0_0_40px_-5px_rgba(var(--primary-rgb),0.6)] hover:scale-105 transition-all duration-300 bg-primary text-primary-foreground group w-full sm:w-auto">
+                                <Link href="#contact" className="flex items-center gap-2">
+                                    Start Your Project
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            </Button>
+                            
+                            <Button variant="outline" size="lg" className="rounded-full h-14 px-8 text-lg font-bold border-white/10 hover:bg-white/5 hover:text-foreground backdrop-blur-sm w-full sm:w-auto transition-all hover:border-primary/50">
+                                <Link href="/portfolio">
+                                    View Past Work
+                                </Link>
+                            </Button>
+                        </motion.div>
+
+                        {/* Floating Tech Badges (Decorative) */}
+                         <div className="absolute top-1/2 left-0 -translate-y-1/2 hidden xl:flex flex-col gap-4 opacity-50 pointer-events-none">
+                            {[1,2,3].map((_, i) => (
+                                <motion.div 
+                                    key={i}
+                                    initial={{ x: -50, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.8 + (i * 0.1) }}
+                                    className="w-12 h-1 bg-gradient-to-r from-primary/50 to-transparent rounded-full"
+                                />
+                            ))}
                         </div>
-                    </motion.div>
+                         <div className="absolute top-1/2 right-0 -translate-y-1/2 hidden xl:flex flex-col gap-4 items-end opacity-50 pointer-events-none">
+                            {[1,2,3].map((_, i) => (
+                                <motion.div 
+                                    key={i}
+                                    initial={{ x: 50, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.8 + (i * 0.1) }}
+                                    className="w-12 h-1 bg-gradient-to-l from-primary/50 to-transparent rounded-full"
+                                />
+                            ))}
+                        </div>
+
+                    </div>
                 </div>
             </section>
 
@@ -172,76 +254,112 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                 </div>
             </section>
 
-            {/* Methodology (Global Process) */}
-            <section className="py-24 bg-card/20 border-y border-border/50 relative overflow-hidden">
+            {/* Methodology (Sticky Scroll Layout) */}
+            <section className="py-24 md:py-32 relative overflow-hidden">
                 <div className="container px-4 mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Our Methodology</h2>
-                        <p className="text-muted-foreground">From concept to deployment, we follow a rigorous process.</p>
-                    </div>
-
-                    {/* Mobile Swipe */}
-                    <div className="lg:hidden">
-                        <Swiper
-                            modules={[Pagination, EffectCreative, Autoplay]}
-                            effect={'creative'}
-                            creativeEffect={{
-                                prev: { shadow: true, translate: [0, 0, -400] },
-                                next: { translate: ['100%', 0, 0] },
-                            }}
-                            pagination={{ clickable: true }}
-                            autoplay={{ delay: 3000, disableOnInteraction: true }}
-                            grabCursor={true}
-                            spaceBetween={20}
-                            slidesPerView={1.1}
-                            centeredSlides={true}
-                            className="!pb-12"
-                        >
-                            {globalProcess.map((step, i) => (
-                                <SwiperSlide key={i}>
-                                    <div className="bg-background border border-border rounded-3xl p-8 h-full min-h-[300px] flex flex-col items-center text-center shadow-lg">
-                                        <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-xl font-black text-primary-foreground mb-6 shadow-xl shadow-primary/20">
-                                            {i + 1}
-                                        </div>
-                                        <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
-                                        <p className="text-muted-foreground">{step.desc}</p>
+                    <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
+                        
+                        {/* Left: Sticky Info Panel (Desktop) */}
+                        <div className="hidden lg:block w-1/3 relative">
+                            <div className="sticky top-32 space-y-8">
+                                <motion.div 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                >
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider mb-6">
+                                        <Layers className="w-3.5 h-3.5" />
+                                        <span>Our Process</span>
                                     </div>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                    </div>
+                                    <h2 className="text-4xl md:text-5xl font-semibold mb-6 tracking-tight leading-tight">
+                                        Methodology &<br/>Execution
+                                    </h2>
+                                    <p className="text-lg text-muted-foreground leading-relaxed">
+                                        We follow a precise, transparent workflow to ensure every project is delivered to perfection.
+                                    </p>
+                                </motion.div>
 
-                    {/* Desktop Timeline */}
-                    <div className="hidden lg:grid grid-cols-6 gap-8 px-4">
-                        {globalProcess.map((step, i) => (
-                            <motion.div 
-                                key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: i * 0.15 }}
-                                className="relative flex flex-col items-center text-center group"
-                            >
-                                {/* Connector Line */}
-                                {i !== globalProcess.length - 1 && (
-                                    <div className="absolute top-8 left-[50%] w-full h-[2px] bg-border -z-10 bg-gradient-to-r from-border to-border overflow-hidden">
-                                        <motion.div 
-                                            initial={{ x: "-100%" }}
-                                            whileInView={{ x: "0%" }}
-                                            transition={{ duration: 1, delay: 0.5 + (i * 0.2) }}
-                                            className="h-full w-full bg-primary"
-                                        />
-                                    </div>
-                                )}
-                                
-                                <div className="w-16 h-16 rounded-full bg-background border-4 border-border flex items-center justify-center text-xl font-black text-muted-foreground mb-8 group-hover:border-primary group-hover:text-primary group-hover:scale-110 transition-all duration-500 shadow-xl z-10 relative overflow-hidden">
-                                    <span className="relative z-10">{i + 1}</span>
-                                    <div className="absolute inset-0 bg-primary/10 scale-0 group-hover:scale-125 transition-transform duration-300 rounded-full" />
+                                <div className="relative aspect-square w-full max-w-sm mx-auto rounded-[2rem] bg-gradient-to-br from-card to-background border border-border/50 shadow-2xl overflow-hidden flex items-center justify-center p-8 group">
+                                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:20px_20px]" />
+                                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
+                                     
+                                     <AnimatePresence mode="wait">
+                                         <motion.div
+                                            key={activeProcessIndex}
+                                            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                            exit={{ opacity: 0, scale: 1.1, rotate: 10 }}
+                                            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                                            className="relative z-10 flex flex-col items-center justify-center gap-6"
+                                         >
+                                            {(() => {
+                                                const step = globalProcess[activeProcessIndex];
+                                                const Icon = step ? (iconMap[step.iconName] || Zap) : Zap;
+                                                return (
+                                                    <>
+                                                        <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/20 ring-1 ring-primary/20 backdrop-blur-sm">
+                                                            <Icon className="w-12 h-12" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <h3 className="text-2xl font-bold mb-2">{step?.title}</h3>
+                                                            <div className="px-3 py-1 rounded-full bg-muted border border-border text-xs font-mono text-muted-foreground">
+                                                                Step 0{activeProcessIndex + 1}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                );
+                                            })()}
+                                         </motion.div>
+                                     </AnimatePresence>
                                 </div>
-                                <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{step.title}</h3>
-                                <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
-                            </motion.div>
-                        ))}
+                            </div>
+                        </div>
+
+                        {/* Top: Mobile Header */}
+                        <div className="lg:hidden text-center mb-12">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider mb-6">
+                                <Layers className="w-3.5 h-3.5" />
+                                <span>Our Process</span>
+                            </div>
+                            <h2 className="text-4xl font-semibold mb-4 tracking-tight">Methodology</h2>
+                            <p className="text-muted-foreground">We follow a precise, transparent workflow.</p>
+                        </div>
+
+                        {/* Right: Scrolling Steps */}
+                        <div className="w-full lg:w-2/3 space-y-24 lg:space-y-40 lg:pt-20 lg:pb-20">
+                            {globalProcess.map((step, i) => {
+                                const Icon = iconMap[step.iconName] || Zap;
+                                const isActive = activeProcessIndex === i;
+                                
+                                return (
+                                    <motion.div 
+                                        key={i}
+                                        initial={{ opacity: 0.3 }}
+                                        whileInView={{ opacity: 1 }}
+                                        viewport={{ margin: "-50% 0px -50% 0px" }}
+                                        onViewportEnter={() => setActiveProcessIndex(i)}
+                                        className="group relative pl-8 lg:pl-16 border-l-2 border-border/30 hover:border-primary/50 transition-colors duration-500"
+                                    >
+                                        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-background border-2 border-border group-hover:border-primary group-hover:scale-125 transition-all duration-300 shadow-sm" />
+                                        
+                                        <div className="mb-6 flex items-center gap-4 lg:hidden">
+                                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                                <Icon className="w-6 h-6" />
+                                            </div>
+                                            <span className="text-4xl font-semibold text-muted-foreground/10">0{i + 1}</span>
+                                        </div>
+
+                                        <h3 className={cn("text-3xl md:text-5xl font-black mb-6 transition-colors duration-300 leading-tight", isActive ? "text-foreground" : "text-muted-foreground")}>
+                                            {step.title}
+                                        </h3>
+                                        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
+                                            {step.desc}
+                                        </p>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+
                     </div>
                 </div>
             </section>
@@ -250,7 +368,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             {service.techs && service.techs.length > 0 && (
                 <section className="py-24 relative overflow-hidden">
                     <div className="text-center mb-12">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground text-xs font-bold uppercase tracking-wider mb-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground text-xs font-bold tracking-wider mb-4">
                             <Cpu className="w-3 h-3" />
                             <span>Powered By</span>
                         </div>
@@ -273,20 +391,164 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                             }}
                             className="py-10"
                         >
-                            {service.techs.map((tech, i) => (
+                            {service.techs.map((tech, i) => {
+                                // Comprehensive mappings for Simple Icons
+                                const slugMap: Record<string, string> = {
+                                    // Frontend
+                                    'react': 'react',
+                                    'react native': 'react',
+                                    'next.js': 'nextdotjs',
+                                    'next.js 13': 'nextdotjs',
+                                    'next.js 14': 'nextdotjs',
+                                    'next.js 15': 'nextdotjs',
+                                    'vue.js': 'vuedotjs',
+                                    'three.js': 'threedotjs',
+                                    'tailwind css': 'tailwindcss',
+                                    'framer motion': 'framermotion',
+                                    
+                                    // Backend
+                                    'node.js': 'nodedotjs',
+                                    'express.js': 'express',
+                                    'express': 'express',
+                                    'golang': 'go',
+                                    'c#': 'csharp',
+                                    'c++': 'cplusplus',
+                                    '.net': 'dotnet',
+                                    
+                                    // Database & Cloud
+                                    'aws': 'amazonwebservices',
+                                    'google cloud': 'googlecloud',
+                                    'github actions': 'githubactions',
+                                    'postgresql': 'postgresql',
+                                    'mongodb': 'mongodb',
+                                    
+                                    // AI & Tools
+                                    'openai': 'openai',
+                                    'openai api': 'openai',
+                                    'hugging face': 'huggingface',
+                                    'tensorflow': 'tensorflow',
+                                    'pytorch': 'pytorch',
+                                    'langchain': 'langchain',
+                                    'vercel': 'vercel',
+                                    'docker': 'docker',
+                                    'kubernetes': 'kubernetes',
+                                    'figma': 'figma'
+                                };
+
+                                let techSlug = tech.toLowerCase();
+                                // Clean up version numbers if not explicitly mapped
+                                if (!slugMap[techSlug]) {
+                                    techSlug = techSlug.replace(/\s\d+(\.\d+)?$/, '');
+                                }
+
+                                if (slugMap[techSlug]) {
+                                    techSlug = slugMap[techSlug];
+                                } else {
+                                    techSlug = techSlug
+                                        .replace(/\./g, 'dot')
+                                        .replace(/\s+/g, '');
+                                }
+                                    
+                                return (
                                 <SwiperSlide key={i}>
-                                    <div className="flex flex-col items-center justify-center gap-4 p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/20 transition-all hover:-translate-y-1">
-                                        <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center">
-                                            <span className="text-xl font-bold text-primary">{tech.charAt(0)}</span>
+                                    <div className="flex flex-col items-center justify-center gap-4 p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/20 transition-all hover:-translate-y-1 group relative overflow-hidden">
+                                        <div className="w-16 h-16 rounded-2xl bg-muted/30 flex items-center justify-center p-3 group-hover:bg-muted/50 transition-colors relative z-10">
+                                            {/* Brand Logo */}
+                                            <img 
+                                                src={`https://cdn.simpleicons.org/${techSlug}`}
+                                                alt={`${tech} logo`}
+                                                className="w-full h-full object-contain opacity-60 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0"
+                                                onError={(e) => {
+                                                    // Fallback to text if image fails
+                                                    e.currentTarget.style.display = 'none';
+                                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                                    e.currentTarget.nextElementSibling?.classList.add('flex');
+                                                }}
+                                            />
+                                            {/* Text Fallback (Hidden by default) */}
+                                            <span className="hidden items-center justify-center w-full h-full text-2xl font-semibold text-primary/50 group-hover:text-primary transition-colors">{tech.charAt(0)}</span>
                                         </div>
-                                        <span className="font-bold text-sm text-muted-foreground truncate w-full text-center">{tech}</span>
+                                        <span className="font-bold text-sm text-muted-foreground truncate w-full text-center group-hover:text-foreground transition-colors relative z-10">{tech}</span>
+                                        
+                                        {/* Hover Glow */}
+                                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
                                     </div>
                                 </SwiperSlide>
-                            ))}
+                                )
+                            })}
                         </Swiper>
                     </div>
                 </section>
             )}
+
+            {/* Service Packages / Pricing */}
+            <ServicePackages />
+
+            {/* Other Services Cross-Link (Premium Grid) */}
+            <section className="py-24 md:py-32 border-t border-border/50 relative">
+                <div className="absolute inset-0 bg-background/50 backdrop-blur-3xl z-[-1]" />
+                
+                <div className="container px-4 mx-auto">
+                    <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider mb-4">
+                                <Layers className="w-3.5 h-3.5" />
+                                <span>Ecosystem</span>
+                            </div>
+                            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight">
+                                Explore More <span className="text-muted-foreground">Capabilities</span>
+                            </h2>
+                        </div>
+                        <Link href="/services" className="group flex items-center gap-2 text-primary font-bold hover:text-primary/80 transition-colors">
+                            View All Services
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {content?.overview
+                            .filter(s => s.id !== service.id)
+                            .slice(0, 3)
+                            .map((other, i) => (
+                                <Link 
+                                    key={other.id} 
+                                    href={`/services/${other.id}`}
+                                    className="block group h-full"
+                                >
+                                    <div className="relative h-full p-8 rounded-[2rem] bg-card border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 overflow-hidden flex flex-col justify-between">
+                                        
+                                        {/* Hover Gradient */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                        
+                                        <div className="relative z-10 mb-8">
+                                            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-sm border border-primary/10 group-hover:border-primary/30">
+                                                {(() => {
+                                                    const OtherIcon = iconMap[other.iconName] || Globe;
+                                                    return <OtherIcon className="w-7 h-7 text-primary transition-colors" />;
+                                                })()}
+                                            </div>
+                                            
+                                            <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors pr-8 leading-tight">
+                                                {other.label}
+                                            </h3>
+                                            <p className="text-muted-foreground leading-relaxed line-clamp-3">
+                                                {other.description}
+                                            </p>
+                                        </div>
+
+                                        <div className="relative z-10 flex items-center gap-2 text-sm font-bold text-primary opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                            Learn More <ArrowRight className="w-4 h-4" />
+                                        </div>
+
+                                        {/* Decorative Circle */}
+                                        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors duration-500" />
+                                    </div>
+                                </Link>
+                            ))
+                        }
+                    </div>
+                </div>
+            </section>
 
             {/* Project CTA */}
             <div className="sticky bottom-6 z-40 flex justify-center lg:hidden pointer-events-none">

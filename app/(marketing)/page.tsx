@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -29,8 +29,8 @@ export default function Home() {
   if (isLoading && !pageContent) {
      return (
         <div className="fixed inset-0 bg-[#030014] flex items-center justify-center z-[100]">
-           <div className="text-primary font-black italic animate-pulse tracking-[0.3em] uppercase">
-             Initializing Oftisoft Nexus...
+           <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
+             Initializing Oftisoft 
            </div>
         </div>
      );
@@ -55,10 +55,10 @@ export default function Home() {
           {/* Vignette */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#030014_100%)] opacity-80" />
       </div>
-      <Hero />
+      <Hero data={pageContent?.content} />
       <Services />
       <FeaturedProjects />
-      <WhyUs />
+      <WhyUs data={pageContent?.content} />
       <ProcessTimeline />
       <Testimonials />
       <TechStack />
@@ -67,3 +67,4 @@ export default function Home() {
     </main>
   );
 }
+

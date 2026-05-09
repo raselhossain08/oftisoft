@@ -65,16 +65,16 @@ interface CommunityContentState {
 
 const defaultContent: CommunityPageContent = {
     header: {
-        badge: "Social Intelligence Hub",
+        badge: "Community",
         title: "Community",
-        highlight: "Nexus",
-        description: "Join the global grid of architects, neural engineers, and visual designers building the meta-layer of 2026."
+        highlight: "Hub",
+        description: "Join the people reading the blog, building with Oftisoft, and sharing ideas about content and SEO."
     },
     links: [
         {
             id: "link-1",
             title: "GitHub OSS",
-            label: "Contribute to core artifacts",
+            label: "Follow the code and content work",
             iconName: "Github",
             color: "text-white",
             url: "https://github.com",
@@ -83,7 +83,7 @@ const defaultContent: CommunityPageContent = {
         {
             id: "link-2",
             title: "Discord Hub",
-            label: "Real-time architect sync",
+            label: "Talk with the team in real time",
             iconName: "MessageSquare",
             color: "text-indigo-400",
             url: "https://discord.com",
@@ -92,7 +92,7 @@ const defaultContent: CommunityPageContent = {
         {
             id: "link-3",
             title: "Slack Matrix",
-            label: "Enterprise developer signal",
+            label: "Team updates and project notes",
             iconName: "Slack",
             color: "text-blue-400",
             url: "https://slack.com",
@@ -101,7 +101,7 @@ const defaultContent: CommunityPageContent = {
         {
             id: "link-4",
             title: "X Protocol",
-            label: "Platform evolution stream",
+            label: "Latest updates and launch notes",
             iconName: "Twitter",
             color: "text-blue-500",
             url: "https://twitter.com",
@@ -109,16 +109,16 @@ const defaultContent: CommunityPageContent = {
         },
     ],
     newsletter: {
-        title: "Neural Digest",
-        description: "Receive high-fidelity platform updates, weekly artifact drops, and architectural intelligence nodes directly to your inbox.",
-        placeholder: "Enter secure email interface...",
-        buttonText: "Initiate Sync",
-        footerText: "Trusted by 14k+ Global Architects"
+        title: "Oftisoft Weekly",
+        description: "Get new blog posts, launch notes, and practical content tips in one simple email.",
+        placeholder: "Enter your email address",
+        buttonText: "Subscribe",
+        footerText: "Useful updates, no filler"
     },
     stats: [
-        { id: "stat-1", value: "4.8k+", label: "Sync Nodes Active", order: 1 },
-        { id: "stat-2", value: "1.2m", label: "Artifact Pulls", order: 2 },
-        { id: "stat-3", value: "100+", label: "OSS Contributors", order: 3 },
+        { id: "stat-1", value: "4.8k+", label: "Subscribers", order: 1 },
+        { id: "stat-2", value: "1.2m", label: "Page Views", order: 2 },
+        { id: "stat-3", value: "100+", label: "Community Threads", order: 3 },
     ],
     lastUpdated: new Date().toISOString()
 };
@@ -126,7 +126,7 @@ const defaultContent: CommunityPageContent = {
 export const useCommunityContentStore = create<CommunityContentState>()(
     persist(
         immer((set) => ({
-            content: defaultContent,
+            content: null,
             isLoading: false,
             isSaving: false,
             error: null,
@@ -195,7 +195,7 @@ export const useCommunityContentStore = create<CommunityContentState>()(
                 }
             }),
 
-            resetToDefaults: () => set({ content: defaultContent })
+            resetToDefaults: () => set({ content: null })
         })),
         {
             name: 'community-content-storage',
@@ -203,3 +203,4 @@ export const useCommunityContentStore = create<CommunityContentState>()(
         }
     )
 );
+

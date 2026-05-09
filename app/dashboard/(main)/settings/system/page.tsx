@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-    Settings, 
-    Mail, 
-    ShieldCheck, 
-    Database, 
-    Key, 
-    Users, 
-    Globe, 
-    Plus, 
-    Save, 
-    RefreshCcw, 
-    MoreVertical, 
+import {
+    Settings,
+    Mail,
+    ShieldCheck,
+    Database,
+    Key,
+    Users,
+    Globe,
+    Plus,
+    Save,
+    RefreshCcw,
+    MoreVertical,
     RefreshCw,
     CheckCircle2,
     Clock,
@@ -27,7 +27,8 @@ import {
     ChevronRight,
     Search,
     UserPlus,
-    Lock
+    Lock,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,13 +64,21 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { systemAPI, authAPI, User, SystemConfig as SystemConfigType } from "@/lib/api";
-import { Loader2 } from "lucide-react";
+import { systemAPI, authAPI, User as UserType, SystemConfig as SystemConfigType } from "@/lib/api";
+import { RoleGuard } from "@/components/auth/role-guard";
 
 /**
  * System Settings - Admin Restricted
  */
 export default function SystemSettingsPage() {
+    return (
+        <RoleGuard allowedRoles={["Admin", "SuperAdmin"]} redirectTo="/dashboard/settings/profile">
+            <SystemSettingsContent />
+        </RoleGuard>
+    );
+}
+
+function SystemSettingsContent() {
     const queryClient = useQueryClient();
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -197,7 +206,7 @@ export default function SystemSettingsPage() {
                     <p className="text-muted-foreground font-medium mt-3 max-w-2xl leading-relaxed">Manage core platform configuration, staff permissions, and global architectural nodes with industrial precision.</p>
                 </div>
                 <div className="flex flex-wrap gap-4">
-                    <Button variant="outline" className="h-14 px-8 rounded-2xl gap-3 font-black underline decoration-primary/30 underline-offset-8 decoration-2 hover:bg-muted transition-all">
+                    <Button variant="outline" className="h-14 px-8 rounded-2xl gap-3 font-black underline decoration-primary/30 underline-offset-8 decoration-2 hover:bg-muted transition-all" onClick={() => toast.info("Reset staging: run from your deployment pipeline.")}>
                         <RefreshCcw className="w-5 h-5 opacity-40" /> Reset Staging
                     </Button>
                     <Button 
@@ -325,20 +334,8 @@ export default function SystemSettingsPage() {
                                 </CardHeader>
                                 <CardContent className="p-10 pt-0 space-y-8">
                                     <p className="text-xs text-muted-foreground leading-relaxed font-bold">Your platform is currently synchronized with the Oftisoft Edge Proxy Node. Changes will propagate globally after a manual deployment cycle.</p>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
-                                            <span>Signal Latency</span>
-                                            <span className="text-primary">24ms (Optimal)</span>
-                                        </div>
-                                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                            <motion.div 
-                                                initial={{ width: 0 }}
-                                                animate={{ width: "24%" }}
-                                                className="h-full bg-primary shadow-[0_0_15px_rgba(99,102,241,0.8)]" 
-                                            />
-                                        </div>
-                                    </div>
-                                    <Button className="w-full h-16 rounded-3xl font-black text-lg bg-primary text-white shadow-2xl shadow-primary/30 transition-all hover:scale-[1.05] active:scale-[0.95]">
+                                    <p className="text-xs text-muted-foreground leading-relaxed font-bold">Deploy your config to edge nodes via your CI/CD or run a manual sync from your hosting provider.</p>
+                                    <Button type="button" className="w-full h-16 rounded-3xl font-black text-lg bg-primary text-white shadow-2xl shadow-primary/30 transition-all hover:scale-[1.05] active:scale-[0.95]" onClick={() => toast.info("Propagate: use your deployment pipeline to push config.")}>
                                         Propagate to Edge Nodes
                                     </Button>
                                 </CardContent>
@@ -450,8 +447,8 @@ export default function SystemSettingsPage() {
                             </Table>
                         </CardContent>
                         <CardFooter className="p-10 md:p-12 border-t border-border/30 bg-muted/20 flex justify-center">
-                            <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/60 hover:text-primary hover:bg-transparent transition-all group">
-                                <span className="group-hover:scale-110 transition-transform">Download Cryptographic Roster</span>
+                            <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/60 hover:text-primary hover:bg-transparent transition-all group" onClick={() => toast.info("Export staff list: use Reports or API when available.")}>
+                                <span className="group-hover:scale-110 transition-transform">Download Roster</span>
                             </Button>
                         </CardFooter>
                     </Card>
@@ -465,7 +462,7 @@ export default function SystemSettingsPage() {
                                 <CardTitle className="text-3xl font-black tracking-tighter">Signal Template Hub</CardTitle>
                                 <CardDescription className="font-medium mt-2 text-muted-foreground">Manage high-fidelity transactional signal templates.</CardDescription>
                             </div>
-                            <Button className="h-14 px-10 rounded-2xl gap-3 font-black bg-primary text-white shadow-2xl transition-all hover:scale-[1.05]">
+                            <Button className="h-14 px-10 rounded-2xl gap-3 font-black bg-primary text-white shadow-2xl transition-all hover:scale-[1.05]" onClick={() => toast.info("Open the template editor or add a dialog to create a new template.")}>
                                 <Plus className="w-5 h-5" /> New Template
                             </Button>
                         </CardHeader>

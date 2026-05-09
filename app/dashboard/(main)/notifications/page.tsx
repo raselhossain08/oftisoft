@@ -1,41 +1,106 @@
 
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Settings, Inbox } from "lucide-react";
+import { Check, Settings, Inbox, RefreshCw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { NotificationItem } from "@/components/notifications/notification-item";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function NotificationsPage() {
-    const { 
-        notifications, 
-        isLoading, 
-        filter, 
-        setFilter, 
-        markAsRead, 
-        markAllAsRead, 
-        archive, 
-        deleteNotification 
+    const {
+        notifications,
+        isLoading,
+        filter,
+        setFilter,
+        markAsRead,
+        markAllAsRead,
+        archive,
+        unarchive,
+        deleteNotification,
+        unreadCount,
+        highPriorityCount,
+        archivedCount,
+        refetch,
+        isMarkingAllRead,
     } = useNotifications();
 
+    const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const canMarkAllRead = unreadCount > 0 && !isMarkingAllRead;
+
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        await refetch();
+        setIsRefreshing(false);
+    };
+
+    const handleDeleteClick = (id: string, title: string) => setDeleteTarget({ id, title });
+    const handleConfirmDelete = () => {
+        if (deleteTarget) {
+            deleteNotification(deleteTarget.id);
+            setDeleteTarget(null);
+        }
+    };
+
+    const tabs = [
+        { id: "all" as const, label: "All" },
+        { id: "unread" as const, label: "Unread", count: unreadCount },
+        { id: "high" as const, label: "High Priority", count: highPriorityCount },
+        { id: "archived" as const, label: "Archived", count: archivedCount ?? 0 },
+    ];
+
+    const emptyMessage = () => {
+        switch (filter) {
+            case "unread": return { title: "No unread notifications", subtitle: "You're all caught up." };
+            case "high": return { title: "No high priority", subtitle: "No high priority notifications right now." };
+            case "archived": return { title: "No archived items", subtitle: "Archived notifications will appear here." };
+            default: return { title: "No notifications found", subtitle: "You're all caught up!" };
+        }
+    };
+
     return (
-        <div className="mx-auto space-y-8  pb-20">
+        <div className="mx-auto space-y-8 pb-20">
 
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black tracking-tight">Notifications</h1>
+                    <p className="text-muted-foreground text-sm mt-1">
+                        {unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up"}
+                    </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button 
-                        variant="ghost" 
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRefresh}
+                        disabled={isLoading || isRefreshing}
+                        className="text-muted-foreground hover:text-primary disabled:opacity-50"
+                    >
+                        <RefreshCw className={cn("w-4 h-4 mr-2", isRefreshing && "animate-spin")} />
+                        Refresh
+                    </Button>
+                    <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => markAllAsRead()}
-                        className="text-muted-foreground hover:text-primary"
+                        disabled={!canMarkAllRead}
+                        className="text-muted-foreground hover:text-primary disabled:opacity-50"
                     >
                         <Check className="w-4 h-4 mr-2" /> Mark all read
                     </Button>
@@ -50,31 +115,38 @@ export default function NotificationsPage() {
             {/* Tabs */}
             <div className="border-b border-border/50">
                 <div className="flex items-center gap-8 overflow-x-auto no-scrollbar">
-                    {[
-                        { id: 'all', label: 'All' },
-                        { id: 'unread', label: 'Unread' },
-                        { id: 'high', label: 'High Priority' },
-                        { id: 'archived', label: 'Archived' }
-                    ].map((tab) => {
+                    {tabs.map((tab) => {
                         const isActive = filter === tab.id;
+                        const count = "count" in tab ? tab.count ?? 0 : 0;
                         return (
                             <button
                                 key={tab.id}
-                                onClick={() => setFilter(tab.id as any)}
+                                type="button"
+                                onClick={() => setFilter(tab.id)}
                                 className={cn(
-                                    "pb-4 text-sm font-bold transition-all relative whitespace-nowrap",
+                                    "pb-4 text-sm font-bold transition-all relative whitespace-nowrap flex items-center gap-2",
                                     isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 {tab.label}
+                                {count > 0 && (
+                                    <span
+                                        className={cn(
+                                            "min-w-5 h-5 px-1.5 rounded-full text-[10px] font-black flex items-center justify-center",
+                                            isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                        )}
+                                    >
+                                        {count > 99 ? "99+" : count}
+                                    </span>
+                                )}
                                 {isActive && (
-                                    <motion.div 
-                                        layoutId="notif-tab" 
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_10px_rgba(99,102,241,0.5)]" 
+                                    <motion.div
+                                        layoutId="notif-tab"
+                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_10px_rgba(99,102,241,0.5)]"
                                     />
                                 )}
                             </button>
-                        )
+                        );
                     })}
                 </div>
             </div>
@@ -86,18 +158,18 @@ export default function NotificationsPage() {
                         <div key={i} className="flex items-start gap-4 p-6 rounded-[24px] border border-border/50 bg-card/50">
                             <Skeleton className="w-12 h-12 rounded-full" />
                             <div className="space-y-2 flex-1">
-                                <Skeleton className="h-4 w-1/3" />
-                                <Skeleton className="h-3 w-2/3" />
+                                <Skeleton className="h-4 max-w-[33%]" />
+                                <Skeleton className="h-3 max-w-[66%]" />
                             </div>
                         </div>
                     ))
                 ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center opacity-60">
-                         <div className="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center mb-6">
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center mb-6">
                             <Inbox className="w-10 h-10 text-muted-foreground" />
-                         </div>
-                         <h3 className="text-xl font-bold">No notifications found</h3>
-                         <p className="text-muted-foreground">You are all caught up!</p>
+                        </div>
+                        <h3 className="text-xl font-bold">{emptyMessage().title}</h3>
+                        <p className="text-muted-foreground mt-1">{emptyMessage().subtitle}</p>
                     </div>
                 ) : (
                     <AnimatePresence mode="popLayout">
@@ -108,13 +180,37 @@ export default function NotificationsPage() {
                                 filter={filter}
                                 onMarkAsRead={markAsRead}
                                 onArchive={archive}
-                                onDelete={deleteNotification}
+                                onUnarchive={unarchive}
+                                onDelete={(id, title) => handleDeleteClick(id, title)}
                                 index={i}
                             />
                         ))}
                     </AnimatePresence>
                 )}
             </div>
+
+            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+                <AlertDialogContent className="rounded-2xl border-border/50 max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <Trash2 className="w-5 h-5 text-destructive" /> Delete notification?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently remove &quot;{deleteTarget?.title}&quot;. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            variant="destructive"
+                            className="rounded-xl font-bold bg-destructive text-destructive-foreground"
+                            onClick={handleConfirmDelete}
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
