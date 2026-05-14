@@ -1,22 +1,18 @@
-﻿import { jsonLdSchemas, constructMetadata } from "@/lib/metadata";
+import { jsonLdSchemas, constructMetadata } from "@/lib/metadata";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-// This would be fetched from API in production
 async function getBlogPost(slug: string) {
-  // Mock function - replace with actual API call
-  return {
-    title: "Blog Post",
-    description: "Blog post description",
-    excerpt: "Excerpt",
-    slug,
-    coverImage: "/og-image.jpg",
-    date: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    author: {
-      name: "Oftisoft Team",
-    },
-  };
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5500/api";
+  try {
+    const res = await fetch(`${apiUrl}/posts/slug/${slug}`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -32,8 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return constructMetadata({
     title: post.title,
-    description: post.excerpt || post.description,
-    image: post.coverImage,
+    description: post.excerpt || post.seoDescription || "",
+    image: post.featuredImage,
     keywords: ["blog", "article", post.title.toLowerCase()],
   });
 }

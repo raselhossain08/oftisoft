@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "Portfolio | Our Latest Projects & Case Studies",
-  description: "Discover our portfolio of successful software projects. See examples of web applications, mobile apps, AI solutions, and enterprise software we've built for clients worldwide.",
+  description: "Want to see what Oftisoft can build? Browse our portfolio of 50+ successful software projects including web apps, mobile applications, AI solutions, and enterprise platforms built for clients across 15+ global markets.",
   keywords: [
     "portfolio",
     "case studies",

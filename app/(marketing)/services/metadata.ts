@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "Services | Web Development, Mobile Apps & AI Solutions",
-  description: "Explore our comprehensive software development services including custom web applications, mobile apps, AI solutions, SaaS development, and enterprise software. Get a free consultation today.",
+  description: "What software development services do you need? Oftisoft offers end-to-end web development, mobile apps, AI solutions, SaaS platforms, and enterprise software. Each service is delivered with modern tech stacks and agile methodology. Get a free consultation today.",
   keywords: [
     "software development services",
     "web application development",

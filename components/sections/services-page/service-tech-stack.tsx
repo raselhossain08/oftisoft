@@ -10,8 +10,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-import { useServicesContentStore } from "@/lib/store/services-content";
-
 // Icon mapping
 const iconMap: any = {
     Layout, Server, Database, Cloud, Brain, Smartphone, Code2, Globe, Cpu, Layers,
@@ -19,17 +17,17 @@ const iconMap: any = {
     ClipboardCheck, Rocket, HeartPulse, Zap, Code, ShieldCheck, Sparkles, Crown, ArrowRight
 };
 
+const techCategories = [
+    { id: "frontend", iconName: "Layout", label: "Frontend", description: "Modern web frameworks and tools", gradient: "from-blue-500 to-cyan-500", techs: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"] },
+    { id: "backend", iconName: "Server", label: "Backend", description: "Scalable server-side technologies", gradient: "from-green-500 to-teal-500", techs: ["Node.js", "Python", "Go", "GraphQL", "gRPC"] },
+    { id: "mobile", iconName: "Smartphone", label: "Mobile", description: "Cross-platform mobile development", gradient: "from-purple-500 to-pink-500", techs: ["React Native", "Flutter", "Expo", "Swift", "Kotlin"] },
+    { id: "ai", iconName: "Brain", label: "AI & ML", description: "Artificial intelligence and machine learning", gradient: "from-orange-500 to-red-500", techs: ["TensorFlow", "PyTorch", "LangChain", "OpenAI", "Hugging Face"] },
+    { id: "data", iconName: "Database", label: "Data & Analytics", description: "Data engineering and analytics", gradient: "from-indigo-500 to-violet-500", techs: ["PostgreSQL", "MongoDB", "Redis", "Kafka", "Elasticsearch"] },
+    { id: "infra", iconName: "Cloud", label: "Infrastructure", description: "Cloud and DevOps infrastructure", gradient: "from-cyan-500 to-blue-500", techs: ["AWS", "Docker", "Kubernetes", "Terraform", "Cloudflare"] },
+];
+
 export default function ServiceTechStack() {
-    const { content } = useServicesContentStore();
-    const techCategories = content?.techStack || [];
     const [activeTab, setActiveTab] = useState(techCategories[0]?.id || "");
-
-    // Update activeTab if it's empty but categories exist
-    if (!activeTab && techCategories.length > 0) {
-        setActiveTab(techCategories[0].id);
-    }
-
-    if (techCategories.length === 0) return null;
 
     return (
         <section className="py-16 md:py-24 bg-background relative overflow-hidden">
@@ -43,8 +41,10 @@ export default function ServiceTechStack() {
                 <div className="text-center mb-12 md:mb-16">
                      <motion.div 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
                         className="mb-6 flex justify-center"
                     >
                         <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-colors backdrop-blur-sm">
@@ -55,6 +55,7 @@ export default function ServiceTechStack() {
                     
                     <motion.h2 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
@@ -64,6 +65,7 @@ export default function ServiceTechStack() {
                     </motion.h2>
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.2 }}
@@ -213,7 +215,8 @@ export default function ServiceTechStack() {
                                         key={tech}
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: index * 0.05 }}
+                                        style={{ willChange: "transform, opacity" }}
+                                        transition={{ delay: index * 0.1 }}
                                         whileHover={{ y: -5, scale: 1.05 }}
                                     >
                                         <Card className="aspect-[4/3] relative group overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300 bg-card/30 backdrop-blur-sm shadow-sm hover:shadow-md">

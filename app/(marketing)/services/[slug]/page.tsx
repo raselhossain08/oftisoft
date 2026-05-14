@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef, use } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -236,6 +236,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.1 }}
+                                    style={{ willChange: "transform, opacity" }}
                                     whileHover={{ y: -5 }}
                                     className={cn(
                                         "p-8 rounded-[2rem] bg-card/50 backdrop-blur-md border border-border/50 hover:border-primary/30 transition-all hover:shadow-2xl hover:shadow-primary/5 group",
@@ -266,6 +267,8 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                     initial={{ opacity: 0, x: -20 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
+                                    transition={{ duration: 0.5 }}
+                                    style={{ willChange: "transform, opacity" }}
                                 >
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider mb-6">
                                         <Layers className="w-3.5 h-3.5" />

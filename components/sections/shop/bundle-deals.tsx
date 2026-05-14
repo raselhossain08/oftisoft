@@ -38,8 +38,10 @@ export function BundleDeals({ bundles: bundlesProp }: BundleDealsProps = {}) {
                         <motion.div
                             key={bundle.id}
                             initial={{ opacity: 0, scale: 0.98 }}
+                            style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
+                            transition={{ duration: 0.5 }}
                         >
                             <Card className="border-primary/20 bg-gradient-to-r from-background via-primary/5 to-background overflow-hidden relative group">
                                 <CardContent className="p-0">

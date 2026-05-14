@@ -27,14 +27,17 @@ export function ShopTestimonials() {
                 <div className="text-center mb-16">
                     <motion.h2 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
                         className="text-4xl md:text-6xl font-bold mb-4 tracking-tight"
                     >
                         Trusted by Developers
                     </motion.h2>
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}

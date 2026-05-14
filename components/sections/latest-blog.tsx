@@ -9,10 +9,11 @@ import {
   ArrowUpRight,
   ArrowLeft,
 } from "lucide-react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
-import { useBlogContent } from "@/lib/api/blog-content-queries";
+import { useQuery } from "@tanstack/react-query";
+import { postsAPI } from "@/lib/api";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,22 +33,32 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/free-mode";
 
+const gradients = [
+  "from-blue-600 via-indigo-600 to-violet-600",
+  "from-emerald-500 via-teal-500 to-cyan-600",
+  "from-orange-500 via-pink-500 to-rose-600",
+  "from-purple-600 via-pink-500 to-red-500",
+  "from-cyan-500 via-blue-500 to-indigo-600",
+  "from-amber-500 via-orange-500 to-red-600",
+];
+
 export default function LatestBlog() {
-  // Fetch blog content from API
-  const { data: blogData, isLoading } = useBlogContent();
-  
-  // Transform API posts to match the component format
-  // API returns: { posts: [...], authors: [...], categories: [...] }
-  const apiPosts = blogData?.posts || [];
-  const posts = apiPosts.slice(0, 6).map((post: any) => ({
+  const { data, isLoading } = useQuery({
+    queryKey: ["blog-posts-latest"],
+    queryFn: () => postsAPI.getPosts({ status: "published", limit: 6 }),
+  });
+
+  const apiPosts = data?.posts || [];
+  const posts = apiPosts.map((post: any, i: number) => ({
     id: post.id,
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt,
-    category: post.category,
-    date: post.date,
-    readTime: post.readTime,
-    gradient: post.gradient || "from-blue-600 via-indigo-600 to-violet-600",
+    featuredImage: post.featuredImage || "",
+    category: post.category?.name || post.categoryId || "Uncategorized",
+    date: format(new Date(post.publishedAt || post.createdAt), "MMM d, yyyy"),
+    readTime: `${post.readTime} min`,
+    gradient: post.gradient || gradients[i % gradients.length],
   }));
 
   const blogContent = {
@@ -95,8 +106,10 @@ export default function LatestBlog() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5 }}
             className="w-full md:w-auto"
+            style={{ willChange: "transform, opacity" }}
           >
             <Badge
               variant="outline"
@@ -211,25 +224,34 @@ export default function LatestBlog() {
 }
 
 function BlogCard({ post, index }: { post: any; index: number }) {
+  const hasImage = !!post.featuredImage;
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: "-80px" }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
       className="h-full flex flex-col"
+      style={{ willChange: "transform, opacity" }}
     >
-      <Link href="/blog" className="h-full flex flex-col">
+      <Link href={`/blog/${post.slug}`} className="h-full flex flex-col">
         <Card className="pt-0 group relative flex flex-col h-full justify-between bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 overflow-hidden backdrop-blur-sm rounded-[32px]">
           {/* Image Container */}
           <div className="relative aspect-[4/3] w-full overflow-hidden">
-            {/* Gradient Placeholder */}
-            <div
-              className={cn(
-                "absolute inset-0 bg-gradient-to-br opacity-80 transition-transform duration-700 group-hover:scale-105",
-                post.gradient,
-              )}
-            />
+            {hasImage ? (
+              <img
+                src={post.featuredImage}
+                alt={post.title}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            ) : (
+              <div
+                className={cn(
+                  "absolute inset-0 bg-gradient-to-br opacity-80 transition-transform duration-700 group-hover:scale-105",
+                  post.gradient,
+                )}
+              />
+            )}
 
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" />

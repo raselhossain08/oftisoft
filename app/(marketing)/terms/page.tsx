@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -15,45 +15,28 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { usePageContent } from "@/hooks/usePageContent";
-import { useTermsContentStore } from "@/lib/store/terms-content";
-
 const iconMap: any = {
-    Globe,
-    Scale,
-    ShieldAlert,
-    Clock,
-    Lock,
-    Eye,
-    FileText,
-    ShieldCheck: Shield,
+    Globe, Scale, ShieldAlert, Clock, Lock, Eye, FileText, ShieldCheck: Shield,
+};
+
+const pageData = {
+    header: { badge: "LEGAL FRAMEWORK", title: "Terms of Service Sync.", description: "These terms govern your use of Oftisoft's software development services, digital products, and website. By engaging our services, you agree to these terms." },
+    navigationRail: { title: "SECTIONS", items: ["Service Terms", "Intellectual Property", "Payment Terms", "Confidentiality", "Limitations", "Termination", "Dispute Resolution", "Governing Law"] },
+    sections: [
+        { id: "s1", iconName: "Scale", title: "1. Service Terms", content: "We agree to provide software development services as outlined in the mutually agreed Statement of Work (SOW). Each SOW shall specify deliverables, timelines, milestones, and payment terms. Services are provided on a best-efforts basis with commercially reasonable skill and care. Any changes to scope must be agreed upon in writing via a Change Order." },
+        { id: "s2", iconName: "Lock", title: "2. Intellectual Property", content: "Upon full payment, all intellectual property rights for custom-developed code, designs, and deliverables are transferred to you. We retain the right to use generalized knowledge, methodologies, and non-client-specific code patterns acquired during the engagement. Any third-party libraries or tools used remain under their respective licenses." },
+        { id: "s3", iconName: "ShieldAlert", title: "3. Payment Terms", content: "Invoices are due within 15 days of receipt. Late payments may incur a 1.5% monthly finance charge. All prices are in USD unless otherwise specified. We accept payments via bank transfer, Stripe, and PayPal. For projects over $10,000, a 50% deposit is required before work begins." },
+        { id: "s4", iconName: "Eye", title: "4. Confidentiality", content: "Both parties agree to maintain strict confidentiality of all proprietary information shared during the engagement. This includes source code, business strategies, customer data, and trade secrets. This obligation survives the termination of our agreement for 3 years." },
+        { id: "s5", iconName: "FileText", title: "5. Limitations of Liability", content: "Our liability is limited to the total amount paid for the specific service giving rise to the claim. We are not liable for indirect, incidental, or consequential damages, including lost profits or data. This does not apply in cases of gross negligence or willful misconduct." },
+        { id: "s6", iconName: "Globe", title: "6. Termination", content: "Either party may terminate with 30 days written notice. In case of material breach, the non-breaching party may terminate immediately with written notice. Upon termination, you pay for all work completed up to the termination date. Proprietary deliverables completed before termination are transferred to you upon payment." },
+        { id: "s7", iconName: "Scale", title: "7. Dispute Resolution", content: "Any disputes shall first be attempted to be resolved through good-faith negotiations. If unresolved within 30 days, disputes shall be settled by binding arbitration in accordance with the Bangladesh International Arbitration Centre (BIAC) rules." },
+        { id: "s8", iconName: "Clock", title: "8. Governing Law", content: "These terms are governed by the laws of Bangladesh. Both parties submit to the exclusive jurisdiction of the courts of Khulna, Bangladesh for any matters not subject to arbitration." },
+    ],
+    revision: { prefix: "LAST SYNCHRONIZED:", updatedAt: "May 1, 2026" }
 };
 
 export default function TermsPage() {
-    const { pageContent, isLoading } = usePageContent('terms');
-    const setContent = useTermsContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useTermsContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="relative min-h-screen pt-32 pb-24 bg-[#020202] flex items-center justify-center">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Syncing Governance Nodes...
-                </div>
-            </div>
-        );
-    }
-
-    if (!content) return null;
-
-    const { header, navigationRail, sections, revision } = content;
+    const { header, navigationRail, sections, revision } = pageData;
 
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
@@ -115,6 +98,8 @@ export default function TermsPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
+                                    transition={{ duration: 0.5 }}
+                                    style={{ willChange: "transform, opacity" }}
                                 >
                                     <Card className="border-white/5 bg-white/[0.01] rounded-[40px] p-10 md:p-14 space-y-8 hover:bg-white/[0.02] transition-all duration-700">
                                         <div className="flex items-center gap-6">

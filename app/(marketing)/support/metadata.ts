@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "Support | Help Center",
-  description: "Get help and support for Oftisoft products and services. Browse FAQs, contact support, or access our knowledge base.",
+  description: "Need help with Oftisoft products or services? Browse our FAQ section, search the knowledge base, submit a support ticket, or contact our team for personalized assistance. We respond within 24 hours.",
   keywords: [
     "support",
     "help center",

@@ -12,8 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
-import { useServicesContentStore } from "@/lib/store/services-content";
-import { usePageContent } from "@/hooks/usePageContent";
+
 
 // Icon mapping
 const iconMap: any = {
@@ -25,29 +24,18 @@ const iconMap: any = {
     Default: Globe
 };
 
+const services = [
+    { id: "web", iconName: "Globe", title: "Web Development", subtitle: "High-performance React & Node.js apps", label: "Web Development", techs: ["React", "Next.js", "Node.js", "TypeScript", "Tailwind CSS"], features: [{ iconName: "Zap", title: "Blazing Fast", desc: "Optimized for Core Web Vitals with SSR, ISR, and edge caching." }, { iconName: "Globe", title: "SEO Optimized", desc: "Built-in SEO, structured data, and semantic HTML out of the box." }, { iconName: "ShieldCheck", title: "Type-Safe", desc: "Full TypeScript coverage with strict mode and automated testing." }], description: "We build blazing-fast web applications using React, Next.js, and Node.js. From SaaS platforms to enterprise portals, every project is optimized for performance, SEO, and user experience.", gradient: "from-blue-500 to-cyan-500" },
+    { id: "mobile", iconName: "Smartphone", title: "Mobile Applications", subtitle: "Cross-platform iOS & Android apps", label: "Mobile Development", techs: ["React Native", "Flutter", "Expo", "Swift", "Kotlin"], features: [{ iconName: "Smartphone", title: "Native Feel", desc: "60fps animations, platform-specific gestures, and native module access." }, { iconName: "Code2", title: "Shared Codebase", desc: "90%+ code sharing between iOS and Android with platform-specific polish." }, { iconName: "Rocket", title: "Fast Deploy", desc: "CI/CD pipelines with automated app store deployment and review." }], description: "Native-feeling mobile apps built with React Native and Flutter. One codebase, two platforms, zero compromises on performance or user experience.", gradient: "from-purple-500 to-pink-500" },
+    { id: "ai", iconName: "Brain", title: "AI & Machine Learning", subtitle: "Intelligent automation & predictive analytics", label: "AI Solutions", techs: ["TensorFlow", "PyTorch", "OpenAI", "LangChain", "Hugging Face"], features: [{ iconName: "Brain", title: "LLM Integration", desc: "Custom GPT models, RAG pipelines, and chat interfaces fine-tuned for your data." }, { iconName: "Zap", title: "Real-time Inference", desc: "Sub-100ms prediction latency with auto-scaling model serving infrastructure." }, { iconName: "ShieldCheck", title: "Responsible AI", desc: "Bias detection, content filtering, and explainable AI built into every model." }], description: "From LLM-powered chatbots to computer vision systems, we integrate AI into every layer of your product to automate workflows and surface insights.", gradient: "from-green-500 to-teal-500" },
+    { id: "backend", iconName: "Server", title: "Backend & APIs", subtitle: "Scalable microservices & GraphQL APIs", label: "Backend Development", techs: ["Node.js", "Python", "Go", "GraphQL", "gRPC"], features: [{ iconName: "Server", title: "Microservices", desc: "Event-driven architecture with independent deploy, scaling, and failure isolation." }, { iconName: "Database", title: "Multi-DB", desc: "PostgreSQL, MongoDB, Redis — the right database for every use case." }, { iconName: "Cloud", title: "Auto Scaling", desc: "Horizontal auto-scaling that handles 100x traffic spikes without manual intervention." }], description: "Event-driven microservices, RESTful and GraphQL APIs, real-time data pipelines — built with Node.js, Python, Go, and Rust for maximum throughput.", gradient: "from-orange-500 to-red-500" },
+    { id: "infra", iconName: "Cloud", title: "Cloud Infrastructure", subtitle: "AWS, GCP, Azure & DevOps", label: "Cloud & DevOps", techs: ["AWS", "Docker", "Kubernetes", "Terraform", "Cloudflare"], features: [{ iconName: "Cloud", title: "Multi-Cloud", desc: "Vendor-agnostic infrastructure with automated failover across providers." }, { iconName: "Layers", title: "Containerized", desc: "Docker + Kubernetes with automated scaling, rolling updates, and self-healing." }, { iconName: "ShieldCheck", title: "Secure by Default", desc: "Zero-trust networking, WAF, DDoS protection, and automated security scanning." }], description: "Infrastructure-as-code, automated CI/CD, container orchestration with Kubernetes, and 24/7 monitoring. We make your infrastructure boringly stable.", gradient: "from-cyan-500 to-blue-500" },
+    { id: "data", iconName: "Database", title: "Data Engineering", subtitle: "Data pipelines, warehouses & analytics", label: "Data Engineering", techs: ["Kafka", "Spark", "dbt", "Airflow", "Snowflake"], features: [{ iconName: "Database", title: "Real-time Pipelines", desc: "Stream processing with Kafka and Spark for sub-second data freshness." }, { iconName: "Layers", title: "Data Warehousing", desc: "Modern data stack with dbt transformations and columnar storage." }, { iconName: "Globe", title: "Analytics Ready", desc: "Pre-built dashboards, BI tool integration, and self-serve analytics for your team." }], description: "End-to-end data infrastructure — from ingestion and transformation to visualization. Built with Kafka, Spark, dbt, and modern data stack tooling.", gradient: "from-indigo-500 to-violet-500" },
+];
+
 export default function ServicesOverview() {
-    const { pageContent, isLoading } = usePageContent('services');
-    const { content: storeContent } = useServicesContentStore();
-
-    if (isLoading) {
-        return (
-            <div className="py-16 md:py-24 bg-background relative flex items-center justify-center min-h-[50vh]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Syncing Service Nodes...
-                </div>
-            </div>
-        );
-    }
-
-    const content = pageContent?.content || storeContent;
-    const services = content?.overview || [];
     const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
-
-    // Initialize with first service when data loads or if valid
     const activeService = services.find((s: any) => s.id === activeServiceId) || services[0];
-    
-    // Safety check if no services
-    if (!activeService) return null;
 
     const ActiveIcon = iconMap[activeService.iconName] || Globe;
 
@@ -77,8 +65,10 @@ export default function ServicesOverview() {
                     <div className="w-full lg:w-1/3 relative">
                         <motion.div 
                             initial={{ opacity: 0, x: -50 }}
+                            style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
+                            transition={{ duration: 0.5 }}
                             className="space-y-6 sticky top-24"
                         >
                             <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 tracking-tight">Our Expertise</h2>

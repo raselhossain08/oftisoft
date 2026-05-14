@@ -1,6 +1,4 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,39 +21,38 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { useCommunityContentStore } from "@/lib/store/community-content";
-
 // Icon Map
 const iconMap: any = {
     Github, MessageSquare, Slack, Twitter, Globe, Zap, Heart, Share2
 };
 
+const pageData = {
+    header: { badge: "COMMUNITY", title: "Join Our ", highlight: "Community", description: "Connect with fellow developers, engineers, and innovators. Share knowledge, contribute to open source, and be part of something bigger." },
+    links: [
+        { id: "github", iconName: "Github", color: "text-white", title: "GitHub", label: "Star our repos & contribute", url: "https://github.com/oftisoft", isActive: true },
+        { id: "discord", iconName: "MessageSquare", color: "text-indigo-400", title: "Discord", label: "Real-time chat with the team", url: "https://discord.gg/oftisoft", isActive: true },
+        { id: "slack", iconName: "Slack", color: "text-purple-400", title: "Slack Community", label: "Professional network discussions", url: "https://slack.com/oftisoft", isActive: true },
+        { id: "twitter", iconName: "Twitter", color: "text-blue-400", title: "Twitter / X", label: "Follow for updates & insights", url: "https://twitter.com/oftisoft", isActive: true },
+        { id: "linkedin", iconName: "Globe", color: "text-blue-500", title: "LinkedIn", label: "Professional network & jobs", url: "https://linkedin.com/company/oftisoft", isActive: true },
+        { id: "youtube", iconName: "Zap", color: "text-red-500", title: "YouTube", label: "Tutorials & tech talks", url: "https://youtube.com/@oftisoft", isActive: true },
+    ],
+    newsletter: {
+        title: "Stay in the Loop",
+        description: "Get weekly updates on new articles, open source releases, and community events. No spam, ever.",
+        placeholder: "your@email.com",
+        buttonText: "Subscribe",
+        footerText: "Join 5,000+ subscribers. Unsubscribe anytime."
+    },
+    stats: [
+        { id: "members", value: "5,000+", label: "Community Members" },
+        { id: "contributors", value: "200+", label: "Open Source Contributors" },
+        { id: "events", value: "50+", label: "Community Events" },
+    ]
+};
+
 export default function CommunityPage() {
-    const { pageContent, isLoading } = usePageContent('community');
-    const setContent = useCommunityContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useCommunityContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Initializing Community Grid...
-                </div>
-            </div>
-        );
-    }
-
-    const links = (content?.links || []).filter(l => l.isActive);
-    const header = content?.header;
-    const newsletter = content?.newsletter;
-    const stats = content?.stats || [];
+    const { header, links, newsletter, stats } = pageData;
+    const activeLinks = links.filter(l => l.isActive);
 
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
@@ -88,14 +85,16 @@ export default function CommunityPage() {
 
                 {/* Grid */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {links.map((item, idx) => {
+                    {activeLinks.map((item, idx) => {
                         const Icon = iconMap[item.iconName ?? ''] || Github;
                         return (
                         <motion.div
                             key={item.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-80px" }}
                             transition={{ delay: idx * 0.1 }}
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <a href={item.url} target="_blank" rel="noopener noreferrer">
                                 <Card className="h-full border-white/5 bg-white/[0.01] backdrop-blur-3xl rounded-[32px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.03] transition-all duration-700 group cursor-pointer">

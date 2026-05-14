@@ -17,11 +17,50 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export default function Hero({ data }: { data?: any }) {
-  // Get content from the page payload
-  const heroContent = data?.hero;
+interface HeroStat {
+  value: number;
+  suffix: string;
+  label: string;
+}
 
-  // ... existing refs and hooks ...
+interface HeroContent {
+  badge?: string;
+  title?: string;
+  subtitles?: string[];
+  subtitle?: string;
+  description?: string;
+  primaryCTA?: { text: string };
+  secondaryCTA?: { text: string };
+  stats?: HeroStat[];
+  image?: string;
+  imageUrl?: string;
+}
+
+const defaultHeroContent: HeroContent = {
+  badge: "Trusted by 50+ Global Companies",
+  title: "Engineering the Future of",
+  subtitles: ["Digital Innovation.", "Web Architecture.", "AI Solutions.", "SaaS Platforms."],
+  subtitle: "Digital Innovation.",
+  description: "We architect high-performance applications that scale. From AI-powered platforms to enterprise software, Oftisoft delivers digital solutions that drive real business growth.",
+  primaryCTA: { text: "Start Your Project" },
+  secondaryCTA: { text: "View Our Work" },
+  stats: [
+    { value: 50, suffix: "+", label: "Projects Delivered" },
+    { value: 6, suffix: "+", label: "Years Experience" },
+    { value: 25, suffix: "+", label: "Expert Engineers" },
+    { value: 15, suffix: "+", label: "Global Markets" },
+  ],
+};
+
+interface HeroProps {
+  data?: {
+    hero?: HeroContent;
+  };
+}
+
+export default function Hero({ data }: HeroProps) {
+  const heroContent: HeroContent = data?.hero || defaultHeroContent;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 100]);
@@ -71,10 +110,6 @@ export default function Hero({ data }: { data?: any }) {
     springConfig,
   );
 
-  if (!heroContent) {
-    return null;
-  }
-
   return (
     <section
       ref={containerRef}
@@ -89,10 +124,7 @@ export default function Hero({ data }: { data?: any }) {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-8 max-w-2xl mx-auto lg:mx-0">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
+            <motion.div initial={false}>
               <Link href="/contact">
                 <Badge
                   variant="glass"
@@ -108,30 +140,25 @@ export default function Hero({ data }: { data?: any }) {
             </motion.div>
 
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              initial={false}
+              style={{ willChange: "transform, opacity" }}
               className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
             >
               <span className="block text-foreground drop-shadow-sm">
-                {heroContent.title}
+                {heroContent.title ?? "Engineering the Future of"}
               </span>
               <SmoothTypewriter heroContent={heroContent} />
             </motion.h1>
 
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              initial={false}
               className="text-lg md:text-xl text-muted-foreground/80 font-light leading-relaxed"
             >
-              {heroContent.description}
+              {heroContent.description ?? "We architect high-performance applications that scale."}
             </motion.p>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              initial={false}
               className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
             >
               <Button
@@ -142,7 +169,7 @@ export default function Hero({ data }: { data?: any }) {
               >
                 <Link href="/contact">
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    {heroContent.primaryCTA.text}
+                    {heroContent.primaryCTA?.text ?? "Start Your Project"}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
@@ -157,28 +184,18 @@ export default function Hero({ data }: { data?: any }) {
               >
                 <Link href="/portfolio">
                   <Play className="w-4 h-4 fill-current mr-2 group-hover:scale-110 transition-transform" />
-                  {heroContent.secondaryCTA.text}
+                  {heroContent.secondaryCTA?.text ?? "View Our Work"}
                 </Link>
               </Button>
             </motion.div>
 
             <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={{
-                hidden: { opacity: 0 },
-                visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
-              }}
+              initial={false}
               className="pt-10 w-full border-t border-white/5 mt-8 flex flex-wrap justify-center md:justify-between lg:justify-start gap-x-8 gap-y-6"
             >
-              {heroContent.stats?.map((stat: any, i: number) => (
-                <motion.div
+              {heroContent.stats?.map((stat: HeroStat, i: number) => (
+                <div
                   key={i}
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0 },
-                  }}
                   className="relative group flex flex-col items-center lg:items-start min-w-[100px]"
                 >
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -201,7 +218,7 @@ export default function Hero({ data }: { data?: any }) {
                       {stat.label}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </motion.div>
           </div>
@@ -210,13 +227,13 @@ export default function Hero({ data }: { data?: any }) {
           <div className="relative hidden lg:flex h-[600px] w-full items-center justify-center perspective-[2000px]">
             <motion.div
               style={{ rotateX, rotateY }}
-              className="relative w-[500px] h-[500px] flex items-center justify-center transform-style-3d will-change-transform relative"
+              className="relative w-[500px] h-[500px] flex items-center justify-center transform-style-3d will-change-transform"
             >
               <div className="absolute z-40">
-                  {(heroContent as any).image || (heroContent as any).imageUrl ? (
+                  {heroContent.image || heroContent.imageUrl ? (
                     <Image
-                      src={(heroContent as any).image || (heroContent as any).imageUrl}
-                      alt={(heroContent as any).title ?? ""}
+                      src={heroContent.image || heroContent.imageUrl!}
+                      alt={heroContent.title ?? ""}
                       width={500}
                       height={500}
                       className="w-full h-full object-cover rounded-full drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
@@ -233,13 +250,18 @@ export default function Hero({ data }: { data?: any }) {
               {/* 3. Central Core Glow */}
               <div className="absolute inset-[30%] bg-blue-500/20 rounded-full blur-[80px] animate-pulse-slow" />
 
-              {/* 4. The Sphere - Display Hero Image */}
-              <Link href="/services">
-                <div className="relative w-40 h-40 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-md border border-white/20 shadow-[0_0_50px_rgba(59,130,246,0.2)] flex items-center justify-center z-10 group transition-transform duration-500 hover:scale-110 cursor-pointer overflow-hidden">
-                  {/* Detail rings on sphere */}
-                  <div className="absolute inset-0 rounded-full border-t border-white/30 rotate-45" />
-                  <div className="absolute inset-2 rounded-full border-b border-white/10 -rotate-12" />
-                </div>
+              {/* 4. The Logo - Centered */}
+              <Link href="/">
+                <motion.div
+                  animate={{ scale: [1, 1.03, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="relative w-44 h-44 rounded-full bg-gradient-to-br from-blue-600 via-indigo-500 to-purple-600 shadow-[0_0_60px_rgba(99,102,241,0.3)] flex flex-col items-center justify-center z-10 group cursor-pointer"
+                >
+                  <span className="text-5xl font-bold text-white drop-shadow-lg">O</span>
+                  <span className="text-[11px] font-bold text-white/90 tracking-[0.2em] mt-1">OFTISOFT</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-t from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 rounded-full ring-1 ring-white/20 group-hover:ring-white/40 transition-all duration-500" />
+                </motion.div>
               </Link>
 
               {/* 5. Floating Glass Cards - Positioned in 3D Space */}
@@ -336,7 +358,7 @@ export default function Hero({ data }: { data?: any }) {
   );
 }
 
-function SmoothTypewriter({ heroContent }: { heroContent: any }) {
+function SmoothTypewriter({ heroContent }: { heroContent: HeroContent }) {
   const defaultWords = [
     "Digital Solutions.",
     "Web Architecture.",

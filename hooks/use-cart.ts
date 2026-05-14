@@ -4,6 +4,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { toast } from "sonner";
 
+type LicenseType = "regular" | "extended";
+
 interface CartItem {
   id: string;
   name: string;
@@ -12,14 +14,16 @@ interface CartItem {
   image: string;
   slug: string;
   type?: 'product' | 'service';
+  licenseType?: LicenseType;
 }
 
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
-  addItem: (item: Omit<CartItem, "quantity"> & { type?: 'product' | 'service' }) => void;
+  addItem: (item: Omit<CartItem, "quantity"> & { type?: 'product' | 'service'; licenseType?: LicenseType }) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateLicenseType: (id: string, licenseType: LicenseType) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -42,7 +46,7 @@ export const useCart = create<CartStore>()(
           set({
             items: items.map((i) =>
               i.id === item.id
-                ? { ...i, quantity: i.quantity + 1 }
+                ? { ...i, quantity: i.quantity + 1, licenseType: item.licenseType || i.licenseType }
                 : i
             ),
           });
@@ -54,6 +58,7 @@ export const useCart = create<CartStore>()(
               {
                 ...item,
                 quantity: 1,
+                licenseType: item.licenseType || 'regular',
               },
             ],
           });
@@ -80,6 +85,14 @@ export const useCart = create<CartStore>()(
         });
       },
 
+      updateLicenseType: (id, licenseType) => {
+        set({
+          items: get().items.map((item) =>
+            item.id === id ? { ...item, licenseType } : item
+          ),
+        });
+      },
+
       clearCart: () => {
         set({ items: [] });
       },
@@ -90,7 +103,10 @@ export const useCart = create<CartStore>()(
 
       getTotalPrice: () => {
         return get().items.reduce((total, item) => {
-          return total + item.price * item.quantity;
+          const price = item.licenseType === "extended"
+            ? item.price * 10
+            : item.price;
+          return total + price * item.quantity;
         }, 0);
       },
 

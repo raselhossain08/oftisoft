@@ -13,34 +13,34 @@ export function useAuth() {
   ): Promise<{ success: boolean; requires2FA?: boolean; tempToken?: string; error?: string }> => {
     try {
       const result = await store.login(email, password, remember);
-      // Check if 2FA is required
       if (result && 'requires2FA' in result && result.requires2FA) {
-        return { 
-          success: false, 
-          requires2FA: true, 
-          tempToken: result.tempToken,
-          error: "2FA verification required" 
-        };
+        return { success: false, requires2FA: true, tempToken: result.tempToken };
       }
       return { success: true };
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Login failed";
-      return { success: false, error: message };
+      return { success: false, error: err instanceof Error ? err.message : "Login failed" };
     }
   };
 
   const handleRegister = async (
-    name: string,
-    email: string,
-    phone: string,
-    password: string
+    name: string, email: string, phone: string, password: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       await store.register(name, email, phone, password);
       return { success: true };
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Registration failed";
-      return { success: false, error: message };
+      return { success: false, error: err instanceof Error ? err.message : "Registration failed" };
+    }
+  };
+
+  const handleVerify2FALogin = async (
+    tempToken: string, code: string, remember?: boolean
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      await store.verify2FALogin(tempToken, code, remember);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : "2FA verification failed" };
     }
   };
 
@@ -48,21 +48,10 @@ export function useAuth() {
     try {
       await store.logout();
       toast.success("Signed out successfully");
-      router.push("/dashboard/login");
     } catch {
       toast.error("Sign out failed");
-      router.push("/dashboard/login");
     }
-  };
-
-  const handleVerify2FALogin = async (tempToken: string, code: string, remember?: boolean): Promise<{ success: boolean; error?: string }> => {
-    try {
-      await store.verify2FALogin(tempToken, code, remember);
-      return { success: true };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "2FA verification failed";
-      return { success: false, error: message };
-    }
+    router.push("/dashboard/login");
   };
 
   return {

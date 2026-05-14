@@ -160,7 +160,7 @@ const StatCard = ({
   );
 };
 
-const QuickAction = ({ icon: Icon, label, href, color = "primary" }: { icon: any; label: string; href: string; color?: string }) => (
+const QuickAction = ({ icon: Icon, label, href, color = "primary" }: { icon: React.ElementType; label: string; href: string; color?: string }) => (
   <Link href={href}>
     <motion.div
       whileHover={{ scale: 1.05 }}
@@ -180,7 +180,7 @@ const QuickAction = ({ icon: Icon, label, href, color = "primary" }: { icon: any
   </Link>
 );
 
-const ActivityItem = ({ icon: Icon, title, description, time, status }: { icon: any; title: string; description: string; time: string; status?: string }) => (
+const ActivityItem = ({ icon: Icon, title, description, time, status }: { icon: React.ElementType; title: string; description: string; time: string; status?: string }) => (
   <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
       <Icon className="w-5 h-5 text-primary" />

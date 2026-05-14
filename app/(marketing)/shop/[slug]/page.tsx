@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 import { useEffect, useState, use } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import { Badge } from "@/components/ui/badge";

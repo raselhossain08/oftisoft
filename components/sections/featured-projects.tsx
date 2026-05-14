@@ -1,44 +1,39 @@
-
 "use client";
 
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay, EffectCreative } from "swiper/modules";
-import { ArrowLeft, ArrowRight, ExternalLink, Github, Layers, ArrowUpRight } from "lucide-react";
+import { Navigation, Autoplay } from "swiper/modules";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useHomeContentStore } from "@/lib/store/home-content";
-
 import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/effect-creative";
 
 export default function FeaturedProjects() {
-    // Get content from CMS store
-    const { content } = useHomeContentStore();
-    const projectsContent = content?.projects || {
+    const projectsContent = {
         title: "Building the",
         subtitle: "Impossible.",
         badge: "Selected Work",
         projects: [
             {
-                id: "fintech-core",
-                title: "NeoBank Core",
-                category: "Fintech Infrastructure",
-                description: "A next-generation banking server with AI fraud detection and 50ms transaction finality.",
-                imageGradient: "from-blue-600 via-indigo-500 to-purple-600",
-                tech: ["Rust", "gRPC", "Kafka", "React"],
-                stats: [{ label: "TPS", value: "50k+" }, { label: "Uptime", value: "99.99%" }],
-                year: "2026"
-            }
+                id: "fintech-core", title: "NeoBank Core", category: "Fintech Infrastructure", description: "A next-generation banking server with AI fraud detection and 50ms transaction finality.", image: "https://images.unsplash.com/photo-1563986768609-322da13575f2?w=800&q=80", imageGradient: "from-blue-600 via-indigo-500 to-purple-600", tech: ["Rust", "gRPC", "Kafka", "React"], stats: [{ label: "TPS", value: "50k+" }, { label: "Uptime", value: "99.99%" }], year: "2026"
+            },
+            {
+                id: "ai-analytics", title: "InsightAI", category: "Analytics Platform", description: "Real-time business intelligence platform with natural language querying and predictive modeling.", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80", imageGradient: "from-green-500 via-emerald-500 to-teal-500", tech: ["Python", "TensorFlow", "React", "gRPC"], stats: [{ label: "Data Points", value: "10B+" }, { label: "Accuracy", value: "99.2%" }], year: "2026"
+            },
+            {
+                id: "saas-marketplace", title: "MarketPro", category: "SaaS Marketplace", description: "A multi-vendor digital marketplace with real-time inventory, automated payouts, and AI recommendations.", image: "https://images.unsplash.com/photo-1553729459-afe8f2e2b8b4?w=800&q=80", imageGradient: "from-orange-500 via-red-500 to-pink-500", tech: ["Next.js", "Stripe", "Kafka", "Redis"], stats: [{ label: "Vendors", value: "5k+" }, { label: "Transactions", value: "1M+" }], year: "2025"
+            },
+            {
+                id: "health-platform", title: "MediConnect", category: "Healthcare Platform", description: "HIPAA-compliant telemedicine platform with video consultations, EHR integration, and AI diagnostics.", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80", imageGradient: "from-cyan-500 via-blue-500 to-indigo-500", tech: ["WebRTC", "FHIR", "AI", "React"], stats: [{ label: "Patients", value: "100k+" }, { label: "Doctors", value: "2k+" }], year: "2025"
+            },
         ]
     };
 
-    const projects = projectsContent.projects || [];
+    const projects = projectsContent.projects;
 
     const [activeIndex, setActiveIndex] = useState(0);
     const swiperRef = useRef<any>(null);
@@ -57,8 +52,10 @@ export default function FeaturedProjects() {
                     <div className="w-full md:max-w-2xl">
                         <motion.div 
                             initial={{ opacity: 0, x: -20 }}
+                            style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, margin: "-80px" }}
+                            transition={{ duration: 0.5 }}
                             className="mb-4"
                         >
                             <Badge variant="outline" className="border-primary/20 text-primary tracking-wide px-3 py-1 font-semibold text-xs">
@@ -98,7 +95,7 @@ export default function FeaturedProjects() {
 
                 {/* Slider */}
                 <Swiper
-                    modules={[Navigation, Autoplay, EffectCreative]}
+                    modules={[Navigation, Autoplay]}
                     onBeforeInit={(swiper) => {
                         swiperRef.current = swiper;
                     }}
@@ -121,7 +118,17 @@ export default function FeaturedProjects() {
                         <SwiperSlide key={project.id} className="group cursor-grab active:cursor-grabbing">
                             {/* Card Image Container */}
                             <div className="relative aspect-[4/3] md:aspect-[16/10] rounded-3xl overflow-hidden mb-6 md:mb-8 border border-white/10 bg-card">
-                                {/* Dynamic Gradient Image Placeholder */}
+                                {/* Project Image */}
+                                <Image
+                                    src={project.image}
+                                    alt={project.title}
+                                    fill
+                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, (max-width: 1024px) 50vw, 45vw"
+                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                    loading="lazy"
+                                />
+
+                                {/* Gradient Overlay */}
                                 <div className={cn(
                                     "absolute inset-0 bg-gradient-to-br opacity-80 transition-transform duration-700 group-hover:scale-105",
                                     project.imageGradient
@@ -141,6 +148,7 @@ export default function FeaturedProjects() {
                                         </div>
                                     </div>
 
+                                                        <Link href="/portfolio" className="contents">
                                         <div className="flex flex-wrap gap-2 mb-0 md:mb-4 opacity-100 md:opacity-0 md:translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-500 delay-100">
                                             {(project.tech || []).map((t: string, i: number) => (
                                                 <Badge key={i} variant="secondary" className="bg-white/10 backdrop-blur-md text-white/90 font-medium hover:bg-white/20">
@@ -148,11 +156,13 @@ export default function FeaturedProjects() {
                                                 </Badge>
                                             ))}
                                         </div>
+                                    </Link>
                                     </div>
                                 </div>
                                 
                                 {project.stats?.length ? (
                                     /* Info Below Card */
+                                    <Link href="/portfolio" className="block">
                                     <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-white/10 pb-6 group-hover:border-white/30 transition-colors duration-500">
                                         <div className="space-y-2 max-w-md">
                                             <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-primary transition-colors duration-300">
@@ -173,8 +183,10 @@ export default function FeaturedProjects() {
                                             ))}
                                         </div>
                                     </div>
+                                    </Link>
                                 ) : (
                                      /* Fallback if no stats (just info) */
+                                     <Link href="/portfolio" className="block">
                                      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-white/10 pb-6 group-hover:border-white/30 transition-colors duration-500">
                                         <div className="space-y-2 max-w-md">
                                             <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-primary transition-colors duration-300">
@@ -185,6 +197,7 @@ export default function FeaturedProjects() {
                                             </p>
                                         </div>
                                     </div>
+                                    </Link>
                                 )}
                         </SwiperSlide>
                     ))}

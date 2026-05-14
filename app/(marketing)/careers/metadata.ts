@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "Careers | Join Our Team",
-  description: "Join the Oftisoft team. Explore exciting career opportunities in software development, design, and technology. Work on innovative projects with a talented team.",
+  description: "Looking for a career in software development? Join Oftisoft and work on cutting-edge projects with modern tech stacks. We're hiring developers, designers, and engineers for remote and on-site positions.",
   keywords: [
     "software jobs",
     "developer jobs",

@@ -36,6 +36,8 @@ export default function AuthorSpotlight() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     className="text-center mb-16"
+                    transition={{ duration: 0.5 }}
+                    style={{ willChange: "transform, opacity" }}
                 >
                     <Badge variant="outline" className="mb-4 gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border-primary/20 backdrop-blur-sm">
                         <Sparkles className="w-4 h-4" />

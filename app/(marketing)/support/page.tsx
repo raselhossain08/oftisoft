@@ -1,91 +1,56 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { 
-    HelpCircle, 
-    MessageSquare, 
-    Mail, 
-    Terminal, 
-    Zap, 
-    ShieldCheck, 
-    Globe, 
-    ArrowRight,
-    Headset,
-    Bot,
-    Clock,
-    Search,
-    CheckCircle2,
-    Layout,
-    Cpu,
-    Database,
-    Cloud,
-    Server,
-    Smartphone
+    HelpCircle, MessageSquare, ArrowRight, Headset, Bot, Clock, Search, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
-import { useSupportContentStore } from "@/lib/store/support-content";
 
 const iconMap: any = {
-    Bot,
-    MessageSquare,
-    Terminal,
-    HelpCircle,
-    Clock,
-    CheckCircle2,
-    Headset,
-    Mail,
-    Zap,
-    Layout,
-    Cpu,
-    Database,
-    Cloud,
-    Server,
-    Smartphone,
-    Globe,
-    ShieldCheck
+    Bot, MessageSquare, HelpCircle, Clock, Headset, ShieldCheck
+};
+
+const pageData = {
+    header: { badge: "24/7 SUPPORT", title: "Help Center Support.", searchPlaceholder: "Search for answers, guides, or topics..." },
+    channels: [
+        { id: "chat", iconName: "MessageSquare", color: "text-blue-400", title: "Live Chat", desc: "Real-time support from our engineering team. Average response: < 2 minutes." },
+        { id: "ticket", iconName: "Bot", color: "text-purple-400", title: "Ticket System", desc: "Submit a detailed ticket and get a response within 4 hours during business hours." },
+        { id: "email", iconName: "Headset", color: "text-green-400", title: "Email Support", desc: "For non-urgent inquiries. We respond to all emails within 24 hours." },
+    ],
+    faq: {
+        badge: "KNOWLEDGE BASE",
+        title: "Frequently Asked Questions",
+        items: [
+            { id: "f1", q: "What is your typical project timeline?", a: "Most web applications take 4-8 weeks for an MVP. Mobile apps 6-12 weeks. We'll provide a precise estimate during the discovery phase." },
+            { id: "f2", q: "Do you offer post-launch support?", a: "Yes. Every project includes a support period of 1-6 months. We also offer ongoing maintenance retainers for monitoring, updates, and feature development." },
+            { id: "f3", q: "Can you work with our existing team?", a: "Absolutely. We regularly integrate with in-house teams through pair programming, code reviews, and collaborative sprint planning." },
+            { id: "f4", q: "What technologies do you specialize in?", a: "Our core expertise is React/Next.js, Node.js, Python, TypeScript, PostgreSQL, and AWS. We're technology-agnostic and choose the best stack for your project." },
+        ]
+    },
+    priorityRelay: {
+        title: "Priority Relay",
+        description: "Critical issue? Our priority support channel routes your request directly to our senior engineering team with guaranteed 1-hour response.",
+        buttons: [
+            { iconName: "HelpCircle", variant: "default" as const, label: "Emergency Contact" },
+            { iconName: "ShieldCheck", variant: "outline" as const, label: "Schedule Call" },
+        ],
+        metrics: [
+            { id: "m1", iconName: "Clock", label: "CRITICAL RESPONSE", value: "< 1 Hour" },
+            { id: "m2", iconName: "Headset", label: "AVAILABLE ENGINEERS", value: "12 Online" },
+            { id: "m3", iconName: "CheckCircle2", label: "RESOLUTION RATE", value: "98.5%" },
+        ]
+    }
 };
 
 export default function SupportPage() {
-    const { pageContent, isLoading } = usePageContent('support');
-    const setContent = useSupportContentStore((state) => state.setContent);
     const router = useRouter();
-    // Dynamically import useAuthStore to avoid potential hydration mismatch if it uses local storage immediately
-    // or just use it directly if it's safe. Assuming safe for client component.
-    // However, since we just need to redirect, we can check auth status or just push to protected route 
-    // and let the dashboard middleware handle the redirect to login.
-    // For better UX, let's just redirect to dashboard support which is protected.
-    
     const [searchQuery, setSearchQuery] = useState("");
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useSupportContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Initializing Support Node...
-                </div>
-            </div>
-        );
-    }
-    
-    if (!content) return null;
-
-    const { header, channels, faq, priorityRelay } = content;
+    const { header, channels, faq, priorityRelay } = pageData;
 
     const handleConnect = () => {
         router.push("/dashboard/support");
@@ -146,7 +111,7 @@ export default function SupportPage() {
                     {channels.map((channel, idx) => {
                         const Icon = iconMap[channel.iconName] || Bot;
                         return (
-                            <motion.div key={channel.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
+                            <motion.div key={channel.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }}>
                                 <Card className="h-full border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700 cursor-pointer group" onClick={handleConnect}>
                                     <CardContent className="p-10 space-y-6 flex flex-col items-center text-center">
                                         <div className={cn("w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6", channel.color)}>
@@ -210,7 +175,7 @@ export default function SupportPage() {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 {priorityRelay.buttons.map((btn, idx) => {
-                                    const BtnIcon = iconMap[btn.iconName] || Zap;
+                                    const BtnIcon = iconMap[btn.iconName] || Bot;
                                     return (
                                         <Button 
                                             key={idx}

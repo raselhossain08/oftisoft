@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "Shop | Premium Templates, UI Kits & Digital Assets",
-  description: "Browse our marketplace of premium templates, UI kits, and digital assets. High-quality resources for developers and designers. Download instantly.",
+  description: "Looking for premium development resources? Browse the Oftisoft shop for high-quality templates, UI kits, design systems, and digital assets. Instant download with secure payment via Stripe or PayPal.",
   keywords: [
     "premium templates",
     "UI kits",

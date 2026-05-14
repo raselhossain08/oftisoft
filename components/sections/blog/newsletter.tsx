@@ -60,6 +60,8 @@ export default function Newsletter() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
+                                transition={{ duration: 0.5 }}
+                                style={{ willChange: "transform, opacity" }}
                             >
                                 <Badge variant="outline" className="mb-6 gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-colors">
                                     <Sparkles className="w-4 h-4" />
@@ -98,8 +100,9 @@ export default function Newsletter() {
                             initial={{ opacity: 0, scale: 0.95 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            transition={{ delay: 0.2 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
                             className="relative"
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <Card className="bg-background/80 backdrop-blur-md border-border shadow-lg relative overflow-hidden group">
                                 {/* Border Gradient Animation */}

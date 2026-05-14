@@ -1,57 +1,39 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { 
     Zap, 
     ShieldCheck, 
-    Box, 
     Globe, 
     Code2, 
     Terminal, 
     Layers, 
     Cpu, 
-    Search,
-    ChevronRight,
     ArrowRight
 } from "lucide-react";
 
-import { useFeaturesContentStore } from "@/lib/store/features-content";
-
 // Icon Map
 const iconMap: any = {
-    Cpu, Globe, ShieldCheck, Layers, Zap, Terminal, Code2, Search
+    Cpu, Globe, ShieldCheck, Layers, Zap, Terminal, Code2
+};
+
+const pageData = {
+    header: { badge: "CAPABILITIES", titlePrefix: "Everything You", titleHighlight: "Need", description: "Built for speed, security, and scale — Oftisoft's platform gives you every tool to build, deploy, and grow your digital products." },
+    features: [
+        { id: "perf", iconName: "Zap", title: "Blazing Performance", description: "Sub-50ms response times, edge caching, and CDN-optimized asset delivery ensure your users get the fastest experience possible.", color: "text-yellow-500" },
+        { id: "secure", iconName: "ShieldCheck", title: "Enterprise Security", description: "SOC 2 aligned, OWASP compliant, encrypted at rest and transit. Regular penetration testing and automated vulnerability scanning.", color: "text-green-500" },
+        { id: "scale", iconName: "Layers", title: "Infinite Scalability", description: "Auto-scaling microservices architecture that handles 10M+ concurrent users without breaking a sweat. Pay only for what you use.", color: "text-blue-500" },
+        { id: "global", iconName: "Globe", title: "Global Reach", description: "Deploy across 30+ regions worldwide. Built-in CDN, multi-region database replication, and intelligent traffic routing.", color: "text-cyan-500" },
+        { id: "devops", iconName: "Terminal", title: "Automated DevOps", description: "CI/CD pipelines, infrastructure-as-code, blue-green deployments, and automated rollbacks. Ship 50x per day with confidence.", color: "text-purple-500" },
+        { id: "analytics", iconName: "Cpu", title: "Built-in Analytics", description: "Real-time dashboards, user behavior tracking, A/B testing, and AI-powered insights — all included out of the box.", color: "text-orange-500" },
+    ],
+    showcase: { title: "Enterprise-Grade Infrastructure", description: "Monitor, manage, and optimize your entire stack from a single control panel.", badgeText: "SYSTEM ONLINE", statusText: "All systems operational. 99.99% uptime over the last 90 days." }
 };
 
 export default function FeaturesPage() {
-    const { pageContent, isLoading } = usePageContent('features');
-    const setContent = useFeaturesContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useFeaturesContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Calibrating Feature Matrix...
-                </div>
-            </div>
-        );
-    }
-
-    const features = content?.features || [];
-    const header = content?.header;
-    const showcase = content?.showcase;
+    const { header, features, showcase } = pageData;
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
             {/* Background Orbs */}
@@ -100,6 +82,7 @@ export default function FeaturesPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <Card className="group h-full border-white/5 bg-white/[0.02] backdrop-blur-2xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700">
                                 <CardContent className="p-10 md:p-14 flex flex-col items-center md:items-start text-center md:text-left space-y-8">
@@ -125,6 +108,9 @@ export default function FeaturesPage() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.5 }}
+                    style={{ willChange: "transform, opacity" }}
                     className="p-1 underline-offset-8 mt-24"
                 >
                     <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background rounded-[50px] overflow-hidden">

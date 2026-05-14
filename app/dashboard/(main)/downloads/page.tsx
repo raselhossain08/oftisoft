@@ -590,8 +590,10 @@ export default function DigitalLibraryPage() {
             {/* Global CDN Info */}
             <motion.div 
                 initial={{ opacity: 0, y: 30 }}
+                style={{ willChange: "transform, opacity" }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.5 }}
                 className="mt-16 p-16 rounded-[60px] bg-primary/[0.03] border-2 border-primary/10 relative overflow-hidden group shadow-2xl"
             >
                 <div className="absolute -right-20 -bottom-20 w-[600px] h-[600px] bg-primary/20 blur-[150px] rounded-full pointer-events-none group-hover:bg-primary/30 transition-colors duration-1000" />

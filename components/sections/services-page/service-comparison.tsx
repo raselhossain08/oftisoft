@@ -27,7 +27,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useServicesContentStore, type ComparisonFeature, type ComparisonTier } from "@/lib/store/services-content";
 import { useCart } from "@/hooks/use-cart";
 
 const iconMap: any = {
@@ -37,14 +36,38 @@ const iconMap: any = {
     HeartPulse, Globe, Code, ShieldCheck, Layers
 };
 
+const comparisonData = {
+    tiers: [
+        { id: "starter", name: "Starter", price: "$2,999", description: "For early-stage startups and MVPs", highlight: false, iconName: "Rocket", features: [true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false], gradient: "from-blue-500 to-cyan-500" },
+        { id: "growth", name: "Growth", price: "$7,999", description: "For scaling products and growing teams", highlight: true, iconName: "Zap", features: [true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false], gradient: "from-purple-500 to-pink-500" },
+        { id: "enterprise", name: "Enterprise", price: "Custom", description: "For large organizations with custom needs", highlight: false, iconName: "Crown", features: [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], gradient: "from-orange-500 to-red-500" },
+    ],
+    features: [
+        { id: "dedicated-engineer", name: "Dedicated Engineer", iconName: "Code" },
+        { id: "basic-analytics", name: "Basic Analytics", iconName: "BarChart" },
+        { id: "email-support", name: "Email Support", iconName: "Mail" },
+        { id: "weekly-calls", name: "Weekly Sync Calls", iconName: "Video" },
+        { id: "advanced-analytics", name: "Advanced Analytics", iconName: "Zap" },
+        { id: "priority-support", name: "Priority Support (4hr)", iconName: "Zap" },
+        { id: "daily-calls", name: "Daily Standups", iconName: "Video" },
+        { id: "devops", name: "DevOps & CI/CD", iconName: "Rocket" },
+        { id: "code-review", name: "Automated Code Review", iconName: "ShieldCheck" },
+        { id: "full-team", name: "Full Team (4+ engineers)", iconName: "Users" },
+        { id: "ai-analytics", name: "AI-Powered Analytics", iconName: "Brain" },
+        { id: "24-7-support", name: "24/7 On-Call Support", iconName: "Crown" },
+        { id: "dedicated-pm", name: "Dedicated Project Manager", iconName: "Crown" },
+        { id: "security-audit", name: "Security Audit", iconName: "Shield" },
+        { id: "custom-sla", name: "Custom SLA", iconName: "Sparkles" },
+        { id: "on-premise", name: "On-Premise Deployment", iconName: "Server" },
+    ]
+};
+
 export default function ServiceComparison() {
-    const { content } = useServicesContentStore();
     const cart = useCart();
-    const features = content?.comparison?.features ?? [];
-    const tiers = content?.comparison?.tiers ?? [];
+    const { tiers, features } = comparisonData;
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
-    const handleAddToCart = (tier: ComparisonTier) => {
+    const handleAddToCart = (tier: any) => {
         const isCustom = tier.price === 'Custom';
         if (!isCustom) {
             const numericPrice = Number(tier.price.replace(/[^0-9.]/g, ''));
@@ -109,7 +132,7 @@ export default function ServiceComparison() {
                                     </CardHeader>
                                     
                                     <CardContent className="space-y-4 pb-6">
-                                        {features.map((feature: ComparisonFeature, i: number) => (
+                                        {features.map((feature: any, i: number) => (
                                             <div key={i} className="flex items-center justify-between text-xs border-b border-border/30 pb-2 last:border-0 last:pb-0">
                                                 <span className="text-muted-foreground font-medium">{feature.name}</span>
                                                 {typeof tier.features?.[i] === 'boolean' ? (
@@ -156,7 +179,7 @@ export default function ServiceComparison() {
                                 <TableHead className="p-8 w-1/4 align-bottom">
                                     <span className="text-3xl font-bold text-foreground tracking-tight">Features</span>
                                 </TableHead>
-                                {tiers.map((tier: ComparisonTier) => (
+                                {tiers.map((tier: any) => (
                                     <TableHead key={tier.id} className={cn(
                                         "p-8 w-1/4 align-top relative transition-colors duration-300",
                                         tier.highlight ? "bg-primary/5" : "bg-transparent"
@@ -211,7 +234,7 @@ export default function ServiceComparison() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {features.map((feature: ComparisonFeature, featureIndex: number) => (
+                            {features.map((feature: any, featureIndex: number) => (
                                 <TableRow key={featureIndex} className="group hover:bg-muted/30 transition-colors border-border/40">
                                     <TableCell className="p-6 text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors pl-8">
                                         <div className="flex items-center gap-2">
@@ -224,7 +247,7 @@ export default function ServiceComparison() {
                                             </div>
                                         </div>
                                     </TableCell>
-                                    {tiers.map((tier: ComparisonTier, tierIndex: number) => (
+                                    {tiers.map((tier: any, tierIndex: number) => (
                                         <TableCell key={tierIndex} className={cn(
                                             "p-6 text-center transition-colors align-middle",
                                             tier.highlight ? "bg-primary/5 group-hover:bg-primary/10" : ""

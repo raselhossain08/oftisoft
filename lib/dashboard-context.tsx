@@ -21,10 +21,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 export function useDashboard(): DashboardContextType {
   const ctx = useContext(DashboardContext);
   if (!ctx) {
-    return {
-      mobileSidebarOpen: false,
-      setMobileSidebarOpen: () => {},
-    };
+    throw new Error("useDashboard must be used within a DashboardProvider");
   }
   return ctx;
 }

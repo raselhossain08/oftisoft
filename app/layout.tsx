@@ -23,6 +23,7 @@ const geistMono = Geist_Mono({
 import SmoothScroller from "@/components/smooth-scroller";
 import { QueryProvider } from "@/lib/api/queries";
 import { AuthProvider } from "@/components/auth-provider";
+import SeoScripts from "@/components/seo-scripts";
 
 export const metadata: Metadata = defaultMetadata;
 export const viewport: Viewport = defaultViewport;
@@ -72,8 +73,11 @@ export default function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <AnalyticsTracker />
-              {children}
+              <SmoothScroller>
+                {children}
+              </SmoothScroller>
               <CartSheet />
+              <SeoScripts />
             </AuthProvider>
             <Toaster richColors position="top-right" />
           </QueryProvider>

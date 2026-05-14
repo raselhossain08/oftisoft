@@ -309,7 +309,8 @@ export default function InvoicesPage() {
                                     key={inv.id}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.03 }}
+                                    style={{ willChange: "transform, opacity" }}
+                                    transition={{ delay: i * 0.1 }}
                                     className={cn(
                                         "group hover:bg-primary/[0.02] transition-colors",
                                         selectedIds.includes(inv.id) && "bg-primary/[0.04]"

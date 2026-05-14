@@ -1,4 +1,4 @@
-﻿
+
 import Navbar from "@/components/navbar";
 import Footer from "@/components/sections/footer";
 import LiveChatPopup from "@/components/live-chat-popup";

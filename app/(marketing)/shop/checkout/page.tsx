@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";

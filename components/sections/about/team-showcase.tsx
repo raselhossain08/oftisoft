@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -36,6 +35,8 @@ export default function TeamShowcase({ data }: { data?: any }) {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        style={{ willChange: "transform, opacity" }}
                     >
                         <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
                             {team?.badge ?? ""}
@@ -53,9 +54,9 @@ export default function TeamShowcase({ data }: { data?: any }) {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
                         className="flex flex-wrap justify-center gap-2 p-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md"
-                    >
+                        style={{ willChange: "transform, opacity" }}>
                         {categories.map((cat) => (
                             <button
                                 key={cat.label}

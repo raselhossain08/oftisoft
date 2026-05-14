@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useCart } from "@/store/useCartStore";
+import { useCart } from "@/hooks/use-cart";
 import { ShoppingCart, Trash2, Plus, Minus, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

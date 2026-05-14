@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "Blog | Insights, Tutorials & Tech News",
-  description: "Read the latest insights on software development, technology trends, programming tutorials, and industry news from the Oftisoft team.",
+  description: "Looking for expert software development insights? Read the Oftisoft blog for tutorials on React, Next.js, Node.js, and AI development, plus industry trends, best practices, and case studies from our engineering team.",
   keywords: [
     "software development blog",
     "tech blog",

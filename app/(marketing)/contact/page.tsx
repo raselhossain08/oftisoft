@@ -1,48 +1,34 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { 
-    Mail, 
-    MessageSquare, 
-    MapPin, 
-    Phone, 
-    Send, 
-    Globe, 
-    Zap, 
-    Clock, 
-    CheckCircle2, 
-    ArrowRight, 
-    Terminal, 
-    Bot, 
-    Headset, 
-    ShieldCheck
+    Mail, MapPin, Phone, Send, Globe, Zap, Terminal, Bot, Headset, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useContactContentStore } from "@/lib/store/contact-content";
 import { useLeads } from "@/hooks/useLeads";
 
-// Icon Map
 const iconMap: any = {
-    Mail, MessageSquare, MapPin, Phone, Send, Globe, Zap, Clock, CheckCircle2, ArrowRight, Terminal, Bot, Headset, ShieldCheck
+    Mail, MapPin, Phone, Send, Globe, Zap, Terminal, Bot, Headset, ShieldCheck
+};
+
+const pageData = {
+    header: { badge: "CONNECT", titlePrefix: "Let's ", titleHighlight: "Talk", titleSuffix: "", description: "Have a project in mind? We'd love to hear about it. Schedule a free 15-minute discovery call." },
+    contactInfo: [
+        { id: "email", iconName: "Mail", color: "text-blue-400", title: "EMAIL", value: "hello@oftisoft.com" },
+        { id: "phone", iconName: "Phone", color: "text-green-400", title: "PHONE", value: "+880 1410-615665" },
+        { id: "location", iconName: "MapPin", color: "text-purple-400", title: "HQ", value: "Satkhira, Khulna, Bangladesh" },
+    ],
+    statusNode: { title: "RESPONSE TIME", status: "Under 1hr", latencyText: "Average response time during business hours. Typically within 30 minutes." },
+    form: { title: "Send a Message", description: "Fill out the form below and our team will get back to you within 24 hours.", nameLabel: "YOUR NAME", emailLabel: "EMAIL ADDRESS", subjectLabel: "SUBJECT", messageLabel: "MESSAGE", buttonText: "Send Message" },
+    footer: { encryptedText: "256-bit encrypted • GDPR compliant", agentText: "Powered by human engineers + AI" }
 };
 
 export default function ContactPage() {
-    const { pageContent, isLoading } = usePageContent('contact');
-    const setContent = useContactContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useContactContentStore();
+    const { header, contactInfo, statusNode, form, footer } = pageData;
     const { createLead, isCreating } = useLeads();
 
     const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -65,22 +51,6 @@ export default function ContactPage() {
             }
         });
     };
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Initializing Contact Interface...
-                </div>
-            </div>
-        );
-    }
-
-    const header = content?.header;
-    const contactInfo = content?.contactInfo || [];
-    const statusNode = content?.statusNode;
-    const form = content?.form;
-    const footer = content?.footer;
 
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
@@ -118,7 +88,7 @@ export default function ContactPage() {
                             {contactInfo.map((item, idx) => {
                                 const Icon = iconMap[item.iconName ?? ''] || MapPin;
                                 return (
-                                <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center gap-6 group">
+                                <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }} className="flex items-center gap-6 group">
                                     <div className={cn("w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all group-hover:scale-110 group-hover:bg-white/10", item.color)}>
                                         <Icon size={28} />
                                     </div>

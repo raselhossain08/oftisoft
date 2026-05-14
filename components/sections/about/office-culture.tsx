@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -25,6 +24,8 @@ export default function OfficeCulture({ data }: { data?: any }) {
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        style={{ willChange: "transform, opacity" }}
                     >
                         <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
                             {culture?.badge ?? ""}
@@ -45,9 +46,10 @@ export default function OfficeCulture({ data }: { data?: any }) {
                             key={item.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
                             viewport={{ once: true }}
                             onClick={() => setSelectedItem(item)}
+                            style={{ willChange: "transform, opacity" }}
                             className={cn(
                                 "relative group overflow-hidden rounded-3xl cursor-pointer border border-white/5 bg-neutral-900/50",
                                 item.size,

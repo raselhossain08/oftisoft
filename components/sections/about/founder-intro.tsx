@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRef, useState } from "react";
@@ -145,7 +144,9 @@ export default function FounderIntro({ data }: { data?: any }) {
                             <motion.div 
                                 initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
+                                viewport={{ once: true, margin: "-80px" }}
+                                transition={{ duration: 0.5 }}
+                                style={{ willChange: "transform, opacity" }}
                                 className="mb-4"
                             >
                                 <Badge variant="outline" className="gap-2 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 font-semibold text-xs">
@@ -217,8 +218,9 @@ function StatBlock({ num, label, suffix, delay }: { num: number, label: string, 
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay, duration: 0.5 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ delay: delay * 0.5, duration: 0.4 }}
+            style={{ willChange: "transform, opacity" }}
         >
             <div className="text-4xl font-bold text-white mb-1 flex items-baseline">
                 <CountUp end={num} duration={2.5} />

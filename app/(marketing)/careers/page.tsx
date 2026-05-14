@@ -1,58 +1,48 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-    Zap, 
     Rocket, 
     ArrowRight, 
     Globe, 
     Cpu, 
     Terminal, 
-    Github,
-    Linkedin,
-    Twitter,
+    Server,
     Briefcase,
     Sparkles,
     Flame
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { useCareersContentStore } from "@/lib/store/careers-content";
-
 // Icon Map
 const iconMap: any = {
-    Cpu, Sparkles, Globe, Terminal, Briefcase, Rocket
+    Cpu, Sparkles, Globe, Terminal, Briefcase, Rocket, Server
+};
+
+const pageData = {
+    hero: { badge: "JOIN THE TEAM", titlePrefix: "Build the", titleHighlight: "Future", titleSuffix: "", description: "Join a team of world-class engineers, designers, and innovators. Remote-first culture, competitive compensation, and projects that matter." },
+    cultureValues: [
+        { id: "innovate", iconName: "Cpu", title: "Innovation First", description: "We allocate 20% of engineering time to R&D and side projects. Some of our best products started as Friday experiments.", color: "text-blue-500" },
+        { id: "grow", iconName: "Sparkles", title: "Continuous Growth", description: "Annual learning budget, conference tickets, certification programs, and a mentorship culture that helps you level up.", color: "text-purple-500" },
+        { id: "global", iconName: "Globe", title: "Global Team", description: "35+ nationalities across 4 continents. Remote-first since day one with annual team retreats in incredible locations.", color: "text-cyan-500" },
+        { id: "impact", iconName: "Rocket", title: "Real Impact", description: "Your code ships to production on day one. We move fast, iterate constantly, and every team member owns meaningful parts of the product.", color: "text-orange-500" },
+    ],
+    jobs: [
+        { id: "fe-eng", title: "Senior Frontend Engineer", team: "Platform Engineering", type: "Remote / Full-time", iconName: "Terminal", isActive: true, color: "text-blue-400" },
+        { id: "be-eng", title: "Senior Backend Engineer", team: "Core Infrastructure", type: "Remote / Full-time", iconName: "Server", isActive: true, color: "text-green-400" },
+        { id: "ai-eng", title: "AI/ML Engineer", team: "AI Products", type: "Remote / Full-time", iconName: "Cpu", isActive: true, color: "text-purple-400" },
+        { id: "pm", title: "Technical Product Manager", team: "Product", type: "Remote / Full-time", iconName: "Briefcase", isActive: true, color: "text-yellow-400" },
+        { id: "designer", title: "Senior UX Designer", team: "Design", type: "Remote / Full-time", iconName: "Sparkles", isActive: true, color: "text-pink-400" },
+        { id: "devops", title: "DevOps Engineer", team: "Infrastructure", type: "Remote / Full-time", iconName: "Rocket", isActive: true, color: "text-cyan-400" },
+    ],
+    contact: { title: "Don't See Your Role?", description: "We're always looking for exceptional talent. Send us your resume and we'll keep you in mind for future opportunities.", buttonText: "Send Open Application" }
 };
 
 export default function CareersPage() {
-    const { pageContent, isLoading } = usePageContent('careers');
-    const setContent = useCareersContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useCareersContentStore();
-    
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Initializing Talent Pipeline...
-                </div>
-            </div>
-        );
-    }
-
-    const jobs = (content?.jobs || []).filter(j => j.isActive);
-    const hero = content?.hero;
-    const culture = content?.cultureValues || [];
+    const { hero, cultureValues: culture, jobs: allJobs, contact } = pageData;
+    const jobs = allJobs.filter(j => j.isActive);
 
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
@@ -117,6 +107,7 @@ export default function CareersPage() {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1 }}
+                                style={{ willChange: "transform, opacity" }}
                             >
                                 <Card className="group border-white/5 bg-white/[0.01] hover:bg-white/[0.03] rounded-[32px] overflow-hidden transition-all duration-500 hover:border-primary/20 cursor-pointer">
                                     <CardContent className="p-8 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
@@ -145,12 +136,12 @@ export default function CareersPage() {
 
                 {/* Future Node Prompt */}
                 <div className="text-center pt-24 space-y-6">
-                    <h3 className="text-3xl font-semibold text-white/40">{content?.contact.title ?? ""}</h3>
+                    <h3 className="text-3xl font-semibold text-white/40">{contact.title}</h3>
                     <p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
-                        {content?.contact.description ?? ""}
+                        {contact.description}
                     </p>
                     <Button variant="outline" className="h-16 px-12 rounded-2xl border-white/10 bg-white/5 text-white font-semibold text-lg hover:bg-white/10">
-                        {content?.contact.buttonText ?? ""} <ArrowRight className="w-5 h-5 ml-3" />
+                        {contact.buttonText} <ArrowRight className="w-5 h-5 ml-3" />
                     </Button>
                 </div>
             </div>

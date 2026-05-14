@@ -527,7 +527,7 @@ export default function SupportHubPage() {
                                                     initial={{ opacity: 0, y: 10 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     exit={{ opacity: 0, scale: 0.95 }}
-                                                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                                                    transition={{ delay: index * 0.1, duration: 0.3 }}
                                                     className={cn(
                                                         "group border-b border-border/50 hover:bg-primary/[0.03] transition-colors cursor-pointer relative",
                                                         selectedTicketIds.includes(t.id) && "bg-primary/[0.04]"

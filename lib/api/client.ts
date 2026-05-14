@@ -1,17 +1,12 @@
 /**
- * API Client - No automatic redirect on failure
- * Errors propagate to callers; useProtectedRoute handles auth
+ * API Client - Relies on httpOnly cookies for auth.
+ * Tokens are never exposed to JavaScript. credentials: 'include'
+ * sends them automatically on same-origin/cors-authorized requests.
  */
 
 import ky from 'ky';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-// Helper to get auth token
-const getAuthToken = (): string | null => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('auth_token');
-};
 
 export const apiClient = ky.create({
     prefixUrl: API_BASE_URL,
@@ -26,11 +21,6 @@ export const apiClient = ky.create({
         beforeRequest: [
             (request) => {
                 request.headers.set('X-Client-Version', '1.0.0');
-                // Add auth token if available
-                const token = getAuthToken();
-                if (token) {
-                    request.headers.set('Authorization', `Bearer ${token}`);
-                }
             },
         ],
         beforeError: [

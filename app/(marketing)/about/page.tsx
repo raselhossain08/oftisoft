@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -27,34 +27,90 @@ import Awards from "@/components/sections/about/awards";
 import TeamShowcase from "@/components/sections/about/team-showcase";
 import CapabilityEngine from "@/components/sections/about/capability-engine";
 
-import { usePageContent } from "@/hooks/usePageContent";
 import { useMousePosition } from "@/hooks/useMousePosition";
 
 const iconMap: any = {
   Globe,
   Users,
   Zap,
-  ShieldCheck: Globe, // Added fallback
+  ShieldCheck: Globe,
+};
+
+const pageData = {
+  hero: {
+    badge: "SINCE 2019",
+    title: "We Are Oftisoft",
+    highlightedWord: "Innovation",
+    description: "A team of passionate engineers, designers, and strategists dedicated to building world-class digital products. Headquartered in Bangladesh, serving clients globally.",
+    ctaText: "Start Your Project",
+    cardTitle: "6+ Years of Engineering Excellence",
+    cardDescription: "50+ projects delivered across fintech, healthcare, e-commerce, and enterprise. Trusted by startups and Fortune 500 companies alike."
+  },
+  stats: [
+    { id: "projects", icon: "Zap", value: "50+", label: "Projects Delivered" },
+    { id: "clients", icon: "Globe", value: "30+", label: "Happy Clients" },
+    { id: "team", icon: "Users", value: "25+", label: "Expert Engineers" },
+  ],
+  founder: {
+    name: "Rasel Hossain",
+    role: "Founder & CEO",
+    tagline: "Building world-class software from Bangladesh",
+    image: "https://i.pravatar.cc/400?u=rasel",
+    socials: { github: "https://github.com/oftisoft", linkedin: "https://linkedin.com/company/oftisoft", twitter: "https://twitter.com/oftisoft" },
+    badgeTitle: "Meet the Founder",
+    titleLine1: "Built by a Developer,",
+    titleLine2: "for Developers.",
+    bioPar1: "Rasel has been building software since 2015. He founded Oftisoft in 2019 with a vision to create a world-class software engineering firm from Bangladesh. Under his leadership, Oftisoft has grown from a solo consultancy to a 25+ person engineering powerhouse serving clients across 4 continents.",
+    bioPar2: "His philosophy is simple: great software comes from great teams, transparent processes, and a relentless focus on quality. Every project at Oftisoft is treated as a partnership, not a transaction.",
+    stats: [
+      { num: 10, suffix: "+", label: "Years Building" },
+      { num: 50, suffix: "+", label: "Projects Led" },
+      { num: 25, suffix: "+", label: "Team Built" },
+    ]
+  },
+  mission: "To democratize access to world-class software engineering by combining deep technical expertise with transparent, collaborative partnerships.",
+  values: [
+    { id: "quality", icon: "Zap", title: "Quality Obsession", description: "Every line of code is reviewed, tested, and optimized. We don't ship mediocre work.", color: "from-blue-500 to-cyan-500" },
+    { id: "transparency", icon: "Globe", title: "Radical Transparency", description: "Daily updates, live dashboards, and open communication. You always know where your project stands.", color: "from-purple-500 to-pink-500" },
+    { id: "growth", icon: "Users", title: "Continuous Growth", description: "We invest 20% of our time in learning. New technologies, better processes, constant improvement.", color: "from-green-500 to-teal-500" },
+  ],
+  timeline: [
+    { id: "t1", year: "2019", title: "Founded", description: "Rasel started Oftisoft as a solo development consultancy in Satkhira, Bangladesh." },
+    { id: "t2", year: "2020", title: "First Team", description: "Grew to 5 engineers and delivered first enterprise client project — a fintech platform." },
+    { id: "t3", year: "2021", title: "Global Reach", description: "Started working with international clients from US, UK, and Australia." },
+    { id: "t4", year: "2022", title: "AI Division", description: "Launched dedicated AI/ML practice. Built first AI-powered analytics platform." },
+    { id: "t5", year: "2023", title: "20+ Team", description: "Expanded to 20+ engineers. Moved to larger office in Khulna." },
+    { id: "t6", year: "2024", title: "Product Launch", description: "Launched first SaaS product. Reached $1M ARR milestone." },
+    { id: "t7", year: "2025", title: "Scale & Impact", description: "50+ projects delivered. 25+ team members. Serving 4 continents." },
+  ],
+  culture: {
+    items: [
+      { id: "c1", icon: "Cpu", title: "Innovation Lab", description: "Dedicated R&D time for exploring new technologies and building internal tools." },
+      { id: "c2", icon: "Users", title: "Collaborative Space", description: "Open floor plan, pair programming culture, and weekly knowledge-sharing sessions." },
+      { id: "c3", icon: "Globe", title: "Remote-First", description: "Flexible remote work policy with team members across Bangladesh and beyond." },
+    ]
+  },
+  awards: [
+    { id: "a1", name: "Top Software Company", organization: "Clutch", year: "2024", description: "Recognized as a top performing software development company in Bangladesh." },
+    { id: "a2", name: "Best Startup", organization: "Basis", year: "2023", description: "Awarded Best Tech Startup at the Bangladesh Innovation Summit." },
+    { id: "a3", name: "Google Cloud Partner", organization: "Google", year: "2024", description: "Certified Google Cloud Partner for infrastructure and data services." },
+  ],
+  team: [
+    { id: "m1", name: "Rasel Hossain", role: "Founder & CEO", image: "https://i.pravatar.cc/400?u=rasel", bio: "Visionary leader with 10+ years in software engineering.", categories: ["leadership"] },
+    { id: "m2", name: "Sarah Rahman", role: "CTO", image: "https://i.pravatar.cc/400?u=sarah", bio: "Full-stack architect specializing in distributed systems.", categories: ["leadership", "engineering"] },
+    { id: "m3", name: "Kabir Ahmed", role: "Lead Engineer", image: "https://i.pravatar.cc/400?u=kabir", bio: "Expert in React, Node.js, and cloud infrastructure.", categories: ["engineering"] },
+    { id: "m4", name: "Nusrat Jahan", role: "UX Director", image: "https://i.pravatar.cc/400?u=nusrat", bio: "Design thinking advocate with 8+ years in product design.", categories: ["design"] },
+  ],
+  cta: {
+    title: "Ready to Build Something Great?",
+    description: "Let's talk about your project. Free 15-minute discovery call.",
+    buttonText: "Start Conversation"
+  }
 };
 
 export default function AboutPage() {
-  const { pageContent, isLoading } = usePageContent("about");
   const mousePos = useMousePosition();
-
-  if (isLoading) {
-    return (
-      <div className="relative min-h-screen pt-32 pb-24 bg-[#020202] flex items-center justify-center">
-        <div className="text-primary font-semibold animate-pulse">
-          Loading About Page...
-        </div>
-      </div>
-    );
-  }
-
-  const content = pageContent?.content;
-  const hero = content?.hero;
-  const stats = content?.stats || [];
-  const cta = content?.cta;
+  const { hero, stats, founder, mission, values, timeline, culture, awards, team, cta } = pageData;
 
   return (
     <div className="relative min-h-screen pt-64 pb-24 bg-[#020202]">
@@ -105,10 +161,7 @@ export default function AboutPage() {
         {/* Hero section */}
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-10">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
+            <motion.div initial={false}>
               <Badge
                 variant="outline"
                 className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold text-xs tracking-wide"
@@ -118,8 +171,7 @@ export default function AboutPage() {
             </motion.div>
 
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={false}
               className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.05] mb-6"
             >
               {hero?.title ?? ""} <br />
@@ -135,9 +187,7 @@ export default function AboutPage() {
             </motion.h1>
 
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              initial={false}
               className="text-lg md:text-xl text-muted-foreground font-normal leading-relaxed max-w-xl"
             >
               {hero?.description ?? ""}
@@ -314,8 +364,9 @@ export default function AboutPage() {
                 key={stat.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-80px" }}
                 transition={{ delay: idx * 0.1 }}
+                style={{ willChange: "transform, opacity" }}
               >
                 <Card className="border-white/5 bg-white/[0.01] rounded-[40px] p-12 text-center space-y-4 hover:border-primary/30 transition-all group">
                   <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto group-hover:scale-110 transition-transform">
@@ -348,12 +399,12 @@ export default function AboutPage() {
         </div>
 
         {/* Integrated Sections */}
-        <FounderIntro data={content?.founder} />
-        <MissionValues data={content} />
-        <CompanyTimeline data={content} />
-        <OfficeCulture data={content?.culture} />
-        <Awards data={content} />
-        <TeamShowcase data={content?.team} />
+        <FounderIntro data={founder} />
+        <MissionValues data={{ mission, values }} />
+        <CompanyTimeline data={{ timeline }} />
+        <OfficeCulture data={culture} />
+        <Awards data={{ awards }} />
+        <TeamShowcase data={team} />
 
         {/* Infrastructure Footer */}
         <div className="p-12 md:p-20 rounded-[60px] bg-primary/[0.03] border-2 border-primary/10 text-center space-y-8 relative overflow-hidden group">

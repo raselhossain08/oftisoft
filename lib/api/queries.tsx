@@ -232,12 +232,7 @@ export function useLogin() {
     return useMutation({
         mutationFn: (credentials: { email: string; password: string }) => 
             api.post(endpoints.auth.login, credentials),
-        onSuccess: (data: any) => {
-            // Store token
-            if (typeof window !== 'undefined' && data.token) {
-                localStorage.setItem('auth_token', data.token);
-            }
-            // Invalidate current user to refetch
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['current-user'] });
         },
     });
@@ -249,12 +244,7 @@ export function useLogout() {
     return useMutation({
         mutationFn: () => api.post(endpoints.auth.logout),
         onSuccess: () => {
-            // Clear all cached data
             queryClient.clear();
-            // Clear token
-            if (typeof window !== 'undefined') {
-                localStorage.removeItem('auth_token');
-            }
         },
     });
 }

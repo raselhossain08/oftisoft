@@ -286,7 +286,8 @@ export default function ProjectsOverview() {
                                             key={project.id}
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.05 }}
+                                            style={{ willChange: "transform, opacity" }}
+                                            transition={{ delay: i * 0.1 }}
                                             className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
                                         >
                                             <td className="p-4">

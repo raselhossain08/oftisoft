@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
 import PortfolioMain from "@/components/sections/portfolio/portfolio-main";

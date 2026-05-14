@@ -1,4 +1,3 @@
-
 "use client";
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
@@ -52,6 +51,8 @@ export default function CompanyTimeline({ data }: { data?: any }) {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        style={{ willChange: "transform, opacity" }}
                     >
                         <Badge variant="outline" className="mb-4 border-primary/20 text-primary tracking-wide font-semibold px-4 py-1.5 bg-primary/5 rounded-full text-xs">
                             {content?.timelineBadge ?? ""}
@@ -95,6 +96,7 @@ function TimelineEvent({ item, index }: { item: any, index: number }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            style={{ willChange: "transform, opacity" }}
             className={cn(
                 "relative flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-0",
                 isEven ? "md:flex-row" : "md:flex-row-reverse"

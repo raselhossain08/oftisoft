@@ -1,9 +1,7 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
     Globe, 
@@ -15,44 +13,32 @@ import {
     Slack,
     Terminal,
     Bot,
-    Smartphone,
     Database,
-    Cloud,
-    Server
+    Cloud
 } from "lucide-react";
-
-import { useIntegrationsContentStore } from "@/lib/store/integrations-content";
 
 // Icon Map
 const iconMap: any = {
-    Github, Slack, Bot, Smartphone, Globe, Share2, Code2, Zap, Terminal, Database, Cloud, Server
+    Github, Slack, Bot, Globe, Share2, Code2, Zap, Terminal, Database, Cloud
+};
+
+const pageData = {
+    header: { badge: "INTEROPERABILITY", titlePrefix: "Seamless", titleHighlight: "Integrations", description: "Connect Oftisoft with your existing tech stack. 100+ pre-built integrations with industry-leading platforms." },
+    integrations: [
+        { id: "stripe", iconName: "Zap", name: "Stripe", status: "Live", description: "Payment processing, subscription billing, invoicing, and marketplace payouts." },
+        { id: "github", iconName: "Github", name: "GitHub", status: "Live", description: "Seamless CI/CD integration, code review automation, and deployment triggers." },
+        { id: "slack", iconName: "Slack", name: "Slack", status: "Live", description: "Real-time notifications, deployment alerts, and interactive bot commands." },
+        { id: "aws", iconName: "Cloud", name: "AWS", status: "Live", description: "S3, Lambda, ECS, RDS, CloudFront — full AWS ecosystem integration." },
+        { id: "firebase", iconName: "Database", name: "Firebase", status: "Live", description: "Authentication, real-time database, push notifications, and analytics." },
+        { id: "openai", iconName: "Bot", name: "OpenAI", status: "Beta", description: "GPT-4, DALL-E, and Whisper API integration for AI-powered features." },
+        { id: "sendgrid", iconName: "Share2", name: "SendGrid", status: "Live", description: "Transactional emails, marketing campaigns, and email template management." },
+        { id: "datadog", iconName: "Terminal", name: "Datadog", status: "Live", description: "Infrastructure monitoring, APM, log management, and real-time alerts." },
+    ],
+    cta: { title: "Need a Custom Integration?", description: "Our team can build custom integrations for any platform. We'll work with your existing stack to ensure seamless data flow.", buttonText: "Request Integration" }
 };
 
 export default function IntegrationsPage() {
-    const { pageContent, isLoading } = usePageContent('integrations');
-    const setContent = useIntegrationsContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useIntegrationsContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-blue-500 font-semibold animate-pulse tracking-[0.3em]">
-                    Initializing Interop Hub...
-                </div>
-            </div>
-        );
-    }
-
-    const integrations = content?.integrations || [];
-    const header = content?.header;
-    const cta = content?.cta;
+    const { header, integrations, cta } = pageData;
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
             <div className="fixed inset-0 z-0 pointer-events-none">
@@ -78,7 +64,7 @@ export default function IntegrationsPage() {
                     {integrations.map((item, idx) => {
                         const Icon = iconMap[item.iconName ?? ''] || Zap;
                         return (
-                        <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
+                        <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }}>
                             <Card className="h-full border-white/5 bg-white/[0.01] backdrop-blur-3xl rounded-[32px] overflow-hidden hover:border-blue-500/30 transition-all duration-700 group">
                                 <CardContent className="p-8 space-y-6">
                                     <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">

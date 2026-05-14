@@ -38,6 +38,7 @@ export function SupportPromise() {
                             <motion.div
                                 key={p.title}
                                 initial={{ opacity: 0, y: 10 }}
+                                style={{ willChange: "transform, opacity" }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
                                 viewport={{ once: true }}

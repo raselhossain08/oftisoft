@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -21,47 +21,43 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
-import { useStatusContentStore } from "@/lib/store/status-content";
-
 const iconMap: any = {
-    Globe,
-    Cpu,
-    Zap,
-    Server,
-    ShieldCheck,
-    Database,
-    Activity,
-    Signal,
-    Monitor
+    Globe, Cpu, Zap, Server, ShieldCheck, Database, Activity, Signal, Monitor
+};
+
+const pageData = {
+    header: {
+        badge: "SYSTEM STATUS",
+        title: "All Systems Operational Status.",
+        mainStatus: { title: "All Systems Normal", description: "ALL SERVICES OPERATIONAL — 99.99% UPTIME" }
+    },
+    systems: [
+        { id: "api", iconName: "Server", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "API Gateway", latency: "12ms" },
+        { id: "web", iconName: "Globe", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "Web Application", latency: "45ms" },
+        { id: "db", iconName: "Database", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "Database Cluster", latency: "3ms" },
+        { id: "auth", iconName: "ShieldCheck", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "Authentication", latency: "8ms" },
+        { id: "cdn", iconName: "Zap", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "CDN & Edge", latency: "22ms" },
+        { id: "ws", iconName: "Signal", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "WebSocket", latency: "15ms" },
+        { id: "storage", iconName: "Database", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "Object Storage", latency: "18ms" },
+        { id: "ai", iconName: "Cpu", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "AI Inference", latency: "95ms" },
+        { id: "monitor", iconName: "Activity", color: "text-green-400", status: "Operational", uptime: "99.99%", name: "Monitoring", latency: "5ms" },
+    ],
+    incidents: {
+        title: "Incident Log",
+        logs: [
+            { id: "inc1", color: "bg-green-500", date: "May 10, 2026", status: "Resolved", title: "Scheduled Database Migration", desc: "Planned upgrade of PostgreSQL cluster from v15 to v16. Zero-downtime migration completed successfully. Expected latency improvements of 15-20%." },
+            { id: "inc2", color: "bg-green-500", date: "April 28, 2026", status: "Resolved", title: "CDN Edge Cache Optimization", desc: "Routine CDN configuration update to improve cache hit rates and reduce origin load. No service disruption." },
+            { id: "inc3", color: "bg-green-500", date: "April 15, 2026", status: "Resolved", title: "SSL Certificate Rotation", desc: "Automated SSL certificate renewal for all domains. Zero downtime during rotation process." },
+        ]
+    },
+    monitoring: {
+        note: "All systems are continuously monitored by our automated alerting infrastructure. Incident response time: < 5 minutes.",
+        nextSyncText: "Auto-sync: Real-time"
+    }
 };
 
 export default function StatusPage() {
-    const { pageContent, isLoading } = usePageContent('status');
-    const setContent = useStatusContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useStatusContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Pinging Cloud Proxies...
-                </div>
-            </div>
-        );
-    }
-
-    if (!content) return null;
-
-    const { header, systems, incidents, monitoring } = content;
+    const { header, systems, incidents, monitoring } = pageData;
 
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
@@ -115,7 +111,9 @@ export default function StatusPage() {
                                 key={system.id}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: idx * 0.05 }}
+                                viewport={{ once: true, margin: "-80px" }}
+                                transition={{ delay: idx * 0.1 }}
+                                style={{ willChange: "transform, opacity" }}
                             >
                                 <Card className="h-full border-white/5 bg-white/[0.01] backdrop-blur-3xl rounded-[32px] overflow-hidden hover:border-white/10 transition-all duration-500 group">
                                     <CardContent className="p-8 space-y-8">

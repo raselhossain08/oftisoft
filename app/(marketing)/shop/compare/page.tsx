@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { mockProducts } from "@/lib/shop-data";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

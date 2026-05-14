@@ -1,6 +1,4 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,39 +23,33 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { useDocsContentStore } from "@/lib/store/docs-content";
-
 // Icon Map
 const iconMap: any = {
     Layers, Cpu, ShieldCheck, Terminal, Zap, Code2, BookOpen, MessageSquare, Box, Globe, FileText
 };
 
+const pageData = {
+    header: { badge: "KNOWLEDGE BASE", title: "Developer ", highlight: "Documentation", placeholder: "Search documentation, guides, API references..." },
+    categories: [
+        { id: "getting-started", iconName: "Rocket", color: "text-blue-400", title: "Getting Started", count: "12 guides" },
+        { id: "api-ref", iconName: "Code2", color: "text-purple-400", title: "API Reference", count: "48 endpoints" },
+        { id: "frontend", iconName: "Box", color: "text-cyan-400", title: "Frontend SDK", count: "6 packages" },
+        { id: "backend", iconName: "Server", color: "text-green-400", title: "Backend SDK", count: "8 packages" },
+        { id: "integrations", iconName: "Globe", color: "text-orange-400", title: "Integrations", count: "24 guides" },
+        { id: "security", iconName: "ShieldCheck", color: "text-red-400", title: "Security", count: "15 guides" },
+        { id: "deployment", iconName: "Terminal", color: "text-indigo-400", title: "Deployment", count: "10 guides" },
+        { id: "tutorials", iconName: "BookOpen", color: "text-pink-400", title: "Tutorials", count: "20 tutorials" },
+        { id: "faq", iconName: "MessageSquare", color: "text-yellow-400", title: "FAQ", count: "35 answers" },
+    ],
+    cta: { title: "Need Help?", description: "Can't find what you're looking for? Our support team is ready to help you 24/7.", primaryButton: "Contact Support", secondaryButton: "Join Discord" },
+    support: [
+        { id: "s1", iconName: "MessageSquare", color: "text-blue-400", title: "Live Chat", description: "Get immediate help from our engineering team via real-time chat." },
+        { id: "s2", iconName: "Terminal", color: "text-purple-400", title: "API Status", description: "Check real-time API availability, latency, and incident history." },
+    ]
+};
+
 export default function DocsPage() {
-    const { pageContent, isLoading } = usePageContent('docs');
-    const setContent = useDocsContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useDocsContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Syncing Intelligence Protocols...
-                </div>
-            </div>
-        );
-    }
-
-    const categories = content?.categories || [];
-    const header = content?.header;
-    const cta = content?.cta;
-    const support = content?.support || [];
+    const { header, categories, cta, support } = pageData;
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
             {/* Background Texture & Orbs */}
@@ -107,6 +99,7 @@ export default function DocsPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <Card className="group h-full border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700 cursor-pointer">
                                 <CardContent className="p-10 space-y-6">

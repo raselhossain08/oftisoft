@@ -1,4 +1,3 @@
-
 "use client";
 
 import { motion } from "framer-motion";
@@ -10,14 +9,22 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+const defaultTestimonials = [
+    { id: "1", name: "Alex Thompson", role: "CTO, Finova Labs", quote: "Oftisoft transformed our monolithic banking system into a microservices architecture. 99.9% uptime, 60% reduced latency, and their team was a true partner throughout.", avatar: "https://i.pravatar.cc/150?u=alex", gradient: "from-blue-500 to-cyan-500" },
+    { id: "2", name: "Sarah Chen", role: "CEO, HealthBridge AI", quote: "The AI-powered diagnostics module they built for us is incredible. Approval workflows automated, accuracy improved by 40%, and their team delivered 2 weeks early.", avatar: "https://i.pravatar.cc/150?u=sarah", gradient: "from-purple-500 to-pink-500" },
+    { id: "3", name: "Michael Rodriguez", role: "VP Eng, MarketPro", quote: "They built our entire multi-vendor marketplace from scratch. 5,000 vendors onboarded in the first quarter. The automated payout system alone saved us 200 engineering hours monthly.", avatar: "https://i.pravatar.cc/150?u=michael", gradient: "from-green-500 to-teal-500" },
+    { id: "4", name: "Priya Sharma", role: "Founder, EduSpark", quote: "Our edtech platform needed to scale from 1,000 to 100,000 concurrent users overnight. Oftisoft's architecture handled it seamlessly. Zero downtime during the transition.", avatar: "https://i.pravatar.cc/150?u=priya", gradient: "from-orange-500 to-red-500" },
+    { id: "5", name: "James Wilson", role: "Director, DataSync Inc.", quote: "The real-time data pipeline they engineered processes 10 billion events daily with sub-50ms latency. Their Kafka and gRPC expertise is world-class.", avatar: "https://i.pravatar.cc/150?u=james", gradient: "from-indigo-500 to-violet-500" },
+    { id: "6", name: "Fatima Al-Rashid", role: "COO, CloudBase", quote: "Professional, responsive, and technically exceptional. Oftisoft handled our HIPAA-compliant infrastructure setup and trained our team on the new stack in under 3 months.", avatar: "https://i.pravatar.cc/150?u=fatima", gradient: "from-cyan-500 to-blue-500" },
+];
+
 export default function Testimonials() {
-    // Get content from CMS store
     const { content } = useHomeContentStore();
     const testimonialsContent = content?.testimonials || {
         title: "Voices of",
         subtitle: "Innovation.",
         badge: "Trusted by Market Leaders",
-        testimonials: []
+        testimonials: defaultTestimonials
     };
 
     // Ensure testimonials is always an array
@@ -41,7 +48,9 @@ export default function Testimonials() {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.5 }}
+                    style={{ willChange: "transform, opacity" }}
                 >
                     <Badge variant="outline" className="mb-6 px-4 py-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 gap-2 hover:bg-white/10 transition-colors">
                         <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -95,7 +104,7 @@ function TestimonialCard({ data, index }: { data: any, index: number }) {
                 data.gradient
             )} />
 
-            <Card className="h-full bg-[#050505]/80 backdrop-blur-xl border-white/5 group-hover:bg-[#0a0a0a]/90 transition-colors rounded-3xl overflow-hidden flex flex-col justify-between h-[360px]">
+            <Card className="bg-[#050505]/80 backdrop-blur-xl border-white/5 group-hover:bg-[#0a0a0a]/90 transition-colors rounded-3xl overflow-hidden flex flex-col justify-between h-[360px]">
                 <CardContent className="p-8 pb-0">
                     <div className="mb-6">
                         <div className="flex gap-1 mb-4">

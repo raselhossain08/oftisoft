@@ -1,6 +1,4 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,39 +21,25 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { usePartnersContentStore } from "@/lib/store/partners-content";
-
 // Icon Map
 const iconMap: any = {
     Zap, Globe, Sparkles, ShieldCheck, Handshake, Users, Cpu, Workflow, Gem, Target, Briefcase, Box
 };
 
+const pageData = {
+    header: { badge: "PARTNER PROGRAM", titlePrefix: "Grow Together as ", titleHighlight: "Partners", description: "Join our partner ecosystem and expand your service offerings. Whether you're an agency, freelancer, or technology provider, we have a partnership that works for you." },
+    partners: [
+        { id: "p1", iconName: "Handshake", color: "text-blue-400", name: "Agency Partner", role: "REFERRAL + WHITE-LABEL", desc: "Resell Oftisoft development services under your own brand. We handle delivery, you handle the client relationship. Revenue share up to 30%." },
+        { id: "p2", iconName: "Cpu", color: "text-purple-400", name: "Technology Partner", role: "INTEGRATION + CO-MARKETING", desc: "Integrate your platform with our ecosystem. Joint marketing campaigns, co-branded content, and access to our developer community." },
+        { id: "p3", iconName: "Globe", color: "text-green-400", name: "Solution Partner", role: "IMPLEMENTATION + CONSULTING", desc: "Get certified to implement and consult on Oftisoft solutions. Access to exclusive training, early releases, and dedicated support." },
+        { id: "p4", iconName: "Sparkles", color: "text-orange-400", name: "Affiliate Partner", role: "REFERRAL COMMISSION", desc: "Earn 20% commission on every referral. No minimums, no quotas. Real-time dashboard, instant payouts via Stripe or PayPal." },
+    ],
+    cta: { title: "Ready to Partner?", description: "Join 50+ partners worldwide and take your business to the next level. Apply today and get a response within 48 hours.", buttonText: "Apply Now", subText: "Free to join. No minimum commitments." },
+    ecosystem: { title: "TRUSTED BY INDUSTRY LEADERS", brands: [{ id: "b1", name: "STRIPE" }, { id: "b2", name: "AWS" }, { id: "b3", name: "GITHUB" }, { id: "b4", name: "DOCKER" }, { id: "b5", name: "CLOUDFLARE" }, { id: "b6", name: "DATADOG" }] }
+};
+
 export default function PartnersPage() {
-    const { pageContent, isLoading } = usePageContent('partners');
-    const setContent = usePartnersContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = usePartnersContentStore();
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Initializing Alliance Matrix...
-                </div>
-            </div>
-        );
-    }
-
-    const partners = content?.partners || [];
-    const header = content?.header;
-    const cta = content?.cta;
-    const ecosystem = content?.ecosystem;
+    const { header, partners, cta, ecosystem } = pageData;
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
             {/* Background Texture & Neural Orbs */}
@@ -96,6 +80,7 @@ export default function PartnersPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <Card className="h-full border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700 group cursor-pointer">
                                 <CardContent className="p-10 md:p-14 space-y-8">

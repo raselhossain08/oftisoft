@@ -30,7 +30,7 @@ export const CartSheet = () => {
     };
 
     return (
-        <Sheet open={cart.isOpen} onOpenChange={cart.isOpen ? cart.closeCart : cart.openCart}>
+        <Sheet open={cart.isOpen} onOpenChange={(open) => open ? cart.openCart() : cart.closeCart()}>
             <SheetContent className="w-full sm:max-w-md flex flex-col p-0 border-l border-white/10 bg-background/80 backdrop-blur-xl">
                 <SheetHeader className="px-6 py-4 border-b border-white/5">
                     <SheetTitle className="text-xl font-black italic flex items-center gap-2">

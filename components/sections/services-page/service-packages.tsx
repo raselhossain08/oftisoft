@@ -18,19 +18,23 @@ import "swiper/css/effect-creative";
 import "swiper/css/navigation";
 import { motion } from "framer-motion";
 
-import { useServicesContentStore } from "@/lib/store/services-content";
 import { useCart } from "@/hooks/use-cart";
 
-// Icon mapping
 const iconMap: any = {
     Check, Sparkles, Rocket, Crown, ArrowRight, Zap, RefreshCw, Plus, Save, Trash2, 
     LayoutTemplate, Grid, HelpCircle, Server, Database, Cloud, Brain, Smartphone, 
     Layout, Video, FileText, Code2, ClipboardCheck, HeartPulse, Globe, Code, ShieldCheck, Layers
 };
 
+const packages = [
+    { id: "web-starter", name: "Web App Starter", price: 2999, description: "A complete MVP-ready web application — frontend, backend, database, and deployment.", features: ["React/Next.js Frontend", "Node.js API", "PostgreSQL Database", "Authentication", "Responsive Design", "1 Month Support"], gradient: "from-blue-500 to-cyan-500", icon: "Globe" },
+    { id: "mobile-starter", name: "Mobile App Starter", price: 4999, description: "Cross-platform mobile application with backend, push notifications, and app store deployment.", features: ["React Native App", "REST API Backend", "Push Notifications", "App Store Deploy", "Analytics SDK", "2 Months Support"], gradient: "from-purple-500 to-pink-500", icon: "Smartphone" },
+    { id: "ai-integration", name: "AI Integration", price: 7999, description: "Custom AI model development and integration — LLM, computer vision, or predictive analytics.", features: ["Model Selection & Training", "API Integration", "Prompt Engineering", "Performance Tuning", "Documentation", "3 Months Support"], gradient: "from-green-500 to-teal-500", icon: "Brain" },
+    { id: "saas-platform", name: "SaaS Platform", price: 14999, description: "Full SaaS platform with multi-tenancy, subscription billing, and admin dashboard.", features: ["Multi-tenant Architecture", "Subscription Billing", "Admin Dashboard", "Team Management", "Audit Logging", "3 Months Support"], gradient: "from-orange-500 to-red-500", icon: "Cloud", popular: true },
+    { id: "enterprise-suite", name: "Enterprise Suite", price: 29999, description: "Enterprise-grade solution with microservices, SSO, compliance, and dedicated infrastructure.", features: ["Microservices Architecture", "SSO & RBAC", "GDPR/HIPAA Compliance", "Dedicated Infrastructure", "24/7 On-Call Support", "6 Months Support"], gradient: "from-indigo-500 to-violet-500", icon: "Server" },
+];
+
 export default function ServicePackages() {
-    const { content } = useServicesContentStore();
-    const packages = content?.packages || [];
     const [billing, setBilling] = useState<'one-time' | 'monthly'>('one-time');
 
     return (
@@ -46,8 +50,10 @@ export default function ServicePackages() {
                 <div className="text-center mb-12 md:mb-16 space-y-6">
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
                     >
                         <Badge variant="outline" className="gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-colors backdrop-blur-sm">
                             <Zap className="w-3.5 h-3.5" />

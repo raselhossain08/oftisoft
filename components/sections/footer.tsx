@@ -2,20 +2,11 @@
 
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone, ArrowRight, Github } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useFooterContent } from "@/hooks/useFooterContent";
-import { useFooterContentStore } from "@/lib/store/footer-content";
+import { useState } from "react";
 import { useLeads } from "@/hooks/useLeads";
 
 const iconMap: Record<string, any> = {
-    Github,
-    Twitter,
-    Linkedin,
-    Instagram,
-    Facebook,
-    Mail,
-    MapPin,
-    Phone,
+    Github, Twitter, Linkedin, Instagram, Facebook, Mail, MapPin, Phone,
 };
 
 import { Input } from "@/components/ui/input";
@@ -24,22 +15,36 @@ import { Button } from "@/components/ui/button";
 const isExternalHref = (href: string) =>
     /^(https?:\/\/|mailto:|tel:)/i.test(href);
 
+const footerData = {
+    brandName: "Oftisoft",
+    newsletterTitle: "Stay ahead of the curve",
+    newsletterDescription: "Get weekly insights on software engineering, AI, and digital transformation. No spam, ever.",
+    newsletterPlaceholder: "Enter your email",
+    newsletterButtonText: "Subscribe",
+    newsletterDisclaimer: "Join 5,000+ subscribers. Unsubscribe anytime.",
+    tagline: "Premium software engineering, ",
+    description: "delivered globally. Based in Bangladesh, serving clients across 4 continents.",
+    socialLinks: [
+        { id: "github", icon: "Github", href: "https://github.com/oftisoft", label: "GitHub" },
+        { id: "linkedin", icon: "Linkedin", href: "https://linkedin.com/company/oftisoft", label: "LinkedIn" },
+        { id: "twitter", icon: "Twitter", href: "https://twitter.com/oftisoft", label: "Twitter" },
+        { id: "facebook", icon: "Facebook", href: "https://facebook.com/oftisoft", label: "Facebook" },
+        { id: "instagram", icon: "Instagram", href: "https://instagram.com/oftisoft", label: "Instagram" },
+    ],
+    columns: [
+        { id: "services", title: "Services", links: [{ id: "web", href: "/services", label: "Web Development" }, { id: "mobile", href: "/services", label: "Mobile Apps" }, { id: "ai", href: "/services", label: "AI Solutions" }, { id: "saas", href: "/services", label: "SaaS Development" }] },
+        { id: "company", title: "Company", links: [{ id: "about", href: "/about", label: "About Us" }, { id: "portfolio", href: "/portfolio", label: "Portfolio" }, { id: "blog", href: "/blog", label: "Blog" }, { id: "careers", href: "/careers", label: "Careers" }] },
+        { id: "support", title: "Support", links: [{ id: "contact", href: "/contact", label: "Contact" }, { id: "docs", href: "/docs", label: "Documentation" }, { id: "status", href: "/status", label: "System Status" }, { id: "support", href: "/support", label: "Help Center" }] },
+        { id: "legal", title: "Legal", links: [{ id: "terms", href: "/terms", label: "Terms of Service" }, { id: "privacy", href: "/privacy", label: "Privacy Policy" }, { id: "community", href: "/community", label: "Community" }, { id: "partners", href: "/partners", label: "Partners" }] },
+    ],
+    copyright: "© 2026 Oftisoft. All rights reserved. Built with passion in Bangladesh.",
+    statusText: "All systems operational"
+};
+
 export default function Footer() {
-    const { footerContent, isLoading } = useFooterContent();
-    const { setContent } = useFooterContentStore();
     const { subscribe, isSubscribing } = useLeads();
     const [email, setEmail] = useState("");
-
-    // Sync backend data to store
-    useEffect(() => {
-        if (footerContent) {
-            setContent(footerContent);
-        }
-    }, [footerContent, setContent]);
-
-    const content = footerContent;
-
-    if (isLoading || !content) return null;
+    const content = footerData;
 
     const handleSubscribe = (e: React.FormEvent) => {
         e.preventDefault();

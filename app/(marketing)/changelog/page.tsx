@@ -1,42 +1,27 @@
-﻿"use client";
-import { useEffect } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+"use client";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { GitBranch, Zap, Sparkles, ShieldCheck, Box, Package } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GitBranch, Sparkles, ShieldCheck, Package } from "lucide-react";
 
-import { useChangelogContentStore } from "@/lib/store/changelog-content";
-
-// Icon Map
 const iconMap: any = {
-    Sparkles, ShieldCheck, Box, GitBranch, Zap, Package
+    Sparkles, ShieldCheck, Package, GitBranch
+};
+
+const pageData = {
+    header: { badge: "UPDATES", titlePrefix: "Changelog & ", titleSuffix: "Releases", description: "Track every feature, improvement, and fix shipped to our platform." },
+    updates: [
+        { id: "v2-5", iconName: "Sparkles", category: "Major", date: "May 1, 2026", title: "AI-Powered Analytics Release", version: "v2.5.0", description: "We're excited to announce the launch of our AI-powered analytics platform. This release brings real-time insights, predictive modeling, and natural language querying to all enterprise customers.", changes: ["Real-time dashboard with sub-second refresh", "AI-powered predictive analytics module", "Natural language query interface", "Automated anomaly detection"], isActive: true },
+        { id: "v2-4", iconName: "ShieldCheck", category: "Feature", date: "April 15, 2026", title: "Enterprise Security Suite", version: "v2.4.0", description: "Enhanced security features including SSO/SAML integration, audit logging, and role-based access control for enterprise customers.", changes: ["SSO/SAML integration for enterprise SSO", "Comprehensive audit logging with export", "Granular role-based access control", "IP whitelisting and geo-restrictions"], isActive: true },
+        { id: "v2-3", iconName: "Package", category: "Feature", date: "March 20, 2026", title: "Multi-Vendor Marketplace", version: "v2.3.0", description: "New multi-vendor marketplace module with automated payouts, vendor dashboards, and commission management.", changes: ["Multi-vendor architecture with isolated stores", "Automated payout system (Stripe/PayPal)", "Vendor analytics dashboard", "Commission tier management"], isActive: true },
+        { id: "v2-2", iconName: "GitBranch", category: "Improvement", date: "February 10, 2026", title: "API Performance Optimization", version: "v2.2.0", description: "Major performance improvements across our API layer, reducing average response times by 60%.", changes: ["GraphQL edge caching with CDN integration", "Database query optimization (60% faster)", "WebSocket connection pooling", "Rate limiting with smart throttling"], isActive: true },
+        { id: "v2-1", iconName: "Sparkles", category: "Major", date: "January 5, 2026", title: "Next.js 16 Migration", version: "v2.1.0", description: "Migrated the entire platform to Next.js 16 with Turbopack, resulting in 80% faster builds and improved developer experience.", changes: ["Next.js 16 with Turbopack compilation", "React 19 concurrent features", "Streaming SSR for faster page loads", "Improved image optimization pipeline"], isActive: true },
+    ]
 };
 
 export default function ChangelogPage() {
-    const { pageContent, isLoading } = usePageContent('changelog');
-    const setContent = useChangelogContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
-    const { content } = useChangelogContentStore();
-    
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-background flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Initializing History Log...
-                </div>
-            </div>
-        );
-    }
-
-    const updates = (content?.updates || []).filter(u => u.isActive);
-    const header = content?.header;
+    const { header, updates } = pageData;
+    const activeUpdates = updates.filter(u => u.isActive);
     return (
         <div className="relative min-h-screen pt-32 pb-24">
             {/* Background Gradients */}
@@ -75,7 +60,7 @@ export default function ChangelogPage() {
                 </div>
 
                 <div className="relative space-y-12 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-px before:bg-gradient-to-b before:from-primary/50 before:via-border before:to-transparent">
-                    {updates.map((update, idx) => {
+                    {activeUpdates.map((update, idx) => {
                         const Icon = iconMap[update.iconName ?? ''] || Sparkles;
                         return (
                         <motion.div 
@@ -84,6 +69,7 @@ export default function ChangelogPage() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
+                            style={{ willChange: "transform, opacity" }}
                             className="relative pl-12 group"
                         >
                             <div className="absolute left-0 top-0 w-10 h-10 rounded-xl bg-background border border-border flex items-center justify-center z-10 shadow-lg group-hover:border-primary/50 transition-colors duration-500">
@@ -136,6 +122,9 @@ export default function ChangelogPage() {
                 <motion.div 
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.5 }}
+                    style={{ willChange: "transform, opacity" }}
                     className="pt-12 text-center"
                 >
                     <p className="text-[10px] font-semibold tracking-widest text-muted-foreground bg-muted/30 py-3 px-6 rounded-full w-fit mx-auto border border-border/50">

@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "Contact Us | Get a Free Consultation",
-  description: "Ready to start your project? Contact Oftisoft for a free consultation. We're here to discuss your software development needs and provide expert solutions.",
+  description: "Need a software development partner? Contact Oftisoft for a free consultation. Tell us about your project and get expert advice on the best technical approach, timeline, and cost for your web, mobile, or AI application.",
   keywords: [
     "contact Oftisoft",
     "software consultation",

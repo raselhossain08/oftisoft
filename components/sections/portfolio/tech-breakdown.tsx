@@ -82,8 +82,10 @@ export default function TechBreakdown() {
                 <div className="text-center mb-12 md:mb-16 max-w-3xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
                     >
                         <Badge variant="outline" className="mb-6 gap-2 px-3 py-1 bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 transition-colors">
                             <Cpu className="w-4 h-4" />
@@ -93,6 +95,7 @@ export default function TechBreakdown() {
                     
                     <motion.h2 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
@@ -103,6 +106,7 @@ export default function TechBreakdown() {
                     
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.2 }}
@@ -149,6 +153,7 @@ function TechCard({ domain, index }: { domain: typeof domains[0], index: number 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
+            style={{ willChange: "transform, opacity" }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.1 }}

@@ -6,7 +6,7 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { TrendingUp, ArrowRight, Flame, Eye, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, ArrowRight, Flame, Eye, Clock, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -40,6 +40,8 @@ export default function PopularPosts() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             className="flex items-center justify-center md:justify-start gap-3 mb-4"
+                            transition={{ duration: 0.5 }}
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <Badge variant="outline" className="gap-2 py-1.5 px-4 text-orange-500 border-orange-500/20 bg-orange-500/5 rounded-full">
                                 <Flame className="w-4 h-4 animate-pulse fill-orange-500/20" />
@@ -50,7 +52,8 @@ export default function PopularPosts() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: 0.1 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            style={{ willChange: "transform, opacity" }}
                             className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
                         >
                             Most Popular Reads
@@ -100,20 +103,29 @@ export default function PopularPosts() {
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ delay: index * 0.1 }}
+                                    transition={{ duration: 0.5, delay: index * 0.1 }}
                                     whileHover={{ y: -10 }}
                                     className="group relative h-[380px] md:h-[400px] rounded-[2rem] overflow-hidden cursor-pointer"
+                                    style={{ willChange: "transform, opacity" }}
                                 >
                                 {/* Floating Rank Number */}
                                 <div className="absolute -top-6 md:-top-10 left-6 text-7xl md:text-8xl font-bold text-foreground/5 z-0 group-hover:text-primary/10 transition-colors duration-500 pointer-events-none select-none">
                                     {post.popularRank ?? ""}
                                 </div>
 
-                                {/* Card Background */}
-                                <div className={cn(
-                                    "absolute inset-0 bg-gradient-to-br opacity-80 transition-transform duration-700 group-hover:scale-110",
-                                    post.gradient
-                                )} />
+                                {/* Card Background - Image or Gradient */}
+                                {post.coverImage ? (
+                                    <img
+                                        src={post.coverImage}
+                                        alt={post.title}
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                ) : (
+                                    <div className={cn(
+                                        "absolute inset-0 bg-gradient-to-br transition-transform duration-700 group-hover:scale-110",
+                                        post.gradient
+                                    )} />
+                                )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
                                 {/* Glass Overlay / Border */}

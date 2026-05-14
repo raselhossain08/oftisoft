@@ -20,7 +20,7 @@ export function useSocket(options: UseSocketOptions = {}) {
   useEffect(() => {
     if (!autoConnect || !isAuthenticated) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const socketUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001").replace(/\/api$/, "");
     
     socketRef.current = io(socketUrl, {
       withCredentials: true,

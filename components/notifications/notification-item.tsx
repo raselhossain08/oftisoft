@@ -48,7 +48,7 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ delay: index * 0.05 }}
+            transition={{ delay: index * 0.1 }}
             onClick={canMarkAsReadOnClick ? () => onMarkAsRead(notif.id) : undefined}
             onKeyDown={canMarkAsReadOnClick ? (e) => e.key === "Enter" && onMarkAsRead(notif.id) : undefined}
             className={cn(

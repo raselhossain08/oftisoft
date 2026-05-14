@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ExternalLink, Github, Calendar, Layers, Cpu, Globe, ArrowRight, X } from "lucide-react";
@@ -162,6 +162,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
+                                transition={{ duration: 0.5 }}
+                                style={{ willChange: "transform, opacity" }}
                             >
                                 <h3 className="text-3xl font-bold mb-6">About the Project</h3>
                                 <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
@@ -177,6 +179,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
+                                transition={{ duration: 0.5 }}
+                                style={{ willChange: "transform, opacity" }}
                                 className="w-full h-[500px] rounded-[2rem] overflow-hidden border border-border shadow-2xl relative group cursor-zoom-in"
                             >
                                  <Swiper
@@ -219,6 +223,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: i * 0.2 }}
+                                        style={{ willChange: "transform, opacity" }}
                                         className="bg-card p-8 rounded-3xl border border-border hover:border-primary/20 transition-all hover:-translate-y-1 hover:shadow-lg"
                                     >
                                         <div className="flex items-center gap-3 mb-6">
@@ -249,6 +254,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                                 whileInView={{ opacity: 1, x: 0 }}
                                                 viewport={{ once: true }}
                                                 transition={{ delay: i * 0.1 }}
+                                                style={{ willChange: "transform, opacity" }}
                                                 className="flex items-center justify-between group"
                                             >
                                                 <span className="text-sm font-medium text-muted-foreground">{result.label}</span>
@@ -271,7 +277,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 whileInView={{ opacity: 1, scale: 1 }}
                                                 viewport={{ once: true }}
-                                                transition={{ delay: i * 0.05 }}
+                                                transition={{ delay: i * 0.1 }}
+                                                style={{ willChange: "transform, opacity" }}
                                                 className="px-4 py-2 bg-background border border-border rounded-xl text-sm font-medium text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all cursor-default hover:scale-105"
                                             >
                                                 {tech}

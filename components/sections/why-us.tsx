@@ -1,4 +1,3 @@
-
 "use client";
 
 import { motion } from "framer-motion";
@@ -20,15 +19,30 @@ const iconMap: Record<string, any> = {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
+const defaultWhyUsContent = {
+    badge: "Why Oftisoft",
+    title: "Built for",
+    subtitle: "Excellence.",
+    description: "We combine deep technical expertise with a relentless focus on quality. Every line of code we write is optimized for performance, security, and scalability.",
+    features: [
+        { icon: "Users", title: "Expert Team", description: "Senior engineers with 6+ years average experience in web, mobile, and AI technologies.", gradient: "from-blue-500/20 to-cyan-500/20", color: "text-blue-400", stat: "6+", statLabel: "Years Avg." },
+        { icon: "Workflow", title: "Agile Process", description: "We use battle-tested agile methodologies with 2-week sprints, daily standups, and transparent reporting.", gradient: "from-purple-500/20 to-pink-500/20", color: "text-purple-400", stat: "2-Week", statLabel: "Sprints" },
+        { icon: "Shield", title: "Enterprise Security", description: "SOC 2-aligned practices, OWASP-compliant code, encryption at rest and transit, and regular audits.", gradient: "from-green-500/20 to-teal-500/20", color: "text-green-400", stat: "100%", statLabel: "Compliant" },
+        { icon: "Headphones", title: "24/7 Support", description: "Round-the-clock technical support with guaranteed 1-hour response time for critical issues.", gradient: "from-orange-500/20 to-red-500/20", color: "text-orange-400", stat: "<1hr", statLabel: "Response" },
+    ],
+    stats: [
+        { value: "99.9%", label: "Client Satisfaction" },
+        { value: "50+", label: "Projects Delivered" },
+        { value: "6+ Years", label: "Industry Experience" },
+    ]
+};
+
 export default function WhyUs({ data }: { data?: any }) {
-    // Get content from the page payload
-    const whyUsContent = data?.whyUs;
+    const whyUsContent = data?.whyUs || defaultWhyUsContent;
     const features = whyUsContent?.features || [];
     const stats = whyUsContent?.stats || [];
 
     const containerRef = useRef<HTMLDivElement>(null);
-
-    if (!whyUsContent) return null;
 
     return (
         <section ref={containerRef} className="py-24 md:py-32 bg-transparent relative overflow-hidden z-10" id="why-us">
@@ -41,9 +55,10 @@ export default function WhyUs({ data }: { data?: any }) {
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center mb-16 md:mb-20">
                     <motion.div 
                         initial={{ opacity: 0, x: -30 }}
+                        style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
+                        viewport={{ once: true, margin: "-80px" }}
+                        transition={{ duration: 0.6 }}
                         className="text-center lg:text-left"
                     >
                         <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 font-semibold text-xs">
@@ -63,8 +78,10 @@ export default function WhyUs({ data }: { data?: any }) {
                     {/* Stats Grid */}
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.9 }}
+                        style={{ willChange: "transform, opacity" }}
                          whileInView={{ opacity: 1, scale: 1 }}
-                         viewport={{ once: true }}
+                         viewport={{ once: true, margin: "-80px" }}
+                         transition={{ duration: 0.5 }}
                         className="grid grid-cols-2 gap-4"
                     >
                          <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-center">
@@ -95,8 +112,9 @@ export default function WhyUs({ data }: { data?: any }) {
                             <motion.div
                                 key={index}
                                 initial={{ opacity: 0, y: 30 }}
+                                style={{ willChange: "transform, opacity" }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
+                                viewport={{ once: true, margin: "-80px" }}
                                 transition={{ delay: index * 0.1 }}
                                 whileHover={{ y: -5 }}
                                 className="h-full"

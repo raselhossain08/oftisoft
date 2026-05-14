@@ -1,37 +1,30 @@
-
 "use client"
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription, SheetHeader } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, Menu, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
-import { useNavbarContent } from "@/hooks/useNavbarContent";
-import { useNavbarContentStore } from "@/lib/store/navbar-content";
-
-// ... existing imports
 import { useAuth } from "@/hooks/useAuth";
-
-// ... existing imports
 import { Logo } from "@/components/ui/logo";
+
+const navLinks = [
+    { id: "services", href: "/services", label: "Services" },
+    { id: "portfolio", href: "/portfolio", label: "Portfolio" },
+    { id: "shop", href: "/shop", label: "Shop" },
+    { id: "blog", href: "/blog", label: "Blog" },
+    { id: "pricing", href: "/pricing", label: "Pricing" },
+    { id: "contact", href: "/contact", label: "Contact" },
+];
 
 export default function Navbar() {
     const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
     const [isOpen, setIsOpen] = useState(false); 
     const { isAuthenticated, logout } = useAuth();
-    const { navbarContent, isLoading } = useNavbarContent();
-    const { setContent } = useNavbarContentStore();
-
-    // Sync backend data to store
-    useEffect(() => {
-        if (navbarContent) {
-            setContent(navbarContent);
-        }
-    }, [navbarContent, setContent]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -42,17 +35,9 @@ export default function Navbar() {
     }, []);
 
     const cart = useCart();
-    
-    if (isLoading || !navbarContent) return null;
-    
-    const content = navbarContent;
-    const navLinks = content.links || [];
 
     return (
-        <motion.nav
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        <nav
             className={cn(
                 "fixed top-0 left-0 right-0 z-50 flex justify-center transition-all duration-300",
                 scrolled ? "py-4" : "py-6"
@@ -230,6 +215,6 @@ export default function Navbar() {
                     </Sheet>
                 </div>
             </div>
-        </motion.nav>
+        </nav>
     );
 }

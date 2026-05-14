@@ -1,4 +1,3 @@
-
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -52,6 +51,8 @@ export default function Awards({ data }: { data?: any }) {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
+                            transition={{ duration: 0.5 }}
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <Badge variant="outline" className="gap-2 px-3 py-1.5 rounded-full bg-white/5 border-white/10 text-xs font-medium text-primary mb-6 hover:bg-white/10 transition-colors">
                                 <Trophy className="w-3 h-3 fill-current" />
@@ -63,8 +64,9 @@ export default function Awards({ data }: { data?: any }) {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: 0.1 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
                             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
+                            style={{ willChange: "transform, opacity" }}
                         >
                             {content?.awardsTitle ?? ""} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
@@ -76,8 +78,9 @@ export default function Awards({ data }: { data?: any }) {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: 0.2 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
                             className="text-lg text-muted-foreground/80 mb-10 max-w-lg leading-relaxed"
+                            style={{ willChange: "transform, opacity" }}
                         >
                             {content?.awardsDescription ?? ""}
                         </motion.p>
@@ -90,8 +93,9 @@ export default function Awards({ data }: { data?: any }) {
                                     initial={{ opacity: 0, x: -20 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ delay: 0.3 + (idx * 0.1) }}
+                                    transition={{ duration: 0.5, delay: 0.3 + (idx * 0.1) }}
                                     whileHover={{ scale: 1.02 }}
+                                    style={{ willChange: "transform, opacity" }}
                                 >
                                     <Card className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10 transition-all cursor-default group h-full">
                                         <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-primary transition-colors">

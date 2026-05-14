@@ -158,6 +158,7 @@ export default function SuccessStories() {
                     <div className="w-full lg:w-1/2 order-1 lg:order-2">
                         <motion.div
                             initial={{ opacity: 0, x: 50 }}
+                            style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
@@ -177,6 +178,7 @@ export default function SuccessStories() {
                                     <motion.div
                                         key={stat.id}
                                         initial={{ opacity: 0, y: 20 }}
+                                        style={{ willChange: "transform, opacity" }}
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: i * 0.1 }}

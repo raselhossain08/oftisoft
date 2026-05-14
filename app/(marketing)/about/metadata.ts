@@ -3,7 +3,7 @@ import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata({
   title: "About Us | Our Story, Mission & Team",
-  description: "Learn about Oftisoft's journey, our mission to deliver premium software solutions, and meet the team behind our innovative web, mobile, and AI development services.",
+  description: "Looking for a trusted software development partner? Learn about Oftisoft's journey since 2019, our mission to deliver premium digital solutions, and meet the expert team behind our successful web, mobile, and AI projects.",
   keywords: [
     "about Oftisoft",
     "software company story",

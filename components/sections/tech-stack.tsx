@@ -1,7 +1,5 @@
-
 "use client";
 
-import { motion } from "framer-motion";
 import { 
     Code2, 
     Database, 
@@ -13,10 +11,9 @@ import {
     Zap,
     Box,
     Terminal,
-    Repeat
+    Smartphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useHomeContentStore } from "@/lib/store/home-content";
 
 const iconMap: Record<string, any> = {
     Code2,
@@ -29,19 +26,34 @@ const iconMap: Record<string, any> = {
     Zap,
     Box,
     Terminal,
-    Repeat
+    Smartphone
 };
 
 import { Badge } from "@/components/ui/badge";
 
 export default function TechStack() {
-    // Get content from CMS store
-    const { content } = useHomeContentStore();
-    const techStackContent = content?.techStack || {
+    const techStackContent = {
         title: "Powered By Modern Tech",
         subtitle: "Tech Stack",
         badge: "Powered By Modern Tech",
-        technologies: []
+        technologies: [
+            { name: "React", icon: "Code2", color: "text-cyan-400" },
+            { name: "Next.js", icon: "Server", color: "text-white" },
+            { name: "TypeScript", icon: "Code2", color: "text-blue-400" },
+            { name: "Node.js", icon: "Server", color: "text-green-400" },
+            { name: "Python", icon: "Terminal", color: "text-yellow-400" },
+            { name: "PostgreSQL", icon: "Database", color: "text-blue-300" },
+            { name: "MongoDB", icon: "Database", color: "text-green-300" },
+            { name: "Docker", icon: "Box", color: "text-blue-400" },
+            { name: "Kubernetes", icon: "Layers", color: "text-blue-500" },
+            { name: "AWS", icon: "Cloud", color: "text-orange-400" },
+            { name: "Redis", icon: "Zap", color: "text-red-400" },
+            { name: "GraphQL", icon: "Layers", color: "text-pink-400" },
+            { name: "React Native", icon: "Smartphone", color: "text-blue-400" },
+            { name: "Tailwind CSS", icon: "Globe", color: "text-cyan-300" },
+            { name: "Firebase", icon: "Cpu", color: "text-yellow-400" },
+            { name: "Stripe", icon: "Zap", color: "text-purple-400" },
+        ]
     };
 
     return (

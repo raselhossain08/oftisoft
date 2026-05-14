@@ -1,4 +1,3 @@
-
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,21 +12,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useHomeContentStore } from "@/lib/store/home-content";
 import { useLeads } from "@/hooks/useLeads";
 
 export default function CTA() {
-    // Get content from CMS store
-    const { content } = useHomeContentStore();
-    const ctaContent = content?.cta || {
+    const ctaContent = {
         title: "Let's Build the Next Big Thing.",
         description: "Have a project in mind? We'd love to hear about it. Schedule a free 15-min discovery call to discuss your vision.",
         buttonText: "Start Conversation",
         buttonLink: "/contact",
         contactInfo: {
             email: 'hello@oftisoft.com',
-            phone: '+1 (555) 000-0000',
-            location: 'San Francisco, CA'
+            phone: '+880 1410-615665',
+            location: 'Satkhira, Khulna, Bangladesh'
         }
     };
 
@@ -65,13 +61,15 @@ export default function CTA() {
                         <motion.h2 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, margin: "-80px" }}
+                            transition={{ duration: 0.5 }}
+                            style={{ willChange: "transform, opacity" }}
                             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
                         >
-                            {ctaContent.title.split(' ').slice(0, -3).join(' ')}{' '}
+                            {ctaContent.title.split(' ').slice(0, -2).join(' ')}{' '}
                             <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                                {ctaContent.title.split(' ').slice(-3).join(' ')}
+                                {ctaContent.title.split(' ').slice(-2).join(' ')}
                             </span>
                         </motion.h2>
 
@@ -94,8 +92,9 @@ export default function CTA() {
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
+                        viewport={{ once: true, margin: "-80px" }}
+                        transition={{ duration: 0.5 }}
+                        style={{ willChange: "transform, opacity" }}
                         className="relative order-1 lg:order-2"
                     >
                         {/* Glow Behind Form */}
@@ -207,8 +206,9 @@ function ContactItem({ icon: Icon, title, value, delay }: { icon: any, title: st
         <motion.div 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4, delay: delay }}
+            style={{ willChange: "transform, opacity" }}
             className="flex items-center my-4 space-x-6 group cursor-pointer"
         >
             <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/50 transition-colors duration-300">

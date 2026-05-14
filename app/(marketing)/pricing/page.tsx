@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo } from "react";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -93,6 +93,7 @@ export default function PricingPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1, duration: 0.6 }}
+                            style={{ willChange: "transform, opacity" }}
                         >
                             <Card className={cn(
                                 "relative h-full border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[50px] overflow-hidden hover:border-primary/40 transition-all duration-700 flex flex-col group",

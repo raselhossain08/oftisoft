@@ -73,6 +73,8 @@ export default function CapabilityEngine() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        style={{ willChange: "transform, opacity" }}
                     >
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-wide text-xs">
                             Technical Capability Matrix
@@ -83,6 +85,8 @@ export default function CapabilityEngine() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         className="text-4xl md:text-6xl font-extrabold tracking-tight text-white"
+                        transition={{ duration: 0.5 }}
+                        style={{ willChange: "transform, opacity" }}
                     >
                         The Oftisoft <span className="text-primary">Engine</span>.
                     </motion.h2>
@@ -90,8 +94,9 @@ export default function CapabilityEngine() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
                         className="text-lg md:text-xl text-muted-foreground font-normal max-w-2xl mx-auto"
+                        style={{ willChange: "transform, opacity" }}
                     >
                         Our architecture is built on three fundamental layers of digital sovereignty.
                     </motion.p>

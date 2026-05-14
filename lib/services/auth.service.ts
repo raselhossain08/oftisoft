@@ -55,26 +55,11 @@ function getErrorMessage(error: ApiError | unknown): string {
   return "Something went wrong";
 }
 
-// Helper to check if auth cookies exist
-// Note: This only checks non-httpOnly cookies. For httpOnly cookies,
-// the browser will automatically send them with credentials: "include"
-function hasAuthCookies(): boolean {
-  // Check for access_token or refresh_token cookies
-  return document.cookie.includes('access_token=') || document.cookie.includes('refresh_token=');
-}
-
 async function authFetch<T>(
   endpoint: string,
   options: RequestInit = {},
   isRetry = false
 ): Promise<T> {
-  // Skip auth check/refresh calls only if no cookies exist at all
-  // For httpOnly cookies, we can't detect them via JS, so we always try the request
-  // and let the server respond with 401 if truly unauthenticated
-  if ((endpoint === "/auth/refresh") && !hasAuthCookies()) {
-    throw new Error("No auth cookies");
-  }
-
   const res = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     credentials: "include",
@@ -85,32 +70,23 @@ async function authFetch<T>(
   });
 
   // Handle Token Expiration (401)
-  // Don't retry if user is logging out
+  // Don't retry if user is logging out or on auth endpoints
   if (res.status === 401 && !isRetry && endpoint !== "/auth/login" && endpoint !== "/auth/refresh" && !getIsLoggingOut()) {
     try {
-      // Don't try to refresh if no cookies exist
-      if (!hasAuthCookies()) {
-        throw new Error("No auth cookies");
-      }
       const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
         method: "POST",
         credentials: "include",
       });
 
       if (refreshRes.ok) {
-        // Retry the original request
         return authFetch<T>(endpoint, options, true);
       } else if (refreshRes.status === 401) {
-        // Refresh token expired or invalid - clear auth state
-        // This will trigger a redirect to login via the protected route hook
         throw new Error("Session expired. Please log in again.");
       }
-    } catch (error: any) {
-      // Refresh failed - propagate specific error message
-      if (error.message?.includes("Session expired") || error.message?.includes("invalidated")) {
+    } catch (error: unknown) {
+      if (error instanceof Error && (error.message.includes("Session expired") || error.message.includes("invalidated"))) {
         throw error;
       }
-      // Other errors proceed to standard error handling
     }
   }
 

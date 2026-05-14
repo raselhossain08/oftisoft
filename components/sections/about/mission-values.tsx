@@ -1,4 +1,3 @@
-
 "use client";
 
 import { motion } from "framer-motion";
@@ -44,6 +43,8 @@ export default function MissionValues({ data }: { data?: any }) {
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        style={{ willChange: "transform, opacity" }}
                     >
                         <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
                             {mission?.badge ?? ""}
@@ -60,8 +61,9 @@ export default function MissionValues({ data }: { data?: any }) {
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
                         className="relative"
+                        style={{ willChange: "transform, opacity" }}
                     >
                         <div className="absolute -left-6 top-0 text-8xl font-serif text-white/5 -z-10 leading-none">"</div>
                         <p className="text-lg md:text-xl text-muted-foreground/90 leading-relaxed font-normal">
@@ -121,9 +123,10 @@ function ValueCard({ item, index, isMobile = false }: { item: any, index: number
         <motion.div
             initial={!isMobile ? { opacity: 0, y: 30 } : {}}
             whileInView={!isMobile ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: index * 0.1 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
             viewport={{ once: true }}
             className="h-full"
+            style={{ willChange: "transform, opacity" }}
         >
             <Card className="group relative h-full bg-[#0a0a0a] border-white/10 hover:border-white/20 transition-all duration-500 overflow-hidden rounded-[2rem] border p-0">
                 <CardContent className="p-8 flex flex-col h-full relative z-10">

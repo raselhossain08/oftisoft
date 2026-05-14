@@ -130,7 +130,8 @@ export default function BlogList() {
                                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                                    style={{ willChange: "transform, opacity" }}
+                                    transition={{ duration: 0.4, delay: index * 0.1 }}
                                     className="h-full"
                                 >
                                     <Link href={`/blog/${post.slug || post.id}`} className="group relative flex flex-col h-full block">
@@ -140,17 +141,21 @@ export default function BlogList() {
                                             
                                             {/* Image Area */}
                                             <div className="relative h-52 overflow-hidden bg-muted">
-                                                {/* Abstract Placeholder Gradient */}
-                                                <div className={cn(
-                                                    "absolute inset-0 bg-gradient-to-br",
-                                                    post.category === 'web' ? 'from-blue-600/20 to-purple-600/20' :
-                                                    post.category === 'ai' ? 'from-emerald-600/20 to-cyan-600/20' :
-                                                    post.category === 'mobile' ? 'from-orange-600/20 to-red-600/20' :
-                                                    'from-slate-600/20 to-gray-600/20'
-                                                )} />
-                                                
-                                                {/* Grid Pattern Overlay */}
-                                                <div className="absolute inset-0 opacity-[0.1] bg-grain mix-blend-overlay" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '10px 10px'}} />
+                                                {post.coverImage ? (
+                                                    <img
+                                                        src={post.coverImage}
+                                                        alt={post.title}
+                                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                    />
+                                                ) : (
+                                                    <div className={cn(
+                                                        "absolute inset-0 bg-gradient-to-br",
+                                                        post.category === 'web' ? 'from-blue-600/20 to-purple-600/20' :
+                                                        post.category === 'ai' ? 'from-emerald-600/20 to-cyan-600/20' :
+                                                        post.category === 'mobile' ? 'from-orange-600/20 to-red-600/20' :
+                                                        'from-slate-600/20 to-gray-600/20'
+                                                    )} />
+                                                )}
 
                                                 <div className="absolute top-4 left-4 z-10">
                                                      <Badge variant="secondary" className="backdrop-blur-md bg-background/80 hover:bg-background/90 border-white/10 shadow-sm">
