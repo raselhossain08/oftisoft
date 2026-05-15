@@ -44,6 +44,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <meta name="google-adsense-account" content="ca-pub-9575143525180768" />
         <meta name="msapplication-TileColor" content="#030014" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

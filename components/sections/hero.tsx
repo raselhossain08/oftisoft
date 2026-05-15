@@ -131,7 +131,7 @@ export default function Hero({ data }: HeroProps) {
 
             <AnimatedH1 initial={false}
               style={{ willChange: "transform, opacity" }}
-              className="text-[1.75rem] sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold tracking-tight leading-[1.1]"
+              className="text-[1.75rem] sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold tracking-tight leading-[1.1]"
             >
               <span className="block text-foreground drop-shadow-sm">
                 {heroContent.title ?? "Engineering the Future of"}
@@ -140,7 +140,7 @@ export default function Hero({ data }: HeroProps) {
             </AnimatedH1>
 
             <AnimatedP initial={false}
-              className="text-sm sm:text-base md:text-lg lg:text-2xl text-muted-foreground/80 font-light leading-relaxed"
+              className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-muted-foreground/80 font-light leading-relaxed"
             >
               {heroContent.description ?? "We architect high-performance applications that scale."}
             </AnimatedP>
@@ -182,7 +182,7 @@ export default function Hero({ data }: HeroProps) {
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative w-full">
                     <div className="flex items-baseline justify-center lg:justify-start gap-1">
-                      <span className="text-xl sm:text-2xl md:text-3xl xl:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+                      <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                         <CountUp end={stat.value}
                           duration={2.5}
                           enableScrollSpy scrollSpyOnce
