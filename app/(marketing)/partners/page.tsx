@@ -136,7 +136,7 @@ export default function PartnersPage() {
 
                 {/* Partner CTA with Application Form */}
                 <div className="bg-gradient-to-br from-primary/10 via-background to-background border border-white/10 rounded-[60px] p-12 md:p-24 overflow-hidden relative group text-center lg:text-left">
-                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[150px] rounded-full group-hover:scale-110 transition-transform duration-1000 pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-[80vw] h-[80vw] max-w-[600px] max-h-[600px] bg-primary/10 blur-[150px] rounded-full group-hover:scale-110 transition-transform duration-1000 pointer-events-none" />
                     <div className="grid lg:grid-cols-2 gap-16 items-center relative z-10">
                         <div className="space-y-8">
                             <div className="flex flex-col lg:flex-row items-center gap-6 text-primary">

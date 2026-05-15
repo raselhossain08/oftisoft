@@ -111,7 +111,7 @@ export default function AboutPage() {
         <AnimatedDiv
           animate={{ x: mousePos.x - 400, y: mousePos.y - 400 }}
           transition={{ type: "spring", damping: 50, stiffness: 200 }}
-          className="absolute w-[800px] h-[800px] bg-primary/20 rounded-full blur-[150px] opacity-20"
+          className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-primary/20 rounded-full blur-[150px] opacity-20"
         />
         <div className="absolute top-[20%] left-[-10%] w-[70vw] h-[70vw] bg-primary/10 rounded-full blur-[160px] opacity-30" />
         <div className="absolute inset-0 bg-neutral-900/5 opacity-50" />
@@ -329,12 +329,12 @@ export default function AboutPage() {
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.5, delay: idx * 0.15 }}
               >
-                <Card className="border-white/5 bg-white/[0.01] rounded-[40px] p-12 text-center space-y-4 hover:border-primary/30 transition-all group">
+                <Card className="border-white/5 bg-white/[0.01] rounded-[24px] sm:rounded-[40px] p-8 sm:p-12 text-center space-y-4 hover:border-primary/30 transition-all group">
                   <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto group-hover:scale-110 transition-transform">
                     <Icon size={32} />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-5xl font-semibold text-white font-mono">
+                    <span className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white font-mono">
                       {isNaN(valueNum) ? (
                         stat.value
                       ) : (
@@ -365,7 +365,7 @@ export default function AboutPage() {
         <Awards data={{ ...awardsContent, awards }} />
         <TeamShowcase data={team} />
 
-        <div className="p-12 md:p-20 rounded-[60px] bg-primary/[0.03] border-2 border-primary/10 text-center space-y-8 relative overflow-hidden group">
+        <div className="p-8 sm:p-12 md:p-20 rounded-[32px] sm:rounded-[60px] bg-primary/[0.03] border-2 border-primary/10 text-center space-y-8 relative overflow-hidden group">
           <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-5 transition-opacity duration-1000" />
           <AnimatedH3
             initial={{ opacity: 0, y: 20 }}

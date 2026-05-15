@@ -119,8 +119,8 @@ export default function ServicesPage() {
             {/* Hero / Search Section */}
             <section className="relative pt-32 md:pt-44 pb-16 md:pb-24 overflow-hidden">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[60vw] h-[60vw] max-w-[500px] max-h-[500px] bg-primary/10 rounded-full blur-[150px] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[50vw] h-[50vw] max-w-[400px] max-h-[400px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
                 <div className="container px-4 mx-auto relative z-10 text-center">
                     <Badge variant="outline" className="gap-2 px-4 py-1.5 bg-primary/10 border-primary/20 text-primary mb-6 backdrop-blur-sm">
@@ -248,7 +248,7 @@ export default function ServicesPage() {
                             </Sheet>
 
                             <Select value={selectedSort} onValueChange={setSelectedSort}>
-                                <SelectTrigger className="w-[180px] h-11 rounded-xl">
+                                <SelectTrigger className="w-[140px] sm:w-[180px] h-11 rounded-xl">
                                     <SelectValue placeholder="Sort by" />
                                 </SelectTrigger>
                                 <SelectContent>

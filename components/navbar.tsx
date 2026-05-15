@@ -47,7 +47,7 @@ export default function Navbar() {
                 className={cn(
                     "relative flex items-center justify-between transition-all duration-300",
                     scrolled 
-                        ? "w-[95%] md:w-[85%] lg:w-[1200px] bg-background/60 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/5 rounded-full px-6 py-3" 
+                        ? "w-[95%] md:w-[88%] lg:w-[90%] xl:max-w-[1280px] 2xl:max-w-[1440px] bg-background/60 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/5 rounded-full px-4 sm:px-6 py-3" 
                         : "w-full container px-4 bg-transparent border-transparent"
                 )}
             >
@@ -57,14 +57,14 @@ export default function Navbar() {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center gap-1 bg-secondary/5 rounded-full p-1 border border-white/5 mx-4">
+                <div className="hidden lg:flex items-center gap-1 bg-secondary/5 rounded-full p-1 border border-white/5 mx-4">
                     {navLinks.map((link, i) => {
                         const isActive = pathname === link.href;
                         return (
                             <Link key={link.id || link.href || i}
                                 href={link.href}
                                 className={cn(
-                                    "relative px-5 py-2 text-sm font-medium rounded-full transition-all duration-300",
+                                    "relative px-3 xl:px-5 py-2 text-sm font-medium rounded-full transition-all duration-300",
                                     isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
@@ -88,7 +88,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Right Actions */}
-                <div className="hidden md:flex items-center gap-4">
+                <div className="hidden lg:flex items-center gap-4">
                     <Button 
                         variant="ghost" 
                         size="icon" 
@@ -127,7 +127,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile Toggle & Sheet */}
-                <div className="md:hidden flex items-center gap-4">
+                <div className="lg:hidden flex items-center gap-4">
                     <Button 
                         variant="ghost" 
                         size="icon" 
@@ -145,7 +145,7 @@ export default function Navbar() {
                                 <Menu className="w-6 h-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col justify-center border-l-primary/10 bg-background/95 backdrop-blur-xl">
+                        <SheetContent side="right" className="w-[300px] sm:w-[400px] md:w-[480px] flex flex-col justify-center border-l-primary/10 bg-background/95 backdrop-blur-xl">
                             <SheetHeader className="absolute top-4 left-4">
                                <SheetTitle className="text-left flex items-center gap-2">
                                     <Logo />

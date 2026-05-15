@@ -63,7 +63,9 @@ export const CartSheet = () => {
                                             {item.image ? (
                                                 <Image src={item.image}
                                                     alt={item.name}
-                                                    fill className="object-cover"
+                                                    fill
+                                                    sizes="80px"
+                                                    className="object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-secondary">

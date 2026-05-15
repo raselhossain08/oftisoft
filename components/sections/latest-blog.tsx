@@ -111,7 +111,7 @@ export default function LatestBlog() {
             >
               {blogContent.badge}
             </Badge>
-            <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1]">
+            <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white leading-[1.1]">
               {blogContent.title} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                 {blogContent.subtitle}
@@ -266,7 +266,7 @@ function BlogCard({ post, index }: { post: any; index: number }) {
               </span>
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-3 leading-tight group-hover:text-primary transition-colors duration-300 line-clamp-2 tracking-tight">
+                            <h3 className="text-lg sm:text-xl xl:text-2xl font-bold text-white mb-3 leading-tight group-hover:text-primary transition-colors duration-300 line-clamp-2 tracking-tight">
               {post.title}
             </h3>
 

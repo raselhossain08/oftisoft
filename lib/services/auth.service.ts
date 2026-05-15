@@ -6,7 +6,7 @@
 
 import { getIsLoggingOut } from "@/store/useAuthStore";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5500/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export interface User {
   id: string;
@@ -55,48 +55,63 @@ function getErrorMessage(error: ApiError | unknown): string {
   return "Something went wrong";
 }
 
+function hasAuthCookies(): boolean {
+  if (typeof document === 'undefined') return false;
+  return document.cookie.includes('access_token=') || document.cookie.includes('refresh_token=');
+}
+
 async function authFetch<T>(
   endpoint: string,
   options: RequestInit = {},
   isRetry = false
 ): Promise<T> {
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  if (!hasAuthCookies() && endpoint === "/auth/check") {
+    return { authenticated: false, user: null } as T;
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  try {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      credentials: "include",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
 
-  // Handle Token Expiration (401)
-  // Don't retry if user is logging out or on auth endpoints
-  if (res.status === 401 && !isRetry && endpoint !== "/auth/login" && endpoint !== "/auth/refresh" && !getIsLoggingOut()) {
-    try {
-      const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
-        method: "POST",
-        credentials: "include",
-      });
+    clearTimeout(timeout);
 
-      if (refreshRes.ok) {
-        return authFetch<T>(endpoint, options, true);
-      } else if (refreshRes.status === 401) {
-        throw new Error("Session expired. Please log in again.");
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error && (error.message.includes("Session expired") || error.message.includes("invalidated"))) {
-        throw error;
+    if (res.status === 401 && !isRetry && endpoint !== "/auth/login" && endpoint !== "/auth/refresh" && endpoint !== "/auth/check" && !getIsLoggingOut()) {
+      try {
+        const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (refreshRes.ok) {
+          return authFetch<T>(endpoint, options, true);
+        } else if (refreshRes.status === 401) {
+          throw new Error("Session expired. Please log in again.");
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error && (error.message.includes("Session expired") || error.message.includes("invalidated"))) {
+          throw error;
+        }
       }
     }
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data));
+    }
+
+    return data as T;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  const data = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
-    throw new Error(getErrorMessage(data));
-  }
-
-  return data as T;
 }
 
 export const authService = {

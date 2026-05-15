@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getIsLoggingOut } from '@/store/useAuthStore';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 function hasAuthCookies(): boolean {
     return document.cookie.includes('access_token=') || document.cookie.includes('refresh_token=');
@@ -10,6 +10,7 @@ function hasAuthCookies(): boolean {
 const api = axios.create({
     baseURL: API_URL,
     withCredentials: true,
+    timeout: 5000,
     headers: {
         'Content-Type': 'application/json',
     },

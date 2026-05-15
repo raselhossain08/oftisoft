@@ -35,7 +35,7 @@ export function ImageUpload({
     const uploadFile = async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/uploads`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/uploads`, {
             method: 'POST',
             credentials: 'include',
             body: formData,

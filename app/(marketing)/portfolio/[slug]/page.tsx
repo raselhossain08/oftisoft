@@ -69,7 +69,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
             </nav>
 
             {/* Hero Section */}
-            <section className="relative h-[90vh] min-h-[700px] w-full overflow-hidden flex items-end pb-20">
+            <section className="relative h-[90vh] min-h-[400px] md:min-h-[700px] w-full overflow-hidden flex items-end pb-20">
                 {/* Parallax Background */}
                 <AnimatedDiv 
                     style={{ transform: `translateY(${yHero}px)` }}
@@ -103,7 +103,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                 <span>{project.category}</span>
                             </div>
                             
-                            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 tracking-tighter leading-[0.9]">
+                            <h1 className="text-4xl sm:text-5xl md:text-8xl lg:text-9xl font-bold text-white mb-6 tracking-tighter leading-[0.9]">
                                 {project.title}
                             </h1>
                             
@@ -166,7 +166,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5 }}
                                 style={{ willChange: "transform, opacity" }}
-                                className="w-full h-[500px] rounded-[2rem] overflow-hidden border border-border shadow-2xl relative group cursor-zoom-in"
+                                className="w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-[2rem] overflow-hidden border border-border shadow-2xl relative group cursor-zoom-in"
                             >
                                  <Swiper modules={[Navigation, Pagination, Autoplay, EffectFade]}
                                     effect="fade"

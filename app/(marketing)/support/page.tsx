@@ -164,7 +164,7 @@ export default function SupportPage() {
 
                 {/* Direct High-Fidelity Support */}
                 <div className="bg-gradient-to-br from-primary/10 to-transparent border border-white/10 rounded-[50px] p-12 md:p-24 overflow-hidden relative group shadow-2xl shadow-primary/5">
-                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[140px] rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-1000" />
+                    <div className="absolute top-0 right-0 w-[70vw] h-[70vw] max-w-[500px] max-h-[500px] bg-primary/10 blur-[140px] rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-1000" />
                     <div className="grid lg:grid-cols-2 gap-16 items-center relative z-10">
                         <div className="space-y-8 text-center lg:text-left">
                             <div className="flex flex-col lg:flex-row items-center gap-4 text-primary">

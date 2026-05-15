@@ -71,7 +71,7 @@ export default function Footer() {
                        <Link href="/" className="inline-block text-2xl font-bold text-white mb-4">
                            {content.brandName}<span className="text-primary">.</span>
                        </Link>
-                       <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 max-w-md mx-auto lg:mx-0">
+                        <h3 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-bold text-white mb-2 max-w-md mx-auto lg:mx-0">
                            {content.newsletterTitle}
                        </h3>
                         <p className="text-muted-foreground text-sm md:text-base mb-6 lg:mb-0">
@@ -102,7 +102,7 @@ export default function Footer() {
                 </div>
 
                 {/* Main Footer Links */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-y-12 gap-x-8 mb-20">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-y-12 gap-x-6 md:gap-x-8 xl:gap-x-12 mb-20">
                     <div className="col-span-2 md:col-span-3 lg:col-span-1 space-y-6">
                         <p className="text-muted-foreground leading-relaxed max-w-xs">
                              {content.tagline} {content.description}

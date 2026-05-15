@@ -110,7 +110,7 @@ export default function ApiReferencePage() {
                             API REFERENCE
                         </Badge>
                     </AnimatedDiv>
-                    <AnimatedH1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-5xl md:text-7xl font-semibold tracking-tighter text-white">
+                    <AnimatedH1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tighter text-white">
                         API <span className="text-primary">Reference</span>.
                     </AnimatedH1>
                     <AnimatedDiv initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>

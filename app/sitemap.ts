@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site-config";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.API_URL || "https://api.oftisoft.com/api";
 
 // Fetch products for dynamic sitemap
 async function fetchProducts() {

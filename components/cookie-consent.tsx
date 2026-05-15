@@ -12,8 +12,7 @@ export default function CookieConsent() {
   useEffect(() => {
     const accepted = localStorage.getItem("cookie-consent");
     if (!accepted) {
-      const timer = setTimeout(() => setVisible(true), 1000);
-      return () => clearTimeout(timer);
+      setVisible(true);
     }
   }, []);
 
@@ -47,7 +46,7 @@ export default function CookieConsent() {
               <p className="text-xs text-muted-foreground leading-relaxed">
                 We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking &quot;Accept All&quot;, you consent to our use of cookies.{" "}
                 <Link href="/privacy" className="text-primary underline hover:text-primary/80 transition-colors">
-                  Learn more
+                  Privacy Policy
                 </Link>
               </p>
             </div>

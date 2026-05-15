@@ -93,7 +93,7 @@ export default function Services() {
                         <Badge variant="outline" className="mb-4 border-primary/20 text-primary tracking-wide px-4 py-1.5 backdrop-blur-sm font-semibold text-xs">
                             {servicesContent.badge}
                         </Badge>
-                        <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1]">
+                        <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white leading-[1.1]">
                             {servicesContent.title} <br className="hidden md:block" />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                                 {servicesContent.subtitle}
@@ -121,7 +121,7 @@ export default function Services() {
                 </div>
 
                 {/* Unified Responsive Grid Layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 xl:gap-8">
                     {services.map((service: ServiceItem, index: number) => {
                         const Icon = iconMap[service.icon] || Globe;
                         return (
@@ -159,7 +159,7 @@ export default function Services() {
 
                                     {/* Content & Tags */}
                                     <CardContent className="relative z-10 pt-4 flex flex-col gap-6 h-full justify-between">
-                                        <p className="text-muted-foreground text-sm leading-relaxed group-hover:text-white/80 transition-colors duration-300">
+                                        <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed group-hover:text-white/80 transition-colors duration-300">
                                             {service.description}
                                         </p>
                                         

@@ -100,7 +100,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                 {/* Background: Subtle Grid & Ambient Light */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-primary/5 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow" />
                 </div>
 
                 <div className="container px-4 mx-auto relative z-10">
@@ -135,7 +135,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                         
                         {/* Main Title */}
                         <AnimatedH1 
-                            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-8 leading-[0.85]"
+                            className="text-4xl sm:text-5xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-8 leading-[0.85]"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}

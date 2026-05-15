@@ -45,7 +45,7 @@ export default function ChangelogPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-5xl md:text-7xl font-semibold tracking-tighter"
+                        className="text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tighter"
                     >
                         {header?.titlePrefix ?? ""}<span className="text-primary">{header?.titleSuffix ?? ""}</span>
                     </AnimatedH1>

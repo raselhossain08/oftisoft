@@ -13,13 +13,15 @@ import { ThemeProvider } from "@/components/theme-provider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
+  preload: true,
 });
 
 import SmoothScroller from "@/components/smooth-scroller";

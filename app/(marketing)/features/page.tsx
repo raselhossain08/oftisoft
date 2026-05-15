@@ -57,7 +57,7 @@ export default function FeaturesPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
+                        className="text-4xl sm:text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {header?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight ?? ""}</span>.
                     </AnimatedH1>
@@ -84,13 +84,13 @@ export default function FeaturesPage() {
                             style={{ willChange: "transform, opacity" }}
                         >
                             <Card className="group h-full border-white/5 bg-white/[0.02] backdrop-blur-2xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700">
-                                <CardContent className="p-10 md:p-14 flex flex-col items-center md:items-start text-center md:text-left space-y-8">
+                                <CardContent className="p-8 sm:p-10 md:p-14 flex flex-col items-center md:items-start text-center md:text-left space-y-8">
                                     <div className={cn("w-20 h-20 rounded-3xl bg-muted/30 flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6", feature.color)}>
                                         <Icon size={40} />
                                     </div>
                                     <div className="space-y-4">
-                                        <h3 className="text-3xl font-semibold text-white tracking-tight">{feature.title}</h3>
-                                        <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                                        <h3 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">{feature.title}</h3>
+                                        <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-medium leading-relaxed">
                                             {feature.description}
                                         </p>
                                     </div>
@@ -119,7 +119,7 @@ export default function FeaturesPage() {
                                     <p className="text-muted-foreground mt-4 text-xl">{showcase?.description ?? ""}</p>
                                 </CardHeader>
                                 <CardContent className="p-0 bg-[#050505]">
-                                    <div className="h-[500px] flex items-center justify-center relative">
+                                    <div className="h-[300px] sm:h-[400px] md:h-[500px] flex items-center justify-center relative">
                                         <Terminal className="w-64 h-64 text-primary opacity-5 animate-pulse" />
                                         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#020202] to-transparent z-10" />
                                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 text-center z-20">

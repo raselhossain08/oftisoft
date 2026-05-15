@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 async function getBlogPost(slug: string) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5500/api";
+  const apiUrl = process.env.API_URL || "https://api.oftisoft.com/api";
   try {
     const res = await fetch(`${apiUrl}/posts/slug/${slug}`, {
       next: { revalidate: 60 },

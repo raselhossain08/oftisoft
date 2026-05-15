@@ -57,7 +57,7 @@ export default function Testimonials() {
                         <Star className="w-4 h-4 text-yellow-500 fill-current" />
                         {testimonialsContent.badge}
                     </Badge>
-                    <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+                    <h2 className="text-3xl sm:text-4xl md:text-6xl xl:text-7xl font-bold text-white mb-6 tracking-tight">
                         {testimonialsContent.title} <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                             {testimonialsContent.subtitle}
@@ -98,7 +98,7 @@ export default function Testimonials() {
 
 function TestimonialCard({ data, index }: { data: any, index: number }) {
     return (
-        <div className="w-[320px] md:w-[450px] shrink-0 p-[1px] relative group h-full flex">
+        <div className="w-[300px] sm:w-[320px] md:w-[420px] lg:w-[450px] xl:w-[500px] shrink-0 p-[1px] relative group h-full flex">
             {/* Gradient Border Glow */}
             <div className={cn(
                 "absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r blur-xl -z-10",

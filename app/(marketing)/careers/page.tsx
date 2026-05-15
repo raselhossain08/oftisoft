@@ -66,7 +66,7 @@ export default function CareersPage() {
                     <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
+                        className="text-4xl sm:text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {hero?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{hero?.titleHighlight ?? ""}</span>{hero?.titleSuffix ?? ""}
                     </AnimatedH1>
@@ -80,12 +80,12 @@ export default function CareersPage() {
                     {culture.map((val) => {
                         const Icon = iconMap[val.iconName] || Flame;
                         return (
-                            <Card key={val.id} className="border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[50px] p-12 md:p-16 space-y-8 overflow-hidden relative group">
+                            <Card key={val.id} className="border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[32px] sm:rounded-[50px] p-8 sm:p-12 md:p-16 space-y-8 overflow-hidden relative group">
                                 <div className={cn("absolute top-0 right-0 w-64 h-64 blur-[100px] rounded-full group-hover:scale-110 transition-transform duration-1000", val.color === 'text-blue-500' ? 'bg-blue-500/10' : 'bg-primary/10')} />
-                                <Icon className={cn("w-16 h-16 group-hover:scale-110 transition-transform", val.color)} />
+                                <Icon className={cn("w-12 sm:w-16 h-12 sm:h-16 group-hover:scale-110 transition-transform", val.color)} />
                                 <div className="space-y-4 relative z-10">
-                                    <h3 className="text-4xl font-semibold text-white tracking-tight">{val.title}</h3>
-                                    <p className="text-lg text-muted-foreground font-medium">{val.description}</p>
+                                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white tracking-tight">{val.title}</h3>
+                                    <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-medium">{val.description}</p>
                                 </div>
                             </Card>
                         );

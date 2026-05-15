@@ -63,7 +63,7 @@ export default function FeaturedProjects() {
                                 {projectsContent.badge}
                             </Badge>
                         </AnimatedDiv>
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-4 md:mb-6">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-4 md:mb-6">
                             {projectsContent.title} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/40">
                                 {projectsContent.subtitle}
@@ -136,8 +136,8 @@ export default function FeaturedProjects() {
                                         <Badge variant="secondary" className="bg-black/30 backdrop-blur-md border-white/10 text-white/80 hover:bg-black/40">
                                             {project.year}
                                         </Badge>
-                                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white text-black flex items-center justify-center opacity-100 md:opacity-0 md:-translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 shadow-xl">
-                                            <ArrowUpRight className="w-5 h-5 md:w-6 md:h-6" />
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white text-black flex items-center justify-center opacity-100 md:opacity-0 md:-translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 shadow-xl">
+                                            <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                                         </div>
                                     </div>
 
@@ -158,10 +158,10 @@ export default function FeaturedProjects() {
                                     <Link href="/portfolio" className="block">
                                     <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-white/10 pb-6 group-hover:border-white/30 transition-colors duration-500">
                                         <div className="space-y-2 max-w-md">
-                                            <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-primary transition-colors duration-300">
+                                            <h3 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-bold text-white group-hover:text-primary transition-colors duration-300">
                                                 {project.title}
                                             </h3>
-                                            <p className="text-muted-foreground text-sm md:text-base line-clamp-2">
+                                            <p className="text-muted-foreground text-xs sm:text-sm md:text-base line-clamp-2">
                                                 {project.description}
                                             </p>
                                         </div>
@@ -170,26 +170,25 @@ export default function FeaturedProjects() {
                                         <div className="flex gap-6 md:gap-8 text-left md:text-right shrink-0">
                                             {(project.stats || []).map((stat: any, i: number) => (
                                                 <div key={i}>
-                                                    <div className="text-xl md:text-2xl font-bold text-white">{stat.value}</div>
+                                                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">{stat.value}</div>
                                                     <div className="text-[10px] md:text-xs text-muted-foreground tracking-wide">{stat.label}</div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                     </Link>
-                                ) : (
-                                     /* Fallback if no stats (just info) */
+                                 ) : (
                                      <Link href="/portfolio" className="block">
                                      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-white/10 pb-6 group-hover:border-white/30 transition-colors duration-500">
                                         <div className="space-y-2 max-w-md">
-                                            <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-primary transition-colors duration-300">
+                                            <h3 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-bold text-white group-hover:text-primary transition-colors duration-300">
                                                 {project.title}
                                             </h3>
-                                            <p className="text-muted-foreground text-sm md:text-base line-clamp-2">
+                                             <p className="text-muted-foreground text-xs sm:text-sm md:text-base line-clamp-2">
                                                 {project.description}
                                             </p>
                                         </div>
-                                    </div>
+                                     </div>
                                     </Link>
                                 )}
                         </SwiperSlide>

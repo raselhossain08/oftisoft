@@ -115,7 +115,7 @@ export default function BlogPostPage({
         </button>
       </nav>
 
-      <section className="relative h-[85vh] min-h-[600px] flex items-end justify-center pb-24 overflow-hidden">
+      <section className="relative h-[85vh] min-h-[400px] md:min-h-[600px] flex items-end justify-center pb-24 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <div className="relative w-full h-full">
             <div className="absolute inset-0 bg-cover bg-center"

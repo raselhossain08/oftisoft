@@ -65,13 +65,13 @@ export default function WhyUs({ data }: { data?: any }) {
                         <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 font-semibold text-xs">
                             {whyUsContent.badge}
                         </Badge>
-                        <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                        <h3 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
                             {whyUsContent.title} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/40">
                                 {whyUsContent.subtitle}
                             </span>
                         </h3>
-                        <p className="text-base md:text-lg text-muted-foreground/80 max-w-xl leading-relaxed mx-auto lg:mx-0">
+                        <p className="text-sm sm:text-base md:text-lg xl:text-xl text-muted-foreground/80 max-w-xl leading-relaxed mx-auto lg:mx-0">
                             {whyUsContent.description}
                         </p>
                     </AnimatedDiv>
@@ -85,24 +85,24 @@ export default function WhyUs({ data }: { data?: any }) {
                          transition={{ duration: 0.5 }}
                         className="grid grid-cols-2 gap-4"
                     >
-                         <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-center">
-                            <CardContent className="p-6">
-                                <h4 className="text-3xl md:text-4xl font-bold text-white mb-1">{stats[0]?.value ?? ""}</h4>
-                                <p className="text-xs text-muted-foreground tracking-wide">{stats[0]?.label ?? ""}</p>
+                             <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-center">
+                            <CardContent className="p-5 sm:p-6 xl:p-8">
+                                <h4 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold text-white mb-1">{stats[0]?.value ?? ""}</h4>
+                                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground tracking-wide">{stats[0]?.label ?? ""}</p>
                             </CardContent>
-                         </Card>
-                         <Card className="bg-primary/10 border-primary/20 backdrop-blur-sm text-center">
-                            <CardContent className="p-6">
-                                <h4 className="text-3xl md:text-4xl font-bold text-primary mb-1">{stats[1]?.value ?? ""}</h4>
-                                <p className="text-xs text-primary/80 tracking-wide">{stats[1]?.label ?? ""}</p>
+                             </Card>
+                             <Card className="bg-primary/10 border-primary/20 backdrop-blur-sm text-center">
+                            <CardContent className="p-5 sm:p-6 xl:p-8">
+                                <h4 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold text-primary mb-1">{stats[1]?.value ?? ""}</h4>
+                                <p className="text-[10px] sm:text-xs md:text-sm text-primary/80 tracking-wide">{stats[1]?.label ?? ""}</p>
                             </CardContent>
-                         </Card>
-                         <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-center col-span-2">
-                            <CardContent className="p-6">
-                                <h4 className="text-3xl md:text-4xl font-bold text-white mb-1">{stats[2]?.value ?? ""}</h4>
-                                <p className="text-xs text-muted-foreground tracking-wide">{stats[2]?.label ?? ""}</p>
+                             </Card>
+                             <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-center col-span-2">
+                            <CardContent className="p-5 sm:p-6 xl:p-8">
+                                <h4 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold text-white mb-1">{stats[2]?.value ?? ""}</h4>
+                                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground tracking-wide">{stats[2]?.label ?? ""}</p>
                             </CardContent>
-                         </Card>
+                             </Card>
                     </AnimatedDiv>
                 </div>
 

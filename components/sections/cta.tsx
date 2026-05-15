@@ -65,7 +65,7 @@ export default function CTA() {
                             viewport={{ once: true, margin: "-80px" }}
                             transition={{ duration: 0.5 }}
                             style={{ willChange: "transform, opacity" }}
-                            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
+                            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight"
                         >
                             {ctaContent.title.split(' ').slice(0, -2).join(' ')}{' '}
                             <br />
@@ -74,7 +74,7 @@ export default function CTA() {
                             </span>
                         </AnimatedH2>
 
-                        <p className="text-lg md:text-xl text-muted-foreground/80 mb-12 leading-relaxed">
+                        <p className="text-base sm:text-lg md:text-xl text-muted-foreground/80 mb-8 md:mb-12 leading-relaxed">
                             {ctaContent.description}
                         </p>
 
@@ -100,7 +100,7 @@ export default function CTA() {
                         {/* Glow Behind Form */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-[2rem] blur-2xl transform rotate-3 scale-95 -z-10" />
 
-                        <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-3xl md:rounded-[2rem] shadow-2xl overflow-hidden relative">
+                        <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-6 md:p-8 lg:p-10 xl:p-12 rounded-3xl md:rounded-[2rem] shadow-2xl overflow-hidden relative">
                              {/* Decorative noise */}
                             <div className="absolute inset-0 bg-grain opacity-[0.05] pointer-events-none" />
 

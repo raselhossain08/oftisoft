@@ -67,7 +67,7 @@ export default function ProcessTimeline() {
                         <Badge variant="outline" className="mb-4 border-primary/20 text-primary tracking-widest px-3 py-1">
                             {processContent.badge}
                         </Badge>
-                        <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                        <h3 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
                             {processContent.title} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                                 {processContent.subtitle}
@@ -118,7 +118,7 @@ function TimelineItem({ step, index }: { step: any, index: number }) {
             )}
         >
             {/* Content Card */}
-            <div className="w-full md:w-1/2 pl-12 md:pl-0 md:px-12 lg:px-16">
+            <div className="w-full md:w-1/2 pl-12 md:pl-0 md:px-8 lg:px-12 xl:px-16">
                  <Card className="group relative bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10 overflow-hidden backdrop-blur-sm transition-all duration-300">
                     <CardContent className="p-6 md:p-8">
                         {/* Glow Effect */}
@@ -142,10 +142,10 @@ function TimelineItem({ step, index }: { step: any, index: number }) {
                             </span>
                         </div>
 
-                        <h4 className="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors duration-300 relative z-10">
+                        <h4 className="text-lg sm:text-xl md:text-2xl xl:text-3xl font-bold text-white mb-3 group-hover:text-primary transition-colors duration-300 relative z-10">
                             {step.title}
                         </h4>
-                        <p className="text-sm md:text-base text-muted-foreground leading-relaxed relative z-10">
+                        <p className="text-xs sm:text-sm md:text-base xl:text-lg text-muted-foreground leading-relaxed relative z-10">
                             {step.description}
                         </p>
                     </CardContent>

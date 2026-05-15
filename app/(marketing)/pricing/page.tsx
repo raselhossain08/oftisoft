@@ -58,7 +58,7 @@ export default function PricingPage() {
                     <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-8xl font-semibold tighter text-white"
+                        className="text-4xl sm:text-5xl md:text-8xl font-semibold tighter text-white"
                     >
                         {header?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight ?? ""}</span>.
                     </AnimatedH1>
@@ -93,7 +93,7 @@ export default function PricingPage() {
                                         <p className="text-sm text-muted-foreground font-medium">{plan.description}</p>
                                     </div>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-5xl font-semibold text-white tighter">${plan.price}</span>
+                                        <span className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white tighter">${plan.price}</span>
                                         <span className="text-muted-foreground font-semibold text-[10px] widest">/ {plan.period ?? ""}</span>
                                     </div>
                                 </CardHeader>

@@ -117,8 +117,8 @@ export default function Hero({ data }: HeroProps) {
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-8 max-w-2xl mx-auto lg:mx-0">
             <AnimatedDiv initial={false}>
               <Link href="/contact">
-                <Badge variant="glass"
-                  className="px-5 py-2.5 gap-2.5 rounded-full text-base font-medium tracking-wide cursor-pointer hover:bg-white/10 transition-colors"
+                  <Badge variant="glass"
+                    className="px-3 sm:px-5 py-1.5 sm:py-2.5 gap-1.5 sm:gap-2.5 rounded-full text-xs sm:text-base font-medium tracking-wide cursor-pointer hover:bg-white/10 transition-colors"
                 >
                   <span className="relative flex h-2.5 w-2.5 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -131,7 +131,7 @@ export default function Hero({ data }: HeroProps) {
 
             <AnimatedH1 initial={false}
               style={{ willChange: "transform, opacity" }}
-              className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold tracking-tight leading-[1.1]"
             >
               <span className="block text-foreground drop-shadow-sm">
                 {heroContent.title ?? "Engineering the Future of"}
@@ -140,7 +140,7 @@ export default function Hero({ data }: HeroProps) {
             </AnimatedH1>
 
             <AnimatedP initial={false}
-              className="text-lg md:text-xl text-muted-foreground/80 font-light leading-relaxed"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground/80 font-light leading-relaxed"
             >
               {heroContent.description ?? "We architect high-performance applications that scale."}
             </AnimatedP>
@@ -173,7 +173,7 @@ export default function Hero({ data }: HeroProps) {
             </AnimatedDiv>
 
             <AnimatedDiv initial={false}
-              className="pt-10 w-full border-t border-white/5 mt-8 flex flex-wrap justify-center md:justify-between lg:justify-start gap-x-8 gap-y-6"
+              className="pt-10 w-full border-t border-white/5 mt-8 flex flex-wrap justify-center md:justify-between lg:justify-start gap-x-6 sm:gap-x-8 xl:gap-x-12 gap-y-6"
             >
               {heroContent.stats?.map((stat: HeroStat, i: number) => (
                 <div key={i}
@@ -182,18 +182,18 @@ export default function Hero({ data }: HeroProps) {
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative w-full">
                     <div className="flex items-baseline justify-center lg:justify-start gap-1">
-                      <span className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+                      <span className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                         <CountUp end={stat.value}
                           duration={2.5}
                           enableScrollSpy scrollSpyOnce
                         />
                       </span>
-                      <span className="text-xl text-primary font-semibold">
+                      <span className="text-lg sm:text-xl xl:text-2xl text-primary font-semibold">
                         {stat.suffix}
                       </span>
                     </div>
-                    <div className="h-0.5 w-8 bg-primary/30 mt-2 mb-2 mx-auto lg:mx-0 group-hover:w-full transition-all duration-500" />
-                    <p className="text-xs md:text-sm text-muted-foreground tracking-wide font-medium text-center lg:text-left">
+                    <div className="h-0.5 w-6 sm:w-8 bg-primary/30 mt-2 mb-2 mx-auto lg:mx-0 group-hover:w-full transition-all duration-500" />
+                    <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground tracking-wide font-medium text-center lg:text-left">
                       {stat.label}
                     </p>
                   </div>
@@ -346,7 +346,7 @@ function SmoothTypewriter({ heroContent }: { heroContent: HeroContent }) {
       : defaultWords;
 
   return (
-    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 h-[1.1em]">
+    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 h-[1.1em] inline-block min-w-[14em]">
       <TypeAnimation
         sequence={words.flat() as (string | number)[]}
         wrapper="span"

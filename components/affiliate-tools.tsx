@@ -68,7 +68,7 @@ export default function AffiliateTools({ category, title }: { category?: string;
           </Card>
         ))}
       </div>
-      <p className="text-[10px] text-center text-muted-foreground/40">We may earn a commission when you purchase through these links. <a href="/privacy" className="underline">Learn more</a></p>
+      <p className="text-[10px] text-center text-muted-foreground/40">We may earn a commission when you purchase through these links. <a href="/privacy" className="underline">Affiliate disclosure</a></p>
     </div>
   );
 }
