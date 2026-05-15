@@ -19,7 +19,7 @@ export default function ProfileSettings() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     // Fetch user profile
-    const { data: user, isLoading, error } = useQuery({
+  const { data: user, isLoading, error } = useQuery({
         queryKey: ["profile"],
         queryFn: () => authAPI.getProfile(),
     });
@@ -36,7 +36,7 @@ export default function ProfileSettings() {
     const bioValue = watch("bio") || "";
 
     // Mutation for updating profile
-    const updateMutation = useMutation({
+  const updateMutation = useMutation({
         mutationFn: (data: Partial<User>) => authAPI.updateProfile(data),
         onSuccess: (updatedUser) => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -60,7 +60,7 @@ export default function ProfileSettings() {
     });
 
     // Mutation for avatar upload
-    const avatarMutation = useMutation({
+  const avatarMutation = useMutation({
         mutationFn: (file: File) => authAPI.uploadAvatar(file),
         onSuccess: (updatedUser) => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -78,7 +78,7 @@ export default function ProfileSettings() {
 
     const onSubmit = (data: Partial<User>) => {
         // Filter out read-only or restricted fields that backend doesn't accept in updateProfile
-        const allowedFields: (keyof UpdateProfileData)[] = [
+  const allowedFields: (keyof UpdateProfileData)[] = [
             "name", "phone", "jobTitle", "bio", "address", 
             "city", "state", "zipCode", "unit",
             "emailNotifications", "pushNotifications", "smsNotifications", "marketingNotifications",
@@ -112,7 +112,7 @@ export default function ProfileSettings() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
                 <Loader2 className="w-12 h-auto animate-spin text-primary opacity-20" />
-                <p className="text-muted-foreground font-black animate-pulse">Retrieving Neural Identity...</p>
+                <p className="text-muted-foreground font-semibold animate-pulse">Retrieving Neural Identity...</p>
             </div>
         );
     }
@@ -121,7 +121,7 @@ export default function ProfileSettings() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 p-12 text-center bg-red-500/5 rounded-[40px] border border-red-500/20">
                 <AlertCircle className="w-12 h-auto text-red-500" />
-                <h3 className="text-xl font-black">Matrix Connection Error</h3>
+                <h3 className="text-xl font-semibold">Matrix Connection Error</h3>
                 <p className="text-muted-foreground font-medium max-w-sm">Failed to establish link with the identity vault. Please verify your credentials and retry.</p>
                 <Button variant="outline" onClick={() => queryClient.invalidateQueries({ queryKey: ["profile"] })} className="rounded-xl border-red-500/20 hover:bg-red-500/10 hover:text-red-500">Retry Synchronization</Button>
             </div>
@@ -132,12 +132,12 @@ export default function ProfileSettings() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-12 max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-10">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
+                    <h2 className="text-3xl md:text-3xl font-semibold bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
                         Personal Intelligence
                     </h2>
                     <p className="text-muted-foreground font-medium mt-2">Configure your identity and professional presence across the Oftisoft network.</p>
                 </div>
-                <Badge variant="outline" className="h-8 px-4 border-primary/20 bg-primary/5 text-primary font-black uppercase text-[10px] tracking-widest rounded-full">
+                <Badge variant="outline" className="h-8 px-4 border-primary/20 bg-primary/5 text-primary font-semibold uppercase text-sm rounded-full">
                     {user?.isActive ? 'Verified Resident' : 'Unverified Identity'}
                 </Badge>
             </div>
@@ -176,15 +176,15 @@ export default function ProfileSettings() {
 
                 <div className="text-center sm:text-left space-y-4 relative z-10">
                     <div>
-                        <h3 className="font-black text-3xl tracking-tight">{user?.name}</h3>
-                        <p className="text-muted-foreground text-sm font-bold mt-1 uppercase tracking-wider opacity-70">{user?.jobTitle || "No Identity Assigned"}</p>
+                        <h3 className="font-semibold text-3xl">{user?.name}</h3>
+                        <p className="text-muted-foreground text-sm font-bold mt-1 uppercase opacity-70">{user?.jobTitle || "No Identity Assigned"}</p>
                     </div>
                     <div className="flex flex-wrap justify-center sm:justify-start gap-3">
                         <Button 
                             type="button" 
                             disabled={avatarMutation.isPending}
                             onClick={() => fileInputRef.current?.click()}
-                            className="rounded-xl font-black px-6 h-11 shadow-lg shadow-primary/20"
+                            className="rounded-xl font-semibold px-6 h-11 shadow-lg shadow-primary/20"
                         >
                             {avatarMutation.isPending ? "Encoding..." : "Replace Identity"}
                         </Button>
@@ -192,7 +192,7 @@ export default function ProfileSettings() {
                             type="button" 
                             variant="outline" 
                             onClick={() => updateMutation.mutate({ avatarUrl: '' })}
-                            className="rounded-xl font-black px-6 h-11 bg-background"
+                            className="rounded-xl font-semibold px-6 h-11 bg-background"
                         >
                             Reset Default
                         </Button>
@@ -206,40 +206,40 @@ export default function ProfileSettings() {
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                          <UserIcon className="w-4 h-4" />
                     </div>
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">General Metadata</h3>
+                    <h3 className="text-xs font-semibold uppercase text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">General Metadata</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Full Legal Name</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1">Full Legal Name</Label>
                         <Input {...register("name")} className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Professional Title</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1">Professional Title</Label>
                         <Input {...register("jobTitle")} placeholder="e.g. Senior Cloud Architect" className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1 flex items-center gap-2">
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1 flex items-center gap-2">
                             <Mail className="w-3.5 h-3.5" /> Synchronized Email
                         </Label>
-                        <Input type="email" value={user?.email} disabled className="h-14 px-6 rounded-2xl border-none bg-muted/10 font-bold italic opacity-60 cursor-not-allowed" />
-                        <p className="px-2 text-[9px] text-muted-foreground font-bold">Primary email node is immutable for security integrity.</p>
+                        <Input type="email" value={user?.email} disabled className="h-14 px-6 rounded-2xl border-none bg-muted/10 font-bold  opacity-60 cursor-not-allowed" />
+                        <p className="px-2 text-xs text-muted-foreground font-bold">Primary email node is immutable for security integrity.</p>
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1 flex items-center gap-2">
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1 flex items-center gap-2">
                             <Phone className="w-3.5 h-3.5" /> Direct Line
                         </Label>
                         <Input type="tel" {...register("phone")} placeholder="+1 (555) 000-0000" className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
 
                     <div className="md:col-span-2 space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Professional Bio / Mission Statement</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1">Professional Bio / Mission Statement</Label>
                         <Textarea {...register("bio")} rows={4} className="p-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold resize-none" placeholder="Elaborate on your professional trajectory..." />
                         <div className="flex justify-between items-center px-2">
-                            <p className="text-[9px] text-primary font-black uppercase animate-pulse">AI Analysis: {bioValue.length > 50 ? 'High Professional Resonance' : 'Awaiting Input...'}</p>
-                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest leading-none">{bioValue.length} / 500 characters</p>
+                            <p className="text-xs text-primary font-semibold uppercase animate-pulse">AI Analysis: {bioValue.length > 50 ? 'High Professional Resonance' : 'Awaiting Input...'}</p>
+                            <p className="text-xs text-muted-foreground font-semibold uppercase leading-none">{bioValue.length} / 500 characters</p>
                         </div>
                     </div>
                 </div>
@@ -251,31 +251,31 @@ export default function ProfileSettings() {
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                          <Building2 className="w-4 h-4" />
                     </div>
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Global Billing & Settlement</h3>
+                    <h3 className="text-xs font-semibold uppercase text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Global Billing & Settlement</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="md:col-span-2 space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1 flex items-center gap-2">
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1 flex items-center gap-2">
                             <MapPin className="w-3.5 h-3.5" /> Base Registered Address
                         </Label>
                         <Input {...register("address")} placeholder="1248 Innovation Drive" className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Unit / Floor</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1">Unit / Floor</Label>
                         <Input {...register("unit")} placeholder="Suite 400" className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1">City / District</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1">City / District</Label>
                         <Input {...register("city")} placeholder="Palo Alto" className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1">State / Province</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1">State / Province</Label>
                         <Input {...register("state")} placeholder="California" className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
                     <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Postal Infrastructure</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/80 pl-1">Postal Infrastructure</Label>
                         <Input {...register("zipCode")} placeholder="94304" className="h-14 px-6 rounded-2xl border-none bg-muted/30 focus-visible:ring-primary/20 font-bold" />
                     </div>
                 </div>
@@ -288,14 +288,13 @@ export default function ProfileSettings() {
                         <Map className="w-6 h-6" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Registry Status: Synchronized</p>
-                        <p className="text-[9px] text-green-500/70 font-bold uppercase tracking-tighter mt-1 leading-none">Last verified via Global Node</p>
+                        <p className="text-sm font-semibold uppercase text-muted-foreground">Registry Status: Synchronized</p>
+                        <p className="text-xs text-green-500/70 font-bold uppercase mt-1 leading-none">Last verified via Global Node</p>
                     </div>
                 </div>
-                <Button
-                    type="submit"
+                <Button type="submit"
                     disabled={updateMutation.isPending}
-                    className="w-full sm:w-auto h-16 px-12 rounded-[24px] font-black text-lg shadow-2xl shadow-primary/30 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                    className="w-full sm:w-auto h-16 px-12 rounded-[24px] font-semibold text-lg shadow-2xl shadow-primary/30 transition-all hover:scale-[1.05] active:scale-[0.95]"
                 >
                     {updateMutation.isPending ? (
                         <div className="flex items-center gap-3">

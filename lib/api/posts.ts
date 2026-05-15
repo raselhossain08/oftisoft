@@ -6,49 +6,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from './client';
 import { toast } from 'sonner';
 
-export interface Post {
-    id: string;
-    title: string;
-    slug: string;
-    content: string;
-    excerpt?: string;
-    type: 'article' | 'tutorial' | 'case_study' | 'news' | 'announcement';
-    status: 'draft' | 'pending_review' | 'published' | 'archived' | 'scheduled';
-    featuredImage?: string;
-    featuredImageAlt?: string;
-    author: {
-        id: string;
-        name: string;
-        email: string;
-        avatarUrl?: string;
-    };
-    category?: {
-        id: string;
-        name: string;
-        slug: string;
-    };
-    tags?: Array<{
-        id: string;
-        name: string;
-        slug: string;
-    }>;
-    keywords?: string[];
-    readTime: number;
-    views: number;
-    likes: number;
-    comments: number;
-    allowComments: boolean;
-    publishedAt?: string;
-    scheduledAt?: string;
-    seoTitle?: string;
-    seoDescription?: string;
-    canonicalUrl?: string;
-    isIndexed: boolean;
-    isFeatured: boolean;
-    isPinned: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
+import type { Post, Tag } from '@/lib/api';
+export type { Post, Tag };
 
 export interface PostStats {
     total: number;
@@ -56,15 +15,6 @@ export interface PostStats {
     draft: number;
     totalViews: number;
     totalLikes: number;
-}
-
-export interface Tag {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string;
-    color?: string;
-    usageCount: number;
 }
 
 const endpoints = {

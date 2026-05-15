@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Save, CreditCard, ShieldCheck, Zap, Globe, Lock } from "lucide-react";
 import { systemAPI, SystemConfig } from "@/lib/api";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export default function PaymentSettingsPage() {
@@ -69,7 +70,7 @@ export default function PaymentSettingsPage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-center">
                 <Loader2 className="w-12 h-auto animate-spin text-primary opacity-20" />
-                <p className="text-muted-foreground font-black animate-pulse uppercase tracking-[0.3em]">Accessing Fiscal Nodes...</p>
+                <p className="text-muted-foreground font-semibold animate-pulse uppercase">Accessing Fiscal Nodes...</p>
             </div>
         );
     }
@@ -79,22 +80,21 @@ export default function PaymentSettingsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-10">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
+                    <h2 className="text-3xl md:text-3xl font-semibold bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
                         Financial Settlement
                     </h2>
                     <p className="text-muted-foreground font-medium mt-2">Govern your global payment vectors and transaction gateways.</p>
                 </div>
                 <div className="flex items-center gap-3 text-primary bg-primary/5 px-5 py-2.5 rounded-full border border-primary/20 shadow-inner">
                     <ShieldCheck className="w-5 h-5" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">PCI-DSS L1 Active</span>
+                    <span className="text-sm font-semibold uppercase">PCI-DSS L1 Active</span>
                 </div>
             </div>
 
             <form onSubmit={handleSave} className="space-y-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Stripe Card */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                    <AnimatedDiv initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                     >
@@ -104,14 +104,14 @@ export default function PaymentSettingsPage() {
                                     <div className="w-14 h-14 bg-indigo-600 rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-indigo-600/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                                         <CreditCard size={28} />
                                     </div>
-                                    <Badge className="bg-indigo-600/10 text-indigo-600 border-none font-black text-[10px] tracking-widest px-4 py-1.5 rounded-full">STRIPE_NODE</Badge>
+                                    <Badge className="bg-indigo-600/10 text-indigo-600 border-none font-semibold text-sm px-4 py-1.5 rounded-full">STRIPE_NODE</Badge>
                                 </div>
-                                <CardTitle className="mt-8 text-2xl font-black tracking-tight">Stripe Infrastructure</CardTitle>
+                                <CardTitle className="mt-8 text-2xl font-semibold">Stripe Infrastructure</CardTitle>
                                 <CardDescription className="font-medium mt-2">Synchronize your marketplace with the Stripe global ledger.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-10 space-y-6">
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-2">Broadcast Key (Publishable)</Label>
+                                    <Label className="text-sm font-semibold uppercase text-muted-foreground/60 ml-2">Broadcast Key (Publishable)</Label>
                                     <Input 
                                         value={form.stripePublishableKey}
                                         onChange={(e) => setForm({ ...form, stripePublishableKey: e.target.value })}
@@ -120,7 +120,7 @@ export default function PaymentSettingsPage() {
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-2">Private Fragment (Secret Key)</Label>
+                                    <Label className="text-sm font-semibold uppercase text-muted-foreground/60 ml-2">Private Fragment (Secret Key)</Label>
                                     <div className="relative">
                                         <Input 
                                             type="password"
@@ -134,11 +134,10 @@ export default function PaymentSettingsPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    </motion.div>
+                    </AnimatedDiv>
 
                     {/* PayPal Card */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                    <AnimatedDiv initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
                     >
@@ -148,14 +147,14 @@ export default function PaymentSettingsPage() {
                                     <div className="w-14 h-14 bg-blue-500 rounded-[22px] flex items-center justify-center text-white shadow-xl shadow-blue-500/20 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500">
                                         <Zap size={28} />
                                     </div>
-                                    <Badge className="bg-blue-500/10 text-blue-500 border-none font-black text-[10px] tracking-widest px-4 py-1.5 rounded-full">PAYPAL_NODE</Badge>
+                                    <Badge className="bg-blue-500/10 text-blue-500 border-none font-semibold text-sm px-4 py-1.5 rounded-full">PAYPAL_NODE</Badge>
                                 </div>
-                                <CardTitle className="mt-8 text-2xl font-black tracking-tight">PayPal Hub</CardTitle>
+                                <CardTitle className="mt-8 text-2xl font-semibold">PayPal Hub</CardTitle>
                                 <CardDescription className="font-medium mt-2">Manage REST signal credentials for alternative settlement.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-10 space-y-6">
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-2">Node Client ID</Label>
+                                    <Label className="text-sm font-semibold uppercase text-muted-foreground/60 ml-2">Node Client ID</Label>
                                     <Input 
                                         value={form.paypalClientId}
                                         onChange={(e) => setForm({ ...form, paypalClientId: e.target.value })}
@@ -164,7 +163,7 @@ export default function PaymentSettingsPage() {
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-2">Node Secret</Label>
+                                    <Label className="text-sm font-semibold uppercase text-muted-foreground/60 ml-2">Node Secret</Label>
                                     <div className="relative">
                                         <Input 
                                             type="password"
@@ -178,7 +177,7 @@ export default function PaymentSettingsPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    </motion.div>
+                    </AnimatedDiv>
                 </div>
 
                 {/* Info Box */}
@@ -187,7 +186,7 @@ export default function PaymentSettingsPage() {
                         <Globe size={24} />
                     </div>
                     <div className="flex-1 space-y-2">
-                        <p className="font-black text-sm tracking-tight text-primary uppercase tracking-[0.2em]">Deployment Logic</p>
+                        <p className="font-semibold text-sm text-primary uppercase">Deployment Logic</p>
                         <p className="text-xs text-muted-foreground font-bold leading-relaxed">
                             Changes to gateway credentials will take immediate effect across all checkout nodes. Ensure you are using "Live" keys for production environments. Test keys will process simulated credits only.
                         </p>
@@ -198,7 +197,7 @@ export default function PaymentSettingsPage() {
                     <Button 
                         type="submit" 
                         disabled={isSaving} 
-                        className="h-16 px-12 rounded-3xl font-black text-lg bg-primary text-white shadow-2xl shadow-primary/30 transition-all hover:scale-[1.05] active:scale-[0.95] flex items-center gap-4"
+                        className="h-16 px-12 rounded-3xl font-semibold text-lg bg-primary text-white shadow-2xl shadow-primary/30 transition-all hover:scale-[1.05] active:scale-[0.95] flex items-center gap-4"
                     >
                         {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
                         Sync Settlement Logic

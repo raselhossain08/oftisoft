@@ -28,7 +28,7 @@ export function ShopSidebar({ className }: ShopSidebarProps) {
                     <Filter className="w-5 h-5 text-primary" />
                     Filters
                 </h3>
-                <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-foreground">
+                <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-foreground" onClick={() => setPriceRange([0, 1000])}>
                     Reset
                 </Button>
             </div>
@@ -38,8 +38,7 @@ export function ShopSidebar({ className }: ShopSidebarProps) {
             {/* Price Range */}
             <div className="space-y-4">
                 <h4 className="font-semibold text-sm">Price Range</h4>
-                <Slider
-                    defaultValue={[0, 1000]}
+                <Slider defaultValue={[0, 1000]}
                     max={2000}
                     step={10}
                     value={priceRange}

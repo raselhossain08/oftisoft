@@ -171,8 +171,7 @@ export default function PostsPage() {
                     <div className="flex items-center gap-3 mb-4">
                         <div className="relative flex-1 max-w-sm">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search posts..."
+                            <Input placeholder="Search posts..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-9"
@@ -232,8 +231,7 @@ export default function PostsPage() {
                                                 <TableCell>
                                                     <div className="flex items-center gap-3">
                                                         {post.featuredImage ? (
-                                                            <img
-                                                                src={post.featuredImage}
+                                                            <img src={post.featuredImage}
                                                                 alt=""
                                                                 className="w-10 h-10 rounded object-cover"
                                                             />
@@ -243,8 +241,7 @@ export default function PostsPage() {
                                                             </div>
                                                         )}
                                                         <div>
-                                                            <Link
-                                                                href={`/dashboard/posts/${post.id}/edit`}
+                                                            <Link href={`/dashboard/posts/${post.id}/edit`}
                                                                 className="font-medium hover:text-primary transition-colors line-clamp-1"
                                                             >
                                                                 {post.title}
@@ -252,7 +249,7 @@ export default function PostsPage() {
                                                             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                                                                 <span>{post.readTime} min read</span>
                                                                 {post.tags?.slice(0, 2).map((tag) => (
-                                                                    <Badge key={tag.id} variant="outline" className="text-[10px] px-1.5">
+                                                                    <Badge key={tag.id} variant="outline" className="text-sm px-1.5">
                                                                         {tag.name}
                                                                     </Badge>
                                                                 ))}
@@ -338,8 +335,7 @@ export default function PostsPage() {
                                                                 Duplicate
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                className="text-destructive"
+                                                            <DropdownMenuItem className="text-destructive"
                                                                 onClick={() => setDeleteTarget(post)}
                                                             >
                                                                 <Trash2 className="w-4 h-4 mr-2" />
@@ -363,8 +359,7 @@ export default function PostsPage() {
                                 Showing {(currentPage - 1) * PER_PAGE + 1}–{Math.min(currentPage * PER_PAGE, total)} of {total}
                             </p>
                             <div className="flex items-center gap-2">
-                                <Button
-                                    variant="outline"
+                                <Button variant="outline"
                                     size="sm"
                                     disabled={currentPage <= 1}
                                     onClick={() => setCurrentPage(p => p - 1)}
@@ -372,8 +367,7 @@ export default function PostsPage() {
                                     <ChevronLeft className="w-4 h-4 mr-1" /> Previous
                                 </Button>
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                    <Button
-                                        key={page}
+                                    <Button key={page}
                                         variant={page === currentPage ? "default" : "outline"}
                                         size="sm"
                                         className="w-9"
@@ -382,8 +376,7 @@ export default function PostsPage() {
                                         {page}
                                     </Button>
                                 ))}
-                                <Button
-                                    variant="outline"
+                                <Button variant="outline"
                                     size="sm"
                                     disabled={currentPage >= totalPages}
                                     onClick={() => setCurrentPage(p => p + 1)}
@@ -407,8 +400,7 @@ export default function PostsPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() => {
+                        <AlertDialogAction onClick={() => {
                                 if (deleteTarget) {
                                     deletePost(deleteTarget.id);
                                     setDeleteTarget(null);

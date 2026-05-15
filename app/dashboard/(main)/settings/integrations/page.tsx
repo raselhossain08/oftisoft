@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState, useEffect } from "react";
 import { Check, Github, Slack, Database, Cloud, Trello, Mail, Blocks, ExternalLink, Zap, Braces, Link, ShieldCheck, Loader2 } from "lucide-react";
@@ -7,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { integrationsAPI } from "@/lib/api";
 
@@ -23,7 +24,7 @@ export default function IntegrationsSettings() {
     const queryClient = useQueryClient();
     
     // Fetch connected integrations from backend
-    const { data: connectedIds = [], isLoading } = useQuery({
+  const { data: connectedIds = [], isLoading } = useQuery({
         queryKey: ["integrations"],
         queryFn: async () => {
             const data = await integrationsAPI.getIntegrations();
@@ -32,7 +33,7 @@ export default function IntegrationsSettings() {
     });
 
     // Mutation for toggling integration
-    const toggleMutation = useMutation({
+  const toggleMutation = useMutation({
         mutationFn: ({ id, connected }: { id: string, connected: boolean }) => 
             integrationsAPI.toggleIntegration(id, connected),
         onSuccess: (_, variables) => {
@@ -63,7 +64,7 @@ export default function IntegrationsSettings() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 text-center">
                 <Loader2 className="w-12 h-auto animate-spin text-primary opacity-20" />
-                <p className="text-muted-foreground font-black animate-pulse uppercase tracking-[0.3em]">Mapping Neural Nodes...</p>
+                <p className="text-muted-foreground font-semibold animate-pulse uppercase">Mapping Neural Nodes...</p>
             </div>
         );
     }
@@ -73,14 +74,14 @@ export default function IntegrationsSettings() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-10">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
+                    <h2 className="text-3xl md:text-3xl font-semibold bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
                         Ecosystem Interop
                     </h2>
                     <p className="text-muted-foreground font-medium mt-2">Bridge your Oftisoft workspace with the global developer toolchain.</p>
                 </div>
                 <div className="flex items-center gap-3 text-primary bg-primary/5 px-5 py-2.5 rounded-full border border-primary/20 shadow-inner">
                     <Blocks className="w-5 h-5" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Bridging Matrix Active</span>
+                    <span className="text-sm font-semibold uppercase">Bridging Matrix Active</span>
                 </div>
             </div>
 
@@ -91,15 +92,12 @@ export default function IntegrationsSettings() {
                         const isPending = toggleMutation.isPending && toggleMutation.variables?.id === tool.id;
 
                         return (
-                            <motion.div
-                                layout
-                                key={tool.id}
+                            <AnimatedDiv layout key={tool.id}
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4 }}
                             >
-                                <Card
-                                    className={cn(
+                                <Card className={cn(
                                         "group border-2 rounded-[48px] flex flex-col transition-all duration-500 relative overflow-hidden h-[340px] shadow-sm",
                                         isConnected 
                                             ? "bg-primary/[0.03] border-primary shadow-2xl shadow-primary/10" 
@@ -118,7 +116,7 @@ export default function IntegrationsSettings() {
                                             <tool.icon className="w-8 h-8" />
                                         </div>
                                         <Badge className={cn(
-                                            "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border transition-colors",
+                                            "px-4 py-1.5 rounded-full text-xs font-semibold uppercase border transition-colors",
                                             isConnected ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-muted text-muted-foreground border-transparent"
                                         )}>
                                             {isConnected ? "Bridged" : "Standby"}
@@ -126,17 +124,16 @@ export default function IntegrationsSettings() {
                                     </CardHeader>
 
                                     <CardContent className="p-8 md:p-10 pt-4 flex-1">
-                                        <h3 className="font-black text-2xl tracking-tight group-hover:text-primary transition-colors">{tool.name}</h3>
+                                        <h3 className="font-semibold text-2xl group-hover:text-primary transition-colors">{tool.name}</h3>
                                         <p className="text-xs text-muted-foreground font-bold leading-relaxed mt-3 opacity-70 line-clamp-3">{tool.desc}</p>
                                     </CardContent>
 
                                     <CardFooter className="p-8 md:p-10 pt-0">
-                                        <Button
-                                            onClick={() => toggle(tool.id, isConnected)}
+                                        <Button onClick={() => toggle(tool.id, isConnected)}
                                             disabled={isPending}
                                             variant={isConnected ? "outline" : "default"}
                                             className={cn(
-                                                "w-full h-14 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-[0.95]",
+                                                "w-full h-14 rounded-2xl font-semibold text-sm shadow-lg transition-all active:scale-[0.95]",
                                                 isConnected
                                                     ? "bg-background border-border hover:bg-red-500 hover:text-white hover:border-red-500"
                                                     : "shadow-primary/20"
@@ -150,7 +147,7 @@ export default function IntegrationsSettings() {
                                         </Button>
                                     </CardFooter>
                                 </Card>
-                            </motion.div>
+                            </AnimatedDiv>
                         )
                     })}
                 </AnimatePresence>
@@ -164,8 +161,8 @@ export default function IntegrationsSettings() {
                         <Braces size={40} strokeWidth={1} />
                     </div>
                     <div>
-                        <h4 className="font-black text-xl tracking-tight">Custom Webhook</h4>
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em] max-w-[200px] mx-auto mt-3 opacity-60">Architect private node bridges</p>
+                        <h4 className="font-semibold text-xl">Custom Webhook</h4>
+                        <p className="text-sm text-muted-foreground font-bold uppercase max-w-[200px] mx-auto mt-3 opacity-60">Architect private node bridges</p>
                     </div>
                 </Card>
             </div>
@@ -177,9 +174,9 @@ export default function IntegrationsSettings() {
                     <Zap className="w-8 h-8" />
                 </div>
                 <div className="flex-1 text-center md:text-left relative z-10">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 mb-2">Developer Oversight Hub</p>
+                    <p className="text-sm font-semibold uppercase text-primary/60 mb-2">Developer Oversight Hub</p>
                     <p className="text-sm md:text-base font-medium leading-relaxed text-muted-foreground/80">
-                        Need to integrate a proprietary internal tool? Explore our <span className="text-primary font-black underline underline-offset-4 cursor-pointer hover:text-primary/70 transition-colors">Open Bridge API Documentation</span> for headless integration patterns and neural socket schemas.
+                        Need to integrate a proprietary internal tool? Explore our <span className="text-primary font-semibold underline underline-offset-4 cursor-pointer hover:text-primary/70 transition-colors">Open Bridge API Documentation</span> for headless integration patterns and neural socket schemas.
                     </p>
                 </div>
                 <Button variant="ghost" className="h-auto w-12 rounded-full border border-border/50 group-hover:bg-primary group-hover:text-white transition-all shrink-0" onClick={() => toast.info("Open your API docs or /api route for integration patterns.")}>

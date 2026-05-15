@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -49,21 +50,21 @@ export default function PrivacyPage() {
             <div className="container px-6 mx-auto relative z-10 space-y-24">
                 {/* Header Section */}
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-blue-500/30 bg-blue-500/5 text-blue-400 font-semibold tracking-[0.3em] text-[10px]">
                             {header?.badge ?? ""}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 
+                    </AnimatedDiv>
+                    <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {header?.titlePrefix ?? ""} <span className="text-blue-500">{header?.titleHighlight ?? ""}</span>.
-                    </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
+                    </AnimatedH1>
+                    <AnimatedP className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
                         {header?.description ?? ""}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Grid */}
@@ -71,8 +72,7 @@ export default function PrivacyPage() {
                     {features.map((item, idx) => {
                         const Icon = iconMap[item.iconName] || Lock;
                         return (
-                        <motion.div
-                            key={item.id}
+                        <AnimatedDiv key={item.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-80px" }}
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
 
                         );
                     })}

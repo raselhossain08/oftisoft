@@ -18,7 +18,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { useUploadImage, useUploadVideo } from "@/lib/api/home-queries";
+import { useMediaUpload } from "@/hooks/useMedia";
 import { cn } from "@/lib/utils";
 
 interface MediaUploadProps {
@@ -41,8 +41,7 @@ export function MediaUpload({
     className,
     aspectRatio = 'video'
 }: MediaUploadProps) {
-    const uploadImage = useUploadImage();
-    const uploadVideo = useUploadVideo();
+    const uploadMutation = useMediaUpload();
     const [progress, setProgress] = useState(0);
     const [showProgress, setShowProgress] = useState(false);
 
@@ -52,16 +51,8 @@ export function MediaUpload({
 
         setShowProgress(true);
         try {
-            if (type === 'image') {
-                const res = await uploadImage.mutateAsync(file);
-                onChange(res.url);
-            } else {
-                const res = await uploadVideo.mutateAsync({ 
-                    file, 
-                    onProgress: (p) => setProgress(p) 
-                });
-                onChange(res.url);
-            }
+            const res = await uploadMutation.mutateAsync(file);
+            onChange(res.url);
         } catch (error) {
             console.error('Upload failed', error);
         } finally {
@@ -72,7 +63,7 @@ export function MediaUpload({
         }
     };
 
-    const isUploading = type === 'image' ? uploadImage.isPending : uploadVideo.isPending;
+    const isUploading = uploadMutation.isPending;
 
     const aspectClass = {
         video: 'aspect-video',

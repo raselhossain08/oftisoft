@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import { 
@@ -28,7 +30,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useProjects } from "@/hooks/useProjects";
@@ -73,8 +74,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-card w-full max-w-2xl rounded-3xl border border-border shadow-2xl overflow-hidden"
@@ -92,8 +92,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="title">Project Title *</Label>
-                            <Input
-                                id="title"
+                            <Input id="title"
                                 placeholder="e.g., E-Commerce Extension"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -102,8 +101,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="client">Client Name *</Label>
-                            <Input
-                                id="client"
+                            <Input id="client"
                                 placeholder="e.g., TechSolutions"
                                 value={formData.client}
                                 onChange={(e) => setFormData({ ...formData, client: e.target.value })}
@@ -113,8 +111,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description">Project Description *</Label>
-                        <Textarea
-                            id="description"
+                        <Textarea id="description"
                             placeholder="Describe the service requirements and goals..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -124,8 +121,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="budget">Budget (USD)</Label>
-                            <Input
-                                id="budget"
+                            <Input id="budget"
                                 type="number"
                                 placeholder="e.g., 5000"
                                 value={formData.budget}
@@ -135,8 +131,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="dueDate">Deadline</Label>
-                            <Input
-                                id="dueDate"
+                            <Input id="dueDate"
                                 type="date"
                                 value={formData.dueDate}
                                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
@@ -145,15 +140,13 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         </div>
                     </div>
                     <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
+                        <button type="button"
                             onClick={onClose}
                             className="flex-1 px-4 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors"
                         >
                             Cancel
                         </button>
-                        <button
-                            type="submit"
+                        <button type="submit"
                             disabled={isCreating}
                             className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
                         >
@@ -161,7 +154,7 @@ const NewProjectDialog = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         </button>
                     </div>
                 </form>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 };
@@ -208,7 +201,7 @@ export default function MyServiceRequestsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         Service Projects
                     </h1>
                     <p className="text-muted-foreground font-medium mt-1">Track your custom development, SEO audits, and technical fixes.</p>
@@ -254,16 +247,16 @@ export default function MyServiceRequestsPage() {
                                 <CardHeader className="flex flex-row items-start justify-between p-8">
                                     <div className="space-y-3">
                                         <div className="flex gap-2">
-                                            <Badge variant="outline" className={cn("text-[9px] font-black uppercase tracking-widest border-none px-2 py-1", getStatusTheme(req.status))}>
+                                            <Badge variant="outline" className={cn("text-xs font-semibold uppercase border-none px-2 py-1", getStatusTheme(req.status))}>
                                                 {req.status}
                                             </Badge>
                                             {req.paymentStatus === "pending" && (
-                                                <Badge className="bg-red-500 text-white border-none font-black text-[9px] px-2 py-1 flex items-center gap-1">
+                                                <Badge className="bg-red-500 text-white border-none font-semibold text-xs px-2 py-1 flex items-center gap-1">
                                                     <MessageSquare className="w-2.5 h-2.5" /> Payment Pending
                                                 </Badge>
                                             )}
                                         </div>
-                                        <CardTitle className="text-2xl font-black  group-hover:text-primary transition-colors">{req.title}</CardTitle>
+                                        <CardTitle className="text-2xl font-semibold  group-hover:text-primary transition-colors">{req.title}</CardTitle>
                                         <CardDescription className="flex items-center gap-4 text-xs font-medium">
                                             <span className="flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> {req.client}</span>
                                             <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Deadline: {formatDate(req.dueDate)}</span>
@@ -271,10 +264,10 @@ export default function MyServiceRequestsPage() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="text-right hidden sm:block mr-2">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase mb-1">Budget</p>
+                                            <p className="text-sm font-semibold text-muted-foreground uppercase mb-1">Budget</p>
                                             <p className="text-xs font-bold">{req.budget ? `$${req.budget.toLocaleString()}` : "Not set"}</p>
                                         </div>
-                                        <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center font-black text-lg text-primary/80 border border-border group-hover:bg-primary group-hover:text-white transition-all">
+                                        <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center font-semibold text-lg text-primary/80 border border-border group-hover:bg-primary group-hover:text-white transition-all">
                                             {req.client?.[0] || "P"}
                                         </div>
                                     </div>
@@ -283,11 +276,11 @@ export default function MyServiceRequestsPage() {
                                     {/* Progress Metrics */}
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-end">
-                                            <p className="text-[10px] font-black uppercase text-muted-foreground">Project Progress</p>
-                                            <p className="text-lg font-black ">{req.progress}%</p>
+                                            <p className="text-sm font-semibold uppercase text-muted-foreground">Project Progress</p>
+                                            <p className="text-lg font-semibold ">{req.progress}%</p>
                                         </div>
                                         <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
-                                            <motion.div 
+                                            <AnimatedDiv 
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${req.progress}%` }}
                                                 className="h-full bg-gradient-to-r from-primary/80 to-primary"
@@ -299,7 +292,7 @@ export default function MyServiceRequestsPage() {
                                     <div className="grid md:grid-cols-2 gap-8 pt-4 border-t border-border/30">
                                         {/* Description */}
                                         <div className="space-y-4">
-                                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground">
+                                            <h4 className="flex items-center gap-2 text-sm font-semibold uppercase text-muted-foreground">
                                                 <Briefcase className="w-3.5 h-3.5" /> Project Description
                                             </h4>
                                             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -309,21 +302,21 @@ export default function MyServiceRequestsPage() {
 
                                         {/* Project Info */}
                                         <div className="space-y-4">
-                                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground">
+                                            <h4 className="flex items-center gap-2 text-sm font-semibold uppercase text-muted-foreground">
                                                 <Milestone className="w-3.5 h-3.5" /> Project Details
                                             </h4>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center p-3 rounded-xl bg-muted/30 border border-border/50">
                                                     <span className="text-xs font-bold">Team Members</span>
-                                                    <span className="text-xs font-black text-primary">{req.members || 1}</span>
+                                                    <span className="text-xs font-semibold text-primary">{req.members || 1}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center p-3 rounded-xl bg-muted/30 border border-border/50">
                                                     <span className="text-xs font-bold">Type</span>
-                                                    <span className="text-xs font-black text-primary">Custom Service</span>
+                                                    <span className="text-xs font-semibold text-primary">Custom Service</span>
                                                 </div>
                                                 <div className="flex justify-between items-center p-3 rounded-xl bg-muted/30 border border-border/50">
                                                     <span className="text-xs font-bold">Created</span>
-                                                    <span className="text-xs font-black text-primary">{formatDate(req.createdAt)}</span>
+                                                    <span className="text-xs font-semibold text-primary">{formatDate(req.createdAt)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -332,14 +325,14 @@ export default function MyServiceRequestsPage() {
                                 <CardFooter className="px-8 py-5 border-t border-border/30 flex justify-between items-center bg-primary/[0.02]">
                                     <div className="flex items-center gap-4">
                                         <div className="flex -space-x-3">
-                                            <div className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center font-black text-[10px]">
+                                            <div className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center font-semibold text-sm">
                                                 {req.client?.[0] || "C"}
                                             </div>
-                                            <div className="w-8 h-8 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center font-black text-[10px] text-primary">
+                                            <div className="w-8 h-8 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center font-semibold text-sm text-primary">
                                                 A
                                             </div>
                                         </div>
-                                        <p className="text-[10px] font-bold text-muted-foreground ">Project ID: {req.id.substring(0, 8)}</p>
+                                        <p className="text-sm font-bold text-muted-foreground ">Project ID: {req.id.substring(0, 8)}</p>
                                     </div>
                                     <Button 
                                         className="rounded-xl font-bold h-10 gap-2 bg-background border-border shadow-sm group hover:bg-primary hover:text-white transition-all"
@@ -367,7 +360,7 @@ export default function MyServiceRequestsPage() {
                     <Card className="border-border/50 bg-primary/[0.03] overflow-hidden relative group">
                         <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 blur-[60px] rounded-full" />
                         <CardHeader>
-                            <CardTitle className="text-xl font-black  flex items-center gap-2">
+                            <CardTitle className="text-xl font-semibold  flex items-center gap-2">
                                 <AlertCircle className="w-5 h-5 text-primary" /> Active Overview
                             </CardTitle>
                         </CardHeader>
@@ -376,12 +369,12 @@ export default function MyServiceRequestsPage() {
                                 <div className="w-16 h-16 rounded-[24px] bg-primary/10 flex items-center justify-center text-primary shadow-inner">
                                     <Briefcase className="w-8 h-8" />
                                 </div>
-                                <h4 className="text-2xl font-black tabular-nums tracking-tighter">{filteredRequests.length}</h4>
-                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Active Projects</p>
+                                <h4 className="text-2xl font-semibold tabular-nums">{filteredRequests.length}</h4>
+                                <p className="text-sm font-semibold uppercase text-muted-foreground">Active Projects</p>
                             </div>
 
                             <div className="space-y-4">
-                                <h5 className="text-[10px] font-black uppercase text-muted-foreground">Quick Stats</h5>
+                                <h5 className="text-sm font-semibold uppercase text-muted-foreground">Quick Stats</h5>
                                 <div className="space-y-3">
                                     {[
                                         { label: "In Progress", val: filteredRequests.filter(p => p.status === "In Progress").length },
@@ -389,8 +382,8 @@ export default function MyServiceRequestsPage() {
                                         { label: "Completed", val: filteredRequests.filter(p => p.status === "Completed").length },
                                     ].map((stat, i) => (
                                         <div key={i} className="flex justify-between items-center bg-background/50 p-3 rounded-xl border border-border/50 backdrop-blur-sm">
-                                            <span className="text-[11px] font-bold">{stat.label}</span>
-                                            <span className="text-[11px] font-black text-primary ">{stat.val}</span>
+                                            <span className="text-sm font-bold">{stat.label}</span>
+                                            <span className="text-sm font-semibold text-primary ">{stat.val}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -406,16 +399,16 @@ export default function MyServiceRequestsPage() {
                     </Card>
 
                     <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden flex flex-col items-center p-8 text-center space-y-4 border-dashed">
-                        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-muted-foreground ring-4 ring-muted/20  font-black">?</div>
+                        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-muted-foreground ring-4 ring-muted/20  font-semibold">?</div>
                         <div className="space-y-1">
-                            <h4 className="text-sm font-black ">Need Custom Service?</h4>
-                            <p className="text-[10px] text-muted-foreground font-medium leading-relaxed px-4">
+                            <h4 className="text-sm font-semibold ">Need Custom Service?</h4>
+                            <p className="text-sm text-muted-foreground font-medium leading-relaxed px-4">
                                 Start a new service project or request a custom quote for your specific needs.
                             </p>
                         </div>
                         <Button 
                             variant="link" 
-                            className="text-primary font-black text-xs uppercase tracking-tighter h-auto p-0"
+                            className="text-primary font-semibold text-xs uppercase h-auto p-0"
                             onClick={() => window.location.href = "/dashboard/quotes"}
                         >
                             Request Quote
@@ -427,8 +420,7 @@ export default function MyServiceRequestsPage() {
             {/* New Project Dialog */}
             <AnimatePresence>
                 {isNewProjectOpen && (
-                    <NewProjectDialog
-                        isOpen={isNewProjectOpen}
+                    <NewProjectDialog isOpen={isNewProjectOpen}
                         onClose={() => setIsNewProjectOpen(false)}
                     />
                 )}

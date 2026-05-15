@@ -39,7 +39,7 @@ export const defaultMetadata: Metadata = {
     telephone: false,
   },
   alternates: {
-    canonical: "/",
+    canonical: siteConfig.url,
     languages: {
       "en-US": "/en-US",
       "en": "/",
@@ -65,7 +65,7 @@ export const defaultMetadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: `${siteConfig.url}/og-image.jpg`,
+        url: `${siteConfig.url}/og-image.svg`,
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -76,7 +76,7 @@ export const defaultMetadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [`${siteConfig.url}/og-image.jpg`],
+    images: [`${siteConfig.url}/og-image.svg`],
     creator: "@oftisoft",
   },
   icons: {
@@ -222,7 +222,7 @@ export const jsonLdSchemas = {
     name: product.name,
     description: product.description,
     url: `${siteConfig.url}/shop/${product.slug}`,
-    image: product.image || `${siteConfig.url}/og-image.jpg`,
+    image: product.image || `${siteConfig.url}/og-image.svg`,
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Web, Mobile",
     offers: {
@@ -276,7 +276,7 @@ export const jsonLdSchemas = {
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt || post.description,
-    image: post.coverImage || `${siteConfig.url}/og-image.jpg`,
+    image: post.coverImage || `${siteConfig.url}/og-image.svg`,
     datePublished: post.date || post.createdAt,
     dateModified: post.updatedAt || post.date || post.createdAt,
     author: {
@@ -326,7 +326,7 @@ export const jsonLdSchemas = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     name: siteConfig.name,
-    image: `${siteConfig.url}/og-image.jpg`,
+    image: `${siteConfig.url}/og-image.svg`,
     url: siteConfig.url,
     telephone: siteConfig.phone,
     email: siteConfig.email,

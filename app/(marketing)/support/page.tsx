@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3 } from "@/lib/animated";
+;
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,9 +28,9 @@ const pageData = {
         title: "Frequently Asked Questions",
         items: [
             { id: "f1", q: "What is your typical project timeline?", a: "Most web applications take 4-8 weeks for an MVP. Mobile apps 6-12 weeks. We'll provide a precise estimate during the discovery phase." },
-            { id: "f2", q: "Do you offer post-launch support?", a: "Yes. Every project includes a support period of 1-6 months. We also offer ongoing maintenance retainers for monitoring, updates, and feature development." },
-            { id: "f3", q: "Can you work with our existing team?", a: "Absolutely. We regularly integrate with in-house teams through pair programming, code reviews, and collaborative sprint planning." },
-            { id: "f4", q: "What technologies do you specialize in?", a: "Our core expertise is React/Next.js, Node.js, Python, TypeScript, PostgreSQL, and AWS. We're technology-agnostic and choose the best stack for your project." },
+            { id: "f2", q: "Do you offer post-launch support?", a: "Yes. Every project includes a support period of 1-6 months. We also offer ongoing maintenance retainers for monitoring updates and feature development." },
+            { id: "f3", q: "Can you work with our existing team?", a: "Absolutely. We regularly integrate with in-house teams through pair programming code reviews and collaborative sprint planning." },
+            { id: "f4", q: "What technologies do you specialize in?", a: "Our core expertise is React/Next.js, Node.js, Python, TypeScript PostgreSQL and AWS. We're technology-agnostic and choose the best stack for your project." },
         ]
     },
     priorityRelay: {
@@ -73,12 +74,12 @@ export default function SupportPage() {
             <div className="container px-6 mx-auto relative z-10 space-y-24">
                 {/* Header Section */}
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(var(--primary),0.2)]">
                             {header.badge}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 
+                    </AnimatedDiv>
+                    <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
@@ -88,9 +89,9 @@ export default function SupportPage() {
                                 {word}{" "}
                             </span>
                         ))}
-                    </motion.h1>
+                    </AnimatedH1>
                     
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
@@ -103,7 +104,7 @@ export default function SupportPage() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="h-16 pl-16 rounded-[24px] bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-primary/50 text-lg font-bold shadow-2xl transition-all"
                         />
-                    </motion.div>
+                    </AnimatedDiv>
                 </div>
 
                 {/* Primary Support Channels */}
@@ -111,7 +112,7 @@ export default function SupportPage() {
                     {channels.map((channel, idx) => {
                         const Icon = iconMap[channel.iconName] || Bot;
                         return (
-                            <motion.div key={channel.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }}>
+                            <AnimatedDiv key={channel.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }}>
                                 <Card className="h-full border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[40px] overflow-hidden hover:border-primary/30 hover:bg-white/[0.04] transition-all duration-700 cursor-pointer group" onClick={handleConnect}>
                                     <CardContent className="p-10 space-y-6 flex flex-col items-center text-center">
                                         <div className={cn("w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6", channel.color)}>
@@ -126,7 +127,7 @@ export default function SupportPage() {
                                         </Button>
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </AnimatedDiv>
                         );
                     })}
                 </div>

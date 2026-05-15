@@ -36,7 +36,7 @@ export function AdSlot({ position, className }: AdSlotProps) {
 
     // For now, we show the first active ad for the position
     // We can implement rotation or specific logic later
-    const ad = ads[0];
+  const ad = ads[0];
 
     const renderAdContent = (ad: Ad) => {
         switch (ad.type) {

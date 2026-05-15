@@ -61,11 +61,9 @@ export const CartSheet = () => {
                                     <div key={item.id} className="flex gap-4 group">
                                         <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted/10 border border-white/5 flex-shrink-0">
                                             {item.image ? (
-                                                <Image
-                                                    src={item.image}
+                                                <Image src={item.image}
                                                     alt={item.name}
-                                                    fill
-                                                    className="object-cover"
+                                                    fill className="object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-secondary">

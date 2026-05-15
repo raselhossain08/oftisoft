@@ -1,6 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, useScrollY, useScrollProgress, useTransform, useSpring, useMotionValue } from "@/lib/animated";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef } from "react";
 import { 
     Search, 
@@ -42,13 +42,10 @@ export default function ProcessTimeline() {
     };
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "end start"]
-    });
+    const scrollYProgress = useScrollProgress(containerRef);
 
     // Smooth filling of the timeline
-    const scaleY = useSpring(scrollYProgress, {
+  const scaleY = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
         restDelta: 0.001
@@ -61,8 +58,7 @@ export default function ProcessTimeline() {
             
             <div className="container px-4 mx-auto">
                 <div className="text-center mb-16 md:mb-24 max-w-3xl mx-auto">
-                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                     <AnimatedDiv initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-80px" }}
@@ -77,7 +73,7 @@ export default function ProcessTimeline() {
                                 {processContent.subtitle}
                             </span>
                         </h3>
-                    </motion.div>
+                    </AnimatedDiv>
                 </div>
 
                 {/* Vertical Timeline Container */}
@@ -85,8 +81,8 @@ export default function ProcessTimeline() {
                     
                     {/* Central Track Line (Desktop) / Left Line (Mobile) */}
                     <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/5 -translate-x-1/2">
-                        <motion.div 
-                            style={{ scaleY, transformOrigin: "top" }}
+                        <AnimatedDiv 
+                            style={{ transform: `scaleY(${scaleY})`, transformOrigin: "top" }}
                             className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary via-purple-500 to-secondary"
                         />
                     </div>
@@ -110,7 +106,7 @@ function TimelineItem({ step, index }: { step: any, index: number }) {
     const isEven = index % 2 === 0;
     
     return (
-        <motion.div 
+        <AnimatedDiv 
             initial={{ opacity: 0, y: 50 }}
             style={{ willChange: "transform, opacity" }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -159,7 +155,7 @@ function TimelineItem({ step, index }: { step: any, index: number }) {
             {/* Central Node */}
             <div className="absolute left-4 md:left-1/2 -translate-x-1/2 flex items-center justify-center">
                 <div className="w-4 h-4 rounded-full bg-[#030712] border-2 border-white/20 z-10 shadow-[0_0_0_4px_#030712]">
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ scale: 0 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ scale: 1 }}
@@ -172,6 +168,6 @@ function TimelineItem({ step, index }: { step: any, index: number }) {
 
             {/* Empty Space for alignment */}
             <div className="hidden md:block w-1/2" />
-        </motion.div>
+        </AnimatedDiv>
     );
 }

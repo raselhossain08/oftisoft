@@ -1,6 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, useScrollProgress, useTransform } from "@/lib/animated";
 
-import { motion, useScroll, useTransform } from "framer-motion";
 import {
     Layout,
     Smartphone,
@@ -75,7 +75,7 @@ export default function Services() {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     // Scroll parallax for section header
-    const { scrollYProgress } = useScroll();
+  const scrollYProgress = useScrollProgress();
     const headerY = useTransform(scrollYProgress, [0, 0.2], [50, 0]);
     const headerOpacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]);
 
@@ -86,7 +86,7 @@ export default function Services() {
             
             <div className="container px-4 mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 gap-6 md:gap-8">
-                    <motion.div 
+                    <AnimatedDiv 
                         style={{ y: headerY, opacity: headerOpacity, willChange: "transform, opacity" }}
                         className="max-w-3xl w-full md:w-auto"
                     >
@@ -99,9 +99,9 @@ export default function Services() {
                                 {servicesContent.subtitle}
                             </span>
                         </h3>
-                    </motion.div>
+                    </AnimatedDiv>
 
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true, margin: "-80px" }}
@@ -117,7 +117,7 @@ export default function Services() {
                                 </div>
                             </Button>
                         </Link>
-                    </motion.div>
+                    </AnimatedDiv>
                 </div>
 
                 {/* Unified Responsive Grid Layout */}
@@ -125,8 +125,7 @@ export default function Services() {
                     {services.map((service: ServiceItem, index: number) => {
                         const Icon = iconMap[service.icon] || Globe;
                         return (
-                            <motion.div
-                                key={service?.id ?? `service-${index}`}
+                            <AnimatedDiv key={service?.id ?? `service-${index}`}
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: "-80px" }}
@@ -179,7 +178,7 @@ export default function Services() {
                                     
                                 </Card>
                             </Link>
-                            </motion.div>
+                            </AnimatedDiv>
                         );
                     })}
                 </div>

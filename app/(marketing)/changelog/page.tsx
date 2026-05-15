@@ -1,5 +1,6 @@
-"use client";
-import { motion } from "framer-motion";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GitBranch, Sparkles, ShieldCheck, Package } from "lucide-react";
@@ -32,38 +33,37 @@ export default function ChangelogPage() {
 
             <div className="container px-6 mx-auto max-w-4xl space-y-16">
                 <div className="space-y-4 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6 }}
                     >
                         <Badge variant="outline" className="px-4 py-1 rounded-full border-primary/20 bg-primary/5 text-primary font-semibold tracking-widest text-[10px]">
                             {header?.badge ?? ""}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 
+                    </AnimatedDiv>
+                    <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         className="text-5xl md:text-7xl font-semibold tracking-tighter"
                     >
                         {header?.titlePrefix ?? ""}<span className="text-primary">{header?.titleSuffix ?? ""}</span>
-                    </motion.h1>
-                    <motion.p 
+                    </AnimatedH1>
+                    <AnimatedP 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
                         className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto"
                     >
                         {header?.description ?? ""}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 <div className="relative space-y-12 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-px before:bg-gradient-to-b before:from-primary/50 before:via-border before:to-transparent">
                     {activeUpdates.map((update, idx) => {
                         const Icon = iconMap[update.iconName ?? ''] || Sparkles;
                         return (
-                        <motion.div 
+                        <AnimatedDiv 
                             key={update.id}
                             initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
@@ -115,11 +115,11 @@ export default function ChangelogPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
                     );})}
                 </div>
 
-                <motion.div 
+                <AnimatedDiv 
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true, margin: "-80px" }}
@@ -130,7 +130,7 @@ export default function ChangelogPage() {
                     <p className="text-[10px] font-semibold tracking-widest text-muted-foreground bg-muted/30 py-3 px-6 rounded-full w-fit mx-auto border border-border/50">
                         Operational nodes synced. End of Log.
                     </p>
-                </motion.div>
+                </AnimatedDiv>
             </div>
         </div>
     );

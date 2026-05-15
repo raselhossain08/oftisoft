@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,22 +10,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/lib/store/shop-content";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
     product: Product;
     /** When provided, wishlist is synced with dashboard favorites; otherwise local-only state. */
     isFavorite?: boolean;
     onToggleWishlist?: () => void;
+    index?: number;
 }
 
-export function ProductCard({ product, isFavorite, onToggleWishlist }: ProductCardProps) {
+export function ProductCard({ product, isFavorite, onToggleWishlist, index = 0 }: ProductCardProps) {
     const [localWishlisted, setLocalWishlisted] = useState(false);
     const cart = useCart();
+    const router = useRouter();
 
     const isWishlisted = onToggleWishlist != null ? (isFavorite ?? false) : localWishlisted;
 
@@ -51,23 +54,20 @@ export function ProductCard({ product, isFavorite, onToggleWishlist }: ProductCa
         }
     };
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
+        <AnimatedDiv initial={{ opacity: 0, y: 20 }}
             style={{ willChange: "transform, opacity" }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             whileHover={{ y: -5 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
         >
             <Card className="h-full group relative overflow-hidden bg-card/50 backdrop-blur-sm border-white/5 hover:border-primary/50 transition-colors pt-0">
                 <CardHeader className="p-0 relative aspect-[4/3] overflow-hidden">
                     <div className="absolute inset-0 bg-muted animate-pulse" /> {/* Placeholder */}
                     {product.image ? (
-                        <Image
-                            src={product.image}
+                        <Image src={product.image}
                             alt={product.name}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                            fill className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                     ) : (
                         <div className="absolute inset-0 bg-gradient-to-br from-muted via-background to-muted" />
@@ -85,7 +85,7 @@ export function ProductCard({ product, isFavorite, onToggleWishlist }: ProductCa
                         >
                             <Heart className={cn("h-4 w-4", isWishlisted && "fill-red-500 text-red-500")} />
                         </Button>
-                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground">
+                        <Button onClick={() => router.push(`/shop/${product.slug}`)} size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground">
                             <Eye className="h-4 w-4" />
                         </Button>
                     </div>
@@ -135,6 +135,6 @@ export function ProductCard({ product, isFavorite, onToggleWishlist }: ProductCa
                     </Button>
                 </CardFooter>
             </Card>
-        </motion.div>
+        </AnimatedDiv>
     );
 }

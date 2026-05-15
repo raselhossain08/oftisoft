@@ -34,8 +34,9 @@ const footerData = {
     columns: [
         { id: "services", title: "Services", links: [{ id: "web", href: "/services", label: "Web Development" }, { id: "mobile", href: "/services", label: "Mobile Apps" }, { id: "ai", href: "/services", label: "AI Solutions" }, { id: "saas", href: "/services", label: "SaaS Development" }] },
         { id: "company", title: "Company", links: [{ id: "about", href: "/about", label: "About Us" }, { id: "portfolio", href: "/portfolio", label: "Portfolio" }, { id: "blog", href: "/blog", label: "Blog" }, { id: "careers", href: "/careers", label: "Careers" }] },
-        { id: "support", title: "Support", links: [{ id: "contact", href: "/contact", label: "Contact" }, { id: "docs", href: "/docs", label: "Documentation" }, { id: "status", href: "/status", label: "System Status" }, { id: "support", href: "/support", label: "Help Center" }] },
+        { id: "support", title: "Support", links: [{ id: "contact", href: "/contact", label: "Contact" }, { id: "support", href: "/support", label: "Help Center" }, { id: "faq", href: "/docs", label: "FAQ" }] },
         { id: "legal", title: "Legal", links: [{ id: "terms", href: "/terms", label: "Terms of Service" }, { id: "privacy", href: "/privacy", label: "Privacy Policy" }, { id: "community", href: "/community", label: "Community" }, { id: "partners", href: "/partners", label: "Partners" }] },
+        { id: "resources", title: "Resources", links: [{ id: "tools", href: "/tools", label: "Recommended Tools" }, { id: "docs", href: "/docs", label: "Documentation" }, { id: "changelog", href: "/changelog", label: "Changelog" }, { id: "status", href: "/status", label: "System Status" }] },
     ],
     copyright: "© 2026 Oftisoft. All rights reserved. Built with passion in Bangladesh.",
     statusText: "All systems operational"
@@ -82,8 +83,7 @@ export default function Footer() {
                        <form className="relative max-w-md w-full flex flex-col sm:flex-row gap-3" onSubmit={handleSubscribe}>
                            <Input 
                                  type="email" 
-                                 required
-                                 placeholder={content.newsletterPlaceholder}
+                                 required placeholder={content.newsletterPlaceholder}
                                  value={email}
                                  onChange={(e) => setEmail(e.target.value)}
                                  className="w-full h-12 rounded-xl bg-white/5 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-primary/50 focus-visible:bg-white/10 transition-all"
@@ -102,8 +102,8 @@ export default function Footer() {
                 </div>
 
                 {/* Main Footer Links */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-y-12 gap-x-8 mb-20">
-                    <div className="col-span-2 lg:col-span-2 space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-y-12 gap-x-8 mb-20">
+                    <div className="col-span-2 md:col-span-3 lg:col-span-1 space-y-6">
                         <p className="text-muted-foreground leading-relaxed max-w-xs">
                              {content.tagline} {content.description}
                         </p>
@@ -111,8 +111,7 @@ export default function Footer() {
                         {(content.socialLinks || []).map((social, i) => {
                             const Icon = iconMap[social.icon] || Github;
                             return (
-                                <a
-                                    key={social.id || i}
+                                <a key={social.id || i}
                                     href={social.href}
                                     target={isExternalHref(social.href) && social.href.startsWith("http") ? "_blank" : undefined}
                                     rel={isExternalHref(social.href) && social.href.startsWith("http") ? "noreferrer" : undefined}
@@ -127,7 +126,7 @@ export default function Footer() {
                         <div className="space-y-2 text-sm text-muted-foreground">
                             <p>Founder: Rasel Hossain</p>
                             <p>Email: oftisoft@gmail.com</p>
-                            <p>Phone: +880 1410-615665</p>
+                            <p>Phone: +8801757220402</p>
                             <p>Location: Sultanpur Sahapara, Satkhira, Bangladesh 9400</p>
                         </div>
                     </div>
@@ -139,8 +138,7 @@ export default function Footer() {
                                 {(column.links || []).map((link, j) => (
                                     <li key={link.id || j}>
                                         {isExternalHref(link.href) ? (
-                                            <a
-                                                href={link.href}
+                                            <a href={link.href}
                                                 target={link.href.startsWith("http") ? "_blank" : undefined}
                                                 rel={link.href.startsWith("http") ? "noreferrer" : undefined}
                                                 className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center group w-fit"

@@ -53,7 +53,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 import { useAffiliate } from "@/hooks/useAffiliate";
 import {
     Dialog,
@@ -196,7 +195,7 @@ export default function AffiliatePage() {
         return (
           <div className="h-[70vh] flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-12 h-12 animate-spin text-primary opacity-20" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">Loading affiliate data...</p>
+            <p className="text-sm font-semibold  text-primary animate-pulse">Loading affiliate data...</p>
           </div>
         );
     }
@@ -222,7 +221,7 @@ export default function AffiliatePage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         Affiliate Dashboard
                     </h1>
                     <p className="text-muted-foreground font-medium mt-1">
@@ -285,7 +284,7 @@ export default function AffiliatePage() {
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground font-medium">Current Tier</p>
-                                <h2 className="text-2xl font-black">{stats?.profile?.tier || "STANDARD"}</h2>
+                                <h2 className="text-2xl font-semibold">{stats?.profile?.tier || "STANDARD"}</h2>
                                 <p className="text-sm text-muted-foreground">
                                     Commission Rate: <span className="font-bold text-primary">{stats?.profile?.commissionRate || 10}%</span>
                                 </p>
@@ -342,8 +341,8 @@ export default function AffiliatePage() {
                     <Card key={i} className="border-border/50 bg-card/50 backdrop-blur-md rounded-[32px] p-6 group hover:border-primary/30 transition-all">
                         <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">{stat.label}</p>
-                                <h4 className="text-2xl font-black">{stat.value}</h4>
+                                <p className="text-sm font-semibold  text-muted-foreground mb-1">{stat.label}</p>
+                                <h4 className="text-2xl font-semibold">{stat.value}</h4>
                             </div>
                             <div 
                                 className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -363,10 +362,10 @@ export default function AffiliatePage() {
                     <div className="absolute -right-10 -bottom-10 w-40 h-40 rounded-full pointer-events-none" style={{ backgroundColor: 'rgba(99,102,241,0.1)', filter: 'blur(60px)' }} />
                     
                     <CardHeader>
-                        <CardTitle className="text-xl font-black flex items-center gap-2" style={{ color: THEME_PRIMARY }}>
+                        <CardTitle className="text-xl font-semibold flex items-center gap-2" style={{ color: THEME_PRIMARY }}>
                             <LinkIcon className="w-5 h-5" style={{ color: THEME_PRIMARY }} /> Your Referral Link
                         </CardTitle>
-                        <CardDescription className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'rgba(99,102,241,0.7)' }}>Share this link to earn commissions</CardDescription>
+                        <CardDescription className="text-sm font-semibold " style={{ color: 'rgba(99,102,241,0.7)' }}>Share this link to earn commissions</CardDescription>
                     </CardHeader>
                     
                     <CardContent className="space-y-6 relative z-10">
@@ -387,12 +386,12 @@ export default function AffiliatePage() {
                         
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 rounded-2xl bg-background border border-border/50">
-                                <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Your Commission Rate</p>
-                                <p className="text-2xl font-black" style={{ color: THEME_PRIMARY }}>{stats?.profile?.commissionRate || 10}%</p>
+                                <p className="text-sm font-semibold  text-muted-foreground mb-1">Your Commission Rate</p>
+                                <p className="text-2xl font-semibold" style={{ color: THEME_PRIMARY }}>{stats?.profile?.commissionRate || 10}%</p>
                             </div>
                             <div className="p-4 rounded-2xl bg-background border border-border/50">
-                                <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Total Clicks</p>
-                                <p className="text-2xl font-black">{stats?.profile?.totalClicks?.toLocaleString() || 0}</p>
+                                <p className="text-sm font-semibold  text-muted-foreground mb-1">Total Clicks</p>
+                                <p className="text-2xl font-semibold">{stats?.profile?.totalClicks?.toLocaleString() || 0}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -401,7 +400,7 @@ export default function AffiliatePage() {
                 {/* Quick Actions */}
                 <Card className="overflow-hidden rounded-[32px] border-border/50 bg-gradient-to-br from-card to-card/80">
                     <CardHeader>
-                        <CardTitle className="text-xl font-black">Quick Actions</CardTitle>
+                        <CardTitle className="text-xl font-semibold">Quick Actions</CardTitle>
                     </CardHeader>
                     
                     <CardContent className="space-y-3">
@@ -417,7 +416,7 @@ export default function AffiliatePage() {
                             
                             <DialogContent className="sm:max-w-[500px] rounded-3xl">
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black">Request Withdrawal</DialogTitle>
+                                    <DialogTitle className="text-2xl font-semibold">Request Withdrawal</DialogTitle>
                                     <DialogDescription>
                                         Available Balance: <span className="font-bold text-primary">${Number(stats?.profile?.balance || 0).toLocaleString()}</span>
                                     </DialogDescription>
@@ -428,8 +427,7 @@ export default function AffiliatePage() {
                                         <label className="text-sm font-medium">Amount</label>
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
-                                            <Input
-                                                type="number"
+                                            <Input type="number"
                                                 min="0"
                                                 step="0.01"
                                                 placeholder="Enter amount"
@@ -437,8 +435,7 @@ export default function AffiliatePage() {
                                                 onChange={(e) => setWithdrawAmount(e.target.value)}
                                                 className="pl-8 pr-16 h-14 rounded-2xl"
                                             />
-                                            <Button
-                                                type="button"
+                                            <Button type="button"
                                                 variant="ghost"
                                                 size="sm"
                                                 className="absolute right-2 top-1/2 -translate-y-1/2"
@@ -453,8 +450,7 @@ export default function AffiliatePage() {
                                         <label className="text-sm font-medium">Payment Method</label>
                                         <div className="grid grid-cols-2 gap-3">
                                             {withdrawalMethods?.map((method: any) => (
-                                                <button
-                                                    key={method.id}
+                                                <button key={method.id}
                                                     type="button"
                                                     onClick={() => setSelectedMethod(method.id)}
                                                     className={cn(
@@ -478,8 +474,7 @@ export default function AffiliatePage() {
                                     {selectedMethod && (
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium">Payment Details</label>
-                                            <Input
-                                                placeholder="Enter your payment details (email, wallet address, etc.)"
+                                            <Input placeholder="Enter your payment details (email wallet address, etc.)"
                                                 value={paymentDetails.account || ''}
                                                 onChange={(e) => setPaymentDetails({ ...paymentDetails, account: e.target.value })}
                                                 className="h-12 rounded-xl"
@@ -531,7 +526,7 @@ export default function AffiliatePage() {
                     <Card className="border-border/50 bg-card/60 backdrop-blur-md rounded-[40px] overflow-hidden p-8">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                             <div>
-                                <h3 className="text-xl font-black">Conversion Analytics</h3>
+                                <h3 className="text-xl font-semibold">Conversion Analytics</h3>
                                 <p className="text-sm text-muted-foreground">Track your referral performance over time.</p>
                             </div>
                         </div>
@@ -636,7 +631,7 @@ export default function AffiliatePage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-muted/30 border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                    <tr className="bg-muted/30 border-b border-border/50 text-sm font-semibold  text-muted-foreground">
                                         <th className="px-8 py-6">Order</th>
                                         <th className="px-8 py-6">Date</th>
                                         <th className="px-8 py-6">Amount</th>
@@ -662,7 +657,7 @@ export default function AffiliatePage() {
                                             </td>
                                             <td className="px-8 py-6">
                                                 <Badge className={cn(
-                                                    "text-[10px] font-black uppercase rounded-lg",
+                                                    "text-sm font-semibold  rounded-lg",
                                                     tx.status === "cleared" ? "bg-green-500 text-white" : 
                                                     tx.status === "pending" ? "bg-yellow-500 text-white" : 
                                                     "bg-red-500 text-white"
@@ -716,7 +711,7 @@ export default function AffiliatePage() {
                                     </div>
                                     
                                     <Badge className={cn(
-                                        "text-[10px] font-black uppercase rounded-lg",
+                                        "text-sm font-semibold  rounded-lg",
                                         wr.status === "completed" ? "bg-green-500 text-white" :
                                         wr.status === "pending" ? "bg-yellow-500 text-white" :
                                         wr.status === "processing" ? "bg-blue-500 text-white" :

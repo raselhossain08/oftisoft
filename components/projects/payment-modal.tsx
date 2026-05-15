@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { CreditCard, X, CheckCircle2, Lock } from "lucide-react";
 import { Project } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -30,8 +31,7 @@ export function PaymentModal({ project, onClose, onPaymentComplete }: PaymentMod
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-card w-full max-w-md rounded-3xl border border-border shadow-2xl overflow-hidden"
@@ -58,14 +58,12 @@ export function PaymentModal({ project, onClose, onPaymentComplete }: PaymentMod
                     ) : (
                         <>
                             <div className="flex bg-muted/50 p-1 rounded-xl">
-                                <button
-                                    onClick={() => setMethod("stripe")}
+                                <button onClick={() => setMethod("stripe")}
                                     className={cn("flex-1 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all", method === "stripe" ? "bg-white text-black shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                 >
                                     <CreditCard size={16} /> Credit Card
                                 </button>
-                                <button
-                                    onClick={() => setMethod("paypal")}
+                                <button onClick={() => setMethod("paypal")}
                                     className={cn("flex-1 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all", method === "paypal" ? "bg-[#003087] text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                 >
                                     <span className="italic font-serif font-black">P</span> PayPal
@@ -109,8 +107,7 @@ export function PaymentModal({ project, onClose, onPaymentComplete }: PaymentMod
                                 {method === "paypal" && (
                                     <div className="text-center py-4 space-y-6">
                                         <p className="text-sm text-muted-foreground">You will be redirected to PayPal to complete your purchase securely.</p>
-                                        <button
-                                            onClick={handlePay}
+                                        <button onClick={handlePay}
                                             disabled={processing}
                                             className="w-full py-4 bg-[#FFC439] text-black rounded-xl font-bold hover:brightness-105 transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
                                         >
@@ -122,7 +119,7 @@ export function PaymentModal({ project, onClose, onPaymentComplete }: PaymentMod
                         </>
                     )}
                 </div>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 };

@@ -1,6 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence, useScrollY, useTransform } from "@/lib/animated";
 
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Clock, ArrowRight, Sparkles, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -21,7 +21,7 @@ export default function FeaturedPost() {
     const categories = content?.categories || [];
 
     const [activeIndex, setActiveIndex] = useState(0);
-    const { scrollY } = useScroll();
+    const scrollY = useScrollY();
     const y = useTransform(scrollY, [0, 500], [0, 150]);
     const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
@@ -43,7 +43,7 @@ export default function FeaturedPost() {
     }, [activeIndex]);
 
     // Guard against empty featured posts
-    if (featuredPosts.length === 0) {
+  if (featuredPosts.length === 0) {
         return null;
     }
 
@@ -53,8 +53,7 @@ export default function FeaturedPost() {
             <AnimatePresence mode="popLayout">
                 {featuredPosts.map((post, index) => (
                     index === activeIndex && (
-                        <motion.div
-                            key={`bg-${post.id}`}
+                        <AnimatedDiv key={`bg-${post.id}`}
                             initial={{ opacity: 0, scale: 1.1 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0 }}
@@ -65,33 +64,29 @@ export default function FeaturedPost() {
                             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
                             <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dimmer */}
                             {post.coverImage ? (
-                                <Image
-                                    src={post.coverImage}
+                                <Image src={post.coverImage}
                                     alt={post.title}
-                                    fill
-                                    className="object-cover"
+                                    fill className="object-cover"
                                     priority={index === activeIndex}
                                 />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-black" />
                             )}
-                        </motion.div>
+                        </AnimatedDiv>
                     )
                 ))}
             </AnimatePresence>
 
             {/* Navigation Overlay - Responsive */}
             <div className="absolute top-1/2 left-4 right-4 z-40 flex justify-between -translate-y-1/2 pointer-events-none px-2 md:px-8">
-                <Button
-                    size="icon"
+                <Button size="icon"
                     variant="ghost"
                     onClick={handlePrev}
                     className="pointer-events-auto rounded-full border border-white/20 bg-black/20 backdrop-blur-md text-white hover:bg-white/20 hover:text-white transition-all hover:scale-110 w-10 h-10 md:w-12 md:h-12"
                 >
                     <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                 </Button>
-                <Button
-                    size="icon"
+                <Button size="icon"
                     variant="ghost" 
                     onClick={handleNext}
                     className="pointer-events-auto rounded-full border border-white/20 bg-black/20 backdrop-blur-md text-white hover:bg-white/20 hover:text-white transition-all hover:scale-110 w-10 h-10 md:w-12 md:h-12"
@@ -102,8 +97,7 @@ export default function FeaturedPost() {
 
             <div className="container px-4 mx-auto relative z-20 pb-20 md:pb-28">
                 <AnimatePresence mode="wait">
-                    <motion.div
-                        key={featuredPosts[activeIndex].id}
+                    <AnimatedDiv key={featuredPosts[activeIndex].id}
                         initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                         exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
@@ -112,14 +106,14 @@ export default function FeaturedPost() {
                     >
                         {/* Meta Tags */}
                         <div className="flex flex-wrap gap-3 mb-6">
-                             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3 }}>
+                             <AnimatedDiv initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3 }}>
                                 <Badge variant="secondary" className="gap-2 px-3 py-1 bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20">
                                     <Sparkles className="w-3 h-3 text-yellow-400" />
                                     Featured
                                 </Badge>
-                             </motion.div>
+                             </AnimatedDiv>
                             
-                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.4 }}>
+                            <AnimatedDiv initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.4 }}>
                                 <Badge 
                                     className={cn(
                                         "px-3 py-1 text-white backdrop-blur-md border border-white/10 shadow-lg bg-gradient-to-r border-0",
@@ -128,7 +122,7 @@ export default function FeaturedPost() {
                                 >
                                     {categories.find(c => c.id === featuredPosts[activeIndex].category)?.label ?? ""}
                                 </Badge>
-                            </motion.div>
+                            </AnimatedDiv>
                         </div>
 
                         {/* Title */}
@@ -170,20 +164,19 @@ export default function FeaturedPost() {
                                 </Button>
                             </div>
                         </div>
-                    </motion.div>
+                    </AnimatedDiv>
                 </AnimatePresence>
 
                 {/* Progress Indicators */}
                 <div className="absolute bottom-6 md:bottom-10 left-0 right-0 flex justify-center gap-3 z-30">
                     {featuredPosts.map((_, i) => (
-                        <button
-                            key={i}
+                        <button key={i}
                             onClick={() => setActiveIndex(i)}
                             className="group relative h-1.5 rounded-full overflow-hidden bg-white/20 transition-all duration-300 hover:h-2"
                             style={{ width: activeIndex === i ? '3rem' : '1.5rem' }}
                         >
                             {activeIndex === i && (
-                                <motion.div 
+                                <AnimatedDiv 
                                     className="absolute inset-0 bg-primary"
                                     layoutId="progress"
                                     initial={{ x: '-100%' }}

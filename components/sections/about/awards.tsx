@@ -1,6 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH2, AnimatedP } from "@/lib/animated";
 
-import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { Award, Star, Trophy, BadgeCheck, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -47,63 +47,43 @@ export default function Awards({ data }: { data?: any }) {
                     
                     {/* Left Content */}
                     <div className="relative z-10 w-full">
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5 }}
-                            style={{ willChange: "transform, opacity" }}
-                        >
-                            <Badge variant="outline" className="gap-2 px-3 py-1.5 rounded-full bg-white/5 border-white/10 text-xs font-medium text-primary mb-6 hover:bg-white/10 transition-colors">
+                        <AnimatedDiv initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                            <Badge variant="outline" className="gap-2 px-3 py-1.5 rounded-full bg-white/5 border-white/10 text-sm font-medium text-primary mb-6 hover:bg-white/10 transition-colors">
                                 <Trophy className="w-3 h-3 fill-current" />
                                 {content?.awardsBadge ?? ""}
                             </Badge>
-                        </motion.div>
+                        </AnimatedDiv>
 
-                        <motion.h2 
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.1 }}
-                            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
-                            style={{ willChange: "transform, opacity" }}
-                        >
+                        <AnimatedH2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}
+                            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                             {content?.awardsTitle ?? ""} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                                 {content?.awardsTitleHighlight ?? ""}
                             </span>
-                        </motion.h2>
+                        </AnimatedH2>
 
-                        <motion.p 
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                            className="text-lg text-muted-foreground/80 mb-10 max-w-lg leading-relaxed"
-                            style={{ willChange: "transform, opacity" }}
-                        >
+                        <AnimatedP initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.2 }}
+                            className="text-lg text-muted-foreground/80 mb-10 max-w-lg leading-relaxed">
                             {content?.awardsDescription ?? ""}
-                        </motion.p>
+                        </AnimatedP>
 
                         {/* Partners Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {partners.map((partner, idx) => (
-                                <motion.div 
-                                    key={idx}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true }}
+                                <AnimatedDiv key={idx} initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: 0.3 + (idx * 0.1) }}
-                                    whileHover={{ scale: 1.02 }}
-                                    style={{ willChange: "transform, opacity" }}
-                                >
+                                    whileHover={{ scale: 1.02 }}>
                                     <Card className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10 transition-all cursor-default group h-full">
                                         <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-primary transition-colors">
                                             <partner.icon className="w-4 h-4" />
                                         </div>
                                         <span className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">{partner.name}</span>
                                     </Card>
-                                </motion.div>
+                                </AnimatedDiv>
                             ))}
                         </div>
                     </div>
@@ -113,8 +93,7 @@ export default function Awards({ data }: { data?: any }) {
                         
                         {/* 1. Mobile & Tablet: Swiper Carousel */}
                         <div className="block lg:hidden w-full max-w-[320px] mx-auto">
-                            <Swiper
-                                effect={'cards'}
+                            <Swiper effect={'cards'}
                                 grabCursor={true}
                                 modules={[EffectCards, Autoplay, Pagination]}
                                 autoplay={{ delay: 3000, disableOnInteraction: false }}
@@ -131,45 +110,31 @@ export default function Awards({ data }: { data?: any }) {
 
                         {/* 2. Desktop: Custom 3D Stack */}
                         <div className="hidden lg:flex h-[500px] w-full items-center justify-end perspective-1000 relative">
-                            <AnimatePresence mode="popLayout">
-                                {awards.map((award: any, index: number) => {
-                                    const isActive = index === activeCard;
-                                    const offset = (index - activeCard + awards.length) % awards.length;
-                                    
-                                    // Only show 3 cards visually
-                                    if (offset > 2) return null;
-
-                                    return (
-                                        <motion.div
-                                            key={award.id}
-                                            layoutId={`award-${award.id}`}
-                                            initial={{ opacity: 0, scale: 0.8, z: -100, x: 100 }}
-                                            animate={{ 
-                                                opacity: isActive ? 1 : 1 - (offset * 0.3),
-                                                scale: isActive ? 1 : 1 - (offset * 0.1),
-                                                // Stack to the right and back
-                                                x: isActive ? 0 : offset * 40, 
-                                                y: isActive ? 0 : offset * 10,
-                                                z: isActive ? 0 : -offset * 50,
-                                                rotateY: isActive ? 0 : -10, // Slight rotation for fan effect
-                                                zIndex: awards.length - offset
-                                            }}
-                                            exit={{ opacity: 0, scale: 0.8, x: -100 }}
-                                            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                                            className="absolute right-12 w-[350px]"
-                                            style={{ transformStyle: "preserve-3d" }}
-                                        >
-                                            <AwardCard award={award} />
-                                        </motion.div>
-                                    );
-                                })}
-                            </AnimatePresence>
+                            {awards.map((award: any, index: number) => {
+                                const isActive = index === activeCard;
+                                const offset = (index - activeCard + awards.length) % awards.length;
+                                if (offset > 2) return null;
+                                
+                                return (
+                                    <div key={award.id}
+                                        className="absolute right-12 w-[350px] transition-all duration-500 ease-out cursor-pointer"
+                                        style={{
+                                            opacity: isActive ? 1 : 1 - (offset * 0.3),
+                                            transform: `translateY(${isActive ? 0 : offset * 10}px) rotateY(${isActive ? 0 : -10}deg) scale(${isActive ? 1 : 1 - (offset * 0.1)})`,
+                                            transformStyle: "preserve-3d",
+                                            zIndex: awards.length - offset,
+                                            transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
+                                        }}
+                                    >
+                                        <AwardCard award={award} />
+                                    </div>
+                                );
+                            })}
 
                             {/* Desktop Custom Nav Dots */}
                             <div className="absolute bottom-10 right-[400px] flex flex-col gap-3">
                                 {awards.map((_: any, idx: number) => (
-                                    <button
-                                        key={idx}
+                                    <button key={idx}
                                         onClick={() => setActiveCard(idx)}
                                         className={cn(
                                             "w-1.5 rounded-full transition-all duration-300 bg-white/20 hover:bg-white/60",
@@ -193,6 +158,18 @@ export default function Awards({ data }: { data?: any }) {
 function AwardCard({ award }: { award: any }) {
     return (
         <Card className="relative h-full overflow-hidden rounded-[2rem] bg-[#0a0a0a] border-white/10 border shadow-2xl flex flex-col justify-between group p-0">
+            {/* Background Image */}
+            {award.image && (
+                <>
+                    <img
+                        src={award.image}
+                        alt={award.title}
+                        className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 transition-opacity duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-[#0a0a0a]/40" />
+                </>
+            )}
+
             <CardContent className="h-full flex flex-col justify-between p-8 relative z-10">
                 {/* Gradient Background Glow */}
                 <div className={cn(
@@ -208,7 +185,7 @@ function AwardCard({ award }: { award: any }) {
                         )}>
                             <Award className="w-7 h-7" />
                         </div>
-                        <Badge variant="secondary" className="px-3 py-1 bg-white/5 border-white/10 text-white/90 font-mono text-xs font-bold hover:bg-white/10">
+                        <Badge variant="secondary" className="px-3 py-1 bg-white/5 border-white/10 text-white/90 font-mono text-sm font-bold hover:bg-white/10 backdrop-blur-sm">
                             {award.year}
                         </Badge>
                     </div>
@@ -216,10 +193,10 @@ function AwardCard({ award }: { award: any }) {
                     <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
                         {award.title}
                     </h3>
-                    <div className="text-xs font-semibold text-primary tracking-wide mb-4">
+                    <div className="text-sm font-semibold text-primary tracking-wide mb-4">
                         {award.org}
                     </div>
-                    <p className="text-muted-foreground/90 text-sm leading-relaxed">
+                    <p className="text-muted-foreground/90 text-base md:text-lg leading-relaxed">
                         {award.description}
                     </p>
                 </div>
@@ -233,3 +210,5 @@ function AwardCard({ award }: { award: any }) {
         </Card>
     );
 }
+
+

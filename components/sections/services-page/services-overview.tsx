@@ -1,8 +1,8 @@
 "use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP, AnimatePresence } from "@/lib/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
     Plus, Save, Trash2, LayoutTemplate, Grid, HelpCircle, Server, Database, Cloud, 
     Brain, Smartphone, Layout, Video, FileText, Code2, ClipboardCheck, Rocket, 
@@ -20,18 +20,22 @@ const iconMap: any = {
     Brain, Smartphone, Layout, Video, FileText, Code2, ClipboardCheck, Rocket, 
     HeartPulse, Globe, Zap, Code, ShieldCheck, Sparkles, Layers, Crown, ArrowRight,
     MessageSquare,
-    // Add default mapping to prevent crashes
-    Default: Globe
+    // Add default mapping to prevent crashes, Default: Globe
 };
 
 const services = [
-    { id: "web", iconName: "Globe", title: "Web Development", subtitle: "High-performance React & Node.js apps", label: "Web Development", techs: ["React", "Next.js", "Node.js", "TypeScript", "Tailwind CSS"], features: [{ iconName: "Zap", title: "Blazing Fast", desc: "Optimized for Core Web Vitals with SSR, ISR, and edge caching." }, { iconName: "Globe", title: "SEO Optimized", desc: "Built-in SEO, structured data, and semantic HTML out of the box." }, { iconName: "ShieldCheck", title: "Type-Safe", desc: "Full TypeScript coverage with strict mode and automated testing." }], description: "We build blazing-fast web applications using React, Next.js, and Node.js. From SaaS platforms to enterprise portals, every project is optimized for performance, SEO, and user experience.", gradient: "from-blue-500 to-cyan-500" },
-    { id: "mobile", iconName: "Smartphone", title: "Mobile Applications", subtitle: "Cross-platform iOS & Android apps", label: "Mobile Development", techs: ["React Native", "Flutter", "Expo", "Swift", "Kotlin"], features: [{ iconName: "Smartphone", title: "Native Feel", desc: "60fps animations, platform-specific gestures, and native module access." }, { iconName: "Code2", title: "Shared Codebase", desc: "90%+ code sharing between iOS and Android with platform-specific polish." }, { iconName: "Rocket", title: "Fast Deploy", desc: "CI/CD pipelines with automated app store deployment and review." }], description: "Native-feeling mobile apps built with React Native and Flutter. One codebase, two platforms, zero compromises on performance or user experience.", gradient: "from-purple-500 to-pink-500" },
-    { id: "ai", iconName: "Brain", title: "AI & Machine Learning", subtitle: "Intelligent automation & predictive analytics", label: "AI Solutions", techs: ["TensorFlow", "PyTorch", "OpenAI", "LangChain", "Hugging Face"], features: [{ iconName: "Brain", title: "LLM Integration", desc: "Custom GPT models, RAG pipelines, and chat interfaces fine-tuned for your data." }, { iconName: "Zap", title: "Real-time Inference", desc: "Sub-100ms prediction latency with auto-scaling model serving infrastructure." }, { iconName: "ShieldCheck", title: "Responsible AI", desc: "Bias detection, content filtering, and explainable AI built into every model." }], description: "From LLM-powered chatbots to computer vision systems, we integrate AI into every layer of your product to automate workflows and surface insights.", gradient: "from-green-500 to-teal-500" },
-    { id: "backend", iconName: "Server", title: "Backend & APIs", subtitle: "Scalable microservices & GraphQL APIs", label: "Backend Development", techs: ["Node.js", "Python", "Go", "GraphQL", "gRPC"], features: [{ iconName: "Server", title: "Microservices", desc: "Event-driven architecture with independent deploy, scaling, and failure isolation." }, { iconName: "Database", title: "Multi-DB", desc: "PostgreSQL, MongoDB, Redis — the right database for every use case." }, { iconName: "Cloud", title: "Auto Scaling", desc: "Horizontal auto-scaling that handles 100x traffic spikes without manual intervention." }], description: "Event-driven microservices, RESTful and GraphQL APIs, real-time data pipelines — built with Node.js, Python, Go, and Rust for maximum throughput.", gradient: "from-orange-500 to-red-500" },
-    { id: "infra", iconName: "Cloud", title: "Cloud Infrastructure", subtitle: "AWS, GCP, Azure & DevOps", label: "Cloud & DevOps", techs: ["AWS", "Docker", "Kubernetes", "Terraform", "Cloudflare"], features: [{ iconName: "Cloud", title: "Multi-Cloud", desc: "Vendor-agnostic infrastructure with automated failover across providers." }, { iconName: "Layers", title: "Containerized", desc: "Docker + Kubernetes with automated scaling, rolling updates, and self-healing." }, { iconName: "ShieldCheck", title: "Secure by Default", desc: "Zero-trust networking, WAF, DDoS protection, and automated security scanning." }], description: "Infrastructure-as-code, automated CI/CD, container orchestration with Kubernetes, and 24/7 monitoring. We make your infrastructure boringly stable.", gradient: "from-cyan-500 to-blue-500" },
-    { id: "data", iconName: "Database", title: "Data Engineering", subtitle: "Data pipelines, warehouses & analytics", label: "Data Engineering", techs: ["Kafka", "Spark", "dbt", "Airflow", "Snowflake"], features: [{ iconName: "Database", title: "Real-time Pipelines", desc: "Stream processing with Kafka and Spark for sub-second data freshness." }, { iconName: "Layers", title: "Data Warehousing", desc: "Modern data stack with dbt transformations and columnar storage." }, { iconName: "Globe", title: "Analytics Ready", desc: "Pre-built dashboards, BI tool integration, and self-serve analytics for your team." }], description: "End-to-end data infrastructure — from ingestion and transformation to visualization. Built with Kafka, Spark, dbt, and modern data stack tooling.", gradient: "from-indigo-500 to-violet-500" },
+    { id: "web", iconName: "Globe", title: "Web Development", subtitle: "High-performance React & Node.js apps", label: "Web Development", techs: ["React", "Next.js", "Node.js", "TypeScript", "Tailwind CSS"], features: [{ iconName: "Zap", title: "Blazing Fast", desc: "Optimized for Core Web Vitals with SSR, ISR, and edge caching." }, { iconName: "Globe", title: "SEO Optimized", desc: "Built-in SEO, structured data, and semantic HTML out of the box." }, { iconName: "ShieldCheck", title: "Type-Safe", desc: "Full TypeScript coverage with strict mode and automated testing." }], description: "We build blazing-fast web applications using React, Next.js, and Node.js. From SaaS platforms to enterprise portals, every project is optimized for performance, SEO, and user experience.", color: "blue" },
+    { id: "mobile", iconName: "Smartphone", title: "Mobile Applications", subtitle: "Cross-platform iOS & Android apps", label: "Mobile Development", techs: ["React Native", "Flutter", "Expo", "Swift", "Kotlin"], features: [{ iconName: "Smartphone", title: "Native Feel", desc: "60fps animations, platform-specific gestures, and native module access." }, { iconName: "Code2", title: "Shared Codebase", desc: "90%+ code sharing between iOS and Android with platform-specific polish." }, { iconName: "Rocket", title: "Fast Deploy", desc: "CI/CD pipelines with automated app store deployment and review." }], description: "Native-feeling mobile apps built with React Native and Flutter. One codebase, two platforms, zero compromises on performance or user experience.", color: "purple" },
+    { id: "ai", iconName: "Brain", title: "AI & Machine Learning", subtitle: "Intelligent automation & predictive analytics", label: "AI Solutions", techs: ["TensorFlow", "PyTorch", "OpenAI", "LangChain", "Hugging Face"], features: [{ iconName: "Brain", title: "LLM Integration", desc: "Custom GPT models, RAG pipelines, and chat interfaces fine-tuned for your data." }, { iconName: "Zap", title: "Real-time Inference", desc: "Sub-100ms prediction latency with auto-scaling model serving infrastructure." }, { iconName: "ShieldCheck", title: "Responsible AI", desc: "Bias detection, content filtering, and explainable AI built into every model." }], description: "From LLM-powered chatbots to computer vision systems, we integrate AI into every layer of your product to automate workflows and surface insights.", color: "green" },
+    { id: "backend", iconName: "Server", title: "Backend & APIs", subtitle: "Scalable microservices & GraphQL APIs", label: "Backend Development", techs: ["Node.js", "Python", "Go", "GraphQL", "gRPC"], features: [{ iconName: "Server", title: "Microservices", desc: "Event-driven architecture with independent deploy, scaling, and failure isolation." }, { iconName: "Database", title: "Multi-DB", desc: "PostgreSQL, MongoDB, Redis — the right database for every use case." }, { iconName: "Cloud", title: "Auto Scaling", desc: "Horizontal auto-scaling that handles 100x traffic spikes without manual intervention." }], description: "Event-driven microservices, RESTful and GraphQL APIs, real-time data pipelines — built with Node.js, Python, Go, and Rust for maximum throughput.", color: "orange" },
+    { id: "infra", iconName: "Cloud", title: "Cloud Infrastructure", subtitle: "AWS, GCP, Azure & DevOps", label: "Cloud & DevOps", techs: ["AWS", "Docker", "Kubernetes", "Terraform", "Cloudflare"], features: [{ iconName: "Cloud", title: "Multi-Cloud", desc: "Vendor-agnostic infrastructure with automated failover across providers." }, { iconName: "Layers", title: "Containerized", desc: "Docker + Kubernetes with automated scaling, rolling updates, and self-healing." }, { iconName: "ShieldCheck", title: "Secure by Default", desc: "Zero-trust networking, WAF, DDoS protection, and automated security scanning." }], description: "Infrastructure-as-code, automated CI/CD, container orchestration with Kubernetes, and 24/7 monitoring. We make your infrastructure boringly stable.", color: "cyan" },
+    { id: "data", iconName: "Database", title: "Data Engineering", subtitle: "Data pipelines, warehouses & analytics", label: "Data Engineering", techs: ["Kafka", "Spark", "dbt", "Airflow", "Snowflake"], features: [{ iconName: "Database", title: "Real-time Pipelines", desc: "Stream processing with Kafka and Spark for sub-second data freshness." }, { iconName: "Layers", title: "Data Warehousing", desc: "Modern data stack with dbt transformations and columnar storage." }, { iconName: "Globe", title: "Analytics Ready", desc: "Pre-built dashboards, BI tool integration, and self-serve analytics for your team." }], description: "End-to-end data infrastructure — from ingestion and transformation to visualization. Built with Kafka, Spark, dbt, and modern data stack tooling.", color: "indigo" },
 ];
+
+const bgColorMap: Record<string, string> = {
+    blue: 'bg-blue-600', purple: 'bg-purple-600', green: 'bg-green-600',
+    orange: 'bg-orange-600', cyan: 'bg-cyan-600', indigo: 'bg-indigo-600',
+};
 
 export default function ServicesOverview() {
     const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
@@ -47,13 +51,12 @@ export default function ServicesOverview() {
             {/* Dynamic Background Gradient */}
             <div className="absolute inset-x-0 top-0 h-full overflow-hidden pointer-events-none">
                 <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeService.id}
+                    <AnimatedDiv key={activeService.id}
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 0.15, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.2 }}
                         transition={{ duration: 1.5, ease: "easeOut" }}
-                        className={cn("absolute -top-[20%] -right-[10%] w-[600px] md:w-[1200px] h-[600px] md:h-[1200px] rounded-full blur-[100px] md:blur-[150px] bg-gradient-to-br", activeService.gradient)}
+                        className={cn("absolute -top-[20%] -right-[10%] w-[600px] md:w-[1200px] h-[600px] md:h-[1200px] rounded-full blur-[100px] md:blur-[150px]", bgColorMap[activeService.color] || 'bg-indigo-600')}
                     />
                 </AnimatePresence>
             </div>
@@ -63,7 +66,7 @@ export default function ServicesOverview() {
                     
                     {/* Left: Navigation Menu (Horizontal Scroll on Mobile) */}
                     <div className="w-full lg:w-1/3 relative">
-                        <motion.div 
+                        <AnimatedDiv 
                             initial={{ opacity: 0, x: -50 }}
                             style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, x: 0 }}
@@ -78,8 +81,7 @@ export default function ServicesOverview() {
                                     const Icon = iconMap[service.iconName] || Globe;
                                     const isActive = activeService.id === service.id;
                                     return (
-                                        <button
-                                            key={service.id}
+                                        <button key={service.id}
                                             onClick={() => setActiveServiceId(service.id)}
                                             className="group lg:w-full text-left flex-shrink-0 snap-center outline-none focus:outline-none"
                                         >
@@ -102,7 +104,7 @@ export default function ServicesOverview() {
                                                         {service.label}
                                                     </h3>
                                                     {isActive && (
-                                                        <motion.div 
+                                                        <AnimatedDiv 
                                                             layoutId="active-indicator"
                                                             className="h-1 w-8 bg-primary rounded-full mt-2"
                                                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -114,14 +116,13 @@ export default function ServicesOverview() {
                                     );
                                 })}
                             </div>
-                        </motion.div>
+                        </AnimatedDiv>
                     </div>
 
                     {/* Right: Dynamic Content Area */}
                     <div className="w-full lg:w-2/3 min-h-[600px]">
                         <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeService.id}
+                            <AnimatedDiv key={activeService.id}
                                 initial={{ opacity: 0, x: 20, filter: "blur(10px)" }}
                                 animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                                 exit={{ opacity: 0, x: -20, filter: "blur(10px)" }}
@@ -131,7 +132,7 @@ export default function ServicesOverview() {
                                 {/* Decorative Icon Background */}
                                 <ActiveIcon className="absolute -top-10 -right-10 w-64 h-64 md:w-96 md:h-96 opacity-[0.02] text-foreground rotate-12 pointer-events-none" />
 
-                                <motion.div 
+                                <AnimatedDiv 
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 }}
@@ -140,29 +141,29 @@ export default function ServicesOverview() {
                                         <Sparkles className="w-3.5 h-3.5" />
                                         Premium Service
                                     </Badge>
-                                </motion.div>
+                                </AnimatedDiv>
                                 
-                                <motion.h3 
+                                <AnimatedH3 
                                     className="text-4xl md:text-7xl font-semibold mb-6 leading-[0.9] tracking-tight"
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
                                 >
                                     {activeService.title}
-                                </motion.h3>
+                                </AnimatedH3>
                                 
-                                <motion.p 
+                                <AnimatedP 
                                     className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl"
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.3 }}
                                 >
                                     {activeService.description}
-                                </motion.p>
+                                </AnimatedP>
 
                                 {/* Tech Stack Tags */}
                                 {activeService.techs && (
-                                    <motion.div 
+                                    <AnimatedDiv 
                                         className="flex flex-wrap gap-2 mb-12"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -176,7 +177,7 @@ export default function ServicesOverview() {
                                                 {tech}
                                             </span>
                                         ))}
-                                    </motion.div>
+                                    </AnimatedDiv>
                                 )}
 
                                 {/* Feature Cards Grid */}
@@ -184,8 +185,7 @@ export default function ServicesOverview() {
                                     {activeService.features.map((feature: any, idx: number) => {
                                         const FeatureIcon = iconMap[feature.iconName] || Zap;
                                         return (
-                                        <motion.div
-                                            key={idx}
+                                        <AnimatedDiv key={idx}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.4 + (idx * 0.1), ease: "backOut" }}
@@ -199,13 +199,12 @@ export default function ServicesOverview() {
                                                     <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
                                                 </CardContent>
                                             </Card>
-                                        </motion.div>
+                                        </AnimatedDiv>
                                         );
                                     })}
                                 </div>
 
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
+                                <AnimatedDiv initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.7 }}
                                 >
@@ -215,9 +214,9 @@ export default function ServicesOverview() {
                                             <ArrowRight className="ml-2 w-5 h-5" />
                                         </Link>
                                     </Button>
-                                </motion.div>
+                                </AnimatedDiv>
 
-                            </motion.div>
+                            </AnimatedDiv>
                         </AnimatePresence>
                     </div>
 

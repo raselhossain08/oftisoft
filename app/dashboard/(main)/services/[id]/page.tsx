@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -20,7 +22,8 @@ import {
     Edit3,
     Trash2,
     X,
-    AlertCircle
+    AlertCircle,
+    Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,8 +43,17 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { useProjects } from "@/hooks/useProjects";
+import { useAuth } from "@/hooks/useAuth";
+import { RevisionHistory, Revision } from "@/components/dashboard/revision-history";
 
 // Edit Project Dialog
 const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
@@ -76,8 +88,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-card w-full max-w-2xl rounded-3xl border border-border shadow-2xl overflow-hidden"
@@ -95,8 +106,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="title">Project Title</Label>
-                            <Input
-                                id="title"
+                            <Input id="title"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 className="h-12 rounded-xl"
@@ -104,8 +114,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="client">Client</Label>
-                            <Input
-                                id="client"
+                            <Input id="client"
                                 value={formData.client}
                                 onChange={(e) => setFormData({ ...formData, client: e.target.value })}
                                 className="h-12 rounded-xl"
@@ -114,8 +123,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>
-                        <Textarea
-                            id="description"
+                        <Textarea id="description"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             className="min-h-[100px] rounded-xl"
@@ -140,8 +148,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="progress">Progress (%)</Label>
-                            <Input
-                                id="progress"
+                            <Input id="progress"
                                 type="number"
                                 min="0"
                                 max="100"
@@ -154,8 +161,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                     <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="budget">Budget</Label>
-                            <Input
-                                id="budget"
+                            <Input id="budget"
                                 type="number"
                                 value={formData.budget}
                                 onChange={(e) => setFormData({ ...formData, budget: parseFloat(e.target.value) || 0 })}
@@ -164,8 +170,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="members">Team Size</Label>
-                            <Input
-                                id="members"
+                            <Input id="members"
                                 type="number"
                                 min="1"
                                 value={formData.members}
@@ -175,8 +180,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="dueDate">Deadline</Label>
-                            <Input
-                                id="dueDate"
+                            <Input id="dueDate"
                                 type="date"
                                 value={formData.dueDate}
                                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
@@ -185,15 +189,13 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                         </div>
                     </div>
                     <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
+                        <button type="button"
                             onClick={onClose}
                             className="flex-1 px-4 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors"
                         >
                             Cancel
                         </button>
-                        <button
-                            type="submit"
+                        <button type="submit"
                             disabled={isUpdating}
                             className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
                         >
@@ -201,7 +203,7 @@ const EditProjectDialog = ({ isOpen, onClose, project }: any) => {
                         </button>
                     </div>
                 </form>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 };
@@ -212,8 +214,7 @@ const DeleteDialog = ({ isOpen, onClose, onConfirm, projectTitle }: any) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-card w-full max-w-md rounded-3xl border border-border shadow-2xl overflow-hidden"
@@ -232,21 +233,19 @@ const DeleteDialog = ({ isOpen, onClose, onConfirm, projectTitle }: any) => {
                         Are you sure you want to delete <span className="font-bold">"{projectTitle}"</span>? All project data will be permanently removed.
                     </p>
                     <div className="flex gap-3 pt-4">
-                        <button
-                            onClick={onClose}
+                        <button onClick={onClose}
                             className="flex-1 px-4 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors"
                         >
                             Cancel
                         </button>
-                        <button
-                            onClick={onConfirm}
+                        <button onClick={onConfirm}
                             className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors"
                         >
                             Delete Project
                         </button>
                     </div>
                 </div>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 };
@@ -257,13 +256,63 @@ export default function ServiceOrderDetailsPage() {
     const id = params?.id as string;
     
     const { project, isLoading, deleteProject, isDeleting } = useProjects(id);
+    const { user } = useAuth();
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isPostUpdateOpen, setIsPostUpdateOpen] = useState(false);
+    const [updateMessage, setUpdateMessage] = useState("");
+    const [isPostingUpdate, setIsPostingUpdate] = useState(false);
+    const [isRevisionDialogOpen, setIsRevisionDialogOpen] = useState(false);
+    const [revisionDescription, setRevisionDescription] = useState("");
+    const [revisions, setRevisions] = useState<Revision[]>([
+        {
+            id: "rev-1",
+            timestamp: new Date(Date.now() - 86400000 * 3),
+            author: "System",
+            description: "Initial deliverable uploaded",
+            changes: [{ field: "Status", oldValue: "Planning", newValue: "In Progress" }],
+            data: {}
+        },
+    ]);
+
+    const handleRequestRevision = () => {
+        setIsRevisionDialogOpen(true);
+    };
+
+    const handleSubmitRevision = () => {
+        if (!revisionDescription.trim()) return;
+        const newRevision: Revision = {
+            id: `rev-${Date.now()}`,
+            timestamp: new Date(),
+            author: user?.name || "Client",
+            description: revisionDescription,
+            changes: [{ field: "Status", oldValue: project.status, newValue: "Review" }],
+            data: {}
+        };
+        setRevisions(prev => [newRevision, ...prev]);
+        setRevisionDescription("");
+        setIsRevisionDialogOpen(false);
+        toast.success("Revision request submitted");
+    };
+
+    const handleRestoreRevision = (revision: Revision) => {
+        toast.info("Restoring revision...");
+    };
+
+    const handlePostUpdate = async () => {
+        if (!updateMessage.trim()) return;
+        setIsPostingUpdate(true);
+        await new Promise(r => setTimeout(r, 500));
+        toast.success("Status update posted");
+        setUpdateMessage("");
+        setIsPostUpdateOpen(false);
+        setIsPostingUpdate(false);
+    };
 
     const handleDelete = () => {
         deleteProject(id, {
             onSuccess: () => {
-                router.push("/dashboard/services/my-requests");
+                router.push("/dashboard/services");
             }
         });
     };
@@ -321,8 +370,8 @@ export default function ServiceOrderDetailsPage() {
                     </Button>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-black tracking-tighter">{project.title}</h1>
-                            <Badge className={`${getStatusColor(project.status)} border-none uppercase tracking-widest text-[10px]`}>
+                            <h1 className="text-3xl font-semibold">{project.title}</h1>
+                            <Badge className={`${getStatusColor(project.status)} border-none uppercase text-sm`}>
                                 {project.status}
                             </Badge>
                         </div>
@@ -362,7 +411,7 @@ export default function ServiceOrderDetailsPage() {
                                 <CardTitle className="flex items-center gap-2 text-xl">
                                     <Target className="w-5 h-5 text-primary" /> Delivery Progress
                                 </CardTitle>
-                                <span className="text-2xl font-black text-primary">{project.progress}%</span>
+                                <span className="text-2xl font-semibold text-primary">{project.progress}%</span>
                             </div>
                             <Progress value={project.progress} className="h-3" />
                         </CardHeader>
@@ -374,7 +423,7 @@ export default function ServiceOrderDetailsPage() {
                                 { label: "Team", value: `${project.members} ${project.members === 1 ? 'Member' : 'Members'}`, icon: Users },
                             ].map((stat) => (
                                 <div key={stat.label} className="p-4 rounded-2xl bg-background/50 border border-border/50">
-                                    <p className="text-[10px] text-muted-foreground uppercase font-black mb-1">{stat.label}</p>
+                                    <p className="text-sm text-muted-foreground uppercase font-semibold mb-1">{stat.label}</p>
                                     <div className="flex items-center gap-2 font-bold text-sm">
                                         <stat.icon className="w-3 h-3 text-primary" />
                                         {stat.value}
@@ -429,6 +478,14 @@ export default function ServiceOrderDetailsPage() {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Revision History */}
+                    <div className="relative">
+                        <RevisionHistory
+                            revisions={revisions}
+                            onRestore={handleRestoreRevision}
+                        />
+                    </div>
                 </div>
 
                 {/* Sidebar Context */}
@@ -441,7 +498,7 @@ export default function ServiceOrderDetailsPage() {
                         <CardContent className="space-y-3">
                             <Button 
                                 className="w-full rounded-xl gap-2 font-bold h-11"
-                                onClick={() => toast.info("Opening team collaboration channel...")}
+                                onClick={() => router.push("/dashboard/messages")}
                             >
                                 <MessageSquare className="w-4 h-4" />
                                 Team Chat
@@ -457,10 +514,18 @@ export default function ServiceOrderDetailsPage() {
                             <Button 
                                 variant="outline"
                                 className="w-full rounded-xl gap-2 font-bold h-11"
-                                onClick={() => toast.info("Posting status update...")}
+                                onClick={() => setIsPostUpdateOpen(true)}
                             >
                                 <History className="w-4 h-4" />
                                 Post Update
+                            </Button>
+                            <Button 
+                                variant="outline"
+                                className="w-full rounded-xl gap-2 font-bold h-11 text-amber-500 border-amber-500/20 hover:bg-amber-500/10"
+                                onClick={handleRequestRevision}
+                            >
+                                <History className="w-4 h-4" />
+                                Request Revision
                             </Button>
                         </CardContent>
                     </Card>
@@ -476,13 +541,13 @@ export default function ServiceOrderDetailsPage() {
                         <CardContent className="p-6 space-y-4">
                             <div className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10 border border-border">
-                                    <AvatarFallback className="bg-primary/10 text-primary font-black">
+                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                                         {project.client?.[0] || "C"}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <p className="font-bold">{project.client}</p>
-                                    <p className="text-[10px] text-primary font-mono font-bold tracking-tighter">CLIENT ACCOUNT</p>
+                                    <p className="text-sm text-primary font-mono font-bold">CLIENT ACCOUNT</p>
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -492,7 +557,7 @@ export default function ServiceOrderDetailsPage() {
                                 </div>
                                 <div className="flex justify-between text-xs">
                                     <span className="text-muted-foreground">Payment Status</span>
-                                    <Badge variant="outline" className="h-5 text-[9px]">
+                                    <Badge variant="outline" className="h-5 text-xs">
                                         {project.paymentStatus || "Pending"}
                                     </Badge>
                                 </div>
@@ -505,21 +570,21 @@ export default function ServiceOrderDetailsPage() {
                         <CardHeader>
                             <CardTitle className="text-base flex items-center justify-between">
                                 Project Stats
-                                <Badge variant="secondary" className="h-5 text-[9px] font-black">LIVE</Badge>
+                                <Badge variant="secondary" className="h-5 text-xs font-semibold">LIVE</Badge>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div className="flex justify-between items-center p-3 rounded-xl bg-muted/20 border border-border/50">
                                 <span className="text-xs font-bold">Progress</span>
-                                <span className="text-xs font-black text-primary">{project.progress}%</span>
+                                <span className="text-xs font-semibold text-primary">{project.progress}%</span>
                             </div>
                             <div className="flex justify-between items-center p-3 rounded-xl bg-muted/20 border border-border/50">
                                 <span className="text-xs font-bold">Team Size</span>
-                                <span className="text-xs font-black text-primary">{project.members}</span>
+                                <span className="text-xs font-semibold text-primary">{project.members}</span>
                             </div>
                             <div className="flex justify-between items-center p-3 rounded-xl bg-muted/20 border border-border/50">
                                 <span className="text-xs font-bold">Status</span>
-                                <span className="text-xs font-black text-primary capitalize">{project.status}</span>
+                                <span className="text-xs font-semibold text-primary capitalize">{project.status}</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -529,19 +594,76 @@ export default function ServiceOrderDetailsPage() {
             {/* Edit Dialog */}
             <AnimatePresence>
                 {isEditOpen && (
-                    <EditProjectDialog
-                        isOpen={isEditOpen}
+                    <EditProjectDialog isOpen={isEditOpen}
                         onClose={() => setIsEditOpen(false)}
                         project={project}
                     />
                 )}
             </AnimatePresence>
 
+            {/* Post Update Dialog */}
+            <Dialog open={isPostUpdateOpen} onOpenChange={(open) => { setIsPostUpdateOpen(open); if (!open) setUpdateMessage(""); }}>
+                <DialogContent className="sm:max-w-lg rounded-[2rem] border-border/50">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <History className="w-5 h-5 text-primary" /> Post Status Update
+                        </DialogTitle>
+                        <DialogDescription>Share a progress update with the project team.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <Textarea 
+                            placeholder="What's the latest update on this project?"
+                            className="min-h-[120px] rounded-xl resize-none"
+                            value={updateMessage}
+                            onChange={(e) => setUpdateMessage(e.target.value)}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" className="rounded-xl" onClick={() => setIsPostUpdateOpen(false)}>Cancel</Button>
+                        <Button className="rounded-xl gap-2" onClick={handlePostUpdate} disabled={!updateMessage.trim() || isPostingUpdate}>
+                            <Send className="w-4 h-4" />{isPostingUpdate ? "Posting..." : "Post Update"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Revision Request Dialog */}
+            <Dialog open={isRevisionDialogOpen} onOpenChange={(open) => { setIsRevisionDialogOpen(open); if (!open) setRevisionDescription(""); }}>
+                <DialogContent className="sm:max-w-lg rounded-[2rem] border-border/50">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <History className="w-5 h-5 text-amber-500" /> Request Revision
+                        </DialogTitle>
+                        <DialogDescription>Describe what changes or fixes you need for the current deliverable.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <Textarea
+                            placeholder="Describe the revision needed. Be specific about what should be changed or improved..."
+                            className="min-h-[150px] rounded-xl resize-none"
+                            value={revisionDescription}
+                            onChange={(e) => setRevisionDescription(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Your project status will be updated to &quot;Review&quot; once submitted.
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" className="rounded-xl" onClick={() => setIsRevisionDialogOpen(false)}>Cancel</Button>
+                        <Button
+                            className="rounded-xl gap-2 bg-amber-500 hover:bg-amber-600"
+                            onClick={handleSubmitRevision}
+                            disabled={!revisionDescription.trim()}
+                        >
+                            <History className="w-4 h-4" /> Submit Revision Request
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             {/* Delete Dialog */}
             <AnimatePresence>
                 {isDeleteOpen && (
-                    <DeleteDialog
-                        isOpen={isDeleteOpen}
+                    <DeleteDialog isOpen={isDeleteOpen}
                         onClose={() => setIsDeleteOpen(false)}
                         onConfirm={handleDelete}
                         projectTitle={project.title}

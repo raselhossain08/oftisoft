@@ -1,6 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, useScrollY, useScrollProgress, useTransform, useSpring, useMotionValue } from "@/lib/animated";
 
-import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -82,18 +82,14 @@ export default function LatestBlog() {
 
   const swiperRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
+  const scrollYProgress = useScrollProgress(containerRef);
   const y = useTransform(scrollYProgress, [0, 1], [100, -50]);
 
   const prevSlide = () => swiperRef.current?.slidePrev();
   const nextSlide = () => swiperRef.current?.slideNext();
 
   return (
-    <section
-      ref={containerRef}
+    <section ref={containerRef}
       className="py-24 md:py-32 bg-transparent relative overflow-hidden z-10"
       id="blog"
     >
@@ -103,16 +99,14 @@ export default function LatestBlog() {
       <div className="container px-4 mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 md:mb-16 gap-6 md:gap-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+          <AnimatedDiv initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5 }}
             className="w-full md:w-auto"
             style={{ willChange: "transform, opacity" }}
           >
-            <Badge
-              variant="outline"
+            <Badge variant="outline"
               className="mb-4 border-primary/20 text-primary tracking-wide px-3 py-1 font-semibold text-xs"
             >
               {blogContent.badge}
@@ -123,21 +117,19 @@ export default function LatestBlog() {
                 {blogContent.subtitle}
               </span>
             </h3>
-          </motion.div>
+          </AnimatedDiv>
 
           <div className="flex items-center gap-4">
             {/* Custom Controls */}
             <div className="flex items-center gap-3 hidden md:flex">
-              <Button
-                onClick={prevSlide}
+              <Button onClick={prevSlide}
                 variant="outline"
                 size="icon"
                 className="w-12 h-12 rounded-full border-white/10 bg-white/5 hover:bg-white hover:text-black transition-all duration-300"
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <Button
-                onClick={nextSlide}
+              <Button onClick={nextSlide}
                 variant="outline"
                 size="icon"
                 className="w-12 h-12 rounded-full border-white/10 bg-white/5 hover:bg-white hover:text-black transition-all duration-300"
@@ -147,8 +139,7 @@ export default function LatestBlog() {
             </div>
 
             <Link href="/blog" className="hidden md:block">
-              <Button
-                variant="ghost"
+              <Button variant="ghost"
                 className="text-white/60 hover:text-white hover:bg-white/10 group"
               >
                 View Archive
@@ -160,8 +151,7 @@ export default function LatestBlog() {
 
         {/* Swiper Slider */}
         <div className="relative group/swiper h-full">
-          <Swiper
-            modules={[Navigation, Pagination, Autoplay, FreeMode]}
+          <Swiper modules={[Navigation, Pagination, Autoplay, FreeMode]}
             onBeforeInit={(swiper) => {
               swiperRef.current = swiper;
             }}
@@ -190,16 +180,14 @@ export default function LatestBlog() {
         {/* Mobile Link & Controls */}
         <div className="mt-12 md:hidden flex flex-col items-center gap-8">
           <div className="flex items-center gap-4">
-            <Button
-              onClick={prevSlide}
+            <Button onClick={prevSlide}
               variant="outline"
               size="icon"
               className="w-12 h-12 rounded-full border-white/10 bg-white/5"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <Button
-              onClick={nextSlide}
+            <Button onClick={nextSlide}
               variant="outline"
               size="icon"
               className="w-12 h-12 rounded-full border-white/10 bg-white/5"
@@ -209,8 +197,7 @@ export default function LatestBlog() {
           </div>
 
           <Link href="/blog">
-            <Button
-              variant="ghost"
+            <Button variant="ghost"
               className="text-white/60 hover:text-white hover:bg-white/10 group"
             >
               View Editorial Archive
@@ -226,8 +213,7 @@ export default function LatestBlog() {
 function BlogCard({ post, index }: { post: any; index: number }) {
   const hasImage = !!post.featuredImage;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
+    <AnimatedDiv initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
@@ -239,14 +225,12 @@ function BlogCard({ post, index }: { post: any; index: number }) {
           {/* Image Container */}
           <div className="relative aspect-[4/3] w-full overflow-hidden">
             {hasImage ? (
-              <img
-                src={post.featuredImage}
+              <img src={post.featuredImage}
                 alt={post.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             ) : (
-              <div
-                className={cn(
+              <div className={cn(
                   "absolute inset-0 bg-gradient-to-br opacity-80 transition-transform duration-700 group-hover:scale-105",
                   post.gradient,
                 )}
@@ -258,8 +242,7 @@ function BlogCard({ post, index }: { post: any; index: number }) {
 
             {/* Floating Badge */}
             <div className="absolute top-6 left-6 z-10">
-              <Badge
-                variant="secondary"
+              <Badge variant="secondary"
                 className="bg-black/30 backdrop-blur-md border-white/10 text-white font-semibold tracking-wide text-xs hover:bg-black/50 py-1.5 px-4 rounded-full"
               >
                 {post.category}
@@ -300,6 +283,6 @@ function BlogCard({ post, index }: { post: any; index: number }) {
           </CardFooter>
         </Card>
       </Link>
-    </motion.div>
+    </AnimatedDiv>
   );
 }

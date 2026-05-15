@@ -10,7 +10,7 @@ export const mediaAPI = {
   upload: async (file: File): Promise<{ url: string; key: string }> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/upload`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/uploads`, {
       method: 'POST',
       credentials: 'include',
       body: formData,
@@ -20,7 +20,7 @@ export const mediaAPI = {
   },
 
   list: async (): Promise<MediaFile[]> => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/media`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/uploads`, {
       credentials: 'include',
     });
     if (!response.ok) throw new Error('Failed to list media');

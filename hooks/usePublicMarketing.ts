@@ -1,9 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { marketingAPI } from "@/lib/api";
+import { marketingAPI, portfolioAPI } from "@/lib/api";
 import type { PricingPlan } from "@/lib/store/pricing-content";
 import type { Product as ShopProduct, Bundle as ShopBundle } from "@/lib/store/shop-content";
+import type { ProjectItem } from "@/lib/store/portfolio-content";
 
 export function usePublicSubscriptionPlans() {
     return useQuery({
@@ -74,6 +75,43 @@ export function mapApiProductsToShop(products: any[]): ShopProduct[] {
         lastUpdated: p.lastUpdated ? new Date(p.lastUpdated).toISOString().slice(0, 10) : "",
         faqs: Array.isArray(p.faqs) ? p.faqs : [],
     }));
+}
+
+export function usePublicPortfolio() {
+    return useQuery({
+        queryKey: ["public", "portfolio"],
+        queryFn: () => portfolioAPI.getPublished(),
+        staleTime: 1000 * 60 * 5,
+    });
+}
+
+/** Map backend Portfolio item to frontend ProjectItem */
+export function mapApiPortfolioToProject(item: any): ProjectItem {
+    let parsedStats: { label: string; value: string }[] = [];
+    if (typeof item.stats === "string") {
+        try { parsedStats = JSON.parse(item.stats); } catch { parsedStats = []; }
+    } else if (Array.isArray(item.stats)) {
+        parsedStats = item.stats;
+    }
+
+    return {
+        id: item.id,
+        title: item.title ?? "",
+        category: item.category ?? "",
+        image: item.image ?? null,
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        description: item.description ?? "",
+        longDescription: item.longDescription ?? "",
+        client: item.client ?? "",
+        stats: parsedStats,
+        gradient: item.gradient ?? "from-primary/20 to-primary/10",
+    };
+}
+
+/** Map backend Portfolio array to frontend ProjectItem array */
+export function mapApiPortfolioToProjects(items: any[]): ProjectItem[] {
+    if (!Array.isArray(items) || items.length === 0) return [];
+    return items.map(mapApiPortfolioToProject);
 }
 
 /** Map backend Bundle (with products relation) to shop Bundle shape */

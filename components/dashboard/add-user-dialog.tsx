@@ -79,8 +79,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogPr
                                 id="name" 
                                 placeholder="ALEX_REED_01" 
                                 className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
-                                required
-                                value={formData.name}
+                                required value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
                         </div>
@@ -91,8 +90,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogPr
                                 type="email" 
                                 placeholder="signal@oftisoft.network" 
                                 className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
-                                required
-                                value={formData.email}
+                                required value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
                         </div>
@@ -103,8 +101,7 @@ export function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogPr
                                 type="password" 
                                 placeholder="••••••••••••" 
                                 className="rounded-[1.2rem] h-12 bg-background/50 border-border/50 font-black tracking-tight"
-                                required
-                                minLength={8}
+                                required minLength={8}
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             />

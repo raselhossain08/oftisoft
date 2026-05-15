@@ -1,6 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+const tierColorMap: Record<string, string> = {
+    blue: 'bg-blue-600/20', purple: 'bg-purple-600/20', orange: 'bg-orange-600/20',
+};
+
 import { 
     Check, X, Sparkles, Zap, Shield, Crown, HelpCircle, ArrowRight, Minus,
     Plus, Save, Trash2, LayoutTemplate, Grid, Server, Database, Cloud, 
@@ -38,27 +41,27 @@ const iconMap: any = {
 
 const comparisonData = {
     tiers: [
-        { id: "starter", name: "Starter", price: "$2,999", description: "For early-stage startups and MVPs", highlight: false, iconName: "Rocket", features: [true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false], gradient: "from-blue-500 to-cyan-500" },
-        { id: "growth", name: "Growth", price: "$7,999", description: "For scaling products and growing teams", highlight: true, iconName: "Zap", features: [true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false], gradient: "from-purple-500 to-pink-500" },
-        { id: "enterprise", name: "Enterprise", price: "Custom", description: "For large organizations with custom needs", highlight: false, iconName: "Crown", features: [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], gradient: "from-orange-500 to-red-500" },
+        { id: "starter", name: "Starter", price: "$2,999", description: "For early-stage startups and MVPs", highlight: false, iconName: "Rocket", features: [true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false], color: "blue" },
+        { id: "growth", name: "Growth", price: "$7,999", description: "For scaling products and growing teams", highlight: true, iconName: "Zap", features: [true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false], color: "purple" },
+        { id: "enterprise", name: "Enterprise", price: "Custom", description: "For large organizations with custom needs", highlight: false, iconName: "Crown", features: [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], color: "orange" },
     ],
     features: [
-        { id: "dedicated-engineer", name: "Dedicated Engineer", iconName: "Code" },
-        { id: "basic-analytics", name: "Basic Analytics", iconName: "BarChart" },
-        { id: "email-support", name: "Email Support", iconName: "Mail" },
-        { id: "weekly-calls", name: "Weekly Sync Calls", iconName: "Video" },
-        { id: "advanced-analytics", name: "Advanced Analytics", iconName: "Zap" },
-        { id: "priority-support", name: "Priority Support (4hr)", iconName: "Zap" },
-        { id: "daily-calls", name: "Daily Standups", iconName: "Video" },
-        { id: "devops", name: "DevOps & CI/CD", iconName: "Rocket" },
-        { id: "code-review", name: "Automated Code Review", iconName: "ShieldCheck" },
-        { id: "full-team", name: "Full Team (4+ engineers)", iconName: "Users" },
-        { id: "ai-analytics", name: "AI-Powered Analytics", iconName: "Brain" },
-        { id: "24-7-support", name: "24/7 On-Call Support", iconName: "Crown" },
-        { id: "dedicated-pm", name: "Dedicated Project Manager", iconName: "Crown" },
-        { id: "security-audit", name: "Security Audit", iconName: "Shield" },
-        { id: "custom-sla", name: "Custom SLA", iconName: "Sparkles" },
-        { id: "on-premise", name: "On-Premise Deployment", iconName: "Server" },
+        { id: "dedicated-engineer", name: "Dedicated Engineer", iconName: "Code", tooltip: "A senior developer assigned exclusively to your project for consistent quality and deep domain knowledge." },
+        { id: "basic-analytics", name: "Basic Analytics", iconName: "BarChart", tooltip: "Core metrics dashboard with page views, user sessions, and conversion tracking." },
+        { id: "email-support", name: "Email Support", iconName: "Mail", tooltip: "Ticket-based support via email with a guaranteed 24-hour first response time." },
+        { id: "weekly-calls", name: "Weekly Sync Calls", iconName: "Video", tooltip: "Weekly video calls to review progress, discuss priorities, and align on next steps." },
+        { id: "advanced-analytics", name: "Advanced Analytics", iconName: "Zap", tooltip: "Deep analytics with custom dashboards, funnels, cohort analysis, and real-time data." },
+        { id: "priority-support", name: "Priority Support (4hr)", iconName: "Zap", tooltip: "Priority queue with a 4-hour response window for critical issues." },
+        { id: "daily-calls", name: "Daily Standups", iconName: "Video", tooltip: "Daily 15-minute standup calls to track progress and unblock development." },
+        { id: "devops", name: "DevOps & CI/CD", iconName: "Rocket", tooltip: "Automated deployment pipelines, infrastructure as code, and cloud infrastructure management." },
+        { id: "code-review", name: "Automated Code Review", iconName: "ShieldCheck", tooltip: "Automated code quality checks, security scanning, and performance analysis in every PR." },
+        { id: "full-team", name: "Full Team (4+ engineers)", iconName: "Users", tooltip: "A multi-disciplinary team including frontend, backend, DevOps, and QA engineers." },
+        { id: "ai-analytics", name: "AI-Powered Analytics", iconName: "Brain", tooltip: "Predictive analytics, anomaly detection, and AI-driven insights powered by machine learning models." },
+        { id: "24-7-support", name: "24/7 On-Call Support", iconName: "Crown", tooltip: "Round-the-clock on-call support with a 15-minute incident response SLA." },
+        { id: "dedicated-pm", name: "Dedicated Project Manager", iconName: "Crown", tooltip: "A dedicated project manager handling sprint planning, stakeholder communication, and risk management." },
+        { id: "security-audit", name: "Security Audit", iconName: "Shield", tooltip: "Regular penetration testing, vulnerability assessments, and compliance audits (SOC 2, GDPR)." },
+        { id: "custom-sla", name: "Custom SLA", iconName: "Sparkles", tooltip: "Tailored service-level agreements with custom uptime guarantees, response times, and escalation paths." },
+        { id: "on-premise", name: "On-Premise Deployment", iconName: "Server", tooltip: "Deploy and manage the solution within your own infrastructure for maximum data sovereignty." },
     ]
 };
 
@@ -100,8 +103,7 @@ export default function ServiceComparison() {
 
                 {/* Mobile View: Cards Carousel */}
                 <div className="lg:hidden">
-                    <Swiper
-                        modules={[Pagination]}
+                    <Swiper modules={[Pagination]}
                         spaceBetween={20}
                         slidesPerView={1.1}
                         centeredSlides={true}
@@ -136,7 +138,7 @@ export default function ServiceComparison() {
                                             <div key={i} className="flex items-center justify-between text-xs border-b border-border/30 pb-2 last:border-0 last:pb-0">
                                                 <span className="text-muted-foreground font-medium">{feature.name}</span>
                                                 {typeof tier.features?.[i] === 'boolean' ? (
-                                                    tier.features?.[i] ? <Check className="w-4 h-4 text-primary" /> : <X className="w-4 h-4 text-muted-foreground/30" />
+                                                    tier.features?.[i] ? <Check className="w-4 h-4 text-primary" /> : <X className="w-4 h-4 text-muted-foreground/60" />
                                                 ) : (
                                                     <span className="font-bold">{tier.features?.[i] ?? "-"}</span>
                                                 )}
@@ -187,7 +189,7 @@ export default function ServiceComparison() {
                                         <div className="flex flex-col h-full justify-between gap-6">
                                             <div>
                                                 <div className="flex items-center justify-between mb-4">
-                                                    <div className={cn("inline-flex p-3 rounded-xl bg-background/50 border border-border shadow-sm backdrop-blur-sm", tier.color)}>
+                                                    <div className={cn("inline-flex p-3 rounded-xl border border-border/50 shadow-sm", tierColorMap[tier.color] || 'bg-muted/50')}>
                                                         {(() => {
                                                             const Icon = iconMap[tier.iconName] || Zap;
                                                             return <Icon className="w-6 h-6" />;
@@ -260,7 +262,7 @@ export default function ServiceComparison() {
                                                         </div>
                                                     ) : (
                                                         <div className="w-8 h-8 flex items-center justify-center">
-                                                            <Minus className="w-4 h-4 text-muted-foreground/20" />
+                                                            <Minus className="w-4 h-4 text-muted-foreground/50" />
                                                         </div>
                                                     )
                                                 ) : (

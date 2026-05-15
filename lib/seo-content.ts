@@ -28,7 +28,7 @@ export const pageSeoData: Record<string, PageSeoData> = {
     faqs: [
       { question: "Who founded Oftisoft?", answer: "Oftisoft was founded by Rasel Hossain in 2019 with a mission to deliver premium software engineering services from Bangladesh to clients worldwide." },
       { question: "What is Oftisoft's mission?", answer: "Our mission is to bridge the gap between global businesses and top-tier Bangladeshi engineering talent, delivering enterprise-grade software solutions at competitive rates." },
-      { question: "How many projects has Oftisoft delivered?", answer: "Oftisoft has successfully delivered over 50 projects across web development, mobile apps, AI solutions, and enterprise software for clients in more than 15 markets worldwide." },
+      { question: "How many projects has Oftisoft delivered?", answer: "Oftisoft has successfully delivered over 500 projects across web development, mobile apps, AI solutions, and enterprise software for clients in more than 15 markets worldwide." },
     ],
   },
   "/services": {
@@ -45,7 +45,7 @@ export const pageSeoData: Record<string, PageSeoData> = {
     aeoDescription: "Browse Oftisoft's portfolio of successful software projects. See real examples of web applications, mobile apps, AI solutions, and enterprise platforms we've built for clients worldwide.",
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Portfolio", url: "/portfolio" }],
     faqs: [
-      { question: "What kind of projects has Oftisoft completed?", answer: "We've completed 50+ projects including e-commerce platforms, SaaS dashboards, mobile apps, AI-powered tools, enterprise resource planning systems, and custom web applications." },
+      { question: "What kind of projects has Oftisoft completed?", answer: "We've completed 500+ projects including e-commerce platforms, SaaS dashboards, mobile apps, AI-powered tools, enterprise resource planning systems, and custom web applications." },
       { question: "Can I see examples of Oftisoft's work?", answer: "Yes, our portfolio showcases selected projects across various industries including healthcare, fintech, e-commerce, education, and logistics." },
     ],
   },
@@ -61,7 +61,7 @@ export const pageSeoData: Record<string, PageSeoData> = {
     aeoDescription: "Contact Oftisoft for a free software development consultation. Get a quote for your web, mobile, or AI project. We respond within 24 hours.",
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Contact", url: "/contact" }],
     faqs: [
-      { question: "How can I contact Oftisoft?", answer: "You can reach us through our contact form, email us at oftisoft@gmail.com, call +880 1410-615665, or connect via WhatsApp at +8801410615665." },
+      { question: "How can I contact Oftisoft?", answer: "You can reach us through our contact form, email us at oftisoft@gmail.com, call +8801757220402, or connect via WhatsApp at +8801757220402." },
       { question: "Does Oftisoft offer free consultations?", answer: "Yes, we offer a free initial consultation to discuss your project requirements, technical approach, and provide a timeline and cost estimate." },
       { question: "What is Oftisoft's response time?", answer: "We typically respond to all inquiries within 24 hours during business days. For urgent matters, we recommend contacting us via phone or WhatsApp." },
     ],

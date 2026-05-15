@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Github, Linkedin, Twitter, ArrowUpRight, Grid, Code, Palette, Zap, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -31,14 +32,14 @@ export default function TeamShowcase({ data }: { data?: any }) {
         <section className="py-24 md:py-32 bg-transparent relative overflow-hidden z-20">
             <div className="container px-4 mx-auto">
                 <div className="flex flex-col items-center text-center mb-16 md:mb-24">
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                         style={{ willChange: "transform, opacity" }}
                     >
-                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-sm">
                             {team?.badge ?? ""}
                         </Badge>
                         <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
@@ -47,10 +48,10 @@ export default function TeamShowcase({ data }: { data?: any }) {
                                 {team?.titleLine2 ?? ""}
                             </span>
                         </h3>
-                    </motion.div>
+                    </AnimatedDiv>
 
                     {/* Modern Pill Filter */}
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -58,8 +59,7 @@ export default function TeamShowcase({ data }: { data?: any }) {
                         className="flex flex-wrap justify-center gap-2 p-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md"
                         style={{ willChange: "transform, opacity" }}>
                         {categories.map((cat) => (
-                            <button
-                                key={cat.label}
+                            <button key={cat.label}
                                 onClick={() => setFilter(cat.label)}
                                 className={cn(
                                     "flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300",
@@ -72,22 +72,19 @@ export default function TeamShowcase({ data }: { data?: any }) {
                                 {cat.label}
                             </button>
                         ))}
-                    </motion.div>
+                    </AnimatedDiv>
                 </div>
 
                 {/* Team Grid */}
-                <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <AnimatePresence mode="popLayout">
-                        {filteredTeam.map((member: any) => (
-                            <motion.div
-                                key={member.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-                                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                                exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-                                transition={{ duration: 0.4 }}
-                                className="group relative"
-                            >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredTeam.map((member: any) => (
+                        <AnimatedDiv key={member.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5 }}
+                            className="group relative"
+                        >
                                 <div className="aspect-[4/5] rounded-[2rem] bg-[#0a0a0a] border border-white/10 overflow-hidden relative">
                                     {/* Gradient Background */}
                                     <div className={cn("absolute inset-0 opacity-20 bg-gradient-to-br transition-all duration-700 group-hover:opacity-40", member.gradient)} />
@@ -128,7 +125,7 @@ export default function TeamShowcase({ data }: { data?: any }) {
                                             <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-primary transition-colors duration-300">
                                                 {member.name}
                                             </h3>
-                                            <p className="text-white/60 font-medium tracking-wide text-sm">
+                                            <p className="text-white/60 font-medium tracking-wide text-base md:text-lg">
                                                 {member.role}
                                             </p>
                                         </div>
@@ -139,10 +136,9 @@ export default function TeamShowcase({ data }: { data?: any }) {
                                         <ArrowUpRight className="w-5 h-5 text-white" />
                                     </div>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         ))}
-                    </AnimatePresence>
-                </motion.div>
+                </div>
             </div>
         </section>
     );
@@ -162,3 +158,5 @@ function SocialIcon({ icon: Icon, href }: { icon: any, href?: string }) {
         </Button>
     );
 }
+
+

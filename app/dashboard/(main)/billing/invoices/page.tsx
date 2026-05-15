@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { Animated } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import {
     Download, Search, Filter, MoreHorizontal, CheckCircle2, Clock, AlertCircle, Plus,
@@ -52,7 +53,7 @@ export default function InvoicesPage() {
     const [statusFilter, setStatusFilter] = useState<string>("all");
 
     // Create Dialog State
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [newInvoice, setNewInvoice] = useState({
         invoiceId: `INV-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`,
@@ -62,7 +63,7 @@ export default function InvoicesPage() {
     });
 
     // Detail Dialog State
-    const [selectedInvoice, setSelectedInvoice] = useState<Transaction | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Transaction | null>(null);
 
     const filteredInvoices = useMemo(() => {
         return invoices.filter(inv => {
@@ -165,7 +166,7 @@ export default function InvoicesPage() {
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                    <h1 className="text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
                         Financial History
                     </h1>
                     <p className="text-muted-foreground">Detailed ledger of your transactions and billing movements.</p>
@@ -186,7 +187,7 @@ export default function InvoicesPage() {
                     </DialogTrigger>
                     <DialogContent className="w-[95vw] max-w-lg sm:max-w-[425px] rounded-3xl border-border/50">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl font-black">Create New Invoice</DialogTitle>
+                            <DialogTitle className="text-2xl font-semibold">Create New Invoice</DialogTitle>
                             <DialogDescription>
                                 Set up a manual billing entry for your ledger.
                             </DialogDescription>
@@ -200,7 +201,7 @@ export default function InvoicesPage() {
                                 <Label htmlFor="type" className="font-bold">Billing Category</Label>
                                 <Input 
                                     id="type" 
-                                    placeholder="e.g. Consultation, Asset Purchase" 
+                                    placeholder="e.g. Consultation Asset Purchase" 
                                     className="rounded-xl h-11"
                                     value={newInvoice.type}
                                     onChange={(e) => setNewInvoice({...newInvoice, type: e.target.value})}
@@ -235,8 +236,7 @@ export default function InvoicesPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="md:col-span-2 relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search invoice number or service type..."
+                    <Input placeholder="Search invoice number or service type..."
                         className="w-full pl-11 h-auto bg-card/50 border-border/50 rounded-2xl shadow-sm focus:ring-primary/20"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -266,7 +266,7 @@ export default function InvoicesPage() {
             <div className="bg-card/30 backdrop-blur-md border border-border/50 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/5">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm border-collapse">
-                        <thead className="bg-muted/30 text-muted-foreground font-bold uppercase text-[10px] tracking-wider">
+                        <thead className="bg-muted/30 text-muted-foreground font-bold uppercase text-sm">
                             <tr>
                                 <th className="p-6 w-12">
                                     <input 
@@ -305,7 +305,7 @@ export default function InvoicesPage() {
                                     </td>
                                 </tr>
                             ) : filteredInvoices.map((inv, i) => (
-                                <motion.tr
+                                <Animated as="tr"
                                     key={inv.id}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -317,8 +317,7 @@ export default function InvoicesPage() {
                                     )}
                                 >
                                     <td className="p-6">
-                                        <input
-                                            type="checkbox"
+                                        <input type="checkbox"
                                             className="rounded-md w-5 h-5 border-border/50 bg-background text-primary focus:ring-primary/20"
                                             checked={selectedIds.includes(inv.id)}
                                             onChange={() => toggleSelect(inv.id)}
@@ -326,8 +325,8 @@ export default function InvoicesPage() {
                                     </td>
                                     <td className="p-6">
                                         <div className="flex flex-col">
-                                            <span className="font-black text-foreground font-mono text-xs">{inv.invoiceId}</span>
-                                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter opacity-50">PROCESSED SYSTEM PKT</span>
+                                            <span className="font-semibold text-foreground font-mono text-xs">{inv.invoiceId}</span>
+                                            <span className="text-sm text-muted-foreground uppercase font-bold opacity-50">PROCESSED SYSTEM PKT</span>
                                         </div>
                                     </td>
                                     <td className="p-6">
@@ -341,10 +340,10 @@ export default function InvoicesPage() {
                                     <td className="p-6 text-muted-foreground font-medium">
                                         {new Date(inv.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
                                     </td>
-                                    <td className="p-6 font-black text-primary text-base">{inv.amount}</td>
+                                    <td className="p-6 font-semibold text-primary text-base">{inv.amount}</td>
                                     <td className="p-6">
                                         <span className={cn(
-                                            "px-4 py-1.5 rounded-full text-[10px] font-black uppercase border-2 flex items-center gap-2 w-fit",
+                                            "px-4 py-1.5 rounded-full text-sm font-semibold uppercase border-2 flex items-center gap-2 w-fit",
                                             STATUS_STYLES[inv.status.toLowerCase() as keyof typeof STATUS_STYLES] || "border-border text-muted-foreground bg-muted/20"
                                         )}>
                                             {(inv.status === 'Paid' || inv.status === 'completed') && <CheckCircle2 className="w-3.5 h-3.5" />}
@@ -377,7 +376,7 @@ export default function InvoicesPage() {
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </td>
-                                </motion.tr>
+                                </Animated>
                             ))}
                         </tbody>
                     </table>
@@ -391,28 +390,28 @@ export default function InvoicesPage() {
                         <div className="flex flex-col">
                             <div className="bg-primary/5 p-8 border-b border-border/50">
                                 <div className="flex justify-between items-start mb-6">
-                                    <div className="w-16 h-16 rounded-[1.25rem] bg-background border border-border/50 flex items-center justify-center font-black text-2xl text-primary shadow-sm">
+                                    <div className="w-16 h-16 rounded-[1.25rem] bg-background border border-border/50 flex items-center justify-center font-semibold text-2xl text-primary shadow-sm">
                                         OF
                                     </div>
                                     <span className={cn(
-                                        "px-5 py-2 rounded-full text-xs font-black uppercase border-2",
+                                        "px-5 py-2 rounded-full text-xs font-semibold uppercase border-2",
                                         STATUS_STYLES[selectedInvoice.status.toLowerCase() as keyof typeof STATUS_STYLES]
                                     )}>
                                         {selectedInvoice.status}
                                     </span>
                                 </div>
-                                <h3 className="text-3xl font-black mb-1">{selectedInvoice.invoiceId}</h3>
+                                <h3 className="text-3xl font-semibold mb-1">{selectedInvoice.invoiceId}</h3>
                                 <p className="text-muted-foreground font-medium">{selectedInvoice.type}</p>
                             </div>
                             
                             <div className="p-8 space-y-8">
                                 <div className="grid grid-cols-3 gap-8">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Issued Date</p>
+                                        <p className="text-sm uppercase font-bold text-muted-foreground">Issued Date</p>
                                         <p className="font-bold">{new Date(selectedInvoice.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Due Date</p>
+                                        <p className="text-sm uppercase font-bold text-muted-foreground">Due Date</p>
                                         <p className="font-bold text-orange-500">
                                             {selectedInvoice.dueAt 
                                                 ? new Date(selectedInvoice.dueAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -421,8 +420,8 @@ export default function InvoicesPage() {
                                         </p>
                                     </div>
                                     <div className="space-y-1 text-right">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Method</p>
-                                        <p className="font-bold text-[10px] uppercase tracking-tighter opacity-70">Balance Payout</p>
+                                        <p className="text-sm uppercase font-bold text-muted-foreground">Method</p>
+                                        <p className="font-bold text-sm uppercase opacity-70">Balance Payout</p>
                                     </div>
                                 </div>
 
@@ -432,16 +431,16 @@ export default function InvoicesPage() {
                                         <span className="font-bold text-foreground">{selectedInvoice.amount}</span>
                                     </div>
                                     <div className="flex justify-between items-center bg-background p-4 rounded-2xl border border-border/50">
-                                        <span className="text-lg font-black uppercase text-[10px] tracking-widest text-muted-foreground">Grand Total</span>
-                                        <span className="text-2xl font-black text-primary">{selectedInvoice.amount}</span>
+                                        <span className="text-lg font-semibold uppercase text-sm text-muted-foreground">Grand Total</span>
+                                        <span className="text-2xl font-semibold text-primary">{selectedInvoice.amount}</span>
                                     </div>
                                 </div>
 
                                 <div className="flex gap-4 pt-4">
-                                    <Button className="flex-1 rounded-2xl h-14 font-black text-sm uppercase tracking-wider" onClick={() => handleDownload(selectedInvoice.invoiceId)}>
+                                    <Button className="flex-1 rounded-2xl h-14 font-semibold text-sm uppercase" onClick={() => handleDownload(selectedInvoice.invoiceId)}>
                                         <Download className="w-5 h-5 mr-3" /> Get PDF
                                     </Button>
-                                    <Button variant="outline" className="flex-1 rounded-2xl h-14 font-black text-sm uppercase tracking-wider border-border/50" onClick={() => handlePrint(selectedInvoice.invoiceId)}>
+                                    <Button variant="outline" className="flex-1 rounded-2xl h-14 font-semibold text-sm uppercase border-border/50" onClick={() => handlePrint(selectedInvoice.invoiceId)}>
                                         <Printer className="w-5 h-5 mr-3" /> Print
                                     </Button>
                                 </div>

@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthStore, getAuthCheckComplete } from "@/store/useAuthStore";
-import { useHomeContentStore } from "@/lib/store/home-content";
 
 const AUTH_PATHS = [
   "/dashboard/login",
@@ -28,23 +27,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Skip auth pages - useProtectedRoute handles those
-    if (isAuthPath(pathname)) return;
+  if (isAuthPath(pathname)) return;
     
     // Only check auth once globally per session
-    if (getAuthCheckComplete()) return;
+  if (getAuthCheckComplete()) return;
 
     checkAuth();
   }, [checkAuth, pathname]);
-
-  useEffect(() => {
-    if (!pathname || isAuthPath(pathname)) return;
-    try {
-      const p = useHomeContentStore.persist?.rehydrate?.();
-      if (typeof p?.catch === "function") p.catch(() => {});
-    } catch {
-      /* ignore sync errors */
-    }
-  }, [pathname]);
 
   return <>{children}</>;
 }

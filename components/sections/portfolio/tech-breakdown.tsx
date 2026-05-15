@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectCreative } from "swiper/modules";
 import { Code2, Server, Smartphone, Brain, Cloud, Shield, Database, Layout, Terminal, Cpu, Globe, Lock } from "lucide-react";
@@ -80,8 +81,7 @@ export default function TechBreakdown() {
 
             <div className="container px-4 mx-auto relative z-10">
                 <div className="text-center mb-12 md:mb-16 max-w-3xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                    <AnimatedDiv initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -91,9 +91,9 @@ export default function TechBreakdown() {
                             <Cpu className="w-4 h-4" />
                             Engineering DNA
                         </Badge>
-                    </motion.div>
+                    </AnimatedDiv>
                     
-                    <motion.h2 
+                    <AnimatedH2 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -102,9 +102,9 @@ export default function TechBreakdown() {
                         className="text-3xl md:text-5xl font-bold mb-4 md:mb-6"
                     >
                         Technical <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Breakdown</span>
-                    </motion.h2>
+                    </AnimatedH2>
                     
-                    <motion.p 
+                    <AnimatedP 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -113,7 +113,7 @@ export default function TechBreakdown() {
                         className="text-base md:text-xl text-muted-foreground"
                     >
                         We don't just write code; we architect solutions. Here is a quantitive look at our team's core competencies.
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Desktop Grid / Mobile Slider */}
@@ -124,8 +124,7 @@ export default function TechBreakdown() {
                 </div>
 
                 <div className="lg:hidden">
-                    <Swiper
-                        modules={[Pagination, Autoplay, EffectCreative]}
+                    <Swiper modules={[Pagination, Autoplay, EffectCreative]}
                         effect={'creative'}
                         creativeEffect={{
                             prev: { shadow: false, translate: [0, 0, -400] },
@@ -151,8 +150,7 @@ export default function TechBreakdown() {
 
 function TechCard({ domain, index }: { domain: typeof domains[0], index: number }) {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
+        <AnimatedDiv initial={{ opacity: 0, y: 20 }}
             style={{ willChange: "transform, opacity" }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -184,8 +182,7 @@ function TechCard({ domain, index }: { domain: typeof domains[0], index: number 
 
                     {/* Progress Bar */}
                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-6">
-                        <motion.div
-                            initial={{ width: 0 }}
+                        <AnimatedDiv initial={{ width: 0 }}
                             whileInView={{ width: `${domain.level}%` }}
                             viewport={{ once: true }}
                             transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 + (index * 0.1) }}
@@ -203,6 +200,6 @@ function TechCard({ domain, index }: { domain: typeof domains[0], index: number 
                     </div>
                 </CardContent>
             </Card>
-        </motion.div>
+        </AnimatedDiv>
     );
 }

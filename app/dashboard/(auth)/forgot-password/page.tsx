@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { Animated, AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -87,21 +88,19 @@ export default function ForgotPasswordPage() {
 
       <div className="w-full max-w-md">
         <div className="mb-6 sm:mb-8 text-center">
-          <Link
-            href="/"
+          <Link href="/"
             className="inline-block text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
           >
             Ofitsoft
           </Link>
         </div>
 
-        <motion.div layout>
+        <AnimatedDiv layout>
           <Card className="shadow-lg sm:shadow-xl overflow-hidden">
             <CardContent className="p-4 sm:p-6 md:p-8 pt-6 sm:pt-6">
               <AnimatePresence mode="wait">
                 {step === "input" ? (
-                  <motion.div
-                    key="input"
+                  <AnimatedDiv key="input"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
@@ -114,21 +113,18 @@ export default function ForgotPasswordPage() {
                         Forgot Password?
                       </CardTitle>
                       <CardDescription className="text-center text-xs sm:text-sm">
-                        No worries! Enter your email and we&apos;ll send you reset
-                        instructions.
+                        No worries! Enter your email and we&apos;ll send you reset, instructions.
                       </CardDescription>
                     </CardHeader>
 
-                    <form
-                      onSubmit={handleSubmit(onSubmit)}
+                    <form onSubmit={handleSubmit(onSubmit)}
                       className="space-y-4 sm:space-y-6"
                     >
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
                         <div className="relative group">
                           <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
-                          <Input
-                            id="email"
+                          <Input id="email"
                             {...register("email")}
                             type="email"
                             placeholder="name@company.com"
@@ -147,8 +143,7 @@ export default function ForgotPasswordPage() {
                         )}
                       </div>
 
-                      <Button
-                        type="submit"
+                      <Button type="submit"
                         disabled={isSubmitting}
                         className="w-full h-10 sm:h-11 font-semibold"
                         size="lg"
@@ -160,22 +155,20 @@ export default function ForgotPasswordPage() {
                         )}
                       </Button>
                     </form>
-                  </motion.div>
+                  </AnimatedDiv>
                 ) : (
-                  <motion.div
-                    key="success"
+                  <AnimatedDiv key="success"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center"
                   >
-                    <motion.div
-                      initial={{ scale: 0 }}
+                    <AnimatedDiv initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", bounce: 0.5 }}
                       className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-green-500"
                     >
                       <Mail className="w-8 h-8 sm:w-10 sm:h-10" />
-                    </motion.div>
+                    </AnimatedDiv>
 
                     <CardHeader className="p-0 mb-4 sm:mb-6">
                       <CardTitle className="text-xl sm:text-2xl">
@@ -190,43 +183,39 @@ export default function ForgotPasswordPage() {
                     </CardHeader>
 
                     <div className="bg-muted/50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 text-left space-y-2 sm:space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase  text-muted-foreground">
                         Next Steps:
                       </p>
                       <ul className="text-xs sm:text-sm space-y-2">
-                        <motion.li
+                        <Animated as="li"
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.2 }}
                           className="flex gap-2"
                         >
-                          <span className="text-primary">•</span> Click the link
-                          in the email
-                        </motion.li>
-                        <motion.li
+                          <span className="text-primary">•</span> Click the link, in the email
+                        </Animated>
+                        <Animated as="li"
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.4 }}
                           className="flex gap-2"
                         >
-                          <span className="text-primary">•</span> Enter your new
-                          password
-                        </motion.li>
-                        <motion.li
+                          <span className="text-primary">•</span> Enter your new, password
+                        </Animated>
+                        <Animated as="li"
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.6 }}
                           className="flex gap-2"
                         >
-                          <span className="text-primary">•</span> Log in with new
-                          credentials
-                        </motion.li>
+                          <span className="text-primary">•</span> Log in with new, credentials
+                        </Animated>
                       </ul>
                     </div>
 
                     <div className="flex flex-col gap-3">
-                      <Button
-                        variant="ghost"
+                      <Button variant="ghost"
                         size="sm"
                         className="text-muted-foreground hover:text-primary disabled:opacity-50 h-auto py-1"
                         disabled={!canResend}
@@ -237,17 +226,15 @@ export default function ForgotPasswordPage() {
                           : `Resend in 00:${countdown.toString().padStart(2, "0")}`}
                       </Button>
                     </div>
-                  </motion.div>
+                  </AnimatedDiv>
                 )}
               </AnimatePresence>
 
               <Separator className="my-6 sm:my-8" />
 
               <div className="text-center">
-                <Button
-                  variant="link"
-                  asChild
-                  className="text-muted-foreground hover:text-foreground font-semibold h-auto p-0 gap-2 group"
+                <Button variant="link"
+                  asChild className="text-muted-foreground hover:text-foreground font-semibold h-auto p-0 gap-2 group"
                 >
                   <Link href="/dashboard/login">
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -257,7 +244,7 @@ export default function ForgotPasswordPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </AnimatedDiv>
       </div>
     </div>
   );

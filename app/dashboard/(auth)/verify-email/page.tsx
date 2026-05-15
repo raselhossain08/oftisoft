@@ -1,8 +1,9 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Mail, CheckCircle2, XCircle, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -67,16 +68,14 @@ function VerifyEmailForm() {
 
       <div className="w-full max-w-md">
         <div className="mb-6 sm:mb-8 text-center">
-          <Link
-            href="/"
+          <Link href="/"
             className="inline-block text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
           >
             Ofitsoft
           </Link>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
+        <AnimatedDiv initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
@@ -84,33 +83,30 @@ function VerifyEmailForm() {
             <CardHeader className="space-y-4">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
                 {status === "loading" && (
-                  <motion.div
-                    initial={{ scale: 0 }}
+                  <AnimatedDiv initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="w-full h-full bg-primary/10 rounded-full flex items-center justify-center"
                   >
                     <Loader2 className="w-7 h-7 sm:w-8 sm:h-8 text-primary animate-spin" />
-                  </motion.div>
+                  </AnimatedDiv>
                 )}
                 {status === "success" && (
-                  <motion.div
-                    initial={{ scale: 0 }}
+                  <AnimatedDiv initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", bounce: 0.5 }}
                     className="w-full h-full bg-green-500/10 rounded-full flex items-center justify-center"
                   >
                     <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-green-500" />
-                  </motion.div>
+                  </AnimatedDiv>
                 )}
                 {status === "error" && (
-                  <motion.div
-                    initial={{ scale: 0 }}
+                  <AnimatedDiv initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", bounce: 0.5 }}
                     className="w-full h-full bg-destructive/10 rounded-full flex items-center justify-center"
                   >
                     <XCircle className="w-7 h-7 sm:w-8 sm:h-8 text-destructive" />
-                  </motion.div>
+                  </AnimatedDiv>
                 )}
               </div>
               <CardTitle className="text-xl sm:text-2xl text-center">
@@ -148,7 +144,7 @@ function VerifyEmailForm() {
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </AnimatedDiv>
       </div>
     </div>
   );
@@ -156,8 +152,7 @@ function VerifyEmailForm() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense
-      fallback={
+    <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>

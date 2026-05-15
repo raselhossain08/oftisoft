@@ -15,13 +15,14 @@ export function useSocket(options: UseSocketOptions = {}) {
   const { autoConnect = true, onConnect, onDisconnect, onError } = options;
   const socketRef = useRef<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const { user, isAuthenticated } = useAuthStore();
+  const [isAuthenticatedWs, setIsAuthenticatedWs] = useState(false);
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     if (!autoConnect || !isAuthenticated) return;
 
     const socketUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001").replace(/\/api$/, "");
-    
+
     socketRef.current = io(socketUrl, {
       withCredentials: true,
       transports: ["websocket", "polling"],
@@ -32,18 +33,26 @@ export function useSocket(options: UseSocketOptions = {}) {
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
       setIsConnected(true);
-      
-      // Authenticate with user ID
-      if (user?.id) {
-        socket.emit("authenticate", { userId: user.id });
-      }
-      
+
+      // Authenticate via JWT cookie (httpOnly, sent automatically with withCredentials)
+      socket.emit("authenticate", {});
+    });
+
+    socket.on("authenticated", (data: { userId: string; name: string; unreadCount: number }) => {
+      console.log("Socket authenticated as:", data.name);
+      setIsAuthenticatedWs(true);
       onConnect?.();
+    });
+
+    socket.on("auth_error", (data: { message: string }) => {
+      console.error("Socket auth error:", data.message);
+      setIsAuthenticatedWs(false);
     });
 
     socket.on("disconnect", () => {
       console.log("Socket disconnected");
       setIsConnected(false);
+      setIsAuthenticatedWs(false);
       onDisconnect?.();
     });
 
@@ -56,7 +65,7 @@ export function useSocket(options: UseSocketOptions = {}) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [autoConnect, isAuthenticated, user?.id, onConnect, onDisconnect, onError]);
+  }, [autoConnect, isAuthenticated, onConnect, onDisconnect, onError]);
 
   const emit = useCallback((event: string, data: any) => {
     socketRef.current?.emit(event, data);
@@ -64,38 +73,32 @@ export function useSocket(options: UseSocketOptions = {}) {
 
   const on = useCallback((event: string, callback: (...args: any[]) => void) => {
     socketRef.current?.on(event, callback);
-    
-    // Return unsubscribe function
+
     return () => {
       socketRef.current?.off(event, callback);
     };
   }, []);
 
   const joinConversation = useCallback((conversationId: string) => {
-    if (user?.id) {
-      socketRef.current?.emit("joinConversation", { conversationId, userId: user.id });
-    }
-  }, [user?.id]);
+    socketRef.current?.emit("joinConversation", { conversationId });
+  }, []);
 
   const leaveConversation = useCallback((conversationId: string) => {
     socketRef.current?.emit("leaveConversation", { conversationId });
   }, []);
 
   const sendMessage = useCallback((conversationId: string, content: string) => {
-    if (user?.id) {
-      socketRef.current?.emit("sendMessage", { conversationId, senderId: user.id, content });
-    }
-  }, [user?.id]);
+    socketRef.current?.emit("sendMessage", { conversationId, content });
+  }, []);
 
   const sendTyping = useCallback((conversationId: string, isTyping: boolean) => {
-    if (user?.id) {
-      socketRef.current?.emit("typing", { conversationId, userId: user.id, isTyping });
-    }
-  }, [user?.id]);
+    socketRef.current?.emit("typing", { conversationId, isTyping });
+  }, []);
 
   return {
     socket: socketRef.current,
     isConnected,
+    isAuthenticatedWs,
     emit,
     on,
     joinConversation,

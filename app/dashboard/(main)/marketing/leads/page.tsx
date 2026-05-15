@@ -128,7 +128,7 @@ export default function LeadsDashboardPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Marketing Leads</h1>
+                    <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Marketing Leads</h1>
                     <p className="text-muted-foreground font-medium mt-1">Manage and track your customer acquisitions and subscriptions.</p>
                 </div>
                 <div className="flex gap-2">
@@ -184,7 +184,7 @@ export default function LeadsDashboardPage() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-72 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl p-4" align="end">
-                                    <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</DropdownMenuLabel>
+                                    <DropdownMenuLabel className="text-sm font-semibold  text-muted-foreground">Status</DropdownMenuLabel>
                                     <Select value={statusFilter} onValueChange={setStatusFilter}>
                                         <SelectTrigger className="h-10 rounded-xl font-medium mt-1">
                                             <SelectValue />
@@ -197,7 +197,7 @@ export default function LeadsDashboardPage() {
                                             <SelectItem value="archived">Archived</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-4">Type</DropdownMenuLabel>
+                                    <DropdownMenuLabel className="text-sm font-semibold  text-muted-foreground mt-4">Type</DropdownMenuLabel>
                                     <Select value={typeFilter} onValueChange={setTypeFilter}>
                                         <SelectTrigger className="h-10 rounded-xl font-medium mt-1">
                                             <SelectValue />
@@ -219,12 +219,12 @@ export default function LeadsDashboardPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/5 hover:bg-muted/5 border-border/50">
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest pl-8">Inquirer</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Type</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Message</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Date</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Status</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest text-right pr-8">Action</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs  pl-8">Inquirer</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs ">Type</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs ">Message</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs ">Date</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs ">Status</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs  text-right pr-8">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -243,7 +243,7 @@ export default function LeadsDashboardPage() {
                                                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                                                     <TypeIcon size={14} />
                                                 </div>
-                                                <span className="text-xs font-black uppercase tracking-wider">{lead.type}</span>
+                                                <span className="text-xs font-semibold ">{lead.type}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-4">
@@ -254,11 +254,11 @@ export default function LeadsDashboardPage() {
                                         <TableCell className="py-4">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold">{format(new Date(lead.createdAt), 'MMM dd, yyyy')}</span>
-                                                <span className="text-[10px] text-muted-foreground uppercase">{format(new Date(lead.createdAt), 'hh:mm aa')}</span>
+                                                <span className="text-sm text-muted-foreground ">{format(new Date(lead.createdAt), 'hh:mm aa')}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-4">
-                                            <Badge className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border", getStatusColor(lead.status))}>
+                                            <Badge className={cn("px-3 py-1 rounded-full text-sm font-semibold  border", getStatusColor(lead.status))}>
                                                 {lead.status.replace('_', ' ')}
                                             </Badge>
                                         </TableCell>
@@ -270,7 +270,7 @@ export default function LeadsDashboardPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-border/50 bg-card/95 backdrop-blur-xl">
-                                                    <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2 py-1.5">Lead Actions</DropdownMenuLabel>
+                                                    <DropdownMenuLabel className="text-sm font-semibold  text-muted-foreground px-2 py-1.5">Lead Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => updateStatus({ id: lead.id, status: 'new' as any })} className="rounded-xl gap-2 font-bold text-xs"><Sparkles size={14} /> Mark as New</DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => updateStatus({ id: lead.id, status: 'in_progress' as any })} className="rounded-xl gap-2 font-bold text-xs"><Clock size={14} /> Mark In Progress</DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => updateStatus({ id: lead.id, status: 'converted' as any })} className="rounded-xl gap-2 font-bold text-xs text-green-500"><CheckCircle2 size={14} /> Mark Converted</DropdownMenuItem>
@@ -310,8 +310,7 @@ export default function LeadsDashboardPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2 sm:gap-0">
                         <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
+                        <AlertDialogAction variant="destructive"
                             className="rounded-xl font-bold bg-destructive text-destructive-foreground"
                             onClick={() => {
                                 if (leadToDelete) {
@@ -339,8 +338,8 @@ function StatCard({ title, value, icon: Icon }: { title: string; value: number |
                     </div>
                 </div>
                 <div>
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50 mb-1">{title}</p>
-                    <h3 className="text-3xl font-black  tracking-tighter">{value}</h3>
+                    <p className="text-xs font-semibold  text-muted-foreground opacity-50 mb-1">{title}</p>
+                    <h3 className="text-3xl font-semibold">{value}</h3>
                 </div>
             </CardContent>
         </Card>

@@ -37,8 +37,7 @@ export function CommentForm({ postId, parentId, onSubmit, isSubmitting, onCancel
                     )}
                 </div>
             )}
-            <Textarea
-                value={content}
+            <Textarea value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={parentId ? "Write a reply..." : "Share your thoughts..."}
                 className="min-h-[80px] resize-none"

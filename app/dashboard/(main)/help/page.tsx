@@ -1,6 +1,6 @@
 "use client"
+import { AnimatedH1, AnimatedH2, AnimatedH3 } from "@/lib/animated";
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
     Search, Book, MessageCircle, Mail, FileQuestion, 
     ChevronRight, ExternalLink, Plus, AlertCircle, CheckCircle2,
@@ -46,14 +46,14 @@ export default function HelpPage() {
     const [searchQuery, setSearchQuery] = useState("");
     
     // Ticket Details State
-    const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
     const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
     const [replyContent, setReplyContent] = useState("");
     const [isReplying, setIsReplying] = useState(false);
 
     // Ticket Form
-    const [subject, setSubject] = useState("");
+  const [subject, setSubject] = useState("");
     const [category, setCategory] = useState("technical");
     const [priority, setPriority] = useState("medium");
     const [description, setDescription] = useState("");
@@ -118,8 +118,7 @@ export default function HelpPage() {
         try {
             await addMessageAsync({ id: selectedTicketId, content: replyContent });
             setReplyContent("");
-            // Refresh details
-            fetchTicketDetails(selectedTicketId);
+            // Refresh details, fetchTicketDetails(selectedTicketId);
         } catch (error) {
             // Error handled in hook
         } finally {
@@ -141,13 +140,13 @@ export default function HelpPage() {
         <div className="mx-auto space-y-12 pb-20">
             
             <div className="text-center space-y-4 py-8">
-                <motion.h1 
+                <AnimatedH1 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-4xl font-black  tracking-tight"
+                    className="text-3xl font-semibold"
                 >
                     How can we help?
-                </motion.h1>
+                </AnimatedH1>
                 <div className="relative max-w-lg mx-auto group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
                     <input 
@@ -164,9 +163,9 @@ export default function HelpPage() {
                     <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform shadow-inner">
                         <Book className="w-7 h-7" />
                     </div>
-                    <h3 className="font-black text-xl mb-2 ">Documentation</h3>
+                    <h3 className="font-semibold text-xl mb-2 ">Documentation</h3>
                     <p className="text-muted-foreground text-sm font-medium mb-4">Detailed guides and API references for developers.</p>
-                    <span className="text-sm font-black text-primary flex items-center gap-1 group-hover:underline">Browse Docs <ChevronRight size={14} /></span>
+                    <span className="text-sm font-semibold text-primary flex items-center gap-1 group-hover:underline">Browse Docs <ChevronRight size={14} /></span>
                 </Link>
 
                 <div 
@@ -176,9 +175,9 @@ export default function HelpPage() {
                     <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 mb-6 group-hover:scale-110 transition-transform shadow-inner">
                         <MessageCircle className="w-7 h-7" />
                     </div>
-                    <h3 className="font-black text-xl mb-2 ">Live Chat</h3>
+                    <h3 className="font-semibold text-xl mb-2 ">Live Chat</h3>
                     <p className="text-muted-foreground text-sm font-medium mb-4">Chat with our support team in real-time.</p>
-                    <span className="text-sm font-black text-primary flex items-center gap-1 group-hover:underline">Start Chat <ChevronRight size={14} /></span>
+                    <span className="text-sm font-semibold text-primary flex items-center gap-1 group-hover:underline">Start Chat <ChevronRight size={14} /></span>
                 </div>
 
                 <div 
@@ -188,9 +187,9 @@ export default function HelpPage() {
                     <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform shadow-inner">
                         <Mail className="w-7 h-7" />
                     </div>
-                    <h3 className="font-black text-xl mb-2 ">Priority Support</h3>
+                    <h3 className="font-semibold text-xl mb-2 ">Priority Support</h3>
                     <p className="text-muted-foreground text-sm font-medium mb-4">Open a ticket for complex issues. 24h response time.</p>
-                    <span className="text-sm font-black text-primary flex items-center gap-1 group-hover:underline">Open Ticket <ChevronRight size={14} /></span>
+                    <span className="text-sm font-semibold text-primary flex items-center gap-1 group-hover:underline">Open Ticket <ChevronRight size={14} /></span>
                 </div>
             </div>
 
@@ -198,7 +197,7 @@ export default function HelpPage() {
             {tickets.length > 0 && (
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                         <h3 className="text-2xl font-black  tracking-tight">Your Recent Tickets</h3>
+                         <h3 className="text-2xl font-semibold">Your Recent Tickets</h3>
                          <Button variant="outline" size="sm" onClick={() => fetchTickets()} className="gap-2 rounded-xl h-9 font-bold">
                             <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
                             Refresh
@@ -210,10 +209,10 @@ export default function HelpPage() {
                             <div key={ticket.id} className="bg-card border border-border/50 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-primary/30 transition-all group overflow-hidden relative">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-3">
-                                        <Badge variant="outline" className={`capitalize font-black border-2 ${getStatusColor(ticket.status)}`}>
+                                        <Badge variant="outline" className={`capitalize font-semibold border-2 ${getStatusColor(ticket.status)}`}>
                                             {ticket.status}
                                         </Badge>
-                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                                        <span className="text-xs font-bold text-muted-foreground ">
                                             #{ticket.id.slice(0, 8)}
                                         </span>
                                         <span className="text-xs font-medium text-muted-foreground">
@@ -223,7 +222,7 @@ export default function HelpPage() {
                                     <h4 className="font-bold text-lg">{ticket.subject}</h4>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                     <Badge variant="secondary" className="uppercase text-[10px] font-black tracking-widest h-6">
+                                     <Badge variant="secondary" className=" text-sm font-semibold h-6">
                                         {ticket.category}
                                      </Badge>
                                      <Button 
@@ -243,7 +242,7 @@ export default function HelpPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div>
-                     <h3 className="text-2xl font-black  tracking-tight mb-6">Frequently Asked Questions</h3>
+                     <h3 className="text-2xl font-semibold mb-6">Frequently Asked Questions</h3>
                      <div className="space-y-4">
                         {FAQ_ITEMS.filter(i => i.q.toLowerCase().includes(searchQuery.toLowerCase()) || i.a.toLowerCase().includes(searchQuery.toLowerCase())).map((item, i) => (
                             <div key={i} className="bg-muted/10 border border-border/50 rounded-2xl p-6 hover:bg-muted/20 transition-colors">
@@ -260,14 +259,14 @@ export default function HelpPage() {
                 </div>
 
                 <div>
-                    <h3 className="text-2xl font-black  tracking-tight mb-6">Popular Guides</h3>
+                    <h3 className="text-2xl font-semibold mb-6">Popular Guides</h3>
                     <div className="space-y-4">
                         {GUIDES.map((guide, i) => (
                             <Link href="#" key={i} className="flex items-center justify-between p-5 bg-card border border-border/50 rounded-2xl hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
                                 <div className="space-y-1">
                                     <h4 className="font-bold group-hover:text-primary transition-colors text-lg">{guide.title}</h4>
                                     <p className="text-xs text-muted-foreground font-medium flex items-center gap-2">
-                                        <Badge variant="secondary" className="text-[10px] uppercase font-black tracking-wider h-5">{guide.category}</Badge>
+                                        <Badge variant="secondary" className="text-sm  font-semibold h-5">{guide.category}</Badge>
                                         {guide.time}
                                     </p>
                                 </div>
@@ -293,16 +292,16 @@ export default function HelpPage() {
                             <DialogHeader className="p-6 md:p-8 border-b bg-muted/5 shrink-0">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <Badge variant="outline" className={`capitalize font-black border-2 ${getStatusColor(selectedTicket.status)}`}>
+                                        <Badge variant="outline" className={`capitalize font-semibold border-2 ${getStatusColor(selectedTicket.status)}`}>
                                             {selectedTicket.status}
                                         </Badge>
-                                        <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">#{selectedTicket.id.slice(0, 8)}</span>
+                                        <span className="text-xs font-semibold text-muted-foreground ">#{selectedTicket.id.slice(0, 8)}</span>
                                     </div>
-                                    <Badge variant="secondary" className="uppercase text-[10px] font-black tracking-widest px-3 py-1">
+                                    <Badge variant="secondary" className=" text-sm font-semibold px-3 py-1">
                                         {selectedTicket.category}
                                     </Badge>
                                 </div>
-                                <DialogTitle className="text-2xl font-black  tracking-tight">{selectedTicket.subject}</DialogTitle>
+                                <DialogTitle className="text-2xl font-semibold">{selectedTicket.subject}</DialogTitle>
                             </DialogHeader>
 
                             <ScrollArea className="flex-1 p-6 md:p-8">
@@ -324,8 +323,8 @@ export default function HelpPage() {
                                                         : "bg-primary text-primary-foreground rounded-tr-none shadow-lg shadow-primary/20"
                                                 )}>
                                                     <div className="flex items-center justify-between gap-8 mb-1">
-                                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-70">{msg.sender?.name}</span>
-                                                        <span className="text-[10px] opacity-50 font-bold">{format(new Date(msg.createdAt), 'HH:mm')}</span>
+                                                        <span className="text-sm font-semibold  opacity-70">{msg.sender?.name}</span>
+                                                        <span className="text-sm opacity-50 font-bold">{format(new Date(msg.createdAt), 'HH:mm')}</span>
                                                     </div>
                                                     <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                                                 </div>
@@ -344,10 +343,10 @@ export default function HelpPage() {
                                         onChange={(e) => setReplyContent(e.target.value)}
                                     />
                                     <div className="absolute bottom-4 right-4 flex items-center gap-3">
-                                        <span className="text-[10px] text-muted-foreground font-bold uppercase hidden sm:block">Ctrl + Enter</span>
+                                        <span className="text-sm text-muted-foreground font-bold  hidden sm:block">Ctrl + Enter</span>
                                         <Button 
                                             size="sm" 
-                                            className="h-10 px-6 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-primary/20 bg-primary text-white"
+                                            className="h-10 px-6 rounded-xl font-semibold  shadow-lg shadow-primary/20 bg-primary text-white"
                                             onClick={handleReply}
                                             disabled={isReplying || !replyContent.trim()}
                                         >
@@ -365,7 +364,7 @@ export default function HelpPage() {
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogContent className="sm:max-w-[600px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                     <DialogHeader>
-                        <DialogTitle className="text-3xl font-black  tracking-tight text-center">Open Support Ticket</DialogTitle>
+                        <DialogTitle className="text-3xl font-semibold text-center">Open Support Ticket</DialogTitle>
                         <DialogDescription className="text-center text-base font-medium">
                             Describe your issue and we'll get back to you as soon as possible.
                         </DialogDescription>
@@ -373,7 +372,7 @@ export default function HelpPage() {
                     
                     <div className="space-y-6 mt-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Subject</label>
+                            <label className="text-sm font-semibold  text-muted-foreground">Subject</label>
                             <Input 
                                 placeholder="Brief summary of the issue" 
                                 className="h-12 rounded-xl font-medium"
@@ -384,7 +383,7 @@ export default function HelpPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Category</label>
+                                <label className="text-sm font-semibold  text-muted-foreground">Category</label>
                                 <Select value={category} onValueChange={setCategory}>
                                     <SelectTrigger className="h-12 rounded-xl font-medium">
                                         <SelectValue />
@@ -398,7 +397,7 @@ export default function HelpPage() {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Priority</label>
+                                <label className="text-sm font-semibold  text-muted-foreground">Priority</label>
                                 <Select value={priority} onValueChange={setPriority}>
                                     <SelectTrigger className="h-12 rounded-xl font-medium">
                                         <SelectValue />
@@ -414,7 +413,7 @@ export default function HelpPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Description</label>
+                            <label className="text-sm font-semibold  text-muted-foreground">Description</label>
                             <Textarea 
                                 placeholder="Provide detailed information about the issue..." 
                                 className="min-h-[150px] rounded-xl font-medium resize-none p-4"

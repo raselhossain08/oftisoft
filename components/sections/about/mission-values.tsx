@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
 
-import { motion } from "framer-motion";
+
 import { Lightbulb, Award, Handshake, Target, Zap, Heart, ShieldCheck } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
@@ -39,14 +40,14 @@ export default function MissionValues({ data }: { data?: any }) {
                 
                 {/* Mission Statement */}
                 <div className="grid lg:grid-cols-2 gap-16 mb-24 items-center">
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                         style={{ willChange: "transform, opacity" }}
                     >
-                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-xs">
+                        <Badge variant="outline" className="mb-6 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 rounded-full font-semibold text-sm">
                             {mission?.badge ?? ""}
                         </Badge>
                         <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -55,23 +56,35 @@ export default function MissionValues({ data }: { data?: any }) {
                                 {mission?.titleLine2 ?? ""}
                             </span>
                         </h3>
-                    </motion.div>
+                    </AnimatedDiv>
 
-                    <motion.div 
+                    <AnimatedDiv
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="relative"
+                        className="relative space-y-8"
                         style={{ willChange: "transform, opacity" }}
                     >
-                        <div className="absolute -left-6 top-0 text-8xl font-serif text-white/5 -z-10 leading-none">"</div>
-                        <p className="text-lg md:text-xl text-muted-foreground/90 leading-relaxed font-normal">
-                            {mission?.quote?.split(mission.quoteHighlight || "")[0]}
-                            <span className="text-white font-medium">{mission?.quoteHighlight}</span>
-                            {mission?.quote?.split(mission.quoteHighlight || "")[1]}
-                        </p>
-                    </motion.div>
+                        {mission?.image && (
+                            <div className="relative overflow-hidden rounded-3xl border border-white/[0.06]">
+                                <img
+                                    src={mission.image}
+                                    alt="Mission"
+                                    className="w-full h-56 md:h-64 object-cover transition-transform duration-700 hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            </div>
+                        )}
+                        <div className="relative">
+                            <div className="absolute -left-6 top-0 text-8xl font-serif text-white/5 -z-10 leading-none">"</div>
+                            <p className="text-lg md:text-xl text-muted-foreground/90 leading-relaxed font-normal">
+                                {mission?.quote?.split(mission.quoteHighlight || "")[0]}
+                                <span className="text-white font-medium">{mission?.quoteHighlight}</span>
+                                {mission?.quote?.split(mission.quoteHighlight || "")[1]}
+                            </p>
+                        </div>
+                    </AnimatedDiv>
                 </div>
 
                 {/* Values Grid - Desktop */}
@@ -83,8 +96,7 @@ export default function MissionValues({ data }: { data?: any }) {
 
                 {/* Values Carousel - Mobile/Tablet */}
                 <div className="lg:hidden">
-                    <Swiper
-                        modules={[Pagination, Autoplay]}
+                    <Swiper modules={[Pagination, Autoplay]}
                         spaceBetween={20}
                         slidesPerView={1.2}
                         centeredSlides={true}
@@ -120,8 +132,7 @@ function ValueCard({ item, index, isMobile = false }: { item: any, index: number
     const gradient = gradients[index % gradients.length];
 
     return (
-        <motion.div
-            initial={!isMobile ? { opacity: 0, y: 30 } : {}}
+        <AnimatedDiv initial={!isMobile ? { opacity: 0, y: 30 } : {}}
             whileInView={!isMobile ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             viewport={{ once: true }}
@@ -148,7 +159,7 @@ function ValueCard({ item, index, isMobile = false }: { item: any, index: number
                     <h4 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors">
                         {item.title}
                     </h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                         {item.description}
                     </p>
                 </CardContent>
@@ -159,6 +170,10 @@ function ValueCard({ item, index, isMobile = false }: { item: any, index: number
                     gradient.split(" ")[1]
                 )} />
             </Card>
-        </motion.div>
+        </AnimatedDiv>
     );
 }
+
+
+
+

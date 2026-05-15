@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
@@ -50,7 +51,7 @@ export default function FeaturedProjects() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 md:mb-16 gap-8">
                     <div className="w-full md:max-w-2xl">
-                        <motion.div 
+                        <AnimatedDiv 
                             initial={{ opacity: 0, x: -20 }}
                             style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, x: 0 }}
@@ -61,7 +62,7 @@ export default function FeaturedProjects() {
                             <Badge variant="outline" className="border-primary/20 text-primary tracking-wide px-3 py-1 font-semibold text-xs">
                                 {projectsContent.badge}
                             </Badge>
-                        </motion.div>
+                        </AnimatedDiv>
                         <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-4 md:mb-6">
                             {projectsContent.title} <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/40">
@@ -94,8 +95,7 @@ export default function FeaturedProjects() {
                 </div>
 
                 {/* Slider */}
-                <Swiper
-                    modules={[Navigation, Autoplay]}
+                <Swiper modules={[Navigation, Autoplay]}
                     onBeforeInit={(swiper) => {
                         swiperRef.current = swiper;
                     }}
@@ -119,20 +119,13 @@ export default function FeaturedProjects() {
                             {/* Card Image Container */}
                             <div className="relative aspect-[4/3] md:aspect-[16/10] rounded-3xl overflow-hidden mb-6 md:mb-8 border border-white/10 bg-card">
                                 {/* Project Image */}
-                                <Image
-                                    src={project.image}
+                                <Image src={project.image}
                                     alt={project.title}
-                                    fill
-                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, (max-width: 1024px) 50vw, 45vw"
+                                    fill sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, (max-width: 1024px) 50vw, 45vw"
                                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                                     loading="lazy"
                                 />
 
-                                {/* Gradient Overlay */}
-                                <div className={cn(
-                                    "absolute inset-0 bg-gradient-to-br opacity-80 transition-transform duration-700 group-hover:scale-105",
-                                    project.imageGradient
-                                )} />
                                 
                                 {/* Noise Texture Overlay */}
                                 <div className="absolute inset-0 opacity-20 bg-grain" style={{ filter: 'contrast(120%) brightness(120%)' }} />

@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Users, Workflow, Cpu, Headphones, Shield, Zap, Target, Award } from "lucide-react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ const defaultWhyUsContent = {
     ],
     stats: [
         { value: "99.9%", label: "Client Satisfaction" },
-        { value: "50+", label: "Projects Delivered" },
+        { value: "500+", label: "Projects Delivered" },
         { value: "6+ Years", label: "Industry Experience" },
     ]
 };
@@ -53,7 +54,7 @@ export default function WhyUs({ data }: { data?: any }) {
 
             <div className="container px-4 mx-auto">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center mb-16 md:mb-20">
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, x: -30 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -73,10 +74,10 @@ export default function WhyUs({ data }: { data?: any }) {
                         <p className="text-base md:text-lg text-muted-foreground/80 max-w-xl leading-relaxed mx-auto lg:mx-0">
                             {whyUsContent.description}
                         </p>
-                    </motion.div>
+                    </AnimatedDiv>
 
                     {/* Stats Grid */}
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, scale: 0.9 }}
                         style={{ willChange: "transform, opacity" }}
                          whileInView={{ opacity: 1, scale: 1 }}
@@ -102,15 +103,14 @@ export default function WhyUs({ data }: { data?: any }) {
                                 <p className="text-xs text-muted-foreground tracking-wide">{stats[2]?.label ?? ""}</p>
                             </CardContent>
                          </Card>
-                    </motion.div>
+                    </AnimatedDiv>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {features.map((feature: any, index: number) => {
                         const Icon = iconMap[feature.icon] || Users;
                         return (
-                            <motion.div
-                                key={index}
+                            <AnimatedDiv key={index}
                                 initial={{ opacity: 0, y: 30 }}
                                 style={{ willChange: "transform, opacity" }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -148,7 +148,7 @@ export default function WhyUs({ data }: { data?: any }) {
                                         </p>
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </AnimatedDiv>
                         );
                     })}
                 </div>

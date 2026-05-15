@@ -103,7 +103,7 @@ export default function PricingMarketingPage() {
     const [couponSearch, setCouponSearch] = useState("");
     
     // Coupon Form State
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [code, setCode] = useState("");
     const [description, setDescription] = useState("");
     const [discountType, setDiscountType] = useState("percentage");
@@ -112,7 +112,7 @@ export default function PricingMarketingPage() {
     const [usageLimit, setUsageLimit] = useState("");
 
     // Bundle Form State
-    const [isCreateBundleOpen, setIsCreateBundleOpen] = useState(false);
+  const [isCreateBundleOpen, setIsCreateBundleOpen] = useState(false);
     const [editingBundleId, setEditingBundleId] = useState<string | null>(null);
     const [bundleName, setBundleName] = useState("");
     const [bundleDescription, setBundleDescription] = useState("");
@@ -190,8 +190,7 @@ export default function PricingMarketingPage() {
             description: "Weekend Flash Sale - 15% OFF UI Kits",
             discountType: "percentage",
             discountValue: 15,
-            expiryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
-            usageLimit: 100
+            expiryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now, usageLimit: 100
         });
         
         if (success) {
@@ -257,7 +256,7 @@ export default function PricingMarketingPage() {
 
 
     // Subscription Form State
-    const [isCreateSubscriptionOpen, setIsCreateSubscriptionOpen] = useState(false);
+  const [isCreateSubscriptionOpen, setIsCreateSubscriptionOpen] = useState(false);
     const [editingSubscriptionId, setEditingSubscriptionId] = useState<string | null>(null);
     const [subName, setSubName] = useState("");
     const [subPrice, setSubPrice] = useState("");
@@ -336,7 +335,7 @@ export default function PricingMarketingPage() {
         <div className="space-y-8 pb-20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Pricing & Marketing</h1>
+                    <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Pricing & Marketing</h1>
                     <p className="text-muted-foreground font-medium mt-1">Boost sales with smart coupons, product bundles, and seasonal campaigns.</p>
                 </div>
                 <div className="flex gap-2">
@@ -359,21 +358,21 @@ export default function PricingMarketingPage() {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[500px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                             <DialogHeader>
-                                <DialogTitle className="text-2xl font-black  tracking-tight text-center">{editingId ? "Edit Coupon" : "Create New Coupon"}</DialogTitle>
+                                <DialogTitle className="text-2xl font-semibold text-center">{editingId ? "Edit Coupon" : "Create New Coupon"}</DialogTitle>
                                 <DialogDescription className="text-center font-medium">Define the parameters for your promotional campaign.</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6 mt-4">
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Coupon Code</Label>
-                                    <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="SUMMER2026" className="h-auto rounded-xl font-bold uppercase" />
+                                    <Label className="text-xs font-semibold  text-muted-foreground">Coupon Code</Label>
+                                    <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="SUMMER2026" className="h-auto rounded-xl font-bold " />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Description</Label>
+                                    <Label className="text-xs font-semibold  text-muted-foreground">Description</Label>
                                     <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Summer Sale Discount" className="h-auto rounded-xl font-medium" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Type</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Type</Label>
                                         <Select value={discountType} onValueChange={setDiscountType}>
                                             <SelectTrigger className="h-auto rounded-xl font-medium">
                                                 <SelectValue />
@@ -385,7 +384,7 @@ export default function PricingMarketingPage() {
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Value</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Value</Label>
                                         <div className="relative">
                                             <Input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} placeholder={discountType === "percentage" ? "20" : "10"} className="h-auto rounded-xl font-medium pl-8" />
                                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-xs">{discountType === "percentage" ? "%" : "$"}</span>
@@ -394,11 +393,11 @@ export default function PricingMarketingPage() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Expiry Date</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Expiry Date</Label>
                                         <Input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} className="h-auto rounded-xl font-medium" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Limit (Optional)</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Limit (Optional)</Label>
                                         <Input type="number" value={usageLimit} onChange={(e) => setUsageLimit(e.target.value)} placeholder="100" className="h-auto rounded-xl font-medium" />
                                     </div>
                                 </div>
@@ -420,11 +419,11 @@ export default function PricingMarketingPage() {
                         <Sparkles className="w-8 h-8 animate-pulse" />
                     </div>
                     <div>
-                        <h3 className="font-black text-xl  tracking-tight">Quick deploy: Weekend-style campaign</h3>
+                        <h3 className="font-semibold text-xl">Quick deploy: Weekend-style campaign</h3>
                         <p className="text-sm font-medium text-muted-foreground mt-1 max-w-xl leading-relaxed">Create a 15% weekend coupon (WEEKEND15) valid for 2 days with 100 uses. Edit details in the form after creation.</p>
                     </div>
                 </div>
-                <Button onClick={handleDeployCampaign} disabled={isLoading} className="w-full md:w-auto rounded-2xl h-14 px-8 relative font-black  bg-foreground text-background hover:bg-foreground/90 shadow-xl shrink-0">
+                <Button onClick={handleDeployCampaign} disabled={isLoading} className="w-full md:w-auto rounded-2xl h-14 px-8 relative font-semibold  bg-foreground text-background hover:bg-foreground/90 shadow-xl shrink-0">
                     Deploy suggested campaign <ArrowUpRight className="ml-2 w-4 h-4" />
                 </Button>
             </div>
@@ -460,12 +459,12 @@ export default function PricingMarketingPage() {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-muted/5 hover:bg-muted/5 border-border/50">
-                                        <TableHead className="w-[200px] h-auto font-black text-xs uppercase tracking-widest pl-6">Code</TableHead>
-                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Description</TableHead>
-                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Discount</TableHead>
-                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Usage</TableHead>
-                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest">Status</TableHead>
-                                        <TableHead className="h-auto font-black text-xs uppercase tracking-widest text-right pr-6">Action</TableHead>
+                                        <TableHead className="w-[200px] h-auto font-semibold text-xs  pl-6">Code</TableHead>
+                                        <TableHead className="h-auto font-semibold text-xs ">Description</TableHead>
+                                        <TableHead className="h-auto font-semibold text-xs ">Discount</TableHead>
+                                        <TableHead className="h-auto font-semibold text-xs ">Usage</TableHead>
+                                        <TableHead className="h-auto font-semibold text-xs ">Status</TableHead>
+                                        <TableHead className="h-auto font-semibold text-xs  text-right pr-6">Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -500,7 +499,7 @@ export default function PricingMarketingPage() {
                                         <TableRow key={coupon.id} className="group hover:bg-primary/[0.02] transition-colors border-border/50">
                                             <TableCell className="pl-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <code className="font-mono font-black text-sm px-3 py-1.5 bg-primary/10 text-primary rounded-lg border border-primary/20 select-all tracking-wider">
+                                                    <code className="font-mono font-semibold text-sm px-3 py-1.5 bg-primary/10 text-primary rounded-lg border border-primary/20 select-all">
                                                         {coupon.code}
                                                     </code>
                                                     <button onClick={() => handleCopyCode(coupon.code)} className="opacity-0 group-hover:opacity-100 p-2 hover:bg-background rounded-lg transition-all border border-transparent hover:border-border/50 shadow-sm">
@@ -511,13 +510,13 @@ export default function PricingMarketingPage() {
                                             <TableCell className="py-4">
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-bold text-foreground/90">{coupon.description}</span>
-                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 mt-1">
+                                                    <span className="text-sm  font-bold text-muted-foreground flex items-center gap-1.5 mt-1">
                                                         <Calendar className="w-3 h-3" /> Expires {format(new Date(coupon.expiryDate), 'MMM dd, yyyy')}
                                                     </span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
-                                                <div className="flex items-center gap-2 font-black text-lg  text-foreground/80">
+                                                <div className="flex items-center gap-2 font-semibold text-lg  text-foreground/80">
                                                     <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0">
                                                         <Percent className="w-4 h-4" />
                                                     </div>
@@ -526,7 +525,7 @@ export default function PricingMarketingPage() {
                                             </TableCell>
                                             <TableCell className="py-4">
                                                 <div className="flex flex-col gap-2 w-32">
-                                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-wider">
+                                                    <div className="flex justify-between text-sm font-semibold ">
                                                         <span>{coupon.usageCount} Used</span>
                                                         <span className="text-muted-foreground opacity-50">{coupon.usageLimit ? `/ ${coupon.usageLimit}` : '∞'}</span>
                                                     </div>
@@ -542,8 +541,8 @@ export default function PricingMarketingPage() {
                                                 <Badge 
                                                     onClick={() => toggleCouponStatus(coupon.id, coupon.status || 'active')}
                                                     className={`cursor-pointer transition-all hover:scale-105 ${
-                                                    coupon.status === "active" ? "bg-green-500 text-white shadow-lg shadow-green-500/20 hover:bg-green-600 border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1" : 
-                                                    "bg-muted text-muted-foreground font-bold uppercase text-[10px] tracking-wider px-3 py-1 hover:bg-muted/80"
+                                                    coupon.status === "active" ? "bg-green-500 text-white shadow-lg shadow-green-500/20 hover:bg-green-600 border-none font-bold  text-sm px-3 py-1" : 
+                                                    "bg-muted text-muted-foreground font-bold  text-sm px-3 py-1 hover:bg-muted/80"
                                                 }`}>
                                                     {coupon.status || 'Active'}
                                                 </Badge>
@@ -581,28 +580,28 @@ export default function PricingMarketingPage() {
                                 <div className="h-40 bg-muted relative overflow-hidden">
                                      {bundle.image && <img src={bundle.image} alt={bundle.name} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                                    <Badge className="absolute top-4 right-4 bg-primary text-white shadow-lg shadow-primary/20 font-bold uppercase text-[10px] tracking-wider border-none">Active Bundle</Badge>
+                                    <Badge className="absolute top-4 right-4 bg-primary text-white shadow-lg shadow-primary/20 font-bold  text-sm border-none">Active Bundle</Badge>
                                     <div className="absolute bottom-4 left-6 right-6">
-                                        <CardTitle className="text-xl font-black  text-white tracking-tight">{bundle.name}</CardTitle>
+                                        <CardTitle className="text-xl font-semibold  text-white">{bundle.name}</CardTitle>
                                         <CardDescription className="text-xs mt-1 text-white/70 line-clamp-1 font-medium">{bundle.description}</CardDescription>
                                     </div>
                                 </div>
                                 <CardContent className="space-y-6 p-6">
                                     <div className="flex flex-wrap gap-2">
                                         {bundle.products && bundle.products.map((p: any) => (
-                                            <Badge key={p.id} variant="secondary" className="text-[10px] h-6 px-3 bg-muted font-bold text-muted-foreground border border-border/50">{p.name}</Badge>
+                                            <Badge key={p.id} variant="secondary" className="text-sm h-6 px-3 bg-muted font-bold text-muted-foreground border border-border/50">{p.name}</Badge>
                                         ))}
                                     </div>
                                     <div className="pt-6 border-t border-border/50 flex items-center justify-between">
                                         <div>
-                                            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Bundle Price</p>
+                                            <p className="text-sm text-muted-foreground  font-semibold mb-1">Bundle Price</p>
                                             <div className="flex items-baseline gap-2">
-                                                <p className="font-black text-2xl  tracking-tight">${bundle.price}</p>
+                                                <p className="font-semibold text-2xl">${bundle.price}</p>
                                                 {bundle.originalPrice && <span className="text-sm text-muted-foreground line-through decoration-destructive/50  font-bold">${bundle.originalPrice}</span>}
                                             </div>
                                         </div>
                                         {bundle.originalPrice && (
-                                            <Badge className="bg-green-500/10 text-green-500 border-green-500/20 font-black uppercase text-[10px] tracking-wider px-3 h-7 animate-pulse">
+                                            <Badge className="bg-green-500/10 text-green-500 border-green-500/20 font-semibold  text-sm px-3 h-7 animate-pulse">
                                                 Save ${Number(bundle.originalPrice) - Number(bundle.price)}
                                             </Badge>
                                         )}
@@ -625,36 +624,36 @@ export default function PricingMarketingPage() {
                                     <div className="w-16 h-16 rounded-[24px] bg-background border border-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-primary/50 transition-all shadow-lg shadow-primary/5">
                                         <Plus className="w-8 h-8 text-primary opacity-50 group-hover:opacity-100 transition-opacity" />
                                     </div>
-                                    <h4 className="font-black text-lg  tracking-tight text-foreground/80 group-hover:text-primary transition-colors">Create New Bundle</h4>
+                                    <h4 className="font-semibold text-lg text-foreground/80 group-hover:text-primary transition-colors">Create New Bundle</h4>
                                     <p className="text-xs font-medium text-muted-foreground max-w-[200px] mt-2 leading-relaxed">Combine multiple assets into a high-value package to increase average order value.</p>
                                 </div>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[600px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black  tracking-tight text-center">{editingBundleId ? "Edit Bundle" : "Create Bundle"}</DialogTitle>
+                                    <DialogTitle className="text-2xl font-semibold text-center">{editingBundleId ? "Edit Bundle" : "Create Bundle"}</DialogTitle>
                                     <DialogDescription className="text-center font-medium">Combine products into a single offering.</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-6 mt-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Bundle Name</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Bundle Name</Label>
                                         <Input value={bundleName} onChange={(e) => setBundleName(e.target.value)} placeholder="Ultimate Creator Pack" className="h-auto rounded-xl font-bold" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Description</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Description</Label>
                                         <Input value={bundleDescription} onChange={(e) => setBundleDescription(e.target.value)} placeholder="Includes all major kits + lifetime updates" className="h-auto rounded-xl font-medium" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                          <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Price ($)</Label>
+                                            <Label className="text-xs font-semibold  text-muted-foreground">Price ($)</Label>
                                             <Input type="number" value={bundlePrice} onChange={(e) => setBundlePrice(e.target.value)} placeholder="199" className="h-auto rounded-xl font-medium" />
                                         </div>
                                          <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Original Price ($)</Label>
+                                            <Label className="text-xs font-semibold  text-muted-foreground">Original Price ($)</Label>
                                             <Input type="number" value={bundleOriginalPrice} onChange={(e) => setBundleOriginalPrice(e.target.value)} placeholder="299" className="h-auto rounded-xl font-medium" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Select Products</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Select Products</Label>
                                         <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 border border-border/50 rounded-xl bg-background/50">
                                             {products.map(product => (
                                                 <div 
@@ -669,7 +668,7 @@ export default function PricingMarketingPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Preview Image URL</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Preview Image URL</Label>
                                         <Input value={bundleImage} onChange={(e) => setBundleImage(e.target.value)} placeholder="https://..." className="h-auto rounded-xl font-medium text-xs" />
                                     </div>
                                 </div>
@@ -705,25 +704,25 @@ export default function PricingMarketingPage() {
                                             <div className={`p-3 rounded-2xl ${plan.bgColor || 'bg-blue-500/10'} ${plan.color || 'text-blue-500'}`}>
                                                 <Icon size={24} />
                                             </div>
-                                            <Badge className="ml-auto bg-green-500/10 text-green-500 border-none text-[9px] font-black uppercase tracking-widest px-2 py-1">Growth Status</Badge>
+                                            <Badge className="ml-auto bg-green-500/10 text-green-500 border-none text-xs font-semibold  px-2 py-1">Growth Status</Badge>
                                         </div>
-                                        <CardTitle className="text-xl font-black  tracking-tight">{plan.name}</CardTitle>
+                                        <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
                                         <CardDescription className="text-xs font-medium mt-1">Managed recurring service plan.</CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-8 pt-4">
                                         <div className="flex items-baseline gap-1 mb-8">
-                                            <span className="text-4xl font-black tracking-tighter">${plan.price}</span>
+                                            <span className="text-3xl font-semibold">${plan.price}</span>
                                             <span className="text-sm font-bold text-muted-foreground">/{plan.interval}</span>
                                         </div>
                                         <div className="space-y-4 p-4 rounded-2xl bg-muted/50 border border-border/50">
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="font-bold text-muted-foreground uppercase tracking-widest">Active Subs</span>
-                                                <span className="font-black text-foreground">{plan.activeSubscribers || 0}</span>
+                                                <span className="font-bold text-muted-foreground ">Active Subs</span>
+                                                <span className="font-semibold text-foreground">{plan.activeSubscribers || 0}</span>
                                             </div>
                                             <div className="h-px bg-border/50" />
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="font-bold text-muted-foreground uppercase tracking-widest">MRR Impact</span>
-                                                <span className="font-black text-primary">${((plan.price || 0) * (plan.activeSubscribers || 0)).toLocaleString()}</span>
+                                                <span className="font-bold text-muted-foreground ">MRR Impact</span>
+                                                <span className="font-semibold text-primary">${((plan.price || 0) * (plan.activeSubscribers || 0)).toLocaleString()}</span>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -744,21 +743,21 @@ export default function PricingMarketingPage() {
                     }}>
                         <DialogContent className="sm:max-w-[500px] rounded-[32px] p-8 border-border/50 bg-card/95 backdrop-blur-xl">
                             <DialogHeader>
-                                <DialogTitle className="text-2xl font-black  tracking-tight text-center">{editingSubscriptionId ? "Edit Plan" : "Create Plan"}</DialogTitle>
+                                <DialogTitle className="text-2xl font-semibold text-center">{editingSubscriptionId ? "Edit Plan" : "Create Plan"}</DialogTitle>
                                 <DialogDescription className="text-center font-medium">Configure subscription details.</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6 mt-4">
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Plan Name</Label>
+                                    <Label className="text-xs font-semibold  text-muted-foreground">Plan Name</Label>
                                     <Input value={subName} onChange={(e) => setSubName(e.target.value)} placeholder="Enterprise" className="h-auto rounded-xl font-bold" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Price ($)</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Price ($)</Label>
                                         <Input type="number" value={subPrice} onChange={(e) => setSubPrice(e.target.value)} placeholder="99" className="h-auto rounded-xl font-medium" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Interval</Label>
+                                        <Label className="text-xs font-semibold  text-muted-foreground">Interval</Label>
                                         <Select value={subInterval} onValueChange={setSubInterval}>
                                             <SelectTrigger className="h-auto rounded-xl font-medium">
                                                 <SelectValue />
@@ -771,19 +770,19 @@ export default function PricingMarketingPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Description (optional)</Label>
+                                    <Label className="text-xs font-semibold  text-muted-foreground">Description (optional)</Label>
                                     <Textarea value={subDescription} onChange={(e) => setSubDescription(e.target.value)} placeholder="Short description for the plan" className="min-h-[80px] rounded-xl font-medium" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Features (one per line or comma-separated)</Label>
+                                    <Label className="text-xs font-semibold  text-muted-foreground">Features (one per line or comma-separated)</Label>
                                     <Textarea value={subFeatures} onChange={(e) => setSubFeatures(e.target.value)} placeholder="Feature one&#10;Feature two&#10;Feature three" className="min-h-[100px] rounded-xl font-medium text-sm" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Button text (optional)</Label>
+                                    <Label className="text-xs font-semibold  text-muted-foreground">Button text (optional)</Label>
                                     <Input value={subButtonText} onChange={(e) => setSubButtonText(e.target.value)} placeholder="Get started" className="h-auto rounded-xl font-medium" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Icon Style</Label>
+                                    <Label className="text-xs font-semibold  text-muted-foreground">Icon Style</Label>
                                     <div className="flex gap-4">
                                         {['Zap', 'Sparkles', 'TrendingUp'].map((icon) => (
                                             <div 

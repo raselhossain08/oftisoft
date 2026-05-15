@@ -42,16 +42,14 @@ export function CommentItem({ comment, postId, onReply, onLike, onDelete, isSubm
                         </div>
                         <p className="text-sm text-foreground/90 leading-relaxed">{comment.content}</p>
                         <div className="flex items-center gap-3 mt-2">
-                            <button
-                                onClick={() => onLike(comment.id)}
+                            <button onClick={() => onLike(comment.id)}
                                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                             >
                                 <ThumbsUp className="w-3.5 h-3.5" />
                                 {comment.likes > 0 && <span>{comment.likes}</span>}
                             </button>
                             {depth < maxDepth && (
-                                <button
-                                    onClick={() => setShowReplyForm(!showReplyForm)}
+                                <button onClick={() => setShowReplyForm(!showReplyForm)}
                                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                                 >
                                     <Reply className="w-3.5 h-3.5" />
@@ -59,8 +57,7 @@ export function CommentItem({ comment, postId, onReply, onLike, onDelete, isSubm
                                 </button>
                             )}
                             {currentUserId === comment.userId && (
-                                <button
-                                    onClick={() => onDelete(comment.id)}
+                                <button onClick={() => onDelete(comment.id)}
                                     className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 transition-colors ml-auto"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -69,8 +66,7 @@ export function CommentItem({ comment, postId, onReply, onLike, onDelete, isSubm
                         </div>
                         {showReplyForm && (
                             <div className="mt-3">
-                                <CommentForm
-                                    postId={postId}
+                                <CommentForm postId={postId}
                                     parentId={comment.id}
                                     onSubmit={(data) => {
                                         onReply(data);
@@ -85,8 +81,7 @@ export function CommentItem({ comment, postId, onReply, onLike, onDelete, isSubm
                 </div>
             </div>
             {comment.parentId === null && (comment as any).replies?.map((reply: Comment) => (
-                <CommentItem
-                    key={reply.id}
+                <CommentItem key={reply.id}
                     comment={reply}
                     postId={postId}
                     onReply={onReply}

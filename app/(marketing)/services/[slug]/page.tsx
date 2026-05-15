@@ -1,9 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedP, useScrollProgress } from "@/lib/animated";
 
 import { useState, useEffect, useRef, use } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
 import Link from "next/link";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { 
     ArrowLeft, ArrowRight, CheckCircle2, Zap, Layout, Layers, Box, Globe, 
     Code, Cpu, Server, Smartphone, Shield, Database, Sparkles, Code2, 
@@ -24,6 +23,7 @@ import "swiper/css/effect-creative";
 import { cn } from "@/lib/utils";
 import { useServicesContentStore } from "@/lib/store/services-content";
 import ServicePackages from "@/components/sections/services-page/service-packages";
+import ServiceOfferDetail from "@/components/sections/services-page/service-offer-detail";
 
 // Icon mapping matching the CMS
 const iconMap: any = {
@@ -35,41 +35,35 @@ const iconMap: any = {
 
 export default function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
-    const { pageContent, isLoading } = usePageContent('services');
-    const setContent = useServicesContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
     const { content } = useServicesContentStore();
+
+    // Service offer detail route (IDs starting with "svc-")
+    if (slug.startsWith("svc-")) {
+        const offer = content?.offers.find(o => o.id === slug);
+        if (!offer) {
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+                    <h1 className="text-4xl font-bold mb-4">Service Not Found</h1>
+                    <p className="text-muted-foreground mb-8">The service you're looking for doesn't exist or has been moved.</p>
+                    <Button asChild>
+                        <Link href="/services">Back to Services</Link>
+                    </Button>
+                </div>
+            );
+        }
+        return <ServiceOfferDetail offer={offer} />;
+    }
+
     const service = content?.overview.find(s => s.id === slug);
     const globalProcess = content?.process || [];
     
-    const [isMounted, setIsMounted] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    
-    // Only initialize scroll tracking after mount to avoid hydration issues
-    const { scrollYProgress } = useScroll(
-        isMounted ? { target: containerRef } : {}
-    );
-
-    // Parallax Effects
-    const yHero = useTransform(scrollYProgress, [0, 0.2], [0, 100]);
-    const opacityHero = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+    const scrollYProgress = useScrollProgress(containerRef);
 
     const [activeProcessIndex, setActiveProcessIndex] = useState(0);
 
-    if (!isMounted) return null;
-
     // Handle 404
-    if (!service) {
+  if (!service) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
                 <h1 className="text-4xl font-bold mb-4">Service Not Found</h1>
@@ -84,9 +78,9 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
     return (
         <main ref={containerRef} className="min-h-screen relative overflow-hidden">
             {/* Scroll Progress Bar */}
-            <motion.div 
+            <AnimatedDiv 
                 className="fixed top-0 left-0 right-0 h-1 bg-primary z-[60] origin-left"
-                style={{ scaleX: scrollYProgress }}
+                style={{ transform: `scaleX(${scrollYProgress})` }}
             />
             
             {/* Top Navigation */}
@@ -113,7 +107,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                     <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
                         
                         {/* Eyebrow Label */}
-                        <motion.div 
+                        <AnimatedDiv 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
@@ -121,11 +115,10 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                         >
                             <Sparkles className="w-4 h-4" />
                             <span>Premium Solution</span>
-                        </motion.div>
+                        </AnimatedDiv>
 
                         {/* Visual Icon Representation */}
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
+                        <AnimatedDiv initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ duration: 0.8, delay: 0.1, type: "spring" }}
                             className="mb-8 relative"
@@ -138,10 +131,10 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                             </div>
                             {/* Glow Behind Icon */}
                             <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 z-0 animate-pulse-slow" />
-                        </motion.div>
+                        </AnimatedDiv>
                         
                         {/* Main Title */}
-                        <motion.h1 
+                        <AnimatedH1 
                             className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-8 leading-[0.85]"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -150,55 +143,55 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                             <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground via-foreground to-foreground/50">
                                 {service.title}
                             </span>
-                        </motion.h1>
+                        </AnimatedH1>
 
                         {/* Subtitle */}
                         {service.subtitle && (
-                            <motion.h2 
+                            <AnimatedH2 
                                 className="text-2xl md:text-3xl font-light mb-8 text-foreground/80 tracking-tight max-w-3xl"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, delay: 0.3 }}
                             >
                                 {service.subtitle}
-                            </motion.h2>
+                            </AnimatedH2>
                         )}
 
                         {/* Description */}
-                        <motion.p 
+                        <AnimatedP 
                             className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-12 max-w-2xl mx-auto"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.4 }}
                         >
                             {service.description}
-                        </motion.p>
+                        </AnimatedP>
 
                         {/* CTAs */}
-                        <motion.div 
+                        <AnimatedDiv 
                             className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.5 }}
                         >
-                            <Button size="lg" className="rounded-full h-14 px-8 text-lg font-bold shadow-[0_0_30px_-5px_rgba(var(--primary-rgb),0.4)] hover:shadow-[0_0_40px_-5px_rgba(var(--primary-rgb),0.6)] hover:scale-105 transition-all duration-300 bg-primary text-primary-foreground group w-full sm:w-auto">
-                                <Link href="#contact" className="flex items-center gap-2">
+                            <Button asChild size="lg" className="rounded-full h-14 px-8 text-lg font-bold shadow-[0_0_30px_-5px_rgba(var(--primary-rgb),0.4)] hover:shadow-[0_0_40px_-5px_rgba(var(--primary-rgb),0.6)] hover:scale-105 transition-all duration-300 bg-primary text-primary-foreground group w-full sm:w-auto">
+                                <Link href="/contact" className="flex items-center gap-2">
                                     Start Your Project
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </Button>
                             
-                            <Button variant="outline" size="lg" className="rounded-full h-14 px-8 text-lg font-bold border-white/10 hover:bg-white/5 hover:text-foreground backdrop-blur-sm w-full sm:w-auto transition-all hover:border-primary/50">
-                                <Link href="/portfolio">
+                            <Button asChild variant="outline" size="lg" className="rounded-full h-14 px-8 text-lg font-bold border-white/10 hover:bg-white/5 hover:text-foreground backdrop-blur-sm w-full sm:w-auto transition-all hover:border-primary/50">
+                                <Link href="/portfolio" className="flex items-center gap-2">
                                     View Past Work
                                 </Link>
                             </Button>
-                        </motion.div>
+                        </AnimatedDiv>
 
                         {/* Floating Tech Badges (Decorative) */}
                          <div className="absolute top-1/2 left-0 -translate-y-1/2 hidden xl:flex flex-col gap-4 opacity-50 pointer-events-none">
                             {[1,2,3].map((_, i) => (
-                                <motion.div 
+                                <AnimatedDiv 
                                     key={i}
                                     initial={{ x: -50, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
@@ -209,7 +202,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                         </div>
                          <div className="absolute top-1/2 right-0 -translate-y-1/2 hidden xl:flex flex-col gap-4 items-end opacity-50 pointer-events-none">
                             {[1,2,3].map((_, i) => (
-                                <motion.div 
+                                <AnimatedDiv 
                                     key={i}
                                     initial={{ x: 50, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
@@ -230,7 +223,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                         {service.features.map((feature, i) => {
                             const FeatureIcon = iconMap[feature.iconName] || Zap;
                             return (
-                                <motion.div 
+                                <AnimatedDiv 
                                     key={i}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
@@ -248,7 +241,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                     </div>
                                     <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
                                     <p className="text-muted-foreground leading-relaxed">{feature.desc}</p>
-                                </motion.div>
+                                </AnimatedDiv>
                             );
                         })}
                     </div>
@@ -263,7 +256,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                         {/* Left: Sticky Info Panel (Desktop) */}
                         <div className="hidden lg:block w-1/3 relative">
                             <div className="sticky top-32 space-y-8">
-                                <motion.div 
+                                <AnimatedDiv 
                                     initial={{ opacity: 0, x: -20 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
@@ -280,21 +273,18 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                     <p className="text-lg text-muted-foreground leading-relaxed">
                                         We follow a precise, transparent workflow to ensure every project is delivered to perfection.
                                     </p>
-                                </motion.div>
+                                </AnimatedDiv>
 
                                 <div className="relative aspect-square w-full max-w-sm mx-auto rounded-[2rem] bg-gradient-to-br from-card to-background border border-border/50 shadow-2xl overflow-hidden flex items-center justify-center p-8 group">
                                      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:20px_20px]" />
                                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
                                      
-                                     <AnimatePresence mode="wait">
-                                         <motion.div
-                                            key={activeProcessIndex}
-                                            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-                                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                            exit={{ opacity: 0, scale: 1.1, rotate: 10 }}
-                                            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                                            className="relative z-10 flex flex-col items-center justify-center gap-6"
-                                         >
+                                     <AnimatedDiv key={activeProcessIndex}
+                                        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                        transition={{ duration: 0.5 }}
+                                        className="relative z-10 flex flex-col items-center justify-center gap-6"
+                                     >
                                             {(() => {
                                                 const step = globalProcess[activeProcessIndex];
                                                 const Icon = step ? (iconMap[step.iconName] || Zap) : Zap;
@@ -312,8 +302,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                                     </>
                                                 );
                                             })()}
-                                         </motion.div>
-                                     </AnimatePresence>
+                                         </AnimatedDiv>
                                 </div>
                             </div>
                         </div>
@@ -335,7 +324,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                 const isActive = activeProcessIndex === i;
                                 
                                 return (
-                                    <motion.div 
+                                    <AnimatedDiv 
                                         key={i}
                                         initial={{ opacity: 0.3 }}
                                         whileInView={{ opacity: 1 }}
@@ -358,7 +347,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                         <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
                                             {step.desc}
                                         </p>
-                                    </motion.div>
+                                    </AnimatedDiv>
                                 );
                             })}
                         </div>
@@ -379,8 +368,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                     </div>
                     
                     <div className="relative w-full max-w-7xl mx-auto px-4">
-                        <Swiper
-                            modules={[Autoplay]}
+                        <Swiper modules={[Autoplay]}
                             spaceBetween={20}
                             slidesPerView={2}
                             breakpoints={{
@@ -440,7 +428,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
 
                                 let techSlug = tech.toLowerCase();
                                 // Clean up version numbers if not explicitly mapped
-                                if (!slugMap[techSlug]) {
+  if (!slugMap[techSlug]) {
                                     techSlug = techSlug.replace(/\s\d+(\.\d+)?$/, '');
                                 }
 
@@ -462,8 +450,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ slug: 
                                                 alt={`${tech} logo`}
                                                 className="w-full h-full object-contain opacity-60 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0"
                                                 onError={(e) => {
-                                                    // Fallback to text if image fails
-                                                    e.currentTarget.style.display = 'none';
+                                                    // Fallback to text if image fails, e.currentTarget.style.display = 'none';
                                                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                                                     e.currentTarget.nextElementSibling?.classList.add('flex');
                                                 }}

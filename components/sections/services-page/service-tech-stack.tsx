@@ -1,7 +1,7 @@
 "use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP, AnimatePresence } from "@/lib/animated";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
     Layout, Server, Database, Cloud, Brain, Smartphone, Code2, Globe, Cpu, Layers,
     Plus, Save, Trash2, LayoutTemplate, Grid, HelpCircle, Video, FileText, 
@@ -39,7 +39,7 @@ export default function ServiceTechStack() {
 
             <div className="container px-4 mx-auto relative z-10">
                 <div className="text-center mb-12 md:mb-16">
-                     <motion.div 
+                     <AnimatedDiv 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -51,9 +51,9 @@ export default function ServiceTechStack() {
                             <Layers className="w-3.5 h-3.5" />
                             Our Toolkit
                         </Badge>
-                    </motion.div>
+                    </AnimatedDiv>
                     
-                    <motion.h2 
+                    <AnimatedH2 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -61,9 +61,9 @@ export default function ServiceTechStack() {
                         transition={{ delay: 0.1 }}
                         className="text-3xl md:text-5xl font-semibold mb-4 md:mb-6 tracking-tight"
                     >
-                        Powerful <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Technology Stack</span>
-                    </motion.h2>
-                    <motion.p 
+                        Powerful <span className="text-primary">Technology Stack</span>
+                    </AnimatedH2>
+                    <AnimatedP 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ export default function ServiceTechStack() {
                         className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto"
                     >
                         We leverage the latest frameworks and tools to build future-proof, high-performance applications.
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
@@ -80,8 +80,7 @@ export default function ServiceTechStack() {
                     <div className="w-full lg:w-1/4">
                         <div className="flex lg:flex-col overflow-x-auto pb-4 lg:pb-0 gap-3 lg:gap-3 sticky lg:top-24 no-scrollbar snap-x">
                             {techCategories.map((cat) => (
-                                <button
-                                    key={cat.id}
+                                <button key={cat.id}
                                     onClick={() => setActiveTab(cat.id)}
                                     className={cn(
                                         "min-w-[240px] lg:min-w-0 snap-center flex items-center gap-4 p-4 rounded-xl transition-all duration-300 border text-left group relative overflow-hidden",
@@ -92,8 +91,7 @@ export default function ServiceTechStack() {
                                 >
                                     {/* Active Indicator Splash */}
                                     {activeTab === cat.id && (
-                                        <motion.div
-                                            layoutId="active-bg"
+                                        <AnimatedDiv layoutId="active-bg"
                                             className="absolute inset-0 bg-primary z-0"
                                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                         />
@@ -124,8 +122,7 @@ export default function ServiceTechStack() {
                     {/* Right: Content Grid */}
                     <div className="w-full lg:w-3/4 min-h-[400px]">
                         <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeTab}
+                            <AnimatedDiv key={activeTab}
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
@@ -198,7 +195,7 @@ export default function ServiceTechStack() {
 
                                     let techSlug = tech.toLowerCase();
                                     // Clean up version numbers if not explicitly mapped
-                                    if (!slugMap[techSlug]) {
+  if (!slugMap[techSlug]) {
                                         techSlug = techSlug.replace(/\s\d+(\.\d+)?$/, '');
                                     }
 
@@ -211,8 +208,7 @@ export default function ServiceTechStack() {
                                     }
 
                                     return (
-                                    <motion.div
-                                        key={tech}
+                                    <AnimatedDiv key={tech}
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         style={{ willChange: "transform, opacity" }}
@@ -220,14 +216,14 @@ export default function ServiceTechStack() {
                                         whileHover={{ y: -5, scale: 1.05 }}
                                     >
                                         <Card className="aspect-[4/3] relative group overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300 bg-card/30 backdrop-blur-sm shadow-sm hover:shadow-md">
-                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 group-hover:opacity-100 transition-opacity" />
+                                            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                             
                                             {/* Glow Effect */}
                                             <div className="absolute inset-0 bg-primary/20 hover:bg-primary/30 blur-2xl rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
 
                                             <CardContent className="absolute inset-0 flex flex-col items-center justify-center p-4">
                                                  {/* Real Logo from CDN */}
-                                                 <div className="w-14 h-14 mb-4 rounded-2xl bg-gradient-to-br from-background to-muted shadow-inner flex items-center justify-center border border-white/10 group-hover:border-primary/20 transition-colors relative overflow-hidden p-2">
+                                                 <div className="w-14 h-14 mb-4 rounded-2xl bg-muted shadow-inner flex items-center justify-center border border-white/10 group-hover:border-primary/20 transition-colors relative overflow-hidden p-2">
                                                      <img 
                                                         src={`https://cdn.simpleicons.org/${techSlug}`}
                                                         alt={`${tech} logo`}
@@ -240,7 +236,7 @@ export default function ServiceTechStack() {
                                                     />
                                                      {/* Text Fallback */}
                                                      <div className="hidden absolute inset-0 bg-primary/10 opacity-100 items-center justify-center">
-                                                        <span className="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-b from-foreground to-muted-foreground group-hover:from-primary group-hover:to-purple-500 relative z-10">
+                                                        <span className="text-2xl font-semibold text-foreground/70 group-hover:text-primary relative z-10">
                                                             {tech.charAt(0)}
                                                         </span>
                                                      </div>
@@ -251,10 +247,10 @@ export default function ServiceTechStack() {
                                                  </span>
                                             </CardContent>
                                         </Card>
-                                    </motion.div>
+                                    </AnimatedDiv>
                                     );
                                 })}
-                            </motion.div>
+                            </AnimatedDiv>
                         </AnimatePresence>
                     </div>
                 </div>

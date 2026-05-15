@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
 import { Project } from "@/lib/api";
 import { STATUS_OPTIONS } from "@/lib/projects";
@@ -41,8 +42,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-card w-full max-w-2xl rounded-3xl border border-border shadow-2xl overflow-hidden my-8"
@@ -57,16 +57,14 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="text-sm font-bold">Project Title</label>
-                            <input
-                                value={title}
+                            <input value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold">Client</label>
-                            <input
-                                value={client}
+                            <input value={client}
                                 onChange={(e) => setClient(e.target.value)}
                                 className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
                             />
@@ -74,8 +72,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-bold">Description</label>
-                        <textarea
-                            value={description}
+                        <textarea value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={3}
                             className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none resize-none"
@@ -84,8 +81,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="text-sm font-bold">Status</label>
-                            <select
-                                value={status}
+                            <select value={status}
                                 onChange={(e) => setStatus(e.target.value)}
                                 className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
                             >
@@ -96,8 +92,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold">Progress (%)</label>
-                            <input
-                                type="number"
+                            <input type="number"
                                 min="0"
                                 max="100"
                                 value={progress}
@@ -109,8 +104,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="text-sm font-bold">Budget</label>
-                            <input
-                                type="number"
+                            <input type="number"
                                 value={budget}
                                 onChange={(e) => setBudget(e.target.value)}
                                 className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
@@ -118,8 +112,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold">Team Members</label>
-                            <input
-                                type="number"
+                            <input type="number"
                                 min="1"
                                 value={members}
                                 onChange={(e) => setMembers(parseInt(e.target.value) || 1)}
@@ -129,8 +122,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-bold">Due Date</label>
-                        <input
-                            type="date"
+                        <input type="date"
                             value={dueDate}
                             onChange={(e) => setDueDate(e.target.value)}
                             className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
@@ -138,14 +130,12 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                     </div>
                 </div>
                 <div className="p-6 border-t border-border flex gap-3">
-                    <button
-                        onClick={onClose}
+                    <button onClick={onClose}
                         className="flex-1 px-4 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors"
                     >
                         Cancel
                     </button>
-                    <button
-                        onClick={handleSave}
+                    <button onClick={handleSave}
                         disabled={isUpdating}
                         className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
                     >
@@ -153,7 +143,7 @@ export function EditDialog({ isOpen, onClose, project, onSave, isUpdating }: Edi
                         {isUpdating ? "Saving..." : "Save Changes"}
                     </button>
                 </div>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 };

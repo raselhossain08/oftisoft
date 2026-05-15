@@ -130,7 +130,7 @@ export default function AdsDashboardPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent ">Ad Engine</h1>
+                    <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent ">Ad Engine</h1>
                     <p className="text-muted-foreground font-medium mt-1">Deploy and manage advertisements across your blog and platform.</p>
                 </div>
                 <Button onClick={handleCreate} className="gap-2 rounded-xl h-11 font-bold shadow-lg shadow-primary/20">
@@ -181,7 +181,7 @@ export default function AdsDashboardPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-72 rounded-2xl border-border/50 bg-card/95 backdrop-blur-xl p-4" align="end">
-                                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-sm font-semibold  text-muted-foreground">Status</DropdownMenuLabel>
                                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                                     <SelectTrigger className="h-10 rounded-xl font-medium mt-1">
                                         <SelectValue />
@@ -192,7 +192,7 @@ export default function AdsDashboardPage() {
                                         <SelectItem value="paused">Paused</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-4">Type</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-sm font-semibold  text-muted-foreground mt-4">Type</DropdownMenuLabel>
                                 <Select value={typeFilter} onValueChange={setTypeFilter}>
                                     <SelectTrigger className="h-10 rounded-xl font-medium mt-1">
                                         <SelectValue />
@@ -214,12 +214,12 @@ export default function AdsDashboardPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/5 hover:bg-muted/5 border-border/50">
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest pl-8">Ad Campaign</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Type / Size</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest">Position</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest text-center">Stats</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest ">Status</TableHead>
-                                <TableHead className="h-12 font-black text-xs uppercase tracking-widest text-right pr-8">Actions</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs  pl-8">Ad Campaign</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs ">Type / Size</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs ">Position</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs  text-center">Stats</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs  ">Status</TableHead>
+                                <TableHead className="h-12 font-semibold text-xs  text-right pr-8">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -238,7 +238,7 @@ export default function AdsDashboardPage() {
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-foreground group-hover:text-primary transition-colors">{ad.title}</span>
-                                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{format(new Date(ad.createdAt), 'MMM dd, yyyy')}</span>
+                                                    <span className="text-sm text-muted-foreground  font-medium">{format(new Date(ad.createdAt), 'MMM dd, yyyy')}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -246,27 +246,27 @@ export default function AdsDashboardPage() {
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-1.5">
                                                     <AdIcon size={12} className="text-primary" />
-                                                    <span className="text-xs font-black uppercase">{ad.type.replace('-', ' ')}</span>
+                                                    <span className="text-xs font-semibold ">{ad.type.replace('-', ' ')}</span>
                                                 </div>
-                                                <Badge variant="outline" className="w-fit text-[9px] font-bold h-5 px-1.5 opacity-60">
+                                                <Badge variant="outline" className="w-fit text-xs font-bold h-5 px-1.5 opacity-60">
                                                     {ad.size}
                                                 </Badge>
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest">
+                                            <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/20 text-sm font-semibold ">
                                                 {ad.position.replace(/-/g, ' ')}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center justify-center gap-4">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-xs font-black">{ad.views || 0}</span>
-                                                    <span className="text-[9px] text-muted-foreground uppercase">Views</span>
+                                                    <span className="text-xs font-semibold">{ad.views || 0}</span>
+                                                    <span className="text-xs text-muted-foreground ">Views</span>
                                                 </div>
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-xs font-black">{ad.clicks || 0}</span>
-                                                    <span className="text-[9px] text-muted-foreground uppercase">Clicks</span>
+                                                    <span className="text-xs font-semibold">{ad.clicks || 0}</span>
+                                                    <span className="text-xs text-muted-foreground ">Clicks</span>
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -281,7 +281,7 @@ export default function AdsDashboardPage() {
                                                 )}
                                             >
                                                 <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", ad.isActive ? "bg-green-500" : "bg-red-500")} />
-                                                <span className="text-[10px] font-black uppercase tracking-widest">{ad.isActive ? 'Active' : 'Paused'}</span>
+                                                <span className="text-sm font-semibold ">{ad.isActive ? 'Active' : 'Paused'}</span>
                                             </button>
                                         </TableCell>
                                         <TableCell className="text-right pr-8">
@@ -292,7 +292,7 @@ export default function AdsDashboardPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-border/50 bg-card/95 backdrop-blur-xl">
-                                                    <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2 py-1.5">Manage Ad</DropdownMenuLabel>
+                                                    <DropdownMenuLabel className="text-sm font-semibold  text-muted-foreground px-2 py-1.5">Manage Ad</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(ad)} className="rounded-xl gap-2 font-bold text-xs"><Settings2 size={14} /> Edit Campaign</DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => handleDuplicate(ad)} className="rounded-xl gap-2 font-bold text-xs"><Copy size={14} /> Duplicate Ad</DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => {
@@ -348,8 +348,7 @@ export default function AdsDashboardPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2 sm:gap-0">
                         <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
+                        <AlertDialogAction variant="destructive"
                             className="rounded-xl font-bold bg-destructive text-destructive-foreground"
                             onClick={() => {
                                 if (adToDelete) {
@@ -377,8 +376,8 @@ function StatCard({ title, value, icon: Icon, color }: { title: string, value: n
                     </div>
                 </div>
                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50 mb-1">{title}</p>
-                    <h3 className="text-3xl font-black  tracking-tighter ">{value}</h3>
+                    <p className="text-sm font-semibold  text-muted-foreground opacity-50 mb-1">{title}</p>
+                    <h3 className="text-3xl font-semibold ">{value}</h3>
                 </div>
             </CardContent>
         </Card>

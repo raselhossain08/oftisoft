@@ -73,8 +73,7 @@ export function ReportIssueDialog({ isOpen, onClose, orderId }: ReportIssueDialo
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>
-                        <Textarea
-                            id="description"
+                        <Textarea id="description"
                             placeholder="Please describe the issue in detail..."
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}

@@ -1,8 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { ShieldCheck, RotateCcw, MessageSquare, Zap, Clock, BookmarkCheck } from "lucide-react";
-import { motion } from "framer-motion";
-
 const promises = [
     {
         icon: ShieldCheck,
@@ -35,8 +35,7 @@ export function SupportPromise() {
                     
                     <div className="relative z-10 grid md:grid-cols-2 lg:grid-cols-4 gap-12">
                         {promises.map((p, i) => (
-                            <motion.div
-                                key={p.title}
+                            <AnimatedDiv key={p.title}
                                 initial={{ opacity: 0, y: 10 }}
                                 style={{ willChange: "transform, opacity" }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -49,7 +48,7 @@ export function SupportPromise() {
                                 </div>
                                 <h3 className="font-bold text-lg">{p.title}</h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-                            </motion.div>
+                            </AnimatedDiv>
                         ))}
                     </div>
                 </div>

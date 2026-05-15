@@ -56,14 +56,12 @@ export default async function BlogPostLayout({
 
   return (
     <>
-      <script
-        type="application/ld+json"
+      <script type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLdSchemas.article(post)),
         }}
       />
-      <script
-        type="application/ld+json"
+      <script type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLdSchemas.breadcrumb(breadcrumbData)),
         }}

@@ -19,9 +19,7 @@ interface ImageUploadProps {
     className?: string;
 }
 
-import { useUploadFile } from "@/lib/api/content-queries";
-
- export function ImageUpload({
+export function ImageUpload({
     value,
     onChange,
     onRemove,
@@ -34,7 +32,17 @@ import { useUploadFile } from "@/lib/api/content-queries";
     const [progress, setProgress] = useState(0);
     const [dragActive, setDragActive] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const { mutateAsync: uploadFile } = useUploadFile();
+    const uploadFile = async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/uploads`, {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        return res.json();
+    };
 
     const handleDrag = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -67,13 +75,13 @@ import { useUploadFile } from "@/lib/api/content-queries";
         const file = files[0];
 
         // Validate file size
-        if (file.size > maxSize * 1024 * 1024) {
+  if (file.size > maxSize * 1024 * 1024) {
             toast.error(`File size must be less than ${maxSize}MB`);
             return;
         }
 
         // Validate file type
-        if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith('image/')) {
             toast.error('Please upload an image file');
             return;
         }
@@ -81,7 +89,7 @@ import { useUploadFile } from "@/lib/api/content-queries";
         setUploading(true);
         // Progress simulation since XHR progress isn't directly exposed by ky in this simple setup
         // Ideally we would hook into ky's onDownloadProgress/onUploadProgress if supported or use axios
-        const interval = setInterval(() => {
+  const interval = setInterval(() => {
             setProgress(prev => {
                 if (prev >= 90) return 90;
                 return prev + 10;
@@ -103,8 +111,7 @@ import { useUploadFile } from "@/lib/api/content-queries";
 
         } catch (error) {
             console.error('Upload error:', error);
-            // toast.error('Failed to upload image') -> handled by useUploadFile
-            setUploading(false);
+            // toast.error('Failed to upload image') -> handled by useUploadFile, setUploading(false);
             setProgress(0);
             clearInterval(interval);
         }
@@ -127,15 +134,12 @@ import { useUploadFile } from "@/lib/api/content-queries";
                 <Card className="relative group overflow-hidden rounded-3xl border-2 border-border/50">
                     <CardContent className="p-0">
                         <div className="relative aspect-video w-full">
-                            <Image
-                                src={value}
+                            <Image src={value}
                                 alt="Uploaded image"
-                                fill
-                                className="object-cover"
+                                fill className="object-cover"
                             />
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                <Button
-                                    variant="destructive"
+                                <Button variant="destructive"
                                     size="sm"
                                     onClick={handleRemove}
                                     disabled={disabled}
@@ -149,8 +153,7 @@ import { useUploadFile } from "@/lib/api/content-queries";
                     </CardContent>
                 </Card>
             ) : (
-                <div
-                    className={cn(
+                <div className={cn(
                         "relative border-2 border-dashed rounded-3xl transition-all",
                         dragActive ? "border-primary bg-primary/5" : "border-border/50",
                         disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/50"
@@ -161,8 +164,7 @@ import { useUploadFile } from "@/lib/api/content-queries";
                     onDrop={handleDrop}
                     onClick={() => !disabled && inputRef.current?.click()}
                 >
-                    <input
-                        ref={inputRef}
+                    <input ref={inputRef}
                         type="file"
                         accept={accept}
                         onChange={handleChange}

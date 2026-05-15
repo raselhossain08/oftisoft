@@ -8,7 +8,6 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { adminUserAPI } from "@/lib/api";
 
 const rtcConfig = {
     iceServers: [

@@ -41,7 +41,7 @@ export default function CategoriesPage() {
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
     
     // Form state
-    const [name, setName] = useState("");
+  const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
     const [description, setDescription] = useState("");
     const [newSubcategory, setNewSubcategory] = useState("");
@@ -123,7 +123,7 @@ export default function CategoriesPage() {
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Product Categories</h1>
+                        <h1 className="text-3xl font-bold">Product Categories</h1>
                         <p className="text-muted-foreground">Organize your marketplace products into logical hierarchies.</p>
                     </div>
                 </div>
@@ -144,8 +144,7 @@ export default function CategoriesPage() {
                         <div className="space-y-4 py-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Category Name</Label>
-                                <Input
-                                    id="name"
+                                <Input id="name"
                                     value={name}
                                     onChange={(e) => {
                                         setName(e.target.value);
@@ -157,8 +156,7 @@ export default function CategoriesPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="slug">Slug</Label>
-                                <Input
-                                    id="slug"
+                                <Input id="slug"
                                     value={slug}
                                     onChange={(e) => setSlug(e.target.value)}
                                     placeholder="mobile-apps"
@@ -167,8 +165,7 @@ export default function CategoriesPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="description">Description (Optional)</Label>
-                                <Textarea
-                                    id="description"
+                                <Textarea id="description"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Brief description of this category"
@@ -253,7 +250,7 @@ export default function CategoriesPage() {
                                             <Button 
                                                 variant="ghost" 
                                                 size="sm" 
-                                                className="h-7 border border-dashed rounded-lg opacity-60 text-[10px]"
+                                                className="h-7 border border-dashed rounded-lg opacity-60 text-sm"
                                                 onClick={() => openSubcategoryDialog(cat)}
                                             >
                                                 + Add Subcategory
@@ -285,11 +282,11 @@ export default function CategoriesPage() {
                             <p className="text-xs text-muted-foreground leading-relaxed">Ensure categories have clear, SEO-friendly names. Overlapping categories may reduce product discoverability.</p>
                             <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold uppercase tracking-wider text-primary">Status</span>
-                                    <Badge className="bg-green-500 text-white text-[10px] border-none">Healthy</Badge>
+                                    <span className="text-xs font-bold  text-primary">Status</span>
+                                    <Badge className="bg-green-500 text-white text-sm border-none">Healthy</Badge>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="flex justify-between text-[10px] font-bold">
+                                    <div className="flex justify-between text-sm font-bold">
                                         <span>Product Coverage</span>
                                         <span>{coverage}%</span>
                                     </div>
@@ -327,8 +324,7 @@ export default function CategoriesPage() {
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="edit-name">Category Name</Label>
-                            <Input
-                                id="edit-name"
+                            <Input id="edit-name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 className="rounded-xl h-11"
@@ -336,8 +332,7 @@ export default function CategoriesPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="edit-slug">Slug</Label>
-                            <Input
-                                id="edit-slug"
+                            <Input id="edit-slug"
                                 value={slug}
                                 onChange={(e) => setSlug(e.target.value)}
                                 className="rounded-xl h-11"
@@ -345,8 +340,7 @@ export default function CategoriesPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="edit-description">Description</Label>
-                            <Textarea
-                                id="edit-description"
+                            <Textarea id="edit-description"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="rounded-xl"
@@ -380,8 +374,7 @@ export default function CategoriesPage() {
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="subcategory">Subcategory Name</Label>
-                            <Input
-                                id="subcategory"
+                            <Input id="subcategory"
                                 value={newSubcategory}
                                 onChange={(e) => setNewSubcategory(e.target.value)}
                                 placeholder="e.g. iOS Apps"

@@ -26,7 +26,7 @@ export default function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe');
     
     // Dynamic payment configs
-    const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
     const [paypalClientId, setPaypalClientId] = useState("");
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -55,8 +55,7 @@ export default function CheckoutPage() {
                 setPaypalClientId(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "");
             }
         }).catch(() => {
-            // Fallback
-             setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ""));
+            // Fallback, setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ""));
              setPaypalClientId(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "");
         });
 
@@ -128,16 +127,14 @@ export default function CheckoutPage() {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <Button
-                                        variant={paymentMethod === 'stripe' ? 'default' : 'outline'}
+                                    <Button variant={paymentMethod === 'stripe' ? 'default' : 'outline'}
                                         onClick={() => setPaymentMethod('stripe')}
                                         className="h-20 flex flex-col gap-2"
                                     >
                                         <span className="font-bold text-lg">Card</span>
                                         <span className="text-xs opacity-70">Credit / Debit</span>
                                     </Button>
-                                    <Button
-                                        variant={paymentMethod === 'paypal' ? 'default' : 'outline'}
+                                    <Button variant={paymentMethod === 'paypal' ? 'default' : 'outline'}
                                         onClick={() => setPaymentMethod('paypal')}
                                         className="h-20 flex flex-col gap-2"
                                     >

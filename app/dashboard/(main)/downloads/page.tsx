@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import { 
@@ -43,7 +45,6 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useDownloads } from "@/hooks/useDownloads";
 
@@ -61,7 +62,7 @@ export default function DigitalLibraryPage() {
     const [searchQuery, setSearchQuery] = useState("");
     
     // Dialog States
-    const [activeVersions, setActiveVersions] = useState<any[]>([]);
+  const [activeVersions, setActiveVersions] = useState<any[]>([]);
     const [isVersionsOpen, setIsVersionsOpen] = useState(false);
     const [activeChangelog, setActiveChangelog] = useState<any>(null);
     const [isChangelogOpen, setIsChangelogOpen] = useState(false);
@@ -79,8 +80,7 @@ export default function DigitalLibraryPage() {
     const maskIP = (ip: string) => {
         if (!ip) return '0.0.0.0';
         const parts = ip.split('.');
-        if (parts.length < 4) return ip; // handle IPv6 or other formats simply
-        return `${parts[0]}.${parts[1]}.***.***`;
+        if (parts.length < 4) return ip; // handle IPv6 or other formats simply return `${parts[0]}.${parts[1]}.***.***`;
     };
 
     const handleDownload = async (item: { id: string; demoUrl?: string | null; name: string }) => {
@@ -127,13 +127,13 @@ export default function DigitalLibraryPage() {
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <motion.h1 
+                    <AnimatedH1 
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="text-4xl font-black  tracking-tight bg-gradient-to-r from-foreground via-foreground/80 to-foreground/50 bg-clip-text text-transparent "
+                        className="text-3xl font-semibold bg-gradient-to-r from-foreground via-foreground/80 to-foreground/50 bg-clip-text text-transparent "
                     >
                         Downloads & Resources
-                    </motion.h1>
+                    </AnimatedH1>
                     <p className="text-muted-foreground font-medium mt-1">Acquire builds, documentation, and exclusive bonuses from your purchased inventory.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -153,7 +153,7 @@ export default function DigitalLibraryPage() {
                         <Scale className="w-4 h-4" /> Global License Terms
                     </Button>
                     <Link href="/shop" passHref>
-                        <Button className="rounded-xl gap-2 font-black h-11 bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+                        <Button className="rounded-xl gap-2 font-semibold h-11 bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 transition-all">
                             <Zap className="w-4 h-4 fill-white" /> Explore Extension Packs
                         </Button>
                     </Link>
@@ -162,18 +162,18 @@ export default function DigitalLibraryPage() {
 
             <Tabs defaultValue="inventory" className="space-y-6">
                 <TabsList className="bg-muted/50 p-1.5 rounded-[24px] h-16 w-fit border border-border shadow-inner">
-                    <TabsTrigger value="inventory" className="rounded-[18px] h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black px-12 transition-all">
+                    <TabsTrigger value="inventory" className="rounded-[18px] h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-lg font-semibold px-12 transition-all">
                         <Package className="w-4 h-4" /> Asset Inventory
                     </TabsTrigger>
-                    <TabsTrigger value="notifications" className="rounded-[18px] h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black px-12 relative transition-all">
+                    <TabsTrigger value="notifications" className="rounded-[18px] h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-lg font-semibold px-12 relative transition-all">
                         <DownloadCloud className="w-4 h-4" /> Version Updates
                         {notifications.length > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-[10px] flex items-center justify-center rounded-full text-white font-black border-2 border-background animate-bounce">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-sm flex items-center justify-center rounded-full text-white font-semibold border-2 border-background animate-bounce">
                                 {notifications.length}
                             </span>
                         )}
                     </TabsTrigger>
-                    <TabsTrigger value="history" className="rounded-[18px] h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-lg font-black px-12 transition-all">
+                    <TabsTrigger value="history" className="rounded-[18px] h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-lg font-semibold px-12 transition-all">
                         <History className="w-4 h-4" /> Event Records
                     </TabsTrigger>
                 </TabsList>
@@ -193,18 +193,17 @@ export default function DigitalLibraryPage() {
                     <div className="grid gap-8">
                         {isError ? (
                             <div className="py-20 flex flex-col items-center justify-center gap-6 rounded-[40px] border-2 border-dashed border-destructive/30 bg-destructive/5 p-12">
-                                <p className="font-black text-destructive text-center max-w-md">Failed to load downloads. {error?.message || "Please try again."}</p>
-                                <Button onClick={refresh} variant="outline" className="rounded-2xl font-black" size="lg">Retry</Button>
+                                <p className="font-semibold text-destructive text-center max-w-md">Failed to load downloads. {error?.message || "Please try again."}</p>
+                                <Button onClick={refresh} variant="outline" className="rounded-2xl font-semibold" size="lg">Retry</Button>
                             </div>
                         ) : isLoading ? (
                             <div className="py-40 flex flex-col items-center justify-center gap-4 opacity-50">
                                 <Loader2 className="w-12 h-auto animate-spin text-primary" />
-                                <p className="font-black uppercase tracking-widest text-[10px]">Syncing with global distribution network...</p>
+                                <p className="font-semibold  text-sm">Syncing with global distribution network...</p>
                             </div>
                         ) : filteredProducts.length > 0 ? (
                             filteredProducts.map((item, index) => (
-                                <motion.div
-                                    key={item.id}
+                                <AnimatedDiv key={item.id}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
@@ -224,15 +223,15 @@ export default function DigitalLibraryPage() {
                                                     <div className="space-y-8 flex-1">
                                                         <div className="space-y-3">
                                                             <div className="flex items-center gap-3">
-                                                                <Badge className="bg-primary/10 text-primary border-primary/20 font-black text-[10px] uppercase tracking-widest px-4 h-7">
+                                                                <Badge className="bg-primary/10 text-primary border-primary/20 font-semibold text-sm  px-4 h-7">
                                                                     {item.type}
                                                                 </Badge>
-                                                                <span className="text-[10px] font-black text-muted-foreground uppercase flex items-center gap-1.5">
+                                                                <span className="text-sm font-semibold text-muted-foreground  flex items-center gap-1.5">
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                                                                     {item.compatibility} Build
                                                                 </span>
                                                             </div>
-                                                            <h3 className="font-black text-4xl tracking-tighter leading-none  group-hover:text-primary transition-colors">{item.name}</h3>
+                                                            <h3 className="font-semibold text-3xl leading-none  group-hover:text-primary transition-colors">{item.name}</h3>
                                                             <p className="text-muted-foreground text-sm font-medium">Acquired on {item.date}</p>
                                                         </div>
                                                         
@@ -242,8 +241,8 @@ export default function DigitalLibraryPage() {
                                                                     <BookOpen className="w-6 h-6" />
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[10px] uppercase font-black text-muted-foreground mb-0.5 tracking-widest">Knowledge Base</p>
-                                                                    <p className="text-sm font-black  flex items-center gap-2">Read Guides <ExternalLink className="w-3.5 h-3.5" /></p>
+                                                                    <p className="text-sm  font-semibold text-muted-foreground mb-0.5">Knowledge Base</p>
+                                                                    <p className="text-sm font-semibold  flex items-center gap-2">Read Guides <ExternalLink className="w-3.5 h-3.5" /></p>
                                                                 </div>
                                                             </Link>
 
@@ -255,8 +254,8 @@ export default function DigitalLibraryPage() {
                                                                     <Gift className="w-6 h-6" />
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[10px] uppercase font-black text-muted-foreground mb-0.5 tracking-widest">Digital Bonus Acquired</p>
-                                                                    <p className="text-sm font-black  leading-tight group-hover:text-orange-600 transition-colors">{item.bonusAsset}</p>
+                                                                    <p className="text-sm  font-semibold text-muted-foreground mb-0.5">Digital Bonus Acquired</p>
+                                                                    <p className="text-sm font-semibold  leading-tight group-hover:text-orange-600 transition-colors">{item.bonusAsset}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -266,11 +265,11 @@ export default function DigitalLibraryPage() {
                                                 {/* Action Control */}
                                                 <div className="p-12 lg:w-[450px] flex flex-col justify-center gap-10 bg-primary/[0.01]">
                                                     <div className="space-y-4">
-                                                        <p className="text-[10px] font-black text-muted-foreground uppercase flex items-center gap-2 tracking-widest">
+                                                        <p className="text-sm font-semibold text-muted-foreground  flex items-center gap-2">
                                                             <Key className="w-4 h-4 text-primary" /> Cryptographic Key
                                                         </p>
                                                         <div className="flex items-center gap-3">
-                                                            <code className="text-xs font-mono font-black bg-background border border-border/50 p-5 rounded-[20px] flex-1 truncate shadow-inner tracking-wider">
+                                                            <code className="text-xs font-mono font-semibold bg-background border border-border/50 p-5 rounded-[20px] flex-1 truncate shadow-inner">
                                                                 {item.license}
                                                             </code>
                                                             <Button 
@@ -281,23 +280,21 @@ export default function DigitalLibraryPage() {
                                                             >
                                                                 <AnimatePresence mode="wait">
                                                                     {copiedId === item.id ? (
-                                                                        <motion.div
-                                                                            key="check"
+                                                                        <AnimatedDiv key="check"
                                                                             initial={{ scale: 0, rotate: -45 }}
                                                                             animate={{ scale: 1, rotate: 0 }}
                                                                             exit={{ scale: 0, rotate: 45 }}
                                                                         >
                                                                             <Check className="w-6 h-6" />
-                                                                        </motion.div>
+                                                                        </AnimatedDiv>
                                                                     ) : (
-                                                                        <motion.div
-                                                                            key="copy"
+                                                                        <AnimatedDiv key="copy"
                                                                             initial={{ scale: 0 }}
                                                                             animate={{ scale: 1 }}
                                                                             exit={{ scale: 0 }}
                                                                         >
                                                                             <Copy className="w-6 h-6 group-hover/copy:scale-110 transition-transform" />
-                                                                        </motion.div>
+                                                                        </AnimatedDiv>
                                                                     )}
                                                                 </AnimatePresence>
                                                             </Button>
@@ -306,7 +303,7 @@ export default function DigitalLibraryPage() {
                                                     <div className="flex flex-col gap-4">
                                                         <Button 
                                                             onClick={() => handleDownload(item)}
-                                                            className="w-full rounded-[28px] h-20 gap-4 font-black text-lg bg-primary text-white shadow-2xl shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all group/deploy"
+                                                            className="w-full rounded-[28px] h-20 gap-4 font-semibold text-lg bg-primary text-white shadow-2xl shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all group/deploy"
                                                         >
                                                             <Download className="w-7 h-7 group-hover/deploy:animate-bounce" />
                                                             Deploy Latest Build
@@ -314,21 +311,21 @@ export default function DigitalLibraryPage() {
                                                             <div className="flex gap-3">
                                                                 <Button 
                                                                     variant="outline" 
-                                                                    className="flex-1 rounded-[20px] h-14 font-black border-border/50 text-[10px] uppercase tracking-tighter hover:bg-muted/50"
+                                                                    className="flex-1 rounded-[20px] h-14 font-semibold border-border/50 text-sm  hover:bg-muted/50"
                                                                     onClick={() => handleViewVersions(item)}
                                                                 >
                                                                     Versions
                                                                 </Button>
                                                                 <Button 
                                                                     variant="outline" 
-                                                                    className="flex-1 rounded-[20px] h-14 font-black border-border/50 text-[10px] uppercase tracking-tighter hover:bg-muted/50"
+                                                                    className="flex-1 rounded-[20px] h-14 font-semibold border-border/50 text-sm  hover:bg-muted/50"
                                                                     onClick={() => handleViewChangelog(item)}
                                                                 >
                                                                     Log
                                                                 </Button>
                                                                 <Button 
                                                                     variant="outline" 
-                                                                    className="flex-1 rounded-[20px] h-14 font-black border-border/50 text-[10px] uppercase tracking-tighter hover:bg-muted/50"
+                                                                    className="flex-1 rounded-[20px] h-14 font-semibold border-border/50 text-sm  hover:bg-muted/50"
                                                                     onClick={() => setIsStackOpen(true)}
                                                                 >
                                                                     Stack
@@ -340,22 +337,22 @@ export default function DigitalLibraryPage() {
                                         </CardContent>
                                         <div className="bg-muted/5 px-12 py-6 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center bg-primary/[0.03] gap-6">
                                             <div className="flex items-center gap-10">
-                                                <p className="text-[11px] font-black text-muted-foreground uppercase  flex items-center gap-2.5">
+                                                <p className="text-sm font-semibold text-muted-foreground   flex items-center gap-2.5">
                                                     <ShieldCheck className="w-5 h-5 text-green-500" /> Identity Secured
                                                 </p>
-                                                <p className="text-[11px] font-black text-muted-foreground uppercase  flex items-center gap-2.5">
+                                                <p className="text-sm font-semibold text-muted-foreground   flex items-center gap-2.5">
                                                     <RotateCcw className="w-5 h-5 text-blue-500" /> Dynamic Version: {item.version}
                                                 </p>
                                             </div>
                                             <div className="flex items-center gap-10">
                                                 <button 
-                                                    className="text-[11px] font-black text-primary underline decoration-2 decoration-primary/20 underline-offset-4 uppercase tracking-tighter hover:text-primary/70 transition-colors"
+                                                    className="text-sm font-semibold text-primary underline decoration-2 decoration-primary/20 underline-offset-4  hover:text-primary/70 transition-colors"
                                                     onClick={() => toast.success("Certificate generation in progress...")}
                                                 >
                                                     Certificate PDF
                                                 </button>
                                                 <button 
-                                                    className="text-[11px] font-black text-muted-foreground underline decoration-2 decoration-muted-foreground/20 underline-offset-4 uppercase tracking-tighter hover:text-foreground transition-colors"
+                                                    className="text-sm font-semibold text-muted-foreground underline decoration-2 decoration-muted-foreground/20 underline-offset-4  hover:text-foreground transition-colors"
                                                     onClick={() => toast.info("Transfer of authentication requires enterprise support ticket.")}
                                                 >
                                                     Transfer Auth
@@ -363,7 +360,7 @@ export default function DigitalLibraryPage() {
                                             </div>
                                         </div>
                                     </Card>                                
-                                </motion.div>
+                                </AnimatedDiv>
                             ))
                         ) : (
                             <div className="p-32 text-center space-y-6 bg-muted/20 rounded-[50px] border-4 border-dashed border-border/40 flex flex-col items-center">
@@ -371,11 +368,11 @@ export default function DigitalLibraryPage() {
                                     <SearchX className="w-12 h-auto" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="font-black text-2xl tracking-tight uppercase">Spectral Analysis: Zero Matches</h3>
+                                    <h3 className="font-semibold text-2xl ">Spectral Analysis: Zero Matches</h3>
                                     <p className="text-muted-foreground font-medium text-lg  mt-2">Try refining your search vector or visit the storefront for more templated logic.</p>
                                 </div>
                                 <Link href="/shop">
-                                    <Button className="rounded-2xl px-10 h-14 font-black uppercase tracking-widest bg-primary hover:scale-105 transition-all">Navigate to Shop</Button>
+                                    <Button className="rounded-2xl px-10 h-14 font-semibold  bg-primary hover:scale-105 transition-all">Navigate to Shop</Button>
                                 </Link>
                             </div>
                         )}
@@ -390,7 +387,7 @@ export default function DigitalLibraryPage() {
                                 <div className="w-20 h-20 rounded-[30px] bg-green-500/10 flex items-center justify-center text-green-500">
                                     <ShieldCheck className="w-10 h-10" />
                                 </div>
-                                <h3 className="text-2xl font-black ">Systems Optimized</h3>
+                                <h3 className="text-2xl font-semibold ">Systems Optimized</h3>
                                 <p className="text-muted-foreground font-medium">All acquired artifacts are currently operating on the latest version.</p>
                             </div>
                         ) : notifications.map((note) => (
@@ -411,20 +408,20 @@ export default function DigitalLibraryPage() {
                                         </div>
                                         <div className="space-y-4 flex-1">
                                             <div className="flex flex-wrap items-center gap-4">
-                                                <h4 className="font-black text-3xl  tracking-tighter">{note.productName}</h4>
-                                                <Badge variant="outline" className={cn("text-[10px] font-black uppercase tracking-widest px-4 h-7 border-2", 
+                                                <h4 className="font-semibold text-3xl">{note.productName}</h4>
+                                                <Badge variant="outline" className={cn("text-sm font-semibold  px-4 h-7 border-2", 
                                                     note.importance === "major" ? "border-primary/30 text-primary bg-primary/5" : 
                                                     note.importance === "security" ? "border-red-500/30 text-red-500 bg-red-500/5 animate-pulse" :
                                                     "border-blue-500/30 text-blue-500 bg-blue-500/5"
                                                 )}>{note.importance} Update</Badge>
                                             </div>
                                             <div className="flex items-center gap-4 text-lg text-muted-foreground font-bold">
-                                                Acquisition Flow: <span className="text-foreground font-black underline decoration-primary/30 decoration-8 underline-offset-4">{note.oldVersion}</span> 
+                                                Acquisition Flow: <span className="text-foreground font-semibold underline decoration-primary/30 decoration-8 underline-offset-4">{note.oldVersion}</span> 
                                                 <ArrowRight className="w-6 h-6 text-primary animate-pulse" /> 
-                                                <span className="text-primary font-black text-2xl">{note.newVersion}</span>
+                                                <span className="text-primary font-semibold text-2xl">{note.newVersion}</span>
                                             </div>
                                             
-                                            <p className="text-[11px] text-muted-foreground font-black uppercase  tracking-widest bg-muted/40 w-fit px-4 py-2 rounded-2xl border border-border/30">
+                                            <p className="text-sm text-muted-foreground font-semibold  bg-muted/40 w-fit px-4 py-2 rounded-2xl border border-border/30">
                                                 Target Release Cycle: {note.date}
                                             </p>
                                         </div>
@@ -432,13 +429,13 @@ export default function DigitalLibraryPage() {
                                     <div className="flex flex-col gap-4 min-w-[240px]">
                                         <Button 
                                             onClick={executeUpgrade}
-                                            className="rounded-[24px] font-black  text-base h-16 bg-primary text-white shadow-2xl shadow-primary/30 hover:scale-[1.05] active:scale-[0.95] transition-all"
+                                            className="rounded-[24px] font-semibold  text-base h-16 bg-primary text-white shadow-2xl shadow-primary/30 hover:scale-[1.05] active:scale-[0.95] transition-all"
                                         >
                                             Execute Upgrade
                                         </Button>
                                         <Button 
                                             variant="outline" 
-                                            className="rounded-[22px] font-black h-14 border-border/50 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-background"
+                                            className="rounded-[22px] font-semibold h-14 border-border/50 text-sm  text-muted-foreground hover:text-foreground hover:bg-background"
                                             onClick={() => handleViewChangelog({ productId: note.productId, version: note.newVersion })}
                                         >
                                             Review Ledger Archive
@@ -454,18 +451,18 @@ export default function DigitalLibraryPage() {
                 <TabsContent value="history" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <Card className="border-border/50 bg-card/80 backdrop-blur-md overflow-hidden rounded-[50px] shadow-2xl">
                         <CardHeader className="bg-muted/5 border-b border-border/50 px-12 py-10">
-                            <CardTitle className="text-3xl font-black  tracking-tighter">Temporal Request Ledger</CardTitle>
+                            <CardTitle className="text-3xl font-semibold">Temporal Request Ledger</CardTitle>
                             <CardDescription className="text-base font-medium text-muted-foreground/70">Tracking all artifact retrieval events synchronized via global edge nodes.</CardDescription>
                         </CardHeader>
                         <CardContent className="p-0">
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-muted/10 border-border/50 hover:bg-muted/10">
-                                        <TableHead className="px-12 py-8 font-black uppercase text-[11px] tracking-widest text-foreground/40">Artifact Vector</TableHead>
-                                        <TableHead className="font-black uppercase text-[11px] tracking-widest text-foreground/40">Build Level</TableHead>
-                                        <TableHead className="font-black uppercase text-[11px] tracking-widest text-foreground/40">Request Timestamp</TableHead>
-                                        <TableHead className="font-black uppercase text-[11px] tracking-widest text-foreground/40">Origin Interface</TableHead>
-                                        <TableHead className="text-right px-12 font-black uppercase text-[11px] tracking-widest text-primary ">Intelligence</TableHead>
+                                        <TableHead className="px-12 py-8 font-semibold  text-sm text-foreground/40">Artifact Vector</TableHead>
+                                        <TableHead className="font-semibold  text-sm text-foreground/40">Build Level</TableHead>
+                                        <TableHead className="font-semibold  text-sm text-foreground/40">Request Timestamp</TableHead>
+                                        <TableHead className="font-semibold  text-sm text-foreground/40">Origin Interface</TableHead>
+                                        <TableHead className="text-right px-12 font-semibold  text-sm text-primary ">Intelligence</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody className="divide-y divide-border/30">
@@ -474,7 +471,7 @@ export default function DigitalLibraryPage() {
                                             <TableCell colSpan={5} className="py-24 text-center">
                                                 <div className="flex flex-col items-center gap-3 opacity-30">
                                                     <History className="w-10 h-10" />
-                                                    <p className="font-black uppercase tracking-widest text-xs">No recorded events in ledger</p>
+                                                    <p className="font-semibold  text-xs">No recorded events in ledger</p>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -485,18 +482,18 @@ export default function DigitalLibraryPage() {
                                                     <div className="w-10 h-10 rounded-[14px] bg-background border border-border shadow-sm flex items-center justify-center text-muted-foreground group-hover:text-primary transition-all group-hover:rotate-12">
                                                         <Package size={20} />
                                                     </div>
-                                                    <span className="font-black  text-lg tracking-tight">{dl.productName}</span>
+                                                    <span className="font-semibold  text-lg">{dl.productName}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="secondary" className="bg-muted/30 border border-border/30 font-mono font-black text-xs px-4 h-7 tracking-tighter">
+                                                <Badge variant="secondary" className="bg-muted/30 border border-border/30 font-mono font-semibold text-xs px-4 h-7">
                                                     {dl.version}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-xs font-black text-muted-foreground/60 uppercase tracking-widest">
+                                            <TableCell className="text-xs font-semibold text-muted-foreground/60 ">
                                                 {dl.date}
                                             </TableCell>
-                                            <TableCell className="font-mono text-xs text-muted-foreground/60 tracking-wider">
+                                            <TableCell className="font-mono text-xs text-muted-foreground/60">
                                                 {maskIP(dl.ip)}
                                             </TableCell>
                                             <TableCell className="text-right px-12">
@@ -518,7 +515,7 @@ export default function DigitalLibraryPage() {
             <ShadcnDialog open={isVersionsOpen} onOpenChange={setIsVersionsOpen}>
                 <ShadcnDialogContent className="max-w-2xl rounded-[40px] border-border/50 bg-card/95 backdrop-blur-xl p-10">
                     <ShadcnDialogHeader>
-                        <ShadcnDialogTitle className="text-3xl font-black  tracking-tighter">Build Lineage: {activeProduct?.name}</ShadcnDialogTitle>
+                        <ShadcnDialogTitle className="text-3xl font-semibold">Build Lineage: {activeProduct?.name}</ShadcnDialogTitle>
                         <ShadcnDialogDescription className="text-base font-medium">Historical archive of all deployed versions for this artifact.</ShadcnDialogDescription>
                     </ShadcnDialogHeader>
                     <div className="mt-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -530,12 +527,12 @@ export default function DigitalLibraryPage() {
                             <div key={v.id ?? i} className="p-6 rounded-[28px] bg-muted/20 border border-border/30 hover:bg-muted/30 transition-all group">
                                 <div className="flex justify-between items-center mb-4">
                                     <div className="flex items-center gap-3">
-                                        <Badge className="bg-primary/10 text-primary border-primary/20 font-black">{v.version}</Badge>
-                                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                                        <Badge className="bg-primary/10 text-primary border-primary/20 font-semibold">{v.version}</Badge>
+                                        <span className="text-sm font-semibold  text-muted-foreground">
                                             {typeof v.releaseDate === 'string' ? v.releaseDate : v.releaseDate ? new Date(v.releaseDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '—'}
                                         </span>
                                     </div>
-                                    <span className="text-[10px] font-medium text-muted-foreground uppercase">Current</span>
+                                    <span className="text-sm font-medium text-muted-foreground ">Current</span>
                                 </div>
                                 <p className="text-sm font-medium text-muted-foreground leading-relaxed ">{v.changelog || '—'}</p>
                             </div>
@@ -548,14 +545,14 @@ export default function DigitalLibraryPage() {
             <ShadcnDialog open={isChangelogOpen} onOpenChange={setIsChangelogOpen}>
                 <ShadcnDialogContent className="max-w-2xl rounded-[40px] border-border/50 bg-card/95 backdrop-blur-xl p-10">
                     <ShadcnDialogHeader>
-                        <ShadcnDialogTitle className="text-3xl font-black  tracking-tighter">Release Intelligence: {activeChangelog?.version}</ShadcnDialogTitle>
+                        <ShadcnDialogTitle className="text-3xl font-semibold">Release Intelligence: {activeChangelog?.version}</ShadcnDialogTitle>
                         <ShadcnDialogDescription className="text-base font-medium">Detailed logic modifications and architectural upgrades in this build.</ShadcnDialogDescription>
                     </ShadcnDialogHeader>
                     <div className="mt-8 p-8 rounded-[32px] bg-muted/20 border border-border/40 font-medium text-lg leading-relaxed  whitespace-pre-wrap max-h-[500px] overflow-y-auto">
                         {activeChangelog?.changelog ?? 'No changelog available for this release.'}
                     </div>
                     <div className="mt-4 flex justify-end">
-                        <Button variant="outline" className="rounded-2xl font-black" onClick={() => setIsChangelogOpen(false)}>Acknowledged</Button>
+                        <Button variant="outline" className="rounded-2xl font-semibold" onClick={() => setIsChangelogOpen(false)}>Acknowledged</Button>
                     </div>
                 </ShadcnDialogContent>
             </ShadcnDialog>
@@ -564,7 +561,7 @@ export default function DigitalLibraryPage() {
             <ShadcnDialog open={isStackOpen} onOpenChange={setIsStackOpen}>
                 <ShadcnDialogContent className="max-w-2xl rounded-[40px] border-border/50 bg-card/95 backdrop-blur-xl p-10">
                     <ShadcnDialogHeader>
-                        <ShadcnDialogTitle className="text-3xl font-black  tracking-tighter">Technological Blueprint</ShadcnDialogTitle>
+                        <ShadcnDialogTitle className="text-3xl font-semibold">Technological Blueprint</ShadcnDialogTitle>
                         <ShadcnDialogDescription className="text-base font-medium">Core dependencies and architectural stack assigned to this artifact.</ShadcnDialogDescription>
                     </ShadcnDialogHeader>
                     <div className="mt-8 grid grid-cols-2 gap-4">
@@ -579,8 +576,8 @@ export default function DigitalLibraryPage() {
                             { label: "Deployment", value: "Oftisoft Edge" }
                         ].map((item, i) => (
                             <div key={i} className="p-4 rounded-[20px] bg-muted/20 border border-border/30">
-                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">{item.label}</p>
-                                <p className="font-black  text-primary">{item.value}</p>
+                                <p className="text-sm font-semibold  text-muted-foreground mb-1">{item.label}</p>
+                                <p className="font-semibold  text-primary">{item.value}</p>
                             </div>
                         ))}
                     </div>
@@ -588,7 +585,7 @@ export default function DigitalLibraryPage() {
             </ShadcnDialog>
 
             {/* Global CDN Info */}
-            <motion.div 
+            <AnimatedDiv 
                 initial={{ opacity: 0, y: 30 }}
                 style={{ willChange: "transform, opacity" }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -602,20 +599,20 @@ export default function DigitalLibraryPage() {
                         <DownloadCloud className="w-20 h-20 text-primary animate-pulse shadow-xl shadow-primary/10" />
                     </div>
                     <div className="flex-1 text-center lg:text-left space-y-6">
-                        <h3 className="text-4xl font-black tracking-tighter ">Hyper-Scale Asset Distribution</h3>
-                        <p className="text-muted-foreground max-w-4xl font-black text-xl leading-relaxed  opacity-80 decoration-primary/20 underline decoration-4 underline-offset-8">
+                        <h3 className="text-3xl font-semibold ">Hyper-Scale Asset Distribution</h3>
+                        <p className="text-muted-foreground max-w-4xl font-semibold text-xl leading-relaxed  opacity-80 decoration-primary/20 underline decoration-4 underline-offset-8">
                             All artifacts are synchronized via the Oftisoft Global Edge Network. Your downloads are cryptographically verified 
                             and served with multi-region redundancy. Legacy builds and documentation archives are maintained for long-term project support.
                         </p>
                     </div>
                     <div className="flex flex-col gap-4">
-                        <Button variant="outline" className="rounded-[32px] px-12 h-20 font-black  border-2 border-primary/20 shadow-2xl bg-background hover:bg-primary hover:text-white transition-all text-lg group/status">
+                        <Button variant="outline" className="rounded-[32px] px-12 h-20 font-semibold  border-2 border-primary/20 shadow-2xl bg-background hover:bg-primary hover:text-white transition-all text-lg group/status">
                             Infrastructure Live 
                             <div className="ml-4 w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_20px_rgba(34,197,94,0.8)] group-hover/status:scale-125 transition-transform" />
                         </Button>
                     </div>
                 </div>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 }

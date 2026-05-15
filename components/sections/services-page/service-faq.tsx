@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP, AnimatePresence } from "@/lib/animated";
+;
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +9,6 @@ import {
     Accordion, AccordionContent, AccordionItem, AccordionTrigger 
 } from "@/components/ui/accordion";
 import { HelpCircle, Search, Mail, MessageSquare, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Link from "next/link";
 const faqs = [
@@ -36,7 +37,7 @@ export default function ServiceFAQ() {
              
             <div className="container px-4 mx-auto max-w-4xl relative z-10">
                 <div className="text-center mb-12">
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -48,9 +49,9 @@ export default function ServiceFAQ() {
                             <HelpCircle className="w-3.5 h-3.5" />
                             FAQ
                         </Badge>
-                    </motion.div>
+                    </AnimatedDiv>
                     
-                    <motion.h2 
+                    <AnimatedH2 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -59,8 +60,8 @@ export default function ServiceFAQ() {
                         className="text-3xl md:text-5xl font-semibold mt-6 mb-4 tracking-tight"
                     >
                         Got Questions?
-                    </motion.h2>
-                    <motion.p 
+                    </AnimatedH2>
+                    <AnimatedP 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -69,11 +70,11 @@ export default function ServiceFAQ() {
                         className="text-muted-foreground text-lg"
                     >
                         We've got accurate answers.
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Search Bar */}
-                <motion.div 
+                <AnimatedDiv 
                     initial={{ opacity: 0, y: 20 }}
                     style={{ willChange: "transform, opacity" }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -93,12 +94,11 @@ export default function ServiceFAQ() {
                             />
                         </div>
                     </div>
-                </motion.div>
+                </AnimatedDiv>
 
                 {/* FAQ Accordion */}
-                <motion.div 
-                    layout
-                    initial={{ opacity: 0 }}
+                <AnimatedDiv 
+                    layout initial={{ opacity: 0 }}
                     style={{ willChange: "transform, opacity" }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
@@ -109,8 +109,7 @@ export default function ServiceFAQ() {
                         <AnimatePresence>
                             {filteredFaqs.length > 0 ? (
                                 filteredFaqs.map((faq: any, i: number) => (
-                                    <motion.div
-                                        key={i}
+                                    <AnimatedDiv key={i}
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -124,23 +123,23 @@ export default function ServiceFAQ() {
                                                 {faq.answer}
                                             </AccordionContent>
                                         </AccordionItem>
-                                    </motion.div>
+                                    </AnimatedDiv>
                                 ))
                             ) : (
-                                <motion.div 
+                                <AnimatedDiv 
                                     initial={{ opacity: 0 }} 
                                     animate={{ opacity: 1 }}
                                     className="text-center py-12 text-muted-foreground"
                                 >
                                     <p>No matching questions found.</p>
-                                </motion.div>
+                                </AnimatedDiv>
                             )}
                         </AnimatePresence>
                     </Accordion>
-                </motion.div>
+                </AnimatedDiv>
 
                 {/* Contact CTA */}
-                <motion.div 
+                <AnimatedDiv 
                     initial={{ opacity: 0, y: 20 }}
                     style={{ willChange: "transform, opacity" }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -168,7 +167,7 @@ export default function ServiceFAQ() {
                             </Link>
                         </Button>
                     </div>
-                </motion.div>
+                </AnimatedDiv>
             </div>
         </section>
     );

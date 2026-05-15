@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authAPI, User } from "@/lib/api";
 import { useUserStore } from "@/lib/store";
@@ -18,7 +17,7 @@ export default function NotificationsSettings() {
     const { setUser } = useUserStore();
 
     // Fetch user profile for notification settings
-    const { data: user, isLoading, error } = useQuery({
+  const { data: user, isLoading, error } = useQuery({
         queryKey: ["profile"],
         queryFn: () => authAPI.getProfile(),
     });
@@ -61,7 +60,7 @@ export default function NotificationsSettings() {
     }, [user]);
 
     // Mutation for updating preferences
-    const updateMutation = useMutation({
+  const updateMutation = useMutation({
         mutationFn: (data: Partial<User>) => authAPI.updateProfile(data),
         onSuccess: (updatedUser) => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -85,7 +84,7 @@ export default function NotificationsSettings() {
 
     const handleSave = () => {
         // Filter only the allowed notification fields
-        const allowedFields = [
+  const allowedFields = [
             "emailNotifications", "pushNotifications", "smsNotifications", "marketingNotifications",
             "artifactDeploymentNotifications", "mentionNotifications", "milestoneNotifications", "allocationNotifications",
             "ledgerNotifications", "transactionNotifications", "loginAlertNotifications", "securityAlertNotifications", "kernelUpdateNotifications"
@@ -104,7 +103,7 @@ export default function NotificationsSettings() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
                 <Loader2 className="w-12 h-auto animate-spin text-primary opacity-20" />
-                <p className="text-muted-foreground font-black animate-pulse">Scanning Neural Pathways...</p>
+                <p className="text-muted-foreground font-semibold animate-pulse">Scanning Neural Pathways...</p>
             </div>
         );
     }
@@ -113,7 +112,7 @@ export default function NotificationsSettings() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 p-12 text-center bg-red-500/5 rounded-[40px] border border-red-500/20">
                 <AlertCircle className="w-12 h-auto text-red-500" />
-                <h3 className="text-xl font-black">Neural Interface Failure</h3>
+                <h3 className="text-xl font-semibold">Neural Interface Failure</h3>
                 <p className="text-muted-foreground font-medium max-w-sm">Failed to establish connection with the preference vault. Frequency synchronization impossible.</p>
                 <Button variant="outline" onClick={() => queryClient.invalidateQueries({ queryKey: ["profile"] })} className="rounded-xl border-red-500/20 hover:bg-red-500/10 hover:text-red-500">Retry Link</Button>
             </div>
@@ -162,14 +161,14 @@ export default function NotificationsSettings() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-10">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
+                    <h2 className="text-3xl md:text-3xl font-semibold bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
                         Neural Preferences
                     </h2>
                     <p className="text-muted-foreground font-medium mt-2">Govern the frequency and delivery vectors of platform intelligence.</p>
                 </div>
                 <div className="flex items-center gap-3 text-primary bg-primary/5 px-5 py-2.5 rounded-full border border-primary/20 shadow-inner">
                     <Bell className="w-5 h-5 animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Signal Locked</span>
+                    <span className="text-sm font-semibold uppercase">Signal Locked</span>
                 </div>
             </div>
 
@@ -178,8 +177,7 @@ export default function NotificationsSettings() {
                 {NOTIFICATION_CHANNELS.map((channel) => {
                     const isActive = channel.active;
                     return (
-                        <Card
-                            key={channel.id}
+                        <Card key={channel.id}
                             className={cn(
                                 "relative overflow-hidden cursor-pointer transition-all duration-500 rounded-[42px] border-2 group",
                                 isActive 
@@ -198,7 +196,7 @@ export default function NotificationsSettings() {
                                 )}>
                                     <channel.icon className="w-8 h-8" />
                                 </div>
-                                <h3 className="font-black text-2xl tracking-tight mb-3 group-hover:text-primary transition-colors">{channel.label}</h3>
+                                <h3 className="font-semibold text-2xl mb-3 group-hover:text-primary transition-colors">{channel.label}</h3>
                                 <p className="text-xs text-muted-foreground font-bold leading-relaxed opacity-70">{channel.desc}</p>
 
                                 <div className={cn(
@@ -223,9 +221,9 @@ export default function NotificationsSettings() {
                                 <div className="w-10 h-10 rounded-2xl bg-muted/50 flex items-center justify-center text-primary border border-border/50 shadow-inner group-hover:rotate-12 transition-all">
                                     <section.icon className="w-5 h-5" />
                                 </div>
-                                <h3 className="font-black text-2xl tracking-tight underline decoration-primary/20 underline-offset-8 decoration-4">{section.category}</h3>
+                                <h3 className="font-semibold text-2xl underline decoration-primary/20 underline-offset-8 decoration-4">{section.category}</h3>
                             </div>
-                            <Badge variant="outline" className="text-[9px] font-black uppercase tracking-[0.2em] text-primary bg-primary/5 px-4 h-8 rounded-full border-primary/20">Active Filtering</Badge>
+                            <Badge variant="outline" className="text-xs font-semibold uppercase text-primary bg-primary/5 px-4 h-8 rounded-full border-primary/20">Active Filtering</Badge>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-2">
@@ -234,7 +232,7 @@ export default function NotificationsSettings() {
                                     <CardContent className="p-6 flex items-center justify-between">
                                         <div className="flex items-center gap-5">
                                             <div className="w-2.5 h-2.5 rounded-full bg-primary/20 group-hover:bg-primary group-hover:scale-125 group-hover:shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all" />
-                                            <span className="text-sm md:text-base font-black tracking-tight text-muted-foreground/80 group-hover:text-foreground transition-colors">{item.label}</span>
+                                            <span className="text-sm md:text-base font-semibold text-muted-foreground/80 group-hover:text-foreground transition-colors">{item.label}</span>
                                         </div>
                                         <Switch 
                                             checked={item.enabled} 
@@ -257,14 +255,14 @@ export default function NotificationsSettings() {
                         <CheckCircle2 className="w-10 h-10" />
                     </div>
                     <div>
-                        <h4 className="font-black text-2xl mb-2 tracking-tight">Synchronized Alert Matrix</h4>
+                        <h4 className="font-semibold text-2xl mb-2">Synchronized Alert Matrix</h4>
                         <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-sm leading-relaxed opacity-80 md:mx-0 mx-auto">Changes are propagated across the global Oftisoft edge network instantly. Your notification neural-map is now persistent.</p>
                     </div>
                 </div>
                 <Button 
                     onClick={handleSave}
                     disabled={updateMutation.isPending}
-                    className="relative z-10 h-16 px-12 rounded-3xl font-black text-lg shadow-2xl shadow-primary/30 hover:scale-[1.05] transition-all"
+                    className="relative z-10 h-16 px-12 rounded-3xl font-semibold text-lg shadow-2xl shadow-primary/30 hover:scale-[1.05] transition-all"
                 >
                     {updateMutation.isPending ? (
                         <div className="flex items-center gap-3">

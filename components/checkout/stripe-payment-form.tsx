@@ -36,9 +36,9 @@ export function StripePaymentForm({ amount }: { amount: number }) {
         } else {
             // If redirect: 'if_required' is used and no redirect happens (e.g. successful card payment without 3DS), we manually redirect.
             // However, confirmPayment usually redirects if success url is provided. 
-            // In 'if_required' mode, if payment succeeds immediately:
-             clearCart();
-             router.push("/shop/success");
+            // In 'if_required' mode, if payment succeeds immediately
+            clearCart();
+            router.push("/shop/success");
         }
     };
 

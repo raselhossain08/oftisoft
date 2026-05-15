@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 
 interface DeleteDialogProps {
@@ -15,8 +16,7 @@ export function DeleteDialog({ isOpen, onClose, onConfirm, projectTitle }: Delet
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-card w-full max-w-md rounded-3xl border border-border shadow-2xl overflow-hidden"
@@ -32,21 +32,19 @@ export function DeleteDialog({ isOpen, onClose, onConfirm, projectTitle }: Delet
                         Are you sure you want to delete <strong>{projectTitle}</strong>? This action cannot be undone.
                     </p>
                     <div className="flex gap-3 pt-4">
-                        <button
-                            onClick={onClose}
+                        <button onClick={onClose}
                             className="flex-1 px-4 py-3 border border-border rounded-xl font-bold hover:bg-muted transition-colors"
                         >
                             Cancel
                         </button>
-                        <button
-                            onClick={onConfirm}
+                        <button onClick={onConfirm}
                             className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors"
                         >
                             Delete Project
                         </button>
                     </div>
                 </div>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 };

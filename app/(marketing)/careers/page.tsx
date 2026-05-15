@@ -1,5 +1,6 @@
-"use client";
-import { motion } from "framer-motion";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
     Sparkles,
     Flame
 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 // Icon Map
@@ -56,21 +58,21 @@ export default function CareersPage() {
             <div className="container px-6 mx-auto relative z-10 space-y-24">
                 {/* Header Section */}
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(var(--primary),0.2)]">
                             {hero?.badge ?? ""}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 
+                    </AnimatedDiv>
+                    <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {hero?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{hero?.titleHighlight ?? ""}</span>{hero?.titleSuffix ?? ""}
-                    </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+                    </AnimatedH1>
+                    <AnimatedP className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
                         {hero?.description ?? ""}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Culture Cards */}
@@ -101,8 +103,7 @@ export default function CareersPage() {
                         {jobs.map((job, idx) => {
                             const Icon = iconMap[job.iconName ?? ''] || Briefcase;
                             return (
-                            <motion.div
-                                key={job.id}
+                            <AnimatedDiv key={job.id}
                                 initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
@@ -124,12 +125,14 @@ export default function CareersPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <Button className="h-14 px-8 rounded-2xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-primary hover:text-white hover:border-primary transition-all group-hover:translate-x-2">
-                                            Initiate Application <ArrowRight className="w-5 h-5 ml-3" />
+                                        <Button className="h-14 px-8 rounded-2xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-primary hover:text-white hover:border-primary transition-all group-hover:translate-x-2" asChild>
+                                            <Link href="/contact">
+                                                Initiate Application <ArrowRight className="w-5 h-5 ml-3" />
+                                            </Link>
                                         </Button>
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </AnimatedDiv>
                         );})}
                     </div>
                 </div>
@@ -140,8 +143,10 @@ export default function CareersPage() {
                     <p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
                         {contact.description}
                     </p>
-                    <Button variant="outline" className="h-16 px-12 rounded-2xl border-white/10 bg-white/5 text-white font-semibold text-lg hover:bg-white/10">
-                        {contact.buttonText} <ArrowRight className="w-5 h-5 ml-3" />
+                    <Button variant="outline" className="h-16 px-12 rounded-2xl border-white/10 bg-white/5 text-white font-semibold text-lg hover:bg-white/10" asChild>
+                        <Link href="/contact">
+                            {contact.buttonText} <ArrowRight className="w-5 h-5 ml-3" />
+                        </Link>
                     </Button>
                 </div>
             </div>

@@ -5,8 +5,8 @@ export const siteConfig = {
   shortDescription: "Premium software development company specializing in web, mobile, and AI solutions.",
   url: process.env.NEXT_PUBLIC_APP_URL || "https://oftisoft.com",
   email: "oftisoft@gmail.com",
-  phone: "+880 1410-615665",
-  whatsapp: "+8801410615665",
+  phone: "+8801757220402",
+  whatsapp: "+8801757220402",
   address: {
     street: "Sultanpur Sahapara",
     city: "Satkhira",

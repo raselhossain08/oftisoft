@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import {
   Activity,
   ArrowUpRight,
@@ -131,8 +132,7 @@ const StatCard = ({
 
   return (
     <Link href={href}>
-      <motion.div
-        whileHover={{ y: -4, scale: 1.01 }}
+      <AnimatedDiv whileHover={{ y: -4, scale: 1.01 }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-card border border-border p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer group h-full"
@@ -155,15 +155,14 @@ const StatCard = ({
           <h3 className="text-2xl font-bold mb-1">{value}</h3>
           <p className="text-sm text-muted-foreground font-medium">{title}</p>
         </div>
-      </motion.div>
+      </AnimatedDiv>
     </Link>
   );
 };
 
 const QuickAction = ({ icon: Icon, label, href, color = "primary" }: { icon: React.ElementType; label: string; href: string; color?: string }) => (
   <Link href={href}>
-    <motion.div
-      whileHover={{ scale: 1.05 }}
+    <AnimatedDiv whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className="flex flex-col items-center gap-2 p-4 rounded-xl bg-muted/50 hover:bg-primary/10 border border-border hover:border-primary/30 transition-all cursor-pointer group"
     >
@@ -176,7 +175,7 @@ const QuickAction = ({ icon: Icon, label, href, color = "primary" }: { icon: Rea
         <Icon className="w-6 h-6" />
       </div>
       <span className="text-xs font-semibold text-center">{label}</span>
-    </motion.div>
+    </AnimatedDiv>
   </Link>
 );
 
@@ -189,7 +188,7 @@ const ActivityItem = ({ icon: Icon, title, description, time, status }: { icon: 
       <div className="flex items-center gap-2">
         <p className="font-semibold text-sm truncate">{title}</p>
         {status && (
-          <Badge variant={status === 'completed' ? 'default' : status === 'pending' ? 'secondary' : 'destructive'} className="text-[10px]">
+          <Badge variant={status === 'completed' ? 'default' : status === 'pending' ? 'secondary' : 'destructive'} className="text-sm">
             {status}
           </Badge>
         )}
@@ -219,8 +218,7 @@ function UserDashboard() {
       {/* Welcome Header */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-8 border border-primary/20">
         <div className="relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          <AnimatedDiv initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-3xl font-bold mb-2">
@@ -229,15 +227,14 @@ function UserDashboard() {
             <p className="text-muted-foreground max-w-xl">
               Here's what's happening with your account today.
             </p>
-          </motion.div>
+          </AnimatedDiv>
         </div>
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="My Orders"
+        <StatCard title="My Orders"
           value={String(activeOrders)}
           change="Active"
           trend="neutral"
@@ -245,8 +242,7 @@ function UserDashboard() {
           icon={ShoppingCart}
           color="primary"
         />
-        <StatCard
-          title="Active Services"
+        <StatCard title="Active Services"
           value={String(projects.filter(p => p.status === 'in_progress').length)}
           change="In Progress"
           trend="neutral"
@@ -254,8 +250,7 @@ function UserDashboard() {
           icon={Briefcase}
           color="success"
         />
-        <StatCard
-          title="Subscription"
+        <StatCard title="Subscription"
           value={subscription?.plan || "Free"}
           change={subscription?.status === 'active' ? 'Active' : 'Inactive'}
           trend={subscription?.status === 'active' ? 'up' : 'down'}
@@ -263,8 +258,7 @@ function UserDashboard() {
           icon={CreditCard}
           color="warning"
         />
-        <StatCard
-          title="Completed"
+        <StatCard title="Completed"
           value={String(completedOrders)}
           change="Orders"
           trend="up"
@@ -299,8 +293,7 @@ function UserDashboard() {
           </CardHeader>
           <CardContent className="space-y-2">
             {orders.slice(0, 3).map((order, i) => (
-              <ActivityItem
-                key={order.id || i}
+              <ActivityItem key={order.id || i}
                 icon={ShoppingCart}
                 title={`Order #${order.id?.slice(-6) || i + 1}`}
                 description={`$${order.total} - ${order.status}`}
@@ -368,8 +361,7 @@ function SupportDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Open Tickets"
+        <StatCard title="Open Tickets"
           value={String(openTickets)}
           change={`${pendingTickets} pending`}
           trend={openTickets > 5 ? "up" : "neutral"}
@@ -377,8 +369,7 @@ function SupportDashboard() {
           icon={Inbox}
           color="primary"
         />
-        <StatCard
-          title="Resolved Today"
+        <StatCard title="Resolved Today"
           value={String(resolvedToday)}
           change="Tickets"
           trend="up"
@@ -386,8 +377,7 @@ function SupportDashboard() {
           icon={CheckCircle2}
           color="success"
         />
-        <StatCard
-          title="Avg Response"
+        <StatCard title="Avg Response"
           value="2.5h"
           change="Target: 2h"
           trend="neutral"
@@ -395,8 +385,7 @@ function SupportDashboard() {
           icon={Clock}
           color="warning"
         />
-        <StatCard
-          title="Satisfaction"
+        <StatCard title="Satisfaction"
           value="94%"
           change="+2%"
           trend="up"
@@ -528,7 +517,7 @@ function StaffDashboard() {
               Staff Portal
             </Badge>
           </div>
-          <h1 className="text-3xl font-black">
+          <h1 className="text-3xl font-semibold">
             Staff Dashboard
           </h1>
           <p className="text-muted-foreground max-w-xl mt-1">
@@ -540,8 +529,7 @@ function StaffDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="My Projects"
+        <StatCard title="My Projects"
           value={String(myProjects.length)}
           change="Assigned"
           trend="neutral"
@@ -549,8 +537,7 @@ function StaffDashboard() {
           icon={FolderKanban}
           color="primary"
         />
-        <StatCard
-          title="Pending Review"
+        <StatCard title="Pending Review"
           value={String(pendingApprovals)}
           change="Needs approval"
           trend={pendingApprovals > 0 ? "up" : "neutral"}
@@ -558,8 +545,7 @@ function StaffDashboard() {
           icon={FileText}
           color="warning"
         />
-        <StatCard
-          title="Content Updates"
+        <StatCard title="Content Updates"
           value={String(contentUpdates)}
           change="This week"
           trend="up"
@@ -567,8 +553,7 @@ function StaffDashboard() {
           icon={Edit3}
           color="success"
         />
-        <StatCard
-          title="Active Users"
+        <StatCard title="Active Users"
           value={String(users.filter(u => u.isActive).length)}
           change="Total"
           trend="neutral"
@@ -584,7 +569,7 @@ function StaffDashboard() {
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-lg font-black">Recent Orders</CardTitle>
+              <CardTitle className="text-lg font-semibold">Recent Orders</CardTitle>
               <CardDescription>Latest customer orders requiring attention</CardDescription>
             </div>
             <Button size="sm" variant="outline" asChild>
@@ -622,7 +607,7 @@ function StaffDashboard() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-black">Staff Tools</CardTitle>
+            <CardTitle className="text-lg font-semibold">Staff Tools</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button className="w-full justify-start" variant="outline" asChild>
@@ -689,8 +674,7 @@ function AdminDashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1">
               {mounted && (
-                <TypeAnimation
-                  sequence={[
+                <TypeAnimation sequence={[
                     "Welcome to Admin Control Center",
                     2000,
                     "Monitor system health",
@@ -701,7 +685,7 @@ function AdminDashboard() {
                     2000,
                   ]}
                   wrapper="h1"
-                  className="text-3xl sm:text-4xl font-black"
+                  className="text-3xl sm:text-3xl font-semibold"
                   repeat={Infinity}
                 />
               )}
@@ -719,8 +703,7 @@ function AdminDashboard() {
 
       {/* Admin Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Revenue"
+        <StatCard title="Total Revenue"
           value={`$${financeStats?.totalRevenue?.toLocaleString() || '0'}`}
           change="+12%"
           trend="up"
@@ -728,8 +711,7 @@ function AdminDashboard() {
           icon={TrendingUp}
           color="success"
         />
-        <StatCard
-          title="Active Projects"
+        <StatCard title="Active Projects"
           value={String(projects.filter(p => p.status === 'in_progress').length)}
           change="On Track"
           trend="up"
@@ -737,8 +719,7 @@ function AdminDashboard() {
           icon={FolderKanban}
           color="primary"
         />
-        <StatCard
-          title="Total Orders"
+        <StatCard title="Total Orders"
           value={String(orders.length)}
           change="This month"
           trend="up"
@@ -746,8 +727,7 @@ function AdminDashboard() {
           icon={ShoppingCart}
           color="warning"
         />
-        <StatCard
-          title="Users"
+        <StatCard title="Users"
           value={String(users.length)}
           change="+5 new"
           trend="up"
@@ -762,7 +742,7 @@ function AdminDashboard() {
         {/* Revenue Chart */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg font-black">Revenue Overview</CardTitle>
+            <CardTitle className="text-lg font-semibold">Revenue Overview</CardTitle>
             <CardDescription>Last 7 days revenue and orders</CardDescription>
           </CardHeader>
           <CardContent>
@@ -778,15 +758,13 @@ function AdminDashboard() {
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="name" className="text-xs" />
                   <YAxis className="text-xs" />
-                  <Tooltip
-                    contentStyle={{
+                  <Tooltip contentStyle={{
                       backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
                     }}
                   />
-                  <Area
-                    type="monotone"
+                  <Area type="monotone"
                     dataKey="pv"
                     stroke="hsl(var(--primary))"
                     fillOpacity={1}
@@ -802,7 +780,7 @@ function AdminDashboard() {
         {/* Quick Actions Panel */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-black">Admin Tools</CardTitle>
+            <CardTitle className="text-lg font-semibold">Admin Tools</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button className="w-full justify-start" asChild>

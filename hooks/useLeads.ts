@@ -17,7 +17,7 @@ export function useLeads() {
     });
 
     const subscribeMutation = useMutation({
-        mutationFn: (email: string) => leadsAPI.create({ email, type: 'newsletter' as any }),
+        mutationFn: (email: string) => leadsAPI.subscribe(email),
         onSuccess: () => {
             toast.success("Successfully subscribed to our newsletter!");
             queryClient.invalidateQueries({ queryKey: ["leads"] });

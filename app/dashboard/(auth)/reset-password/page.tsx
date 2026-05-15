@@ -1,8 +1,9 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -109,16 +110,14 @@ function ResetPasswordForm() {
 
       <div className="w-full max-w-md">
         <div className="mb-6 sm:mb-8 text-center">
-          <Link
-            href="/"
+          <Link href="/"
             className="inline-block text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
           >
             Ofitsoft
           </Link>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
+        <AnimatedDiv initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
@@ -140,8 +139,7 @@ function ResetPasswordForm() {
                   <Label htmlFor="password">New password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="password"
+                    <Input id="password"
                       type="password"
                       placeholder="Min 8 characters"
                       className={cn(
@@ -162,8 +160,7 @@ function ResetPasswordForm() {
                   <Label htmlFor="confirmPassword">Confirm password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="confirmPassword"
+                    <Input id="confirmPassword"
                       type="password"
                       placeholder="Re-enter password"
                       className={cn(
@@ -180,8 +177,7 @@ function ResetPasswordForm() {
                     </p>
                   )}
                 </div>
-                <Button
-                  type="submit"
+                <Button type="submit"
                   disabled={isSubmitting}
                   className="w-full h-10 sm:h-11 font-semibold"
                   size="lg"
@@ -204,7 +200,7 @@ function ResetPasswordForm() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </AnimatedDiv>
       </div>
     </div>
   );
@@ -212,8 +208,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense
-      fallback={
+    <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>

@@ -990,7 +990,7 @@ const defaultContent: BlogPageContent = {
             stats: [
                 { label: "Articles", value: "40+" },
                 { label: "Focus", value: "AI + Web" },
-                { label: "Projects", value: "100+" },
+                { label: "Projects", value: "500+" },
             ],
             tags: ["Architecture", "AI", "MERN Stack"],
             socials: { twitter: "#", linkedin: "#", github: "#" }

@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import {
@@ -14,7 +16,6 @@ import {
   X,
   ShoppingCart,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -58,7 +59,7 @@ export default function Header() {
     : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`;
 
   const initials = user?.name
-    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
 
   const cartItemCount = cartItems.length;
@@ -67,8 +68,7 @@ export default function Header() {
     <header className="h-16 sm:h-18 border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between gap-4 transition-all duration-300">
       {/* Left: Mobile Menu & Search */}
       <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
-        <Button
-          variant="ghost"
+        <Button variant="ghost"
           size="icon"
           className="lg:hidden shrink-0 h-9 w-9"
           onClick={() => setMobileSidebarOpen(true)}
@@ -77,28 +77,23 @@ export default function Header() {
           <Menu className="w-5 h-5" />
         </Button>
 
-        <div
-          className={cn(
+        <div className={cn(
             "relative transition-all duration-500 ease-out flex items-center gap-2 sm:gap-4 flex-1 min-w-0",
             isSearchFocused ? "max-w-2xl" : "max-w-md"
           )}
         >
           <div className="relative w-full max-w-md group">
-            <motion.div
-              layout
-              className={cn(
+            <AnimatedDiv layout className={cn(
                 "absolute inset-0 bg-primary/5 rounded-xl sm:rounded-2xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity",
                 isSearchFocused && "opacity-100 bg-primary/10 ring-2 ring-primary/20"
               )}
             />
-            <Search
-              className={cn(
+            <Search className={cn(
                 "absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors shrink-0",
                 isSearchFocused ? "text-primary" : "text-muted-foreground"
               )}
             />
-            <Input
-              type="text"
+            <Input type="text"
               placeholder="Search... (Ctrl+K)"
               value={searchQuery}
               onFocus={() => setIsSearchFocused(true)}
@@ -110,8 +105,7 @@ export default function Header() {
             />
             <div className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
               {isSearchFocused && searchQuery ? (
-                <Button
-                  variant="ghost"
+                <Button variant="ghost"
                   size="icon"
                   className="h-6 w-6"
                   onClick={() => setSearchQuery("")}
@@ -128,8 +122,7 @@ export default function Header() {
 
           <AnimatePresence>
             {!isSearchFocused && (
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
+              <AnimatedDiv initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 className="hidden xl:flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap shrink-0"
@@ -138,8 +131,7 @@ export default function Header() {
                 {breadcrumbs.map((item, index) => (
                   <div key={item} className="flex items-center gap-2">
                     {index > 0 && <ChevronRight className="w-3 h-3" />}
-                    <span
-                      className={cn(
+                    <span className={cn(
                         index === breadcrumbs.length - 1
                           ? "font-semibold text-foreground"
                           : "hover:text-foreground transition-colors"
@@ -149,7 +141,7 @@ export default function Header() {
                     </span>
                   </div>
                 ))}
-              </motion.div>
+              </AnimatedDiv>
             )}
           </AnimatePresence>
         </div>
@@ -157,8 +149,7 @@ export default function Header() {
 
       {/* Right: Actions & Profile */}
       <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 pl-2 shrink-0">
-        <Badge
-          variant="outline"
+        <Badge variant="outline"
           className="hidden lg:flex items-center gap-2 px-2.5 py-1 border-green-500/20 bg-green-500/10 text-green-600 text-xs font-medium"
         >
           <span className="relative flex h-2 w-2">
@@ -172,8 +163,7 @@ export default function Header() {
 
         {/* Cart */}
         <CartDrawer>
-          <Button
-            variant="ghost"
+          <Button variant="ghost"
             size="icon"
             className={cn(
               "relative h-9 w-9 sm:h-10 sm:w-10 rounded-xl",
@@ -197,8 +187,7 @@ export default function Header() {
         {/* Profile Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
+            <Button variant="ghost"
               className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 h-auto py-2"
             >
               <div className="text-right hidden sm:block">
@@ -245,8 +234,7 @@ export default function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
+            <DropdownMenuItem variant="destructive"
               className="cursor-pointer"
               onClick={() => void logout()}
             >

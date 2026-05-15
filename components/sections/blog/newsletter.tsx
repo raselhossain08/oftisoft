@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import api from "@/lib/api";
 import { Mail, CheckCircle2, AlertCircle, ArrowRight, Loader2, Sparkles, Zap, Code2, Rocket } from "lucide-react";
 import confetti from "canvas-confetti";
 import { cn } from "@/lib/utils";
@@ -26,20 +27,22 @@ export default function Newsletter() {
         
         setStatus('loading');
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        setStatus('success');
-        confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-        });
-        
-        setTimeout(() => {
-            setEmail("");
-            setStatus('idle');
-        }, 3000);
+        try {
+            await api.post('/leads/subscribe', { email });
+            setStatus('success');
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            setTimeout(() => {
+                setEmail("");
+                setStatus('idle');
+            }, 3000);
+        } catch {
+            setStatus('error');
+            setTimeout(() => setStatus('idle'), 3000);
+        }
     };
 
     return (
@@ -56,7 +59,7 @@ export default function Newsletter() {
                         
                         {/* Text Content */}
                         <div className="text-center lg:text-left">
-                            <motion.div 
+                            <AnimatedDiv 
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -92,11 +95,11 @@ export default function Newsletter() {
                                         </Badge>
                                     ))}
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         </div>
 
                         {/* Form Section */}
-                        <motion.div 
+                        <AnimatedDiv 
                             initial={{ opacity: 0, scale: 0.95 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
@@ -118,8 +121,7 @@ export default function Newsletter() {
 
                                     <form onSubmit={handleSubscribe} className="space-y-4">
                                         <div className="relative">
-                                            <Input
-                                                type="email"
+                                            <Input type="email"
                                                 placeholder="developer@example.com"
                                                 value={email}
                                                 disabled={status === 'loading' || status === 'success'}
@@ -128,28 +130,27 @@ export default function Newsletter() {
                                                     if (status === 'error') setStatus('idle');
                                                 }}
                                                 className={cn(
-                                                    "w-full h-12 px-5 rounded-xl bg-muted/50 border-border outline-none transition-all text-base", // text-base prevents iOS zoom
-                                                    status === 'error' 
+                                                    "w-full h-12 px-5 rounded-xl bg-muted/50 border-border outline-none transition-all text-base",
+                                                    status === 'error'
                                                         ? "border-red-500/50 bg-red-500/5 focus-visible:ring-red-500/20" 
                                                         : "focus-visible:ring-primary/20"
                                                 )}
                                             />
-                                            <AnimatePresence>
+                                            <div>
                                                 {status === 'error' && (
-                                                    <motion.div 
+                                                    <AnimatedDiv 
                                                         initial={{ opacity: 0, x: 10 }} 
                                                         animate={{ opacity: 1, x: 0 }} 
                                                         exit={{ opacity: 0 }}
                                                         className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500"
                                                     >
                                                         <AlertCircle className="w-5 h-5" />
-                                                    </motion.div>
+                                                    </AnimatedDiv>
                                                 )}
-                                            </AnimatePresence>
+                                            </div>
                                         </div>
 
-                                        <Button
-                                            type="submit"
+                                        <Button type="submit"
                                             size="lg"
                                             disabled={status === 'loading' || status === 'success'}
                                             className={cn(
@@ -159,18 +160,18 @@ export default function Newsletter() {
                                                     : ""
                                             )}
                                         >
-                                            <AnimatePresence mode="wait">
+                                            <div>
                                                 {status === 'loading' ? (
-                                                    <motion.div 
+                                                    <AnimatedDiv 
                                                         key="loading" 
                                                         initial={{ opacity: 0, y: 10 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         exit={{ opacity: 0, y: -10 }}
                                                     >
                                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                                    </motion.div>
+                                                    </AnimatedDiv>
                                                 ) : status === 'success' ? (
-                                                    <motion.div 
+                                                    <AnimatedDiv 
                                                         key="success" 
                                                         initial={{ opacity: 0, y: 10 }}
                                                         animate={{ opacity: 1, y: 0 }}
@@ -179,9 +180,9 @@ export default function Newsletter() {
                                                     >
                                                         <CheckCircle2 className="w-5 h-5" />
                                                         <span>Subscribed!</span>
-                                                    </motion.div>
+                                                    </AnimatedDiv>
                                                 ) : (
-                                                    <motion.div 
+                                                    <AnimatedDiv 
                                                         key="idle" 
                                                         initial={{ opacity: 0, y: 10 }}
                                                         animate={{ opacity: 1, y: 0 }}
@@ -190,9 +191,9 @@ export default function Newsletter() {
                                                     >
                                                         <span>Subscribe Now</span>
                                                         <ArrowRight className="w-4 h-4" />
-                                                    </motion.div>
+                                                    </AnimatedDiv>
                                                 )}
-                                            </AnimatePresence>
+                                            </div>
                                         </Button>
                                         
                                         <p className="text-xs text-center text-muted-foreground mt-4">
@@ -201,10 +202,11 @@ export default function Newsletter() {
                                     </form>
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
                     </div>
                 </div>
             </div>
         </section>
     );
 }
+

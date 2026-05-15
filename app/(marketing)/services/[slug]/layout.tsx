@@ -13,7 +13,11 @@ async function getService(slug: string) {
   };
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const service = await getService(slug);
 
@@ -70,6 +74,7 @@ export default async function ServiceDetailLayout({
           __html: JSON.stringify(jsonLdSchemas.breadcrumb(breadcrumbData)),
         }}
       />
+      <div className="pt-18"></div>
       {children}
     </>
   );

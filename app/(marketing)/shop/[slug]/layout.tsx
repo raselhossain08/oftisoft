@@ -9,7 +9,7 @@ async function getProduct(slug: string) {
     name: "Product",
     description: "Product description",
     slug,
-    image: "/og-image.jpg",
+    image: "/og-image.svg",
     price: 99,
     rating: 4.5,
     reviews: 10,
@@ -63,14 +63,12 @@ export default async function ProductLayout({
 
   return (
     <>
-      <script
-        type="application/ld+json"
+      <script type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLdSchemas.softwareApplication(product)),
         }}
       />
-      <script
-        type="application/ld+json"
+      <script type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLdSchemas.breadcrumb(breadcrumbData)),
         }}

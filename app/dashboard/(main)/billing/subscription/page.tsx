@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Check, Zap, Shield, ArrowLeft, Loader2, Sparkles, RefreshCw, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -122,7 +123,7 @@ export default function SubscriptionPage() {
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-black tracking-tight">System Tier</h1>
+                        <h1 className="text-3xl font-semibold">System Tier</h1>
                         <p className="text-muted-foreground">Select the computational power that fits your workflow.</p>
                     </div>
                 </div>
@@ -141,8 +142,7 @@ export default function SubscriptionPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {SUBSCRIPTION_PLANS.map((plan, i) => (
-                    <motion.div
-                        key={plan.name}
+                    <AnimatedDiv key={plan.name}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
@@ -155,22 +155,22 @@ export default function SubscriptionPage() {
                         )}
                     >
                         {plan.recommended && (
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-xl flex items-center gap-2">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white px-5 py-2 rounded-full text-xs font-semibold  shadow-xl flex items-center gap-2">
                                 <Sparkles className="w-3.5 h-3.5 fill-white" /> Power Choice
                             </div>
                         )}
 
                         {subscription?.plan === plan.name && (
-                            <div className="absolute top-0 right-8 -translate-y-1/2 bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide shadow-lg">
+                            <div className="absolute top-0 right-8 -translate-y-1/2 bg-green-500 text-white px-3 py-1 rounded-lg text-sm font-semibold  shadow-lg">
                                 Active
                             </div>
                         )}
 
-                        <h3 className="text-2xl font-black mb-2">{plan.name}</h3>
+                        <h3 className="text-2xl font-semibold mb-2">{plan.name}</h3>
                         <p className="text-sm text-muted-foreground mb-8 h-10 leading-relaxed">{plan.description}</p>
                         
                         <div className="flex items-baseline gap-1 mb-10">
-                            <span className="text-5xl font-black tracking-tighter">{plan.price}</span>
+                            <span className="text-3xl font-semibold">{plan.price}</span>
                             <span className="text-muted-foreground font-bold text-lg opacity-50">{plan.period}</span>
                         </div>
 
@@ -189,7 +189,7 @@ export default function SubscriptionPage() {
                             disabled={isLoading || subscription?.plan === plan.name}
                             onClick={() => handlePlanSelect(plan.name)}
                             className={cn(
-                                "w-full h-14 rounded-2xl font-black text-sm uppercase tracking-wider transition-all duration-300",
+                                "w-full h-14 rounded-2xl font-semibold text-sm  transition-all duration-300",
                                 plan.recommended
                                     ? "bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/30 hover:shadow-primary/40"
                                     : "bg-muted text-foreground hover:bg-muted/80",
@@ -206,11 +206,11 @@ export default function SubscriptionPage() {
                                 "Select " + plan.name
                             )}
                         </Button>
-                    </motion.div>
+                    </AnimatedDiv>
                 ))}
             </div>
 
-            <motion.div 
+            <AnimatedDiv 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 }}
@@ -221,19 +221,19 @@ export default function SubscriptionPage() {
                         <Shield className="w-8 h-8" />
                     </div>
                     <div>
-                        <h3 className="font-black text-2xl tracking-tight">Enterprise Infrastructure</h3>
+                        <h3 className="font-semibold text-2xl">Enterprise Infrastructure</h3>
                         <p className="text-muted-foreground font-medium max-w-md">Quantum-ready security, dedicated throughput, and global compliance for high-scale operations.</p>
                     </div>
                 </div>
                 <Button 
                     variant="outline" 
                     size="lg"
-                    className="rounded-2xl h-14 px-10 font-black border-border/50 bg-background hover:bg-muted transition-all uppercase tracking-widest text-xs"
+                    className="rounded-2xl h-14 px-10 font-semibold border-border/50 bg-background hover:bg-muted transition-all  text-xs"
                     onClick={handleContactSales}
                 >
                     Contact Fleet Support
                 </Button>
-            </motion.div>
+            </AnimatedDiv>
 
             {/* Confirm Upgrade Dialog */}
             <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
@@ -242,22 +242,22 @@ export default function SubscriptionPage() {
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                             <Zap className="w-7 h-7 text-primary" />
                         </div>
-                        <DialogTitle className="text-3xl font-black tracking-tighter">Confirm Tier Upgrade</DialogTitle>
+                        <DialogTitle className="text-3xl font-semibold">Confirm Tier Upgrade</DialogTitle>
                         <DialogDescription className="text-lg">
                             You are about to switch your computational tier to <span className="text-primary font-bold">{selectedPlan}</span>.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-6 space-y-4">
                         <div className="p-6 rounded-3xl bg-muted/20 border border-border/50">
-                            <p className="text-xs uppercase font-bold text-muted-foreground mb-2">UPGRADE SUMMARY</p>
+                            <p className="text-xs  font-bold text-muted-foreground mb-2">UPGRADE SUMMARY</p>
                             <div className="flex justify-between items-center bg-background p-4 rounded-2xl border border-border/50">
                                 <span className="font-bold text-muted-foreground">Monthly Billing</span>
-                                <span className="text-xl font-black text-primary">
+                                <span className="text-xl font-semibold text-primary">
                                     {SUBSCRIPTION_PLANS.find(p => p.name === selectedPlan)?.price}
                                 </span>
                             </div>
                         </div>
-                        <p className="text-xs text-muted-foreground italic px-2">
+                        <p className="text-xs text-muted-foreground  px-2">
                             Note: Subscription changes are processed immediately. Any remaining credit from your current tier will be pro-rated.
                         </p>
                     </div>
@@ -266,7 +266,7 @@ export default function SubscriptionPage() {
                             Abort
                         </Button>
                         <Button 
-                            className="rounded-xl h-auto px-8 font-black flex-1 shadow-lg shadow-primary/20"
+                            className="rounded-xl h-auto px-8 font-semibold flex-1 shadow-lg shadow-primary/20"
                             onClick={handleConfirmUpgrade}
                         >
                             Authorize Provisioning

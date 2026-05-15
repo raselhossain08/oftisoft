@@ -1,6 +1,6 @@
 "use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
 import { useState, useRef, useEffect, Suspense, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Plus,
@@ -201,7 +201,7 @@ function MessagesPageContent() {
     sendTypingIndicator();
     
     // Clear previous timeout
-    if (typingTimeoutRef.current) {
+  if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
   };
@@ -263,7 +263,7 @@ function MessagesPageContent() {
     if (files.length === 0) return;
 
     // Validate file sizes
-    const oversizedFiles = files.filter(f => f.size > (permissions?.maxFileSize || 10 * 1024 * 1024));
+  const oversizedFiles = files.filter(f => f.size > (permissions?.maxFileSize || 10 * 1024 * 1024));
     if (oversizedFiles.length > 0) {
       toast.error(`Some files exceed the maximum size limit`);
       return;
@@ -329,8 +329,7 @@ function MessagesPageContent() {
     const hasReactions = msg.reactions && msg.reactions.length > 0;
     
     return (
-      <motion.div
-        key={msg.id}
+      <AnimatedDiv key={msg.id}
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
@@ -361,8 +360,7 @@ function MessagesPageContent() {
             </div>
           )}
           
-          <div
-            className={cn(
+          <div className={cn(
               "relative px-3 py-2 rounded-2xl text-sm shadow-sm cursor-pointer transition-all",
               msg.isMe
                 ? "bg-[#0084ff] text-white rounded-br-md rounded-tr-md rounded-tl-xl rounded-bl-xl"
@@ -372,8 +370,7 @@ function MessagesPageContent() {
             {/* Message actions */}
             <AnimatePresence>
               {isSelected && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   className={cn(
@@ -384,8 +381,7 @@ function MessagesPageContent() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
+                        <Button variant="ghost"
                           size="icon"
                           className="h-7 w-7"
                           onClick={(e) => {
@@ -405,8 +401,7 @@ function MessagesPageContent() {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
+                          <Button variant="ghost"
                             size="icon"
                             className="h-7 w-7"
                             onClick={(e) => {
@@ -428,8 +423,7 @@ function MessagesPageContent() {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
+                          <Button variant="ghost"
                             size="icon"
                             className="h-7 w-7 text-destructive"
                             onClick={(e) => {
@@ -444,7 +438,7 @@ function MessagesPageContent() {
                       </Tooltip>
                     </TooltipProvider>
                   )}
-                </motion.div>
+                </AnimatedDiv>
               )}
             </AnimatePresence>
             
@@ -469,10 +463,10 @@ function MessagesPageContent() {
             )}
             
             <div className={cn(
-              "text-[11px] mt-0.5 flex items-center justify-end gap-1",
+              "text-sm mt-0.5 flex items-center justify-end gap-1",
               msg.isMe ? "text-white/80" : "text-muted-foreground"
             )}>
-              {msg.edited && <span className="italic">edited</span>}
+              {msg.edited && <span className="">edited</span>}
               {msg.time}
               {msg.isMe && (
                 <>
@@ -491,8 +485,7 @@ function MessagesPageContent() {
               msg.isMe ? "justify-end" : "justify-start"
             )}>
               {msg.reactions?.map((reaction) => (
-                <button
-                  key={reaction.emoji}
+                <button key={reaction.emoji}
                   onClick={(e) => {
                     e.stopPropagation();
                     if (reaction.users.includes(currentUser?.id || '')) {
@@ -517,7 +510,7 @@ function MessagesPageContent() {
         </div>
         
         {msg.isMe && <div className="w-8 shrink-0" />}
-      </motion.div>
+      </AnimatedDiv>
     );
   };
 
@@ -526,8 +519,7 @@ function MessagesPageContent() {
       {/* Chat Header */}
       <CardHeader className="px-4 py-3 border-b border-border flex flex-row items-center justify-between gap-3 shrink-0 bg-background/95 backdrop-blur">
         <div className="flex items-center gap-3 min-w-0">
-          <Button
-            variant="ghost"
+          <Button variant="ghost"
             size="icon"
             className="lg:hidden shrink-0 h-9 w-9"
             onClick={handleBackToList}
@@ -546,13 +538,12 @@ function MessagesPageContent() {
                   <h3 className="font-bold leading-none truncate">
                     {selectedChat.name}
                   </h3>
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                  <Badge variant="secondary" className="text-sm px-1.5 py-0">
                     {selectedChat.role}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <p
-                    className={cn(
+                  <p className={cn(
                       "text-xs font-medium flex items-center gap-1",
                       selectedChat.status === "online"
                         ? "text-green-500"
@@ -582,24 +573,21 @@ function MessagesPageContent() {
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <Button
-            variant="ghost"
+          <Button variant="ghost"
             size="icon"
             className="h-9 w-9"
             onClick={() => setIsSearchOpen(true)}
           >
             <Search className="w-5 h-5" />
           </Button>
-          <Button
-            variant="ghost"
+          <Button variant="ghost"
             size="icon"
             className="h-9 w-9"
             onClick={() => window.open(GOOGLE_MEET_URL, "_blank", "noopener,noreferrer")}
           >
             <Video className="w-5 h-5" />
           </Button>
-          <Button
-            variant="ghost"
+          <Button variant="ghost"
             size="icon"
             className="h-9 w-9"
             onClick={() => setIsInfoOpen(true)}
@@ -632,8 +620,7 @@ function MessagesPageContent() {
       {/* Reply Preview */}
       <AnimatePresence>
         {replyingTo && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
+          <AnimatedDiv initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="px-4 py-2 bg-muted/50 border-t border-border"
@@ -651,7 +638,7 @@ function MessagesPageContent() {
                 <X className="w-4 h-4" />
               </Button>
             </div>
-          </motion.div>
+          </AnimatedDiv>
         )}
       </AnimatePresence>
 
@@ -667,8 +654,7 @@ function MessagesPageContent() {
                   <FileText className="w-6 h-6 text-muted-foreground" />
                 </div>
               )}
-              <button
-                onClick={() => removeAttachment(att.id)}
+              <button onClick={() => removeAttachment(att.id)}
                 className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center text-xs"
               >
                 <X className="w-3 h-3" />
@@ -680,20 +666,16 @@ function MessagesPageContent() {
 
       {/* Input Area */}
       <div className="p-3 bg-background/95 backdrop-blur border-t border-border shrink-0">
-        <form
-          onSubmit={handleSendMessage}
+        <form onSubmit={handleSendMessage}
           className="flex items-end gap-2 bg-muted/50 dark:bg-zinc-800/50 rounded-2xl px-3 py-2"
         >
-          <input
-            type="file"
+          <input type="file"
             ref={fileInputRef}
             onChange={handleFileSelect}
-            multiple
-            className="hidden"
+            multiple className="hidden"
             accept={permissions?.allowedFileTypes?.join(',')}
           />
-          <Button
-            type="button"
+          <Button type="button"
             variant="ghost"
             size="icon"
             className="h-8 w-8 shrink-0 rounded-full hover:bg-muted"
@@ -702,8 +684,7 @@ function MessagesPageContent() {
           >
             <Paperclip className="w-5 h-5 text-muted-foreground" />
           </Button>
-          <Textarea
-            value={input}
+          <Textarea value={input}
             onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -717,8 +698,7 @@ function MessagesPageContent() {
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
+              <Button type="button"
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 shrink-0 rounded-full hover:bg-muted"
@@ -726,16 +706,14 @@ function MessagesPageContent() {
                 <Smile className="w-5 h-5 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
+            <DropdownMenuContent align="end"
               side="top"
               sideOffset={8}
               className="w-[320px] p-2 rounded-2xl"
             >
               <div className="grid grid-cols-10 gap-0.5">
                 {EMOJI_GRID.map((emoji) => (
-                  <button
-                    key={emoji}
+                  <button key={emoji}
                     type="button"
                     className="h-8 w-8 flex items-center justify-center text-lg rounded-lg hover:bg-muted transition-colors"
                     onClick={() => setInput((prev) => prev + emoji)}
@@ -746,8 +724,7 @@ function MessagesPageContent() {
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            type="submit"
+          <Button type="submit"
             disabled={(!input.trim() && attachments.length === 0) || isSending}
             size="icon"
             className="h-8 w-8 shrink-0 rounded-full bg-[#0084ff] hover:bg-[#0073e6] text-white"
@@ -773,8 +750,7 @@ function MessagesPageContent() {
       <div className="p-3 border-b border-border shrink-0">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold">Messages</h2>
-          <Button
-            variant="ghost"
+          <Button variant="ghost"
             size="icon"
             className="h-9 w-9 shrink-0 rounded-full"
             onClick={() => setIsNewChatOpen(true)}
@@ -784,8 +760,7 @@ function MessagesPageContent() {
         </div>
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-          <Input
-            value={search}
+          <Input value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search messages"
             className="pl-9 h-9 rounded-full bg-muted/50 border-0"
@@ -796,7 +771,7 @@ function MessagesPageContent() {
             <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
             <TabsTrigger value="unread" className="text-xs">
               Unread {conversations.some(c => c.unread > 0) && (
-                <span className="ml-1 w-4 h-4 bg-[#0084ff] text-white rounded-full text-[10px] flex items-center justify-center">
+                <span className="ml-1 w-4 h-4 bg-[#0084ff] text-white rounded-full text-sm flex items-center justify-center">
                   {conversations.filter(c => c.unread > 0).length}
                 </span>
               )}
@@ -844,8 +819,7 @@ function MessagesPageContent() {
             </div>
           )}
           {!isLoading && filteredConversations.map((chat) => (
-            <div
-              key={chat.id}
+            <div key={chat.id}
               className={cn(
                 "group relative flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors",
                 selectedChat?.id === chat.id
@@ -878,7 +852,7 @@ function MessagesPageContent() {
                     </span>
                     {ROLE_ICONS[chat.role]}
                   </div>
-                  <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
+                  <span className="text-sm text-muted-foreground whitespace-nowrap shrink-0">
                     {chat.time}
                   </span>
                 </div>
@@ -916,8 +890,7 @@ function MessagesPageContent() {
                       {chat.isMuted ? 'Unmute' : 'Mute'}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="text-destructive"
+                    <DropdownMenuItem className="text-destructive"
                       onClick={() => selectedChat && blockUser(selectedChat.recipientId)}
                     >
                       <Ban className="w-4 h-4 mr-2" /> Block
@@ -949,8 +922,7 @@ function MessagesPageContent() {
           <div className="space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={messageSearch}
+              <Input value={messageSearch}
                 onChange={(e) => setMessageSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleMessageSearch()}
                 placeholder="Search in conversation..."
@@ -971,8 +943,7 @@ function MessagesPageContent() {
             <DialogTitle>Edit Message</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Textarea
-              value={editInput}
+            <Textarea value={editInput}
               onChange={(e) => setEditInput(e.target.value)}
               placeholder="Edit your message..."
               className="min-h-[100px]"

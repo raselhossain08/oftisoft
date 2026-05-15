@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { 
@@ -50,12 +51,12 @@ export default function TermsPage() {
             <div className="container px-6 mx-auto relative z-10 space-y-24">
                 {/* Header Section */}
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px]">
                             {header.badge}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 
+                    </AnimatedDiv>
+                    <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
@@ -65,10 +66,10 @@ export default function TermsPage() {
                                 {word}{" "}
                             </span>
                         ))}
-                    </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
+                    </AnimatedH1>
+                    <AnimatedP className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
                         {header.description}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Content Matrix */}
@@ -93,8 +94,7 @@ export default function TermsPage() {
                         {sections.map((section, idx) => {
                             const Icon = iconMap[section.iconName] || FileText;
                             return (
-                                <motion.div
-                                    key={section.id}
+                                <AnimatedDiv key={section.id}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
@@ -112,7 +112,7 @@ export default function TermsPage() {
                                             {section.content}
                                         </p>
                                     </Card>
-                                </motion.div>
+                                </AnimatedDiv>
                             );
                         })}
 

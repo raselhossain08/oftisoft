@@ -57,7 +57,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "Googlebot-Image",
         allow: [
-          "/og-image.jpg",
+          "/og-image.svg",
           "/images",
           "/products",
         ],

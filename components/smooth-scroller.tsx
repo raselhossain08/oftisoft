@@ -3,6 +3,25 @@
 import { ReactNode, useEffect, useRef } from "react";
 import Lenis from "lenis";
 
+const styles = `
+html.lenis {
+  overflow-y: scroll;
+}
+html.lenis::-webkit-scrollbar {
+  width: 6px;
+}
+html.lenis::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.lenis::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+html.lenis::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+`;
+
 export default function SmoothScroller({ children }: { children: ReactNode }) {
   const rafRef = useRef<number>(0);
   const lenisRef = useRef<Lenis | null>(null);
@@ -29,7 +48,7 @@ export default function SmoothScroller({ children }: { children: ReactNode }) {
     rafRef.current = requestAnimationFrame(raf);
 
     // Stop Lenis on route changes so Next.js can handle scroll restoration
-    const handleAnchorClick = (e: MouseEvent) => {
+  const handleAnchorClick = (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest('a');
       if (anchor && anchor.href && !anchor.target && anchor.href !== window.location.href) {
         lenis.destroy();
@@ -44,5 +63,5 @@ export default function SmoothScroller({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <>{children}</>;
+  return <><style>{styles}</style>{children}</>;
 }

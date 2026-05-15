@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { Animated, AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import { 
@@ -31,7 +33,6 @@ import {
     FileText,
     Image as ImageIcon
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDropzone } from "react-dropzone";
@@ -144,20 +145,20 @@ export default function SupportHubPage() {
     });
 
     // Fetch Stats
-    const { data: stats } = useQuery({
+  const { data: stats } = useQuery({
         queryKey: ["support-stats"],
         queryFn: () => supportAPI.getStats(),
     });
 
     // Fetch Selected Ticket Details
-    const { data: selectedTicket, isLoading: isLoadingTicketDetails } = useQuery({
+  const { data: selectedTicket, isLoading: isLoadingTicketDetails } = useQuery({
         queryKey: ["ticket", selectedTicketId],
         queryFn: () => selectedTicketId ? supportAPI.getTicket(selectedTicketId) : null,
         enabled: !!selectedTicketId,
     });
 
     // Create Ticket Mutation
-    const createTicketMutation = useMutation({
+  const createTicketMutation = useMutation({
         mutationFn: (data: any) => supportAPI.createTicket(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tickets"] });
@@ -170,7 +171,7 @@ export default function SupportHubPage() {
     });
 
     // Add Message Mutation
-    const addMessageMutation = useMutation({
+  const addMessageMutation = useMutation({
         mutationFn: ({ id, content }: { id: string; content: string }) => supportAPI.addMessage(id, content),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["ticket", selectedTicketId] });
@@ -181,7 +182,7 @@ export default function SupportHubPage() {
     });
 
     // Update Status Mutation
-    const updateStatusMutation = useMutation({
+  const updateStatusMutation = useMutation({
         mutationFn: ({ id, status }: { id: string; status: string }) => supportAPI.updateTicketStatus(id, status),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tickets"] });
@@ -262,11 +263,11 @@ export default function SupportHubPage() {
     const getPriorityBadge = (prio: string) => {
         switch (prio.toLowerCase()) {
             case "urgent":
-                return <Badge className="bg-red-600 text-white border-none text-[10px] uppercase font-black px-1.5 h-5">Urgent</Badge>;
+                return <Badge className="bg-red-600 text-white border-none text-sm uppercase font-semibold px-1.5 h-5">Urgent</Badge>;
             case "high":
-                return <Badge className="bg-orange-500 text-white border-none text-[10px] uppercase font-black px-1.5 h-5">High</Badge>;
+                return <Badge className="bg-orange-500 text-white border-none text-sm uppercase font-semibold px-1.5 h-5">High</Badge>;
             default:
-                return <Badge variant="secondary" className="text-[10px] uppercase font-black px-1.5 h-5 bg-muted text-muted-foreground">{prio}</Badge>;
+                return <Badge variant="secondary" className="text-sm uppercase font-semibold px-1.5 h-5 bg-muted text-muted-foreground">{prio}</Badge>;
         }
     };
 
@@ -280,11 +281,11 @@ export default function SupportHubPage() {
         <div className="space-y-6 md:space-y-8 pb-10 md:pb-20 px-3 md:px-0">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Support Universe</h1>
+                    <h1 className="text-3xl font-bold ">Support Universe</h1>
                     <CardDescription className="text-sm">Unified control for tickets, knowledge base, and live customer interaction.</CardDescription>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 md:gap-4">
-                    <Badge variant="outline" className="rounded-xl px-4 md:px-5 h-10 md:h-11 border-primary/20 bg-primary/5 text-primary gap-2.5 font-bold flex items-center text-[10px] md:text-xs animate-pulse">
+                    <Badge variant="outline" className="rounded-xl px-4 md:px-5 h-10 md:h-11 border-primary/20 bg-primary/5 text-primary gap-2.5 font-bold flex items-center text-sm md:text-xs animate-pulse">
                         <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" /> Agent Status: Online
                     </Badge>
                     <Sheet open={isNewTicketOpen} onOpenChange={setIsNewTicketOpen}>
@@ -295,22 +296,21 @@ export default function SupportHubPage() {
                         </SheetTrigger>
                         <SheetContent className="sm:max-w-md p-0 overflow-hidden flex flex-col">
                             <SheetHeader className="p-6 md:p-8 border-b bg-muted/5 shrink-0 space-y-3">
-                                <SheetTitle className="text-xl md:text-2xl font-black tracking-tight text-primary">Create Support Ticket</SheetTitle>
+                                <SheetTitle className="text-xl md:text-2xl font-semibold  text-primary">Create Support Ticket</SheetTitle>
                                 <SheetDescription className="text-sm font-medium">
                                     Explain your issue in detail and our team will get back to you shortly.
                                 </SheetDescription>
                             </SheetHeader>
                             <form onSubmit={handleSubmit((data) => createTicketMutation.mutate(data))} className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
                                 <div className="space-y-3">
-                                    <Label className="text-sm font-bold tracking-tight">Subject Line</Label>
+                                    <Label className="text-sm font-bold ">Subject Line</Label>
                                     <Input {...register("subject")} placeholder="Brief summary of the issue" className="rounded-xl h-11 bg-muted/30 border-none focus-visible:ring-primary/20" />
-                                    {errors.subject && <Label className="text-[10px] text-red-500 font-bold uppercase tracking-wider pl-1">{errors.subject.message}</Label>}
+                                    {errors.subject && <Label className="text-sm text-red-500 font-bold uppercase  pl-1">{errors.subject.message}</Label>}
                                 </div>
                                 <div className="grid grid-cols-2 gap-5">
                                     <div className="space-y-3">
-                                        <Label className="text-sm font-bold tracking-tight">Category</Label>
-                                        <Controller
-                                            name="category"
+                                        <Label className="text-sm font-bold ">Category</Label>
+                                        <Controller name="category"
                                             control={control}
                                             render={({ field }) => (
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -326,12 +326,11 @@ export default function SupportHubPage() {
                                                 </Select>
                                             )}
                                         />
-                                        {errors.category && <Label className="text-[10px] text-red-500 font-bold uppercase tracking-wider pl-1">{errors.category.message}</Label>}
+                                        {errors.category && <Label className="text-sm text-red-500 font-bold uppercase  pl-1">{errors.category.message}</Label>}
                                     </div>
                                     <div className="space-y-3">
-                                        <Label className="text-sm font-bold tracking-tight">Priority</Label>
-                                        <Controller
-                                            name="priority"
+                                        <Label className="text-sm font-bold ">Priority</Label>
+                                        <Controller name="priority"
                                             control={control}
                                             render={({ field }) => (
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -351,7 +350,7 @@ export default function SupportHubPage() {
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <Label className="text-sm font-bold tracking-tight">Detailed Description</Label>
+                                        <Label className="text-sm font-bold ">Detailed Description</Label>
                                         <div className="flex items-center gap-2">
                                             <Button type="button" variant="ghost" size="icon" className="h-7 w-7"><Bold className="w-3.5 h-3.5" /></Button>
                                             <Button type="button" variant="ghost" size="icon" className="h-7 w-7"><Italic className="w-3.5 h-3.5" /></Button>
@@ -359,11 +358,11 @@ export default function SupportHubPage() {
                                         </div>
                                     </div>
                                     <Textarea {...register("description")} placeholder="Describe your problem in detail so our agents can help you faster..." className="min-h-[140px] rounded-xl bg-muted/30 border-none focus-visible:ring-primary/20 resize-none p-4" />
-                                    {errors.description && <Label className="text-[10px] text-red-500 font-bold uppercase tracking-wider pl-1">{errors.description.message}</Label>}
+                                    {errors.description && <Label className="text-sm text-red-500 font-bold uppercase  pl-1">{errors.description.message}</Label>}
                                 </div>
 
                                 <div className="space-y-3">
-                                    <Label className="text-sm font-bold tracking-tight">Attachments</Label>
+                                    <Label className="text-sm font-bold ">Attachments</Label>
                                     <div 
                                         {...getRootProps()} 
                                         className={cn(
@@ -376,11 +375,11 @@ export default function SupportHubPage() {
                                             <Paperclip className="w-5 h-5 text-primary" />
                                         </div>
                                         <p className="text-xs font-bold">Drag & Drop or Click to upload</p>
-                                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">PNG, JPG, PDF up to 5MB</p>
+                                        <p className="text-sm text-muted-foreground font-medium uppercase ">PNG, JPG, PDF up to 5MB</p>
                                     </div>
                                 </div>
                                 <SheetFooter className="mt-4 pt-4 border-t border-border/50">
-                                    <Button type="submit" className="w-full h-12 rounded-xl font-black uppercase tracking-widest shadow-xl shadow-primary/20" disabled={createTicketMutation.isPending}>
+                                    <Button type="submit" className="w-full h-12 rounded-xl font-semibold uppercase  shadow-xl shadow-primary/20" disabled={createTicketMutation.isPending}>
                                         {createTicketMutation.isPending ? "Connecting..." : "Initialize Support Ticket"}
                                     </Button>
                                 </SheetFooter>
@@ -400,12 +399,12 @@ export default function SupportHubPage() {
                 ].map((kpi) => (
                     <Card key={kpi.label} className="border-border/50 bg-card/50 backdrop-blur-sm">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{kpi.label}</CardTitle>
+                            <CardTitle className="text-xs font-bold uppercase  text-muted-foreground">{kpi.label}</CardTitle>
                             <kpi.icon className={cn("h-4 w-4", kpi.color)} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-black">{kpi.value}</div>
-                            <CardDescription className="text-[10px] uppercase font-bold mt-1 opacity-70">{kpi.sub}</CardDescription>
+                            <div className="text-2xl font-semibold">{kpi.value}</div>
+                            <CardDescription className="text-sm uppercase font-bold mt-1 opacity-70">{kpi.sub}</CardDescription>
                         </CardContent>
                     </Card>
                 ))}
@@ -416,21 +415,21 @@ export default function SupportHubPage() {
                     <TabsList className="bg-muted/30 p-1.5 rounded-2xl h-14 md:h-16 w-full md:w-fit border border-border/40 backdrop-blur-md shadow-inner min-w-[380px]">
                         <TabsTrigger 
                             value="tickets" 
-                            className="flex-1 md:flex-none rounded-xl h-auto gap-3 data-[state=active]:bg-background data-[state=active]:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] data-[state=active]:border data-[state=active]:border-primary/10 data-[state=active]:text-primary font-black px-5 md:px-10 transition-all duration-500 text-xs md:text-sm hover:text-primary/70"
+                            className="flex-1 md:flex-none rounded-xl h-auto gap-3 data-[state=active]:bg-background data-[state=active]:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] data-[state=active]:border data-[state=active]:border-primary/10 data-[state=active]:text-primary font-semibold px-5 md:px-10 transition-all duration-500 text-xs md:text-sm hover:text-primary/70"
                         >
                             <Layout className="w-4 h-4 md:w-5 h-5 transition-transform duration-500 group-data-[state=active]:scale-110" /> 
                             <span>Tickets</span>
                         </TabsTrigger>
                         <TabsTrigger 
                             value="knowledge" 
-                            className="flex-1 md:flex-none rounded-xl h-auto gap-3 data-[state=active]:bg-background data-[state=active]:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] data-[state=active]:border data-[state=active]:border-primary/10 data-[state=active]:text-primary font-black px-5 md:px-10 transition-all duration-500 text-xs md:text-sm hover:text-primary/70"
+                            className="flex-1 md:flex-none rounded-xl h-auto gap-3 data-[state=active]:bg-background data-[state=active]:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] data-[state=active]:border data-[state=active]:border-primary/10 data-[state=active]:text-primary font-semibold px-5 md:px-10 transition-all duration-500 text-xs md:text-sm hover:text-primary/70"
                         >
                             <BookOpen className="w-4 h-4 md:w-5 h-5 transition-transform duration-500 group-data-[state=active]:scale-110" /> 
                             <span>KB Items</span>
                         </TabsTrigger>
                         <TabsTrigger 
                             value="email" 
-                            className="flex-1 md:flex-none rounded-xl h-auto gap-3 data-[state=active]:bg-background data-[state=active]:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] data-[state=active]:border data-[state=active]:border-primary/10 data-[state=active]:text-primary font-black px-5 md:px-10 transition-all duration-500 text-xs md:text-sm hover:text-primary/70"
+                            className="flex-1 md:flex-none rounded-xl h-auto gap-3 data-[state=active]:bg-background data-[state=active]:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] data-[state=active]:border data-[state=active]:border-primary/10 data-[state=active]:text-primary font-semibold px-5 md:px-10 transition-all duration-500 text-xs md:text-sm hover:text-primary/70"
                         >
                             <Mail className="w-4 h-4 md:w-5 h-5 transition-transform duration-500 group-data-[state=active]:scale-110" /> 
                             <span>Inbox</span>
@@ -479,12 +478,12 @@ export default function SupportHubPage() {
                                                 className="rounded-md border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-none"
                                             />
                                         </TableHead>
-                                        <TableHead className="w-[100px] md:w-[120px] text-[10px] md:text-xs">ID</TableHead>
-                                        <TableHead className="min-w-[180px] md:min-w-[300px] text-[10px] md:text-xs">Subject & Customer</TableHead>
-                                        <TableHead className="hidden md:table-cell text-[10px] md:text-xs">Status</TableHead>
-                                        <TableHead className="hidden sm:table-cell text-[10px] md:text-xs">Priority</TableHead>
-                                        <TableHead className="hidden lg:table-cell text-[10px] md:text-xs">Category</TableHead>
-                                        <TableHead className="text-right text-[10px] md:text-xs">Action</TableHead>
+                                        <TableHead className="w-[100px] md:w-[120px] text-sm md:text-xs">ID</TableHead>
+                                        <TableHead className="min-w-[180px] md:min-w-[300px] text-sm md:text-xs">Subject & Customer</TableHead>
+                                        <TableHead className="hidden md:table-cell text-sm md:text-xs">Status</TableHead>
+                                        <TableHead className="hidden sm:table-cell text-sm md:text-xs">Priority</TableHead>
+                                        <TableHead className="hidden lg:table-cell text-sm md:text-xs">Category</TableHead>
+                                        <TableHead className="text-right text-sm md:text-xs">Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -522,7 +521,7 @@ export default function SupportHubPage() {
                                     ) : (
                                         <AnimatePresence mode="popLayout">
                                             {filteredTickets.map((t, index) => (
-                                                <motion.tr 
+                                                <Animated as="tr" 
                                                     key={t.id} 
                                                     initial={{ opacity: 0, y: 10 }}
                                                     animate={{ opacity: 1, y: 0 }}
@@ -541,15 +540,15 @@ export default function SupportHubPage() {
                                                             className="rounded-md border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-none"
                                                         />
                                                     </TableCell>
-                                                    <TableCell className="font-mono text-[10px] font-bold text-primary max-w-[80px] truncate">{t.id}</TableCell>
+                                                    <TableCell className="font-mono text-sm font-bold text-primary max-w-[80px] truncate">{t.id}</TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex flex-col">
                                                                 <span className="font-bold text-sm leading-snug group-hover:text-primary transition-colors">{t.subject}</span>
                                                                 <div className="flex items-center gap-2 mt-1">
-                                                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium"><User className="w-2.5 h-2.5" /> {t.customer?.name}</span>
-                                                                    <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">•</span>
-                                                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium"><Clock className="w-2.5 h-2.5" /> Updated {formatDistanceToNow(new Date(t.updatedAt), { addSuffix: true })}</span>
+                                                                    <span className="text-sm text-muted-foreground flex items-center gap-1 font-medium"><User className="w-2.5 h-2.5" /> {t.customer?.name}</span>
+                                                                    <span className="text-sm text-muted-foreground/50 hidden sm:inline">•</span>
+                                                                    <span className="text-sm text-muted-foreground flex items-center gap-1 font-medium"><Clock className="w-2.5 h-2.5" /> Updated {formatDistanceToNow(new Date(t.updatedAt), { addSuffix: true })}</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -557,7 +556,7 @@ export default function SupportHubPage() {
                                                     <TableCell className="hidden md:table-cell">{getStatusBadge(t.status)}</TableCell>
                                                     <TableCell className="hidden sm:table-cell">{getPriorityBadge(t.priority)}</TableCell>
                                                     <TableCell className="hidden lg:table-cell">
-                                                        <Badge variant="outline" className="text-[10px] gap-1 font-bold border-border bg-muted/30">
+                                                        <Badge variant="outline" className="text-sm gap-1 font-bold border-border bg-muted/30">
                                                             <Tag className="w-2.5 h-2.5 opacity-40" /> {t.category}
                                                         </Badge>
                                                     </TableCell>
@@ -568,7 +567,7 @@ export default function SupportHubPage() {
                                                             </Button>
                                                         </div>
                                                     </TableCell>
-                                                </motion.tr>
+                                                </Animated>
                                             ))}
                                         </AnimatePresence>
                                     )}
@@ -580,17 +579,17 @@ export default function SupportHubPage() {
                     {/* Bulk Action Bar */}
                     <AnimatePresence>
                         {selectedTicketIds.length > 0 && (
-                            <motion.div 
+                            <AnimatedDiv 
                                 initial={{ y: 100, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: 100, opacity: 0 }}
                                 className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-background/80 backdrop-blur-xl border border-primary/20 shadow-2xl rounded-2xl px-6 h-16 flex items-center gap-6 min-w-[320px] md:min-w-[500px]"
                             >
                                 <div className="flex items-center gap-3 border-r border-border pr-6">
-                                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-black text-xs">
+                                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-semibold text-xs">
                                         {selectedTicketIds.length}
                                     </div>
-                                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">Tickets Selected</span>
+                                    <span className="text-sm md:text-xs font-bold uppercase ">Tickets Selected</span>
                                 </div>
                                 <div className="flex items-center gap-2 flex-1">
                                     <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold gap-2 hover:bg-primary/10" onClick={handleBulkMarkResolved}>
@@ -606,7 +605,7 @@ export default function SupportHubPage() {
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setSelectedTicketIds([])}>
                                     <Plus className="w-4 h-4 rotate-45" />
                                 </Button>
-                            </motion.div>
+                            </AnimatedDiv>
                         )}
                     </AnimatePresence>
                 </TabsContent>
@@ -628,16 +627,16 @@ export default function SupportHubPage() {
                                     </SheetTrigger>
                                     <SheetContent className="sm:max-w-md p-0 overflow-hidden flex flex-col">
                                         <SheetHeader className="p-6 md:p-8 border-b bg-muted/5 shrink-0 space-y-3">
-                                            <SheetTitle className="text-xl md:text-2xl font-black tracking-tight text-primary">Publish Article</SheetTitle>
+                                            <SheetTitle className="text-xl md:text-2xl font-semibold  text-primary">Publish Article</SheetTitle>
                                             <SheetDescription>Create a new knowledge base article for self-service support.</SheetDescription>
                                         </SheetHeader>
                                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
                                             <div className="space-y-3">
-                                                <Label className="text-sm font-bold tracking-tight">Article Title</Label>
+                                                <Label className="text-sm font-bold ">Article Title</Label>
                                                 <Input placeholder="e.g., How to reset your password" className="rounded-xl h-11 bg-muted/30 border-none" />
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-sm font-bold tracking-tight">Category</Label>
+                                                <Label className="text-sm font-bold ">Category</Label>
                                                 <Select>
                                                     <SelectTrigger className="rounded-xl h-11 bg-muted/30 border-none">
                                                         <SelectValue placeholder="Select category" />
@@ -651,7 +650,7 @@ export default function SupportHubPage() {
                                             </div>
                                             <div className="space-y-3">
                                                 <div className="flex items-center justify-between">
-                                                    <Label className="text-sm font-bold tracking-tight">Content (Markdown supported)</Label>
+                                                    <Label className="text-sm font-bold ">Content (Markdown supported)</Label>
                                                     <div className="flex items-center gap-2">
                                                         <Button variant="ghost" size="icon" className="h-7 w-7"><Bold className="w-3.5 h-3.5" /></Button>
                                                         <Button variant="ghost" size="icon" className="h-7 w-7"><Italic className="w-3.5 h-3.5" /></Button>
@@ -662,7 +661,7 @@ export default function SupportHubPage() {
                                                 <Textarea placeholder="Write article content here..." className="min-h-[250px] rounded-xl bg-muted/30 border-none resize-none p-4" />
                                             </div>
                                             <SheetFooter className="pt-4 border-t border-border/50">
-                                                <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest" onClick={() => {
+                                                <Button className="w-full h-12 rounded-xl font-semibold uppercase " onClick={() => {
                                                     toast.info("KB publish: connect a knowledge base API to add articles.");
                                                     setIsNewKbOpen(false);
                                                 }}>Publish to KB</Button>
@@ -712,7 +711,7 @@ export default function SupportHubPage() {
                                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                         <div className="h-full bg-primary w-0" />
                                     </div>
-                                    <p className="text-[10px] text-muted-foreground leading-relaxed pt-2">
+                                    <p className="text-sm text-muted-foreground leading-relaxed pt-2">
                                         Add KB articles to enable self-service and reduce ticket volume.
                                     </p>
                                 </CardContent>
@@ -730,7 +729,7 @@ export default function SupportHubPage() {
                                     <h3 className="font-bold">Support Inbox</h3>
                                     <Badge className="bg-primary/20 text-primary border-none">Unified</Badge>
                                 </div>
-                                <div className="text-xs text-muted-foreground font-medium italic">No inbox API</div>
+                                <div className="text-xs text-muted-foreground font-medium ">No inbox API</div>
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
@@ -741,7 +740,7 @@ export default function SupportHubPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="bg-muted/5 justify-center py-4 border-t border-border/50">
-                            <Button variant="ghost" className="text-xs font-black text-primary hover:bg-transparent px-8" onClick={() => toast.info("Inbox integration coming soon.")}>Load More Messages</Button>
+                            <Button variant="ghost" className="text-xs font-semibold text-primary hover:bg-transparent px-8" onClick={() => toast.info("Inbox integration coming soon.")}>Load More Messages</Button>
                         </CardFooter>
                      </Card>
                 </TabsContent>
@@ -753,7 +752,7 @@ export default function SupportHubPage() {
                     {isLoadingTicketDetails ? (
                         <div className="flex-1 flex flex-col">
                             <DialogHeader className="p-4 md:p-6 border-b bg-muted/10 shrink-0">
-                                <DialogTitle className="text-lg md:text-xl font-bold tracking-tight">Loading Ticket Details...</DialogTitle>
+                                <DialogTitle className="text-lg md:text-xl font-bold ">Loading Ticket Details...</DialogTitle>
                             </DialogHeader>
                             <div className="flex-1 flex items-center justify-center">
                                 <CardDescription className="flex items-center gap-2">
@@ -766,7 +765,7 @@ export default function SupportHubPage() {
                             <DialogHeader className="p-4 md:p-6 border-b bg-muted/10 shrink-0">
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                                        <Badge variant="outline" className="font-mono text-[9px] md:text-[10px] text-primary">{selectedTicket.id}</Badge>
+                                        <Badge variant="outline" className="font-mono text-xs md:text-sm text-primary">{selectedTicket.id}</Badge>
                                         {getStatusBadge(selectedTicket.status)}
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -774,7 +773,7 @@ export default function SupportHubPage() {
                                             value={selectedTicket.status} 
                                             onValueChange={(status) => updateStatusMutation.mutate({ id: selectedTicket.id, status })}
                                         >
-                                            <SelectTrigger className="w-[130px] h-8 text-[10px] font-bold">
+                                            <SelectTrigger className="w-[130px] h-8 text-sm font-bold">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -786,10 +785,10 @@ export default function SupportHubPage() {
                                         </Select>
                                     </div>
                                 </div>
-                                <DialogTitle className="mt-3 md:mt-4 text-lg md:text-xl font-bold tracking-tight line-clamp-2">{selectedTicket.subject}</DialogTitle>
+                                <DialogTitle className="mt-3 md:mt-4 text-lg md:text-xl font-bold  line-clamp-2">{selectedTicket.subject}</DialogTitle>
                                 <DialogDescription className="flex flex-wrap items-center gap-3 md:gap-4 mt-2">
-                                    <Badge variant="outline" className="border-none bg-primary/5 text-primary flex items-center gap-1.5 px-0 text-[10px] md:text-xs"><User className="w-3 h-3" /> {selectedTicket.customer?.name}</Badge>
-                                    <Badge variant="outline" className="border-none bg-muted text-muted-foreground flex items-center gap-1.5 px-0 text-[10px] md:text-xs"><Tag className="w-3 h-3" /> {selectedTicket.category}</Badge>
+                                    <Badge variant="outline" className="border-none bg-primary/5 text-primary flex items-center gap-1.5 px-0 text-sm md:text-xs"><User className="w-3 h-3" /> {selectedTicket.customer?.name}</Badge>
+                                    <Badge variant="outline" className="border-none bg-muted text-muted-foreground flex items-center gap-1.5 px-0 text-sm md:text-xs"><Tag className="w-3 h-3" /> {selectedTicket.category}</Badge>
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -810,8 +809,8 @@ export default function SupportHubPage() {
                                                     : "bg-primary text-primary-foreground rounded-tr-none shadow-lg shadow-primary/10"
                                             )}>
                                                 <div className="flex items-center justify-between gap-4 md:gap-8 mb-1">
-                                                    <Label className="font-bold text-[9px] md:text-[10px] opacity-70 truncate max-w-[80px] md:max-w-none">{msg.sender?.name}</Label>
-                                                    <Label className="text-[9px] md:text-[10px] opacity-50 font-medium whitespace-nowrap">{formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}</Label>
+                                                    <Label className="font-bold text-xs md:text-sm opacity-70 truncate max-w-[80px] md:max-w-none">{msg.sender?.name}</Label>
+                                                    <Label className="text-xs md:text-sm opacity-50 font-medium whitespace-nowrap">{formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}</Label>
                                                 </div>
                                                 <CardDescription className={cn(
                                                     "leading-relaxed whitespace-pre-wrap text-[13px] md:text-sm",
@@ -844,7 +843,7 @@ export default function SupportHubPage() {
                                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10 text-primary"><ImageIcon className="w-4 h-4" /></Button>
                                     </div>
                                     <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                                        <Label className="text-[10px] text-muted-foreground mr-2 hidden sm:block font-medium">Ctrl + Enter to send</Label>
+                                        <Label className="text-sm text-muted-foreground mr-2 hidden sm:block font-medium">Ctrl + Enter to send</Label>
                                         <Button 
                                             size="sm" 
                                             className="h-9 px-4 rounded-lg font-bold shadow-md shadow-primary/20"
@@ -875,7 +874,7 @@ export default function SupportHubPage() {
                         <>
                             <DialogHeader className="p-6 md:p-8 border-b bg-muted/5">
                                 <Badge variant="secondary" className="w-fit mb-4">{selectedKbArticle.category}</Badge>
-                                <DialogTitle className="text-2xl font-black tracking-tight">{selectedKbArticle.title}</DialogTitle>
+                                <DialogTitle className="text-2xl font-semibold ">{selectedKbArticle.title}</DialogTitle>
                                 <DialogDescription className="flex items-center gap-4 mt-2">
                                     <span className="flex items-center gap-1.5"><Eye className="w-3" /> {selectedKbArticle.views} views</span>
                                     <span className="flex items-center gap-1.5"><Clock className="w-3" /> Updated {selectedKbArticle.updatedAt}</span>
@@ -918,10 +917,10 @@ export default function SupportHubPage() {
                                         <CardDescription>{selectedEmail.time}</CardDescription>
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-black tracking-tight">{selectedEmail.subject}</h3>
+                                <h3 className="text-xl font-semibold ">{selectedEmail.subject}</h3>
                             </DialogHeader>
                             <div className="p-6 md:p-8 space-y-6">
-                                <p className="text-sm leading-relaxed text-muted-foreground italic">
+                                <p className="text-sm leading-relaxed text-muted-foreground ">
                                     "{selectedEmail.content || "No content provided in simulation."}"
                                 </p>
                                 <div className="flex gap-2 pt-4 border-t border-border/50">

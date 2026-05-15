@@ -1,10 +1,11 @@
-"use client";
+"use client"
+import { AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 
 import { useShopContentStore } from "@/lib/store/shop-content";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
@@ -25,7 +26,7 @@ export function ShopTestimonials() {
 
             <div className="container px-4 mx-auto relative z-10">
                 <div className="text-center mb-16">
-                    <motion.h2 
+                    <AnimatedH2 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -34,8 +35,8 @@ export function ShopTestimonials() {
                         className="text-4xl md:text-6xl font-bold mb-4 tracking-tight"
                     >
                         Trusted by Developers
-                    </motion.h2>
-                    <motion.p 
+                    </AnimatedH2>
+                    <AnimatedP 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -44,12 +45,11 @@ export function ShopTestimonials() {
                         className="text-muted-foreground text-lg max-w-2xl mx-auto"
                     >
                         See why thousands of developers choose Oftisoft for their projects.
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 <div className="relative group px-4 md:px-12">
-                    <Swiper
-                        modules={[Autoplay, Pagination, Navigation]}
+                    <Swiper modules={[Autoplay, Pagination, Navigation]}
                         spaceBetween={30}
                         slidesPerView={1}
                         loop={true}

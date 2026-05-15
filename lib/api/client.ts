@@ -1,56 +1,33 @@
 /**
  * API Client - Relies on httpOnly cookies for auth.
- * Tokens are never exposed to JavaScript. credentials: 'include'
- * sends them automatically on same-origin/cors-authorized requests.
+ * Unified client using axios (delegates to the shared instance in lib/api.ts).
  */
 
-import ky from 'ky';
+import { axiosClient } from "../api";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-export const apiClient = ky.create({
-    prefixUrl: API_BASE_URL,
-    timeout: 30000,
-    credentials: 'include',
-    retry: {
-        limit: 2,
-        methods: ['get', 'put', 'head', 'delete', 'options', 'trace'],
-        statusCodes: [408, 413, 429, 500, 502, 503, 504],
-    },
-    hooks: {
-        beforeRequest: [
-            (request) => {
-                request.headers.set('X-Client-Version', '1.0.0');
-            },
-        ],
-        beforeError: [
-            (error) => {
-                const { response } = error;
-                if (response?.body) {
-                    error.name = 'APIError';
-                    error.message = `${response.status}: ${response.statusText}`;
-                }
-                return error;
-            },
-        ],
-    },
-});
+export const apiClient = axiosClient;
 
 export const api = {
     get: async <T>(url: string, options?: any): Promise<T> => {
-        return apiClient.get(url, options).json<T>();
+        const params = options?.searchParams || options?.params;
+        const res = await axiosClient.get(url, { params, ...options });
+        return res.data;
     },
     post: async <T>(url: string, data?: any, options?: any): Promise<T> => {
-        return apiClient.post(url, { json: data, ...options }).json<T>();
+        const res = await axiosClient.post(url, data, options);
+        return res.data;
     },
     put: async <T>(url: string, data?: any, options?: any): Promise<T> => {
-        return apiClient.put(url, { json: data, ...options }).json<T>();
+        const res = await axiosClient.put(url, data, options);
+        return res.data;
     },
     patch: async <T>(url: string, data?: any, options?: any): Promise<T> => {
-        return apiClient.patch(url, { json: data, ...options }).json<T>();
+        const res = await axiosClient.patch(url, data, options);
+        return res.data;
     },
     delete: async <T>(url: string, options?: any): Promise<T> => {
-        return apiClient.delete(url, options).json<T>();
+        const res = await axiosClient.delete(url, options);
+        return res.data;
     },
 };
 
@@ -80,15 +57,6 @@ export const endpoints = {
         create: 'orders',
         update: (id: string) => `orders/${id}`,
         stats: 'orders/stats',
-    },
-    content: {
-        pages: 'content/pages',
-        page: (id: string) => `content/${id}`,
-        update: (id: string) => `content/${id}`,
-        publish: (id: string) => `content/${id}/publish`,
-        upload: 'content/upload',
-        list: 'content/files',
-        aiGenerate: 'content/ai-generate',
     },
     analytics: {
         overview: 'analytics/overview',

@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -89,14 +90,13 @@ function OrderSuccessContent() {
   if (loading) {
     return (
       <div className="container px-4 py-16 md:py-24 mx-auto max-w-4xl text-center">
-        <motion.div
-          initial={{ opacity: 0 }}
+        <AnimatedDiv initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="flex flex-col items-center gap-4"
         >
           <Loader2 className="w-12 h-12 animate-spin text-primary" />
           <p className="text-muted-foreground">Loading your order details...</p>
-        </motion.div>
+        </AnimatedDiv>
       </div>
     );
   }
@@ -128,43 +128,40 @@ function OrderSuccessContent() {
     <div className="container px-4 py-16 md:py-24 mx-auto max-w-5xl">
       {/* Success Header */}
       <div className="text-center mb-12">
-        <motion.div
-          initial={{ scale: 0 }}
+        <AnimatedDiv initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
           className="w-24 h-24 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"
         >
           <CheckCircle2 className="w-12 h-12" />
-        </motion.div>
-        <motion.h1 
+        </AnimatedDiv>
+        <AnimatedH1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-5xl font-extrabold mb-4"
         >
           Payment Successful!
-        </motion.h1>
-        <motion.p 
+        </AnimatedH1>
+        <AnimatedP 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="text-muted-foreground text-lg"
         >
           Thank you for your purchase. Your order <span className="text-foreground font-bold">#{order.orderNumber}</span> has been confirmed.
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0 }}
+        </AnimatedP>
+        <AnimatedP initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="text-sm text-muted-foreground mt-2"
         >
           A confirmation email has been sent to {customer.email}
-        </motion.p>
+        </AnimatedP>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Products Section */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
+        <AnimatedDiv initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
           className="lg:col-span-2 space-y-6"
@@ -184,8 +181,7 @@ function OrderSuccessContent() {
             
             <CardContent className="space-y-6">
               {items.map((item, index) => (
-                <motion.div
-                  key={item.id}
+                <AnimatedDiv key={item.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
@@ -238,7 +234,7 @@ function OrderSuccessContent() {
                       </a>
                     </Button>
                   )}
-                </motion.div>
+                </AnimatedDiv>
               ))}
 
               {/* Order Totals */}
@@ -259,11 +255,10 @@ function OrderSuccessContent() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </AnimatedDiv>
 
         {/* Sidebar */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
+        <AnimatedDiv initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
           className="space-y-6"
@@ -326,7 +321,7 @@ function OrderSuccessContent() {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </AnimatedDiv>
       </div>
     </div>
   );

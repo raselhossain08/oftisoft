@@ -1,5 +1,6 @@
-"use client";
-import { motion } from "framer-motion";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,30 +46,29 @@ export default function FeaturesPage() {
             <div className="container px-6 mx-auto relative z-10 space-y-24">
                 {/* Hero section */}
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                     >
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/20 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px]">
                             {header?.badge ?? ""}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 
+                    </AnimatedDiv>
+                    <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {header?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight ?? ""}</span>.
-                    </motion.h1>
-                    <motion.p 
+                    </AnimatedH1>
+                    <AnimatedP 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
                         className="text-xl text-muted-foreground font-medium leading-relaxed"
                     >
                         {header?.description ?? ""}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Grid */}
@@ -76,8 +76,7 @@ export default function FeaturesPage() {
                     {features.map((feature, idx) => {
                         const Icon = iconMap[feature.iconName ?? ''] || Zap;
                         return (
-                        <motion.div
-                            key={feature.id}
+                        <AnimatedDiv key={feature.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -95,18 +94,19 @@ export default function FeaturesPage() {
                                             {feature.description}
                                         </p>
                                     </div>
-                                    <Button variant="ghost" className="h-10 p-0 text-primary font-semibold tracking-widest text-[10px] hover:bg-transparent group/btn">
-                                        Analyze Documentation <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-2 transition-transform" />
+                                    <Button variant="ghost" className="h-10 p-0 text-primary font-semibold tracking-widest text-[10px] hover:bg-transparent group/btn" asChild>
+                                        <Link href="/docs">
+                                            Analyze Documentation <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-2 transition-transform" />
+                                        </Link>
                                     </Button>
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
                     );})}
                 </div>
 
                 {/* Visual Showcase (Mock) */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
+                <AnimatedDiv initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, margin: "-80px" }}
                     transition={{ duration: 0.5 }}
@@ -129,11 +129,12 @@ export default function FeaturesPage() {
                                     </div>
                         </CardContent>
                     </Card>
-                </motion.div>
+                </AnimatedDiv>
             </div>
         </div>
     );
 }
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 

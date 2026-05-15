@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight, Zap, Target, ShieldCheck, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,14 +72,12 @@ export default function OnboardingTutorial() {
     return (
         <AnimatePresence>
             {!completed && (
-                <motion.div
-                    initial={{ opacity: 0 }}
+                <AnimatedDiv initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-[100] grid place-items-center p-6 bg-black/60 backdrop-blur-md"
                 >
-                    <motion.div
-                        layoutId="modal"
+                    <AnimatedDiv layoutId="modal"
                         initial={{ scale: 0.9, y: 20 }}
                         animate={{ scale: 1, y: 0 }}
                         className="w-full max-w-md bg-card/95 border border-border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
@@ -97,8 +96,7 @@ export default function OnboardingTutorial() {
 
                         <div className="relative z-10">
                             <AnimatePresence mode="wait" custom={step}>
-                                <motion.div
-                                    key={step}
+                                <AnimatedDiv key={step}
                                     initial={{ x: 50, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     exit={{ x: -50, opacity: 0 }}
@@ -125,7 +123,7 @@ export default function OnboardingTutorial() {
                                             {STEPS[step].desc}
                                         </p>
                                     </div>
-                                </motion.div>
+                                </AnimatedDiv>
                             </AnimatePresence>
 
                             {/* Controls */}
@@ -135,7 +133,7 @@ export default function OnboardingTutorial() {
                                     {STEPS.map((_, i) => (
                                         <div key={i} className="relative h-1.5 rounded-full bg-muted w-12 overflow-hidden">
                                             {i === step && (
-                                                <motion.div 
+                                                <AnimatedDiv 
                                                     layoutId="step-indicator"
                                                     className="absolute inset-0 bg-primary"
                                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -146,8 +144,7 @@ export default function OnboardingTutorial() {
                                 </div>
 
                                 {/* Action Button */}
-                                <button
-                                    onClick={next}
+                                <button onClick={next}
                                     className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:scale-[1.02] hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center gap-3 group"
                                 >
                                     <span>{step === STEPS.length - 1 ? "Get Started" : "Continue"}</span>
@@ -155,8 +152,8 @@ export default function OnboardingTutorial() {
                                 </button>
                             </div>
                         </div>
-                    </motion.div>
-                </motion.div>
+                    </AnimatedDiv>
+                </AnimatedDiv>
             )}
         </AnimatePresence>
     );

@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import Link from "next/link";
@@ -51,8 +53,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 import { useReviews } from "@/hooks/useReviews";
+import { ReviewStatus } from "@/lib/api";
 import { useProducts } from "@/hooks/useProducts";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -99,9 +101,7 @@ export default function ReviewsPage() {
         }
 
         createReview({
-            productId: selectedProductId,
-            rating,
-            comment
+            productId: selectedProductId, rating, comment
         }, {
             onSuccess: () => {
                 setIsWritingReview(false);
@@ -125,11 +125,11 @@ export default function ReviewsPage() {
     };
 
     const handleApproveReview = (id: string) => {
-        updateReview({ id, data: { status: "approved" } });
+        updateReview({ id, data: { status: ReviewStatus.APPROVED } });
     };
 
     const handleRejectReview = (id: string) => {
-        updateReview({ id, data: { status: "rejected" } });
+        updateReview({ id, data: { status: ReviewStatus.REJECTED } });
     };
 
     const isLoading = isReviewsLoading || isProductsLoading;
@@ -166,7 +166,7 @@ export default function ReviewsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         Feedback & Intelligence
                     </h1>
                     <p className="text-muted-foreground font-medium mt-1">Review your acquired artifacts and contribution to the builder ecosystem.</p>
@@ -183,13 +183,13 @@ export default function ReviewsPage() {
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl rounded-[40px] border-border/50 bg-card/95 backdrop-blur-xl p-10">
                             <DialogHeader className="space-y-2">
-                                <DialogTitle className="text-3xl font-black ">Create Intelligence Node</DialogTitle>
+                                <DialogTitle className="text-3xl font-semibold ">Create Intelligence Node</DialogTitle>
                                 <DialogDescription className="text-sm font-medium">Your feedback helps architects refine their artifacts for the global network.</DialogDescription>
                             </DialogHeader>
                             
                             <div className="py-8 space-y-8">
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground ">Target Artifact</label>
+                                    <label className="text-sm font-semibold uppercase text-muted-foreground ">Target Artifact</label>
                                     <Select value={selectedProductId} onValueChange={setSelectedProductId}>
                                         <SelectTrigger className="w-full h-14 rounded-2xl bg-muted/20 border-border/30 px-4 font-bold">
                                             <SelectValue placeholder="Select a product to review" />
@@ -217,19 +217,18 @@ export default function ReviewsPage() {
                                                 ) : <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold">{selectedProduct.name[0]}</div>}
                                             </div>
                                             <div>
-                                                <p className="font-black  text-lg">{selectedProduct.name}</p>
-                                                <p className="text-[10px] text-muted-foreground font-bold uppercase">{selectedProduct.version || "v1"} Build</p>
+                                                <p className="font-semibold  text-lg">{selectedProduct.name}</p>
+                                                <p className="text-sm text-muted-foreground font-bold uppercase">{selectedProduct.version || "v1"} Build</p>
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground  text-center block">Satisfaction Level</label>
+                                    <label className="text-sm font-semibold uppercase text-muted-foreground  text-center block">Satisfaction Level</label>
                                     <div className="flex justify-center gap-2">
                                         {[1, 2, 3, 4, 5].map((star) => (
-                                            <button
-                                                key={star}
+                                            <button key={star}
                                                 onMouseEnter={() => setHoverRating(star)}
                                                 onMouseLeave={() => setHoverRating(0)}
                                                 onClick={() => setRating(star)}
@@ -246,9 +245,9 @@ export default function ReviewsPage() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground ">Feedback Payload</label>
+                                    <label className="text-sm font-semibold uppercase text-muted-foreground ">Feedback Payload</label>
                                     <Textarea 
-                                        placeholder="Detailed analysis of the artifact's performance, build quality, and implementation..."
+                                        placeholder="Detailed analysis of the artifact's performance build quality and implementation..."
                                         className="h-32 rounded-2xl bg-muted/20 border-border/50 focus:ring-primary/20 p-6 font-medium resize-none"
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
@@ -259,7 +258,7 @@ export default function ReviewsPage() {
                             <DialogFooter className="gap-2">
                                 <Button variant="outline" className="rounded-xl h-auto font-bold px-8" onClick={() => setIsWritingReview(false)}>Cancel Activation</Button>
                                 <Button 
-                                    className="rounded-xl h-auto bg-primary text-white font-black  px-10 shadow-lg shadow-primary/20" 
+                                    className="rounded-xl h-auto bg-primary text-white font-semibold  px-10 shadow-lg shadow-primary/20" 
                                     onClick={handleSubmitReview}
                                     disabled={isCreating}
                                 >
@@ -279,7 +278,7 @@ export default function ReviewsPage() {
                     <TabsTrigger value="pending" className="rounded-xl h-auto gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md font-bold px-10 relative">
                         <Clock className="w-4 h-4" /> Signal Moderation
                         {pendingCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-[8px] flex items-center justify-center rounded-full text-white font-black border-2 border-background">
+                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-xs flex items-center justify-center rounded-full text-white font-semibold border-2 border-background">
                                 {pendingCount}
                             </span>
                         )}
@@ -315,10 +314,8 @@ export default function ReviewsPage() {
                         <AnimatePresence>
                             {filteredReviews.length > 0 ? (
                                 filteredReviews.map((review) => (
-                                    <motion.div
-                                        key={review.id}
-                                        layout
-                                        initial={{ opacity: 0, y: 20 }}
+                                    <AnimatedDiv key={review.id}
+                                        layout initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
                                     >
@@ -333,16 +330,16 @@ export default function ReviewsPage() {
                                                     <div className="flex-1 space-y-4">
                                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                                             <div>
-                                                                <h3 className="font-black  text-xl group-hover:text-primary transition-colors">{review.product.name}</h3>
+                                                                <h3 className="font-semibold  text-xl group-hover:text-primary transition-colors">{review.product.name}</h3>
                                                                 <div className="flex items-center gap-1.5 mt-1">
                                                                     {[1, 2, 3, 4, 5].map((star) => (
                                                                         <Star key={star} className={cn("w-3.5 h-3.5", star <= review.rating ? "fill-primary text-primary" : "text-muted-foreground opacity-30")} />
                                                                     ))}
-                                                                    <span className="text-[10px] font-black text-muted-foreground ml-2 uppercase tracking-widest">{new Date(review.createdAt).toLocaleDateString()}</span>
+                                                                    <span className="text-sm font-semibold text-muted-foreground ml-2 uppercase">{new Date(review.createdAt).toLocaleDateString()}</span>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-3">
-                                                                <Badge className={cn("text-[9px] font-black uppercase tracking-tighter px-3 h-6 border-none", 
+                                                                <Badge className={cn("text-xs font-semibold uppercase px-3 h-6 border-none", 
                                                                     review.status === "approved" ? "bg-green-500 text-white" : 
                                                                     review.status === "pending" ? "bg-orange-500 text-white" : "bg-red-500 text-white"
                                                                 )}>
@@ -362,7 +359,7 @@ export default function ReviewsPage() {
                                                             "{review.comment}"
                                                         </p>
                                                         <div className="flex items-center gap-6 pt-2">
-                                                            <div className="flex items-center gap-2 text-xs font-black text-muted-foreground uppercase  cursor-default">
+                                                            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase  cursor-default">
                                                                 <ThumbsUp className="w-3.5 h-3.5" /> {review.helpfulCount} Build Architects found this helpful
                                                             </div>
                                                         </div>
@@ -370,23 +367,23 @@ export default function ReviewsPage() {
                                                 </div>
                                                 <div className="p-8 lg:w-[300px] bg-primary/[0.01] border-l border-border/50 flex flex-col justify-center space-y-4">
                                                     <div className="space-y-1">
-                                                        <p className="text-[10px] uppercase font-black text-muted-foreground ">Acquisition Status</p>
-                                                        <p className="text-sm font-black flex items-center gap-2"><Package className="w-4 h-4 text-primary" /> Verified Purchase</p>
+                                                        <p className="text-sm uppercase font-semibold text-muted-foreground ">Acquisition Status</p>
+                                                        <p className="text-sm font-semibold flex items-center gap-2"><Package className="w-4 h-4 text-primary" /> Verified Purchase</p>
                                                     </div>
                                                     <div className="space-y-1">
-                                                        <p className="text-[10px] uppercase font-black text-muted-foreground ">Impact Level</p>
-                                                        <p className="text-sm font-black flex items-center gap-2"><Megaphone className="w-4 h-4 text-indigo-500" /> Community Signal {(review.rating * 1.7).toFixed(1)}/10</p>
+                                                        <p className="text-sm uppercase font-semibold text-muted-foreground ">Impact Level</p>
+                                                        <p className="text-sm font-semibold flex items-center gap-2"><Megaphone className="w-4 h-4 text-indigo-500" /> Community Signal {(review.rating * 1.7).toFixed(1)}/10</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </Card>
-                                    </motion.div>
+                                    </AnimatedDiv>
                                 ))
                             ) : (
                                 <div className="p-20 text-center space-y-4 bg-muted/20 rounded-[40px] border-2 border-dashed border-border/50">
                                     <SearchX className="w-16 h-16 text-muted-foreground mx-auto opacity-20" />
                                     <div className="space-y-1">
-                                        <h3 className="text-xl font-black ">No Intelligence Nodes Found</h3>
+                                        <h3 className="text-xl font-semibold ">No Intelligence Nodes Found</h3>
                                         <p className="text-muted-foreground text-sm font-medium">Your reviews and ratings will be cataloged here.</p>
                                     </div>
                                     <Button asChild className="rounded-xl bg-primary font-bold">
@@ -404,15 +401,15 @@ export default function ReviewsPage() {
                             <ShieldCheck className="w-10 h-10" />
                         </div>
                         <div className="max-w-2xl space-y-2">
-                            <h3 className="text-2xl font-black ">Verification Infrastructure Active</h3>
+                            <h3 className="text-2xl font-semibold ">Verification Infrastructure Active</h3>
                             <p className="text-muted-foreground font-medium leading-relaxed">
                                 Our global moderation protocols ensure all intelligence nodes meet the Oftisoft quality threshold. 
                                 Pending reviews are typically de-queued within 4-12 temporal cycles.
                             </p>
                         </div>
                         <div className="flex gap-4">
-                            <Badge className="bg-green-500 text-white font-black  rounded-xl px-4 py-1">Anti-AI Pattern Scan: Pass</Badge>
-                            <Badge className="bg-blue-500 text-white font-black  rounded-xl px-4 py-1">Originality Check: 100%</Badge>
+                            <Badge className="bg-green-500 text-white font-semibold  rounded-xl px-4 py-1">Anti-AI Pattern Scan: Pass</Badge>
+                            <Badge className="bg-blue-500 text-white font-semibold  rounded-xl px-4 py-1">Originality Check: 100%</Badge>
                         </div>
                     </div>
 
@@ -428,7 +425,7 @@ export default function ReviewsPage() {
                                         <div className="flex items-center gap-6 flex-1 min-w-0">
                                             <Clock className="w-8 h-8 text-orange-500 animate-pulse shrink-0" />
                                             <div className="min-w-0">
-                                                <h4 className="font-black  text-lg">{r.product?.name}</h4>
+                                                <h4 className="font-semibold  text-lg">{r.product?.name}</h4>
                                                 {isModerator && r.user && (
                                                     <p className="text-xs text-muted-foreground mt-0.5">by {r.user.name}</p>
                                                 )}
@@ -452,8 +449,8 @@ export default function ReviewsPage() {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <p className="text-[10px] font-black uppercase text-muted-foreground">Queue Status</p>
-                                                    <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 font-black  px-4">Awaiting Signal Sync</Badge>
+                                                    <p className="text-sm font-semibold uppercase text-muted-foreground">Queue Status</p>
+                                                    <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 font-semibold  px-4">Awaiting Signal Sync</Badge>
                                                 </>
                                             )}
                                         </div>
@@ -483,8 +480,7 @@ export default function ReviewsPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmDeleteReview}
+                        <AlertDialogAction onClick={confirmDeleteReview}
                             className="rounded-xl bg-red-600 hover:bg-red-700"
                             disabled={isDeleting}
                         >
@@ -503,7 +499,7 @@ export default function ReviewsPage() {
                         <Star className="w-14 h-14 text-primary fill-primary shadow-xl shadow-primary/10" />
                     </div>
                     <div className="flex-1 text-center lg:text-left space-y-2">
-                        <h3 className="text-3xl font-black  tracking-tight ">Ecosystem Merit Protocol</h3>
+                        <h3 className="text-3xl font-semibold ">Ecosystem Merit Protocol</h3>
                         <p className="text-muted-foreground max-w-3xl font-medium text-lg leading-relaxed ">
                             Your contributions drive the evolution of the Oftisoft marketplace. Architects rely on your intelligence 
                             to iterate on their builds. Frequent high-quality reviewers gain "Market Critic" status, 

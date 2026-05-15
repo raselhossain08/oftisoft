@@ -100,8 +100,7 @@ export function RevisionHistory({
                         </div>
                     ) : (
                         revisions.map((revision, index) => (
-                            <div
-                                key={revision.id}
+                            <div key={revision.id}
                                 className={cn(
                                     "group relative p-4 rounded-2xl border transition-all hover:border-primary/50",
                                     currentVersion === revision.id ? "bg-primary/5 border-primary" : "bg-card border-border/50"
@@ -152,8 +151,7 @@ export function RevisionHistory({
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Dialog open={isPreviewOpen && selectedRevision?.id === revision.id} onOpenChange={setIsPreviewOpen}>
                                                 <DialogTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
+                                                    <Button variant="ghost"
                                                         size="sm"
                                                         className="h-8 rounded-xl"
                                                         onClick={() => setSelectedRevision(revision)}
@@ -191,8 +189,7 @@ export function RevisionHistory({
 
                                             {currentVersion !== revision.id && (
                                                 <>
-                                                    <Button
-                                                        variant="ghost"
+                                                    <Button variant="ghost"
                                                         size="sm"
                                                         className="h-8 rounded-xl"
                                                         onClick={() => handleRestore(revision)}
@@ -201,8 +198,7 @@ export function RevisionHistory({
                                                         Restore
                                                     </Button>
                                                     {onDelete && (
-                                                        <Button
-                                                            variant="ghost"
+                                                        <Button variant="ghost"
                                                             size="sm"
                                                             className="h-8 rounded-xl text-destructive hover:text-destructive"
                                                             onClick={() => handleDelete(revision.id)}

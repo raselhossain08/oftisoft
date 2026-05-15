@@ -1,13 +1,6 @@
-"use client";
-
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useMotionValue,
-  AnimatePresence,
-} from "framer-motion";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP, useScrollY, useTransform, useSpring } from "@/lib/animated";
+import { TypeAnimation } from "react-type-animation";
 import Link from "next/link";
 import Image from "next/image";
 import CountUp from "react-countup";
@@ -45,7 +38,7 @@ const defaultHeroContent: HeroContent = {
   primaryCTA: { text: "Start Your Project" },
   secondaryCTA: { text: "View Our Work" },
   stats: [
-    { value: 50, suffix: "+", label: "Projects Delivered" },
+    { value: 500, suffix: "+", label: "Projects Delivered" },
     { value: 6, suffix: "+", label: "Years Experience" },
     { value: 25, suffix: "+", label: "Expert Engineers" },
     { value: 15, suffix: "+", label: "Global Markets" },
@@ -62,12 +55,12 @@ export default function Hero({ data }: HeroProps) {
   const heroContent: HeroContent = data?.hero || defaultHeroContent;
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll();
+  const scrollY = useScrollY();
   const y1 = useTransform(scrollY, [0, 500], [0, 100]);
 
   // SMOOTH MOUSE PARALLAX - Optimized with RAF throttling
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  const [mouseX, setMouseX] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
   const rafId = useRef<number | null>(null);
   const pendingMouse = useRef({ x: 0, y: 0 });
 
@@ -75,7 +68,6 @@ export default function Hero({ data }: HeroProps) {
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
-    // Calculate percentage from center (-1 to 1)
     const x = (clientX - innerWidth / 2) / innerWidth;
     const y = (clientY - innerHeight / 2) / innerHeight;
 
@@ -83,12 +75,12 @@ export default function Hero({ data }: HeroProps) {
 
     if (rafId.current === null) {
       rafId.current = requestAnimationFrame(() => {
-        mouseX.set(pendingMouse.current.x);
-        mouseY.set(pendingMouse.current.y);
+        setMouseX(pendingMouse.current.x);
+        setMouseY(pendingMouse.current.y);
         rafId.current = null;
       });
     }
-  }, [mouseX, mouseY]);
+  }, []);
 
   // Cleanup RAF on unmount
   useEffect(() => {
@@ -111,8 +103,7 @@ export default function Hero({ data }: HeroProps) {
   );
 
   return (
-    <section
-      ref={containerRef}
+    <section ref={containerRef}
       className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-24 md:py-0 bg-transparent perspective-container"
       onMouseMove={handleMouseMove}
     >
@@ -124,10 +115,9 @@ export default function Hero({ data }: HeroProps) {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-8 max-w-2xl mx-auto lg:mx-0">
-            <motion.div initial={false}>
+            <AnimatedDiv initial={false}>
               <Link href="/contact">
-                <Badge
-                  variant="glass"
+                <Badge variant="glass"
                   className="px-5 py-2.5 gap-2.5 rounded-full text-base font-medium tracking-wide cursor-pointer hover:bg-white/10 transition-colors"
                 >
                   <span className="relative flex h-2.5 w-2.5 shrink-0">
@@ -137,10 +127,9 @@ export default function Hero({ data }: HeroProps) {
                   {heroContent.badge}
                 </Badge>
               </Link>
-            </motion.div>
+            </AnimatedDiv>
 
-            <motion.h1
-              initial={false}
+            <AnimatedH1 initial={false}
               style={{ willChange: "transform, opacity" }}
               className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
             >
@@ -148,22 +137,18 @@ export default function Hero({ data }: HeroProps) {
                 {heroContent.title ?? "Engineering the Future of"}
               </span>
               <SmoothTypewriter heroContent={heroContent} />
-            </motion.h1>
+            </AnimatedH1>
 
-            <motion.p
-              initial={false}
+            <AnimatedP initial={false}
               className="text-lg md:text-xl text-muted-foreground/80 font-light leading-relaxed"
             >
               {heroContent.description ?? "We architect high-performance applications that scale."}
-            </motion.p>
+            </AnimatedP>
 
-            <motion.div
-              initial={false}
+            <AnimatedDiv initial={false}
               className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
             >
-              <Button
-                asChild
-                size="xl"
+              <Button asChild size="xl"
                 variant="premium"
                 className="w-full sm:w-auto overflow-hidden group"
               >
@@ -176,9 +161,7 @@ export default function Hero({ data }: HeroProps) {
                 </Link>
               </Button>
 
-              <Button
-                asChild
-                size="xl"
+              <Button asChild size="xl"
                 variant="outline"
                 className="w-full sm:w-auto border-white/10 bg-white/5 hover:bg-white/10 text-foreground backdrop-blur-sm rounded-full group"
               >
@@ -187,26 +170,22 @@ export default function Hero({ data }: HeroProps) {
                   {heroContent.secondaryCTA?.text ?? "View Our Work"}
                 </Link>
               </Button>
-            </motion.div>
+            </AnimatedDiv>
 
-            <motion.div
-              initial={false}
+            <AnimatedDiv initial={false}
               className="pt-10 w-full border-t border-white/5 mt-8 flex flex-wrap justify-center md:justify-between lg:justify-start gap-x-8 gap-y-6"
             >
               {heroContent.stats?.map((stat: HeroStat, i: number) => (
-                <div
-                  key={i}
+                <div key={i}
                   className="relative group flex flex-col items-center lg:items-start min-w-[100px]"
                 >
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative w-full">
                     <div className="flex items-baseline justify-center lg:justify-start gap-1">
                       <span className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                        <CountUp
-                          end={stat.value}
+                        <CountUp end={stat.value}
                           duration={2.5}
-                          enableScrollSpy
-                          scrollSpyOnce
+                          enableScrollSpy scrollSpyOnce
                         />
                       </span>
                       <span className="text-xl text-primary font-semibold">
@@ -220,19 +199,17 @@ export default function Hero({ data }: HeroProps) {
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </AnimatedDiv>
           </div>
 
           {/* Right: 3D Animation Hub - REFINED & FLICKER-FREE */}
           <div className="relative hidden lg:flex h-[600px] w-full items-center justify-center perspective-[2000px]">
-            <motion.div
-              style={{ rotateX, rotateY }}
+            <AnimatedDiv style={{ transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)` }}
               className="relative w-[500px] h-[500px] flex items-center justify-center transform-style-3d will-change-transform"
             >
               <div className="absolute z-40">
                   {heroContent.image || heroContent.imageUrl ? (
-                    <Image
-                      src={heroContent.image || heroContent.imageUrl!}
+                    <Image src={heroContent.image || heroContent.imageUrl!}
                       alt={heroContent.title ?? ""}
                       width={500}
                       height={500}
@@ -252,8 +229,7 @@ export default function Hero({ data }: HeroProps) {
 
               {/* 4. The Logo - Centered */}
               <Link href="/">
-                <motion.div
-                  animate={{ scale: [1, 1.03, 1] }}
+                <AnimatedDiv animate={{ scale: [1, 1.03, 1] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   className="relative w-44 h-44 rounded-full bg-gradient-to-br from-blue-600 via-indigo-500 to-purple-600 shadow-[0_0_60px_rgba(99,102,241,0.3)] flex flex-col items-center justify-center z-10 group cursor-pointer"
                 >
@@ -261,15 +237,14 @@ export default function Hero({ data }: HeroProps) {
                   <span className="text-[11px] font-bold text-white/90 tracking-[0.2em] mt-1">OFTISOFT</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-t from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute inset-0 rounded-full ring-1 ring-white/20 group-hover:ring-white/40 transition-all duration-500" />
-                </motion.div>
+                </AnimatedDiv>
               </Link>
 
               {/* 5. Floating Glass Cards - Positioned in 3D Space */}
 
               {/* Card 1: CPU */}
               <Link href="/services">
-                <motion.div
-                  animate={{ y: [0, -15, 0] }}
+                <AnimatedDiv animate={{ y: [0, -15, 0] }}
                   transition={{
                     duration: 6,
                     repeat: Infinity,
@@ -287,13 +262,12 @@ export default function Hero({ data }: HeroProps) {
                     <div className="h-1.5 w-full bg-white/5 rounded-full" />
                     <div className="h-1.5 w-3/4 bg-white/5 rounded-full" />
                   </div>
-                </motion.div>
+                </AnimatedDiv>
               </Link>
 
               {/* Card 2: Code */}
               <Link href="/services">
-                <motion.div
-                  animate={{ y: [0, 20, 0] }}
+                <AnimatedDiv animate={{ y: [0, 20, 0] }}
                   transition={{
                     duration: 7,
                     repeat: Infinity,
@@ -314,13 +288,12 @@ export default function Hero({ data }: HeroProps) {
                     <div className="h-1.5 w-20 bg-blue-400/20 rounded-full" />
                     <div className="h-1.5 w-full bg-white/5 rounded-full" />
                   </div>
-                </motion.div>
+                </AnimatedDiv>
               </Link>
 
               {/* Card 3: Status Pill */}
               <Link href="/status">
-                <motion.div
-                  animate={{ x: [0, 10, 0] }}
+                <AnimatedDiv animate={{ x: [0, 10, 0] }}
                   transition={{
                     duration: 5,
                     repeat: Infinity,
@@ -336,9 +309,9 @@ export default function Hero({ data }: HeroProps) {
                   <span className="text-sm font-semibold text-white tracking-wide">
                     System Online
                   </span>
-                </motion.div>
+                </AnimatedDiv>
               </Link>
-            </motion.div>
+            </AnimatedDiv>
           </div>
         </div>
       </div>
@@ -359,51 +332,29 @@ export default function Hero({ data }: HeroProps) {
 }
 
 function SmoothTypewriter({ heroContent }: { heroContent: HeroContent }) {
-  const defaultWords = [
-    "Digital Solutions.",
-    "Web Architecture.",
-    "AI Innovation.",
-    "SaaS Platforms.",
-  ];
+  const defaultWords: [string, number][] = [
+    "Digital Solutions.", 2000,
+    "Web Architecture.", 2000,
+    "AI Innovation.", 2000,
+    "SaaS Platforms.", 2000,
+  ] as unknown as [string, number][];
 
-  // If subtitles array is provided, use it, otherwise use subtitle as a single word, otherwise default words
   const words = heroContent.subtitles?.length
-    ? heroContent.subtitles
+    ? heroContent.subtitles.flatMap((w) => [w, 2000] as [string, number])
     : heroContent.subtitle
-      ? [heroContent.subtitle]
+      ? [[heroContent.subtitle, 2000] as [string, number]]
       : defaultWords;
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    if (words.length <= 1) return; // Don't cycle if only one word
-
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % words.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [words.length]);
 
   return (
-    <span className="flex gap-2 items-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient h-[1.1em]">
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={words[index]}
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: "auto", opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="overflow-hidden whitespace-nowrap block"
-        >
-          {words[index]}
-        </motion.span>
-      </AnimatePresence>
-      {words.length > 1 && (
-        <motion.span
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-          className="w-[3px] h-[0.9em] bg-purple-400 rounded-full inline-block"
-        />
-      )}
+    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 h-[1.1em]">
+      <TypeAnimation
+        sequence={words.flat() as (string | number)[]}
+        wrapper="span"
+        speed={40}
+        repeat={Infinity}
+        cursor={true}
+        className="inline-block"
+      />
     </span>
   );
 }

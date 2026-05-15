@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHomeContentStore } from "@/lib/store/home-content";
@@ -10,12 +11,12 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const defaultTestimonials = [
-    { id: "1", name: "Alex Thompson", role: "CTO, Finova Labs", quote: "Oftisoft transformed our monolithic banking system into a microservices architecture. 99.9% uptime, 60% reduced latency, and their team was a true partner throughout.", avatar: "https://i.pravatar.cc/150?u=alex", gradient: "from-blue-500 to-cyan-500" },
-    { id: "2", name: "Sarah Chen", role: "CEO, HealthBridge AI", quote: "The AI-powered diagnostics module they built for us is incredible. Approval workflows automated, accuracy improved by 40%, and their team delivered 2 weeks early.", avatar: "https://i.pravatar.cc/150?u=sarah", gradient: "from-purple-500 to-pink-500" },
-    { id: "3", name: "Michael Rodriguez", role: "VP Eng, MarketPro", quote: "They built our entire multi-vendor marketplace from scratch. 5,000 vendors onboarded in the first quarter. The automated payout system alone saved us 200 engineering hours monthly.", avatar: "https://i.pravatar.cc/150?u=michael", gradient: "from-green-500 to-teal-500" },
-    { id: "4", name: "Priya Sharma", role: "Founder, EduSpark", quote: "Our edtech platform needed to scale from 1,000 to 100,000 concurrent users overnight. Oftisoft's architecture handled it seamlessly. Zero downtime during the transition.", avatar: "https://i.pravatar.cc/150?u=priya", gradient: "from-orange-500 to-red-500" },
-    { id: "5", name: "James Wilson", role: "Director, DataSync Inc.", quote: "The real-time data pipeline they engineered processes 10 billion events daily with sub-50ms latency. Their Kafka and gRPC expertise is world-class.", avatar: "https://i.pravatar.cc/150?u=james", gradient: "from-indigo-500 to-violet-500" },
-    { id: "6", name: "Fatima Al-Rashid", role: "COO, CloudBase", quote: "Professional, responsive, and technically exceptional. Oftisoft handled our HIPAA-compliant infrastructure setup and trained our team on the new stack in under 3 months.", avatar: "https://i.pravatar.cc/150?u=fatima", gradient: "from-cyan-500 to-blue-500" },
+    { id: "1", name: "Alex Thompson", role: "CTO, Finova Labs", quote: "Oftisoft transformed our monolithic banking system into a microservices architecture. 99.9% uptime, 60% reduced latency, and their team was a true partner throughout.", avatar: "", gradient: "from-blue-500 to-cyan-500" },
+    { id: "2", name: "Sarah Chen", role: "CEO, HealthBridge AI", quote: "The AI-powered diagnostics module they built for us is incredible. Approval workflows automated, accuracy improved by 40%, and their team delivered 2 weeks early.", avatar: "", gradient: "from-purple-500 to-pink-500" },
+    { id: "3", name: "Michael Rodriguez", role: "VP Eng, MarketPro", quote: "They built our entire multi-vendor marketplace from scratch. 5,000 vendors onboarded in the first quarter. The automated payout system alone saved us 200 engineering hours monthly.", avatar: "", gradient: "from-green-500 to-teal-500" },
+    { id: "4", name: "Priya Sharma", role: "Founder, EduSpark", quote: "Our edtech platform needed to scale from 1,000 to 100,000 concurrent users overnight. Oftisoft's architecture handled it seamlessly. Zero downtime during the transition.", avatar: "", gradient: "from-orange-500 to-red-500" },
+    { id: "5", name: "James Wilson", role: "Director, DataSync Inc.", quote: "The real-time data pipeline they engineered processes millions of events daily with sub-50ms latency. Their Kafka and gRPC expertise is world-class.", avatar: "", gradient: "from-indigo-500 to-violet-500" },
+    { id: "6", name: "Fatima Al-Rashid", role: "COO, CloudBase", quote: "Professional, responsive, and technically exceptional. Oftisoft handled our HIPAA-compliant infrastructure setup and trained our team on the new stack in under 3 months.", avatar: "", gradient: "from-cyan-500 to-blue-500" },
 ];
 
 export default function Testimonials() {
@@ -28,12 +29,12 @@ export default function Testimonials() {
     };
 
     // Ensure testimonials is always an array
-    const testimonialsList = Array.isArray(testimonialsContent.testimonials)
+  const testimonialsList = Array.isArray(testimonialsContent.testimonials)
         ? testimonialsContent.testimonials
         : [];
 
     // Duplicate for infinite loop
-    const loopTestimonials = [
+  const loopTestimonials = [
         ...testimonialsList,
         ...testimonialsList,
         ...testimonialsList
@@ -45,7 +46,7 @@ export default function Testimonials() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
 
             <div className="container px-4 mx-auto mb-16 md:mb-20">
-                <motion.div 
+                <AnimatedDiv 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
@@ -62,7 +63,7 @@ export default function Testimonials() {
                             {testimonialsContent.subtitle}
                         </span>
                     </h2>
-                </motion.div>
+                </AnimatedDiv>
             </div>
 
             {/* Marquee Container */}

@@ -1,11 +1,9 @@
-"use client";
-
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+"use client"
+import { AnimatedDiv, AnimatedSpan, useScrollProgress, useTransform } from "@/lib/animated";
 import { ArrowLeft, ExternalLink, Github, Calendar, Layers, Cpu, Globe, ArrowRight, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef, use } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
 import CTA from "@/components/sections/cta";
 
 // Swiper
@@ -22,15 +20,6 @@ import { notFound, useRouter } from "next/navigation";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
-    const { pageContent, isLoading } = usePageContent('portfolio');
-    const setContent = usePortfolioContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
     const { content } = usePortfolioContentStore();
 
     const router = useRouter();
@@ -46,12 +35,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
     }, [project, router, content]);
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({ target: containerRef });
+    const scrollYProgress = useScrollProgress(containerRef);
     const yHero = useTransform(scrollYProgress, [0, 0.5], [0, 200]);
     const opacityHero = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
     
     // Lightbox State
-    const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => setIsMounted(true), []);
@@ -72,41 +61,39 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                     <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Link>
                 <div className="pointer-events-auto flex gap-4">
-                     <a href="#" className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 transition-all">
+                     <Link href="/contact" className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 transition-all">
                         <ExternalLink className="w-4 h-4" />
-                        <span>Visit Live Site</span>
-                     </a>
+                        <span>Request Case Study</span>
+                     </Link>
                 </div>
             </nav>
 
             {/* Hero Section */}
             <section className="relative h-[90vh] min-h-[700px] w-full overflow-hidden flex items-end pb-20">
                 {/* Parallax Background */}
-                <motion.div 
-                    style={{ y: yHero }}
+                <AnimatedDiv 
+                    style={{ transform: `translateY(${yHero}px)` }}
                     className="absolute inset-0 z-0"
                 >
                     <div className={cn("absolute inset-0 bg-gradient-to-br opacity-30", project.gradient)} />
                     {/* Placeholder image logic since we don't have real uploaded images yet */}
                     {galleryImages[0] ? (
-                        <Image
-                            src={galleryImages[0]}
+                        <Image src={galleryImages[0]}
                             alt={project.title}
-                            fill
-                            className="object-cover"
+                            fill className="object-cover"
                             priority
                         />
                     ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                     <div className="absolute inset-0 bg-black/20" />
-                </motion.div>
+                </AnimatedDiv>
 
                 <div className="container px-4 mx-auto relative z-10">
-                    <motion.div 
+                    <AnimatedDiv 
                         style={{ opacity: opacityHero }}
                         className=""
                     >
-                        <motion.div 
+                        <AnimatedDiv 
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
@@ -144,8 +131,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
-                    </motion.div>
+                        </AnimatedDiv>
+                    </AnimatedDiv>
                 </div>
             </section>
 
@@ -158,8 +145,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                         <div className="lg:col-span-8 space-y-20">
                             
                             {/* Intro Text */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
+                            <AnimatedDiv initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5 }}
@@ -172,19 +158,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                     </p>
                                     <p>{project.description}</p>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
 
                             {/* Gallery Carousel (Swiper) */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
+                            <AnimatedDiv initial={{ opacity: 0, scale: 0.95 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5 }}
                                 style={{ willChange: "transform, opacity" }}
                                 className="w-full h-[500px] rounded-[2rem] overflow-hidden border border-border shadow-2xl relative group cursor-zoom-in"
                             >
-                                 <Swiper
-                                    modules={[Navigation, Pagination, Autoplay, EffectFade]}
+                                 <Swiper modules={[Navigation, Pagination, Autoplay, EffectFade]}
                                     effect="fade"
                                     loop={true}
                                     autoplay={{ delay: 4000 }}
@@ -209,7 +193,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                  <div className="absolute bottom-6 right-6 z-10 bg-black/50 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-bold pointer-events-none">
                                      Click to Expand
                                  </div>
-                            </motion.div>
+                            </AnimatedDiv>
 
                             {/* Challenge & Solution Grid */}
                             <div className="grid md:grid-cols-2 gap-8">
@@ -217,7 +201,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                     { title: "The Summary", content: project.description, color: "bg-blue-500" },
                                     { title: "Detailed Analysis", content: project.longDescription, color: "bg-purple-500" }
                                 ].map((item, i) => (
-                                    <motion.div 
+                                    <AnimatedDiv 
                                         key={i}
                                         initial={{ opacity: 0, y: 20 }}
                                         whileInView={{ opacity: 1, y: 0 }}
@@ -233,7 +217,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                         <p className="text-muted-foreground leading-relaxed">
                                             {item.content}
                                         </p>
-                                    </motion.div>
+                                    </AnimatedDiv>
                                 ))}
                             </div>
 
@@ -248,7 +232,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                     <h4 className="text-sm font-bold tracking-widest text-muted-foreground mb-8">Impact & Results</h4>
                                     <div className="grid grid-cols-1 gap-6">
                                         {project.stats.map((result, i) => (
-                                            <motion.div 
+                                            <AnimatedDiv 
                                                 key={i}
                                                 initial={{ opacity: 0, x: 20 }}
                                                 whileInView={{ opacity: 1, x: 0 }}
@@ -259,7 +243,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                             >
                                                 <span className="text-sm font-medium text-muted-foreground">{result.label}</span>
                                                 <span className="text-2xl font-semibold text-foreground group-hover:text-primary transition-colors">{result.value}</span>
-                                            </motion.div>
+                                            </AnimatedDiv>
                                         ))}
                                     </div>
                                 </div>
@@ -272,7 +256,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                     </h4>
                                     <div className="flex flex-wrap gap-2">
                                         {project.tags.map((tech, i) => (
-                                            <motion.span 
+                                            <AnimatedSpan 
                                                 key={tech}
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 whileInView={{ opacity: 1, scale: 1 }}
@@ -282,16 +266,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                                 className="px-4 py-2 bg-background border border-border rounded-xl text-sm font-medium text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all cursor-default hover:scale-105"
                                             >
                                                 {tech}
-                                            </motion.span>
+                                            </AnimatedSpan>
                                         ))}
                                     </div>
                                 </div>
 
                                 {/* Source Code CTA */}
-                                <a href="#" className="flex items-center justify-center gap-3 w-full py-5 rounded-2xl border border-border bg-card hover:bg-muted font-bold transition-all group">
+                                <Link href="/contact" className="flex items-center justify-center gap-3 w-full py-5 rounded-2xl border border-border bg-card hover:bg-muted font-bold transition-all group">
                                     <Github className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                    <span>View Source Code</span>
-                                </a>
+                                    <span>Request Access to Source</span>
+                                </Link>
 
                             </div>
                         </div>
@@ -301,37 +285,39 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
             </section>
 
             {/* Next Project Navigation */}
-            <section className="py-20 border-t border-border">
-                <div className="container px-4 mx-auto">
-                    <div className="flex justify-between items-center group cursor-pointer">
-                        <div className="text-left">
-                            <span className="text-sm text-muted-foreground tracking-widest mb-2 block">Next Project</span>
-                            <h2 className="text-3xl md:text-5xl font-semibold group-hover:text-primary transition-colors">FinTech Analytics Core</h2>
+            {(() => {
+                const allProjects = content?.projects || [];
+                const currentIdx = allProjects.findIndex(p => p.id === slug);
+                const nextProject = currentIdx >= 0 && currentIdx < allProjects.length - 1 ? allProjects[currentIdx + 1] : allProjects[0];
+                if (!nextProject) return null;
+                return (
+                    <section className="py-20 border-t border-border">
+                        <div className="container px-4 mx-auto">
+                            <Link href={`/portfolio/${nextProject.id}`} className="flex justify-between items-center group cursor-pointer">
+                                <div className="text-left">
+                                    <span className="text-sm text-muted-foreground tracking-widest mb-2 block">Next Project</span>
+                                    <h2 className="text-3xl md:text-5xl font-semibold group-hover:text-primary transition-colors">{nextProject.title}</h2>
+                                </div>
+                                <div className="w-16 h-16 rounded-full border border-border flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:rotate-[-45deg]">
+                                    <ArrowRight className="w-6 h-6" />
+                                </div>
+                            </Link>
                         </div>
-                        <div className="w-16 h-16 rounded-full border border-border flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:rotate-[-45deg]">
-                            <ArrowRight className="w-6 h-6" />
-                        </div>
-                    </div>
-                </div>
-            </section>
+                    </section>
+                );
+            })()}
 
             {/* Lightbox Modal */}
-            <AnimatePresence>
-                {lightboxIndex !== null && (
-                    <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10"
-                        onClick={() => setLightboxIndex(null)}
-                    >
+            {lightboxIndex !== null && (
+                <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10"
+                    onClick={() => setLightboxIndex(null)}
+                >
                         <button className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
                             <X className="w-10 h-10" />
                         </button>
                         
                         <div className="relative w-full max-w-7xl h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                                <Swiper
-                                initialSlide={lightboxIndex}
+                                <Swiper initialSlide={lightboxIndex}
                                 modules={[Navigation]}
                                 navigation={true}
                                 className="w-full h-full"
@@ -350,9 +336,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ slug: 
                                 ))}
                             </Swiper>
                         </div>
-                    </motion.div>
+                    </div>
                 )}
-            </AnimatePresence>
 
             <CTA />
         </main>

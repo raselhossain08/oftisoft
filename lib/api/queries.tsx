@@ -16,11 +16,8 @@ import { api, endpoints } from './client';
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            staleTime: 1000 * 60 * 5, // 5 minutes - data stays fresh
-            gcTime: 1000 * 60 * 30, // 30 minutes - cache retention (formerly cacheTime)
-            refetchOnWindowFocus: false, // Disable refetch on window focus for better UX
-            refetchOnReconnect: true, // Refetch when internet reconnects
-            retry: 1, // Retry failed requests once
+            staleTime: 1000 * 60 * 5, // 5 minutes - data stays fresh, gcTime: 1000 * 60 * 30, // 30 minutes - cache retention (formerly cacheTime)
+            refetchOnWindowFocus: false, // Disable refetch on window focus for better UX, refetchOnReconnect: true, // Refetch when internet reconnects, retry: 1, // Retry failed requests once
         },
         mutations: {
             retry: 0, // Don't retry mutations
@@ -67,7 +64,6 @@ export function useCreateProduct() {
     return useMutation({
         mutationFn: (data: any) => api.post(endpoints.products.create, data),
         onSuccess: () => {
-            // Invalidate and refetch products list
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
     });
@@ -80,7 +76,6 @@ export function useUpdateProduct() {
         mutationFn: ({ id, data }: { id: string; data: any }) => 
             api.put(endpoints.products.update(id), data),
         onSuccess: (_, variables) => {
-            // Invalidate specific product and list
             queryClient.invalidateQueries({ queryKey: ['product', variables.id] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
@@ -165,45 +160,13 @@ export function useUpdateUser() {
     });
 }
 
-// ============= CONTENT =============
-
-export function useContentPages() {
-    return useQuery({
-        queryKey: ['content-pages'],
-        queryFn: () => api.get(endpoints.content.pages),
-        staleTime: 1000 * 60 * 15, // 15 minutes - content changes less frequently
-    });
-}
-
-export function useContentPage(id: string) {
-    return useQuery({
-        queryKey: ['content-page', id],
-        queryFn: () => api.get(endpoints.content.page(id)),
-        enabled: !!id,
-    });
-}
-
-export function useUpdateContentPage() {
-    const queryClient = useQueryClient();
-    
-    return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: any }) => 
-            api.put(endpoints.content.update(id), data),
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['content-page', variables.id] });
-            queryClient.invalidateQueries({ queryKey: ['content-pages'] });
-        },
-    });
-}
-
 // ============= ANALYTICS =============
 
 export function useAnalyticsOverview() {
     return useQuery({
         queryKey: ['analytics-overview'],
         queryFn: () => api.get(endpoints.analytics.overview),
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        refetchInterval: 1000 * 60 * 5, // Auto-refetch every 5 minutes
+        staleTime: 1000 * 60 * 5, // 5 minutes, refetchInterval: 1000 * 60 * 5, // Auto-refetch every 5 minutes
     });
 }
 
@@ -221,8 +184,7 @@ export function useCurrentUser() {
     return useQuery({
         queryKey: ['current-user'],
         queryFn: () => api.get(endpoints.auth.me),
-        staleTime: Infinity, // User data rarely changes during session
-        retry: false, // Don't retry if unauthorized
+        staleTime: Infinity, // User data rarely changes during session, retry: false, // Don't retry if unauthorized
     });
 }
 

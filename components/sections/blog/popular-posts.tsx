@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3 } from "@/lib/animated";
+;
 
-import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
@@ -35,7 +36,7 @@ export default function PopularPosts() {
             <div className="container px-4 mx-auto relative z-10">
                 <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-12">
                     <div className="w-full md:w-auto text-center md:text-left">
-                        <motion.div 
+                        <AnimatedDiv 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -47,8 +48,8 @@ export default function PopularPosts() {
                                 <Flame className="w-4 h-4 animate-pulse fill-orange-500/20" />
                                 <span className="tracking-widest text-xs font-bold">Trending Now</span>
                             </Badge>
-                        </motion.div>
-                        <motion.h2 
+                        </AnimatedDiv>
+                        <AnimatedH2 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -57,7 +58,7 @@ export default function PopularPosts() {
                             className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
                         >
                             Most Popular Reads
-                        </motion.h2>
+                        </AnimatedH2>
                     </div>
 
                     {/* Custom Nav Controls */}
@@ -81,8 +82,7 @@ export default function PopularPosts() {
                     </div>
                 </div>
 
-                <Swiper
-                    ref={swiperRef}
+                <Swiper ref={swiperRef}
                     modules={[Autoplay, Pagination, Navigation]}
                     spaceBetween={24}
                     slidesPerView={1.15}
@@ -99,8 +99,7 @@ export default function PopularPosts() {
                     {popularPosts.map((post, index) => (
                         <SwiperSlide key={post.id} className="h-full pt-10">
                             <Link href={`/blog/${post.slug || post.id}`} className="block h-full">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 30 }}
+                                <AnimatedDiv initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -115,8 +114,7 @@ export default function PopularPosts() {
 
                                 {/* Card Background - Image or Gradient */}
                                 {post.coverImage ? (
-                                    <img
-                                        src={post.coverImage}
+                                    <img src={post.coverImage}
                                         alt={post.title}
                                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
@@ -163,7 +161,7 @@ export default function PopularPosts() {
                                         </div>
                                     </div>
                                 </div>
-                                </motion.div>
+                                </AnimatedDiv>
                             </Link>
                         </SwiperSlide>
                     ))}

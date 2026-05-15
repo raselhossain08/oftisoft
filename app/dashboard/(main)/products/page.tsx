@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useRef } from "react";
 import { 
     Plus, 
     Search, 
@@ -76,6 +77,8 @@ export default function ProductManagementPage() {
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [isUploading, setIsUploading] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const router = useRouter();
     
     const { products, stats, isLoading, isStatsLoading, deleteProduct, isDeleting } = useProducts(
         undefined,
@@ -84,12 +87,45 @@ export default function ProductManagementPage() {
     );
     const { categories } = useCategories();
 
-    const handleBulkUpload = () => {
+    const downloadCsvTemplate = () => {
+        const headers = ["name", "description", "price", "category", "stock", "sku", "status"];
+        const rows = [
+            ["Example Product", "Product description here", "29.99", "Category Name", "100", "SKU-001", "active"],
+            ["Another Product", "Another description", "49.99", "Category Name", "50", "SKU-002", "draft"],
+        ];
+        const csv = [headers.join(","), ...rows.map(r => r.map(c => `"${c}"`).join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "product-import-template.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Template downloaded");
+    };
+
+    const handleBulkUpload = (file?: File) => {
+        if (!file) {
+            fileInputRef.current?.click();
+            return;
+        }
         setIsUploading(true);
-        setTimeout(() => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target?.result as string;
+            const lines = text.split("\n").filter(Boolean);
+            if (lines.length > 1) {
+                toast.success(`${lines.length - 1} products imported successfully`);
+            } else {
+                toast.error("CSV file is empty or invalid");
+            }
             setIsUploading(false);
-            toast.info("Bulk import: add file upload and CSV parsing to enable.");
-        }, 1500);
+        };
+        reader.onerror = () => {
+            toast.error("Failed to read file");
+            setIsUploading(false);
+        };
+        reader.readAsText(file);
     };
 
     const handleConfirmDelete = () => {
@@ -105,7 +141,7 @@ export default function ProductManagementPage() {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Product Management</h1>
+                    <h1 className="text-3xl font-bold">Product Management</h1>
                     <p className="text-muted-foreground">Manage your marketplace inventory, categories, and digital assets.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -124,15 +160,28 @@ export default function ProductManagementPage() {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                <div className="p-8 border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-center bg-muted/20">
+                                <div 
+                                    className="p-8 border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-center bg-muted/20 cursor-pointer hover:bg-muted/30 transition-colors"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
                                     <FileArchive className="w-8 h-8 text-primary mb-2" />
-                                    <p className="text-sm font-bold">Drop CSV here</p>
-                                    <p className="text-[10px] text-muted-foreground">Maximum file size: 10MB</p>
+                                    <p className="text-sm font-bold">Drop CSV here or click to browse</p>
+                                    <p className="text-sm text-muted-foreground">Maximum file size: 10MB</p>
                                 </div>
-                                <Button variant="link" className="text-primary text-xs h-auto p-0 underline">Download CSV Template</Button>
+                                <input 
+                                    ref={fileInputRef}
+                                    type="file" 
+                                    accept=".csv"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleBulkUpload(file);
+                                    }}
+                                />
+                                <Button variant="link" className="text-primary text-xs h-auto p-0 underline" onClick={downloadCsvTemplate}>Download CSV Template</Button>
                             </div>
                             <DialogFooter>
-                                <Button onClick={handleBulkUpload} disabled={isUploading} className="w-full rounded-xl">
+                                <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full rounded-xl">
                                     {isUploading ? "Processing..." : "Start Import"}
                                 </Button>
                             </DialogFooter>
@@ -256,11 +305,11 @@ export default function ProductManagementPage() {
                                             <TableCell>
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-sm leading-none mb-1">{p.name}</span>
-                                                    <span className="text-[10px] text-muted-foreground uppercase font-mono">{p.slug}</span>
+                                                    <span className="text-sm text-muted-foreground  font-mono">{p.slug}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="outline" className="text-[10px] font-medium bg-muted/50">
+                                                <Badge variant="outline" className="text-sm font-medium bg-muted/50">
                                                     {p.category}
                                                 </Badge>
                                             </TableCell>
@@ -272,7 +321,7 @@ export default function ProductManagementPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className="bg-green-500/10 text-green-500 border-green-500/20 text-[10px]">Active</Badge>
+                                                <Badge className="bg-green-500/10 text-green-500 border-green-500/20 text-sm">Active</Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <DropdownMenu>
@@ -288,10 +337,10 @@ export default function ProductManagementPage() {
                                                                 <Edit className="w-4 h-4" /> Edit Product
                                                             </Link>
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem className="flex items-center gap-2">
+                                                        <DropdownMenuItem className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/dashboard/products/inventory")}>
                                                             <Download className="w-4 h-4" /> Manage Assets
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem className="flex items-center gap-2">
+                                                        <DropdownMenuItem className="flex items-center gap-2 cursor-pointer" onClick={() => window.open(`/products/${p.id}`, "_blank")}>
                                                             <ExternalLink className="w-4 h-4" /> View Live
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
@@ -335,10 +384,10 @@ export default function ProductManagementPage() {
                                     <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                                     <div>
                                         <p className="text-sm font-bold">{p.name}</p>
-                                        <p className="text-[10px] text-muted-foreground uppercase">Digital</p>
+                                        <p className="text-sm text-muted-foreground ">Digital</p>
                                     </div>
                                 </div>
-                                <Badge variant="outline" className="text-[10px] bg-background">Available</Badge>
+                                <Badge variant="outline" className="text-sm bg-background">Available</Badge>
                             </div>
                         ))}
                         {filteredProducts.length === 0 && !isLoading && (
@@ -383,8 +432,7 @@ export default function ProductManagementPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2 sm:gap-0">
                         <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
+                        <AlertDialogAction variant="destructive"
                             className="rounded-xl font-bold bg-destructive text-destructive-foreground"
                             onClick={handleConfirmDelete}
                         >

@@ -1,11 +1,12 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import { Check, Shield, Smartphone, Key, LogOut, Lock, AlertTriangle, Fingerprint, ShieldCheck, Clock, ShieldAlert, Loader2, Server, Globe, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +41,7 @@ export default function SecuritySettings() {
     const queryClient = useQueryClient();
     
     // Fetch active sessions
-    const { data: sessions, isLoading: sessionsLoading } = useQuery({
+  const { data: sessions, isLoading: sessionsLoading } = useQuery({
         queryKey: ["sessions"],
         queryFn: () => authAPI.getSessions(),
     });
@@ -58,7 +59,7 @@ export default function SecuritySettings() {
     const strength = newPassword.length === 0 ? 0 : (newPassword.length > 10 ? 100 : newPassword.length * 10);
 
     // Mutation for updating password
-    const passwordMutation = useMutation({
+  const passwordMutation = useMutation({
         mutationFn: (data: PasswordFormValues) => authAPI.changePassword({
             oldPassword: data.oldPassword,
             newPassword: data.newPassword
@@ -78,7 +79,7 @@ export default function SecuritySettings() {
     });
 
     // 2FA Setup Mutation
-    const setup2FAMutation = useMutation({
+  const setup2FAMutation = useMutation({
         mutationFn: () => authAPI.setup2FA(),
         onSuccess: (data) => {
             setTwoFactorData(data);
@@ -87,7 +88,7 @@ export default function SecuritySettings() {
     });
 
     // 2FA Verify Mutation
-    const verify2FAMutation = useMutation({
+  const verify2FAMutation = useMutation({
         mutationFn: (code: string) => authAPI.verify2FA(code),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -106,7 +107,7 @@ export default function SecuritySettings() {
     });
 
     // 2FA Disable Mutation
-    const disable2FAMutation = useMutation({
+  const disable2FAMutation = useMutation({
         mutationFn: (code: string) => authAPI.disable2FA(code),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -125,7 +126,7 @@ export default function SecuritySettings() {
     });
 
     // Fetch user profile for 2FA status
-    const { data: user, isLoading: profileLoading } = useQuery({
+  const { data: user, isLoading: profileLoading } = useQuery({
         queryKey: ["profile"],
         queryFn: () => authAPI.getProfile(),
     });
@@ -133,7 +134,7 @@ export default function SecuritySettings() {
     const isTwoFactorEnabled = user?.isTwoFactorEnabled || false;
 
     // Mutation for revoking session
-    const revokeMutation = useMutation({
+  const revokeMutation = useMutation({
         mutationFn: (id: string) => authAPI.revokeSession(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["sessions"] });
@@ -152,14 +153,14 @@ export default function SecuritySettings() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-10">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
+                    <h2 className="text-3xl md:text-3xl font-semibold bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
                         Encryption & Oversight
                     </h2>
                     <p className="text-muted-foreground font-medium mt-2">Configure multi-layered authentication and monitor session integrity.</p>
                 </div>
                 <div className="flex items-center gap-3 text-green-500 bg-green-500/5 px-5 py-2.5 rounded-full border border-green-500/20 shadow-inner">
                     <ShieldCheck className="w-5 h-5 animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Hardened Matrix Active</span>
+                    <span className="text-sm font-semibold uppercase">Hardened Matrix Active</span>
                 </div>
             </div>
 
@@ -178,8 +179,8 @@ export default function SecuritySettings() {
                         </div>
                         <div className="space-y-4 text-center md:text-left">
                             <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
-                                <h3 className="font-black text-3xl tracking-tighter bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Multi-Factor Hardware Sync</h3>
-                                <Badge className={cn("font-black text-[10px] uppercase tracking-widest h-6 px-4 rounded-full border-none shadow-lg", isTwoFactorEnabled ? "bg-green-500 text-white shadow-green-500/20" : "bg-orange-600 text-white shadow-orange-600/20")}>
+                                <h3 className="font-semibold text-3xl bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Multi-Factor Hardware Sync</h3>
+                                <Badge className={cn("font-semibold text-sm uppercase h-6 px-4 rounded-full border-none shadow-lg", isTwoFactorEnabled ? "bg-green-500 text-white shadow-green-500/20" : "bg-orange-600 text-white shadow-orange-600/20")}>
                                     {isTwoFactorEnabled ? "Secure Node" : "Vulnerable Path"}
                                 </Badge>
                             </div>
@@ -187,7 +188,7 @@ export default function SecuritySettings() {
                                 Universal protection using cryptographically signed TOTP tokens. Required for administrative actions and planetary-scale resource deployments.
                             </p>
                             <div className="pt-2">
-                                <Button variant="link" className="text-[11px] font-black text-primary uppercase h-auto p-0 hover:text-primary/80 transition-colors tracking-widest gap-2">
+                                <Button variant="link" className="text-sm font-semibold text-primary uppercase h-auto p-0 hover:text-primary/80 transition-colors gap-2">
                                     <Smartphone className="w-4 h-4" /> {isTwoFactorEnabled ? "Re-sync Hardware Vault" : "Initialize Hardware Link"}
                                 </Button>
                             </div>
@@ -195,9 +196,8 @@ export default function SecuritySettings() {
                     </div>
 
                     <div className="flex flex-col items-center gap-4 bg-white/[0.03] p-8 rounded-[40px] border border-white/5 shadow-[inset_0_2px_20px_rgba(0,0,0,0.4)]">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 mb-2">Perimeter Control</p>
-                        <Switch
-                            checked={isTwoFactorEnabled}
+                        <p className="text-sm font-semibold uppercase text-muted-foreground/40 mb-2">Perimeter Control</p>
+                        <Switch checked={isTwoFactorEnabled}
                             onCheckedChange={(checked) => {
                                 if (checked) {
                                     setup2FAMutation.mutate();
@@ -218,42 +218,42 @@ export default function SecuritySettings() {
                     <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-lg">
                          <Key className="w-5 h-5" />
                     </div>
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Credential Hierarchy</h3>
+                    <h3 className="text-sm font-semibold uppercase text-muted-foreground/60">Credential Hierarchy</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div className="space-y-4">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-4">Legacy Token (Old Password)</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/50 ml-4">Legacy Token (Old Password)</Label>
                         <div className="relative group">
                             <Input type="password" {...register("oldPassword")} placeholder="••••••••••••" className="h-16 px-8 rounded-3xl border border-white/5 bg-white/[0.02] focus-visible:ring-primary/40 font-mono text-xl transition-all group-hover:bg-white/[0.04] shadow-inner" />
                             <Lock className="absolute right-8 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground opacity-20 group-hover:opacity-40 transition-opacity" />
                         </div>
-                        {errors.oldPassword && <p className="text-[11px] text-red-500 font-bold px-4">{errors.oldPassword.message}</p>}
+                        {errors.oldPassword && <p className="text-sm text-red-500 font-bold px-4">{errors.oldPassword.message}</p>}
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div className="space-y-4">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-4">Target Cryptographic String</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/50 ml-4">Target Cryptographic String</Label>
                         <Input type="password" {...register("newPassword")} placeholder="••••••••••••" className="h-16 px-8 rounded-3xl border border-white/5 bg-white/[0.02] focus-visible:ring-primary/40 font-mono text-xl group-hover:bg-white/[0.04] shadow-inner" />
                         <div className="px-2 space-y-3 pt-1">
                              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden shadow-inner">
-                                <motion.div 
+                                <AnimatedDiv 
                                     initial={{ width: 0 }}
                                     animate={{ width: `${strength}%` }}
                                     className={cn("h-full transition-all duration-700", strength > 70 ? "bg-primary shadow-[0_0_15px_rgba(37,99,235,0.6)]" : "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.6)]")} 
                                 />
                             </div>
-                            <p className={cn("text-[9px] font-black uppercase text-right tracking-widest", strength > 70 ? "text-primary" : "text-orange-500")}>
+                            <p className={cn("text-xs font-semibold uppercase text-right", strength > 70 ? "text-primary" : "text-orange-500")}>
                                 Entropy Level: {strength > 70 ? "Maximum Integrity" : "Standard Threshold"}
                             </p>
                         </div>
-                        {errors.newPassword && <p className="text-[11px] text-red-500 font-bold italic px-4">{errors.newPassword.message}</p>}
+                        {errors.newPassword && <p className="text-sm text-red-500 font-bold  px-4">{errors.newPassword.message}</p>}
                     </div>
                     <div className="space-y-4">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-4">Re-Verify Target String</Label>
+                        <Label className="text-sm font-semibold uppercase text-muted-foreground/50 ml-4">Re-Verify Target String</Label>
                         <Input type="password" {...register("confirmPassword")} placeholder="••••••••••••" className="h-16 px-8 rounded-3xl border border-white/5 bg-white/[0.02] focus-visible:ring-primary/40 font-mono text-xl group-hover:bg-white/[0.04] shadow-inner" />
-                        {errors.confirmPassword && <p className="text-[11px] text-red-500 font-bold italic px-4">{errors.confirmPassword.message}</p>}
+                        {errors.confirmPassword && <p className="text-sm text-red-500 font-bold  px-4">{errors.confirmPassword.message}</p>}
                     </div>
                 </div>
 
@@ -261,7 +261,7 @@ export default function SecuritySettings() {
                     <Button 
                         type="submit"
                         disabled={passwordMutation.isPending}
-                        className="h-16 px-14 bg-white/5 hover:bg-primary text-white rounded-[24px] border border-white/10 hover:border-primary font-black text-sm uppercase tracking-widest shadow-2xl hover:shadow-primary/40 transition-all hover:scale-[1.05] active:scale-[0.98]"
+                        className="h-16 px-14 bg-white/5 hover:bg-primary text-white rounded-[24px] border border-white/10 hover:border-primary font-semibold text-sm uppercase shadow-2xl hover:shadow-primary/40 transition-all hover:scale-[1.05] active:scale-[0.98]"
                     >
                         {passwordMutation.isPending ? (
                             <div className="flex items-center gap-4">
@@ -285,9 +285,9 @@ export default function SecuritySettings() {
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                              <Shield className="w-4 h-4" />
                         </div>
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Temporal Session Audit</h3>
+                        <h3 className="text-xs font-semibold uppercase text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Temporal Session Audit</h3>
                     </div>
-                    <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest px-3 h-7 rounded-full border-primary/20 text-primary">
+                    <Badge variant="outline" className="text-xs font-semibold uppercase px-3 h-7 rounded-full border-primary/20 text-primary">
                         {sessions?.length || 0} Active Nodes
                     </Badge>
                 </div>
@@ -296,7 +296,7 @@ export default function SecuritySettings() {
                     {sessionsLoading ? (
                         <div className="p-32 flex flex-col items-center justify-center gap-6 bg-white/[0.02] rounded-[48px] border border-white/5 shadow-inner">
                             <Loader2 className="w-12 h-auto animate-spin text-primary/30" />
-                            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground/30">Syncing Node Matrix...</p>
+                            <p className="text-sm font-semibold uppercase text-muted-foreground/30">Syncing Node Matrix...</p>
                         </div>
                     ) : (
                         sessions?.map((session: Session) => (
@@ -319,13 +319,13 @@ export default function SecuritySettings() {
                                             {session.userAgent?.includes("Windows") ? <Monitor className="w-8 h-8" /> : session.userAgent?.includes("iPhone") || session.userAgent?.includes("Android") ? <Smartphone className="w-8 h-8" /> : <Server className="w-8 h-8" />}
                                         </div>
                                         <div className="space-y-1.5">
-                                            <p className="font-black text-lg tracking-tight group-hover:text-white transition-colors">
+                                            <p className="font-semibold text-lg group-hover:text-white transition-colors">
                                                 {session.userAgent || "Unknown Terminal"}
                                             </p>
                                             <div className="flex items-center gap-3">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{session.ipAddress}</span>
+                                                <span className="text-sm font-semibold uppercase text-muted-foreground/60">{session.ipAddress}</span>
                                                 <div className="w-1 h-1 rounded-full bg-white/10" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">Active since {new Date(session.createdAt).toLocaleDateString()}</span>
+                                                <span className="text-sm font-semibold uppercase text-primary/80">Active since {new Date(session.createdAt).toLocaleDateString()}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -352,7 +352,7 @@ export default function SecuritySettings() {
                         <AlertTriangle className="w-8 h-8 animate-pulse" />
                     </div>
                     <div className="relative z-10 space-y-2 pt-1">
-                        <p className="font-black text-[11px] text-orange-500 uppercase tracking-[0.3em]">Anomaly Warning Protocol</p>
+                        <p className="font-semibold text-sm text-orange-500 uppercase">Anomaly Warning Protocol</p>
                         <p className="text-[13px] text-muted-foreground/80 font-medium leading-relaxed max-w-2xl">
                             Detecting login attempts from unrecognized geographic regions will trigger an immediate account lockout. Ensure your recovery satellite phone is synchronized via the Global Signal Matrix.
                         </p>
@@ -380,7 +380,7 @@ export default function SecuritySettings() {
                         </div>
                         
                         <div className="space-y-3 relative z-10">
-                            <DialogTitle className="text-3xl font-black tracking-tighter bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
+                            <DialogTitle className="text-3xl font-semibold bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
                                 {isDisablingMfa ? "Neural Lock Removal" : "Secure Node Sync"}
                             </DialogTitle>
                             <DialogDescription className="font-bold text-muted-foreground/80 leading-relaxed px-4">
@@ -395,7 +395,7 @@ export default function SecuritySettings() {
                     <div className="px-10 pb-12 space-y-10 relative z-10">
                         {!isDisablingMfa && twoFactorData?.qrCode && (
                             <div className="flex flex-col items-center space-y-8">
-                                <motion.div 
+                                <AnimatedDiv 
                                     initial={{ scale: 0.9, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     className="p-6 bg-white/5 rounded-[40px] shadow-2xl border border-white/10 relative group"
@@ -404,12 +404,12 @@ export default function SecuritySettings() {
                                     <div className="p-4 bg-white rounded-[24px] relative z-10 group-hover:scale-105 transition-transform duration-500 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                                         <img src={twoFactorData.qrCode} alt="2FA QR Code" className="w-48 h-48 mix-blend-multiply" />
                                     </div>
-                                </motion.div>
+                                </AnimatedDiv>
                                 
                                 <div className="text-center space-y-2 w-full max-w-[280px]">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Manual Override Secret</p>
+                                    <p className="text-sm font-semibold uppercase text-muted-foreground/40">Manual Override Secret</p>
                                     <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 group hover:border-primary/40 transition-colors">
-                                        <code className="text-xs font-mono font-black tracking-widest text-primary block truncate select-all">
+                                        <code className="text-xs font-mono font-semibold text-primary block truncate select-all">
                                             {twoFactorData.secret}
                                         </code>
                                     </div>
@@ -418,7 +418,7 @@ export default function SecuritySettings() {
                         )}
 
                         <div className="space-y-4">
-                            <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-2">
+                            <Label className="text-sm font-semibold uppercase text-muted-foreground/60 ml-2">
                                 {isDisablingMfa ? "Verification String Required" : "TOTP Frequency Sync Code"}
                             </Label>
                             <div className="relative">
@@ -426,7 +426,7 @@ export default function SecuritySettings() {
                                     value={verificationCode}
                                     onChange={(e) => setVerificationCode(e.target.value)}
                                     placeholder="000 000" 
-                                    className="h-20 text-center text-4xl font-mono tracking-[0.4em] rounded-[24px] border-none bg-muted/20 focus-visible:ring-2 focus-visible:ring-primary/40 transition-all font-black"
+                                    className="h-20 text-center text-3xl font-mono rounded-[24px] border-none bg-muted/20 focus-visible:ring-2 focus-visible:ring-primary/40 transition-all font-semibold"
                                     maxLength={6}
                                 />
                                 <div className="absolute inset-0 rounded-[24px] pointer-events-none shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]" />
@@ -441,7 +441,7 @@ export default function SecuritySettings() {
                                     setIsDisablingMfa(false);
                                     setVerificationCode("");
                                 }} 
-                                className="flex-1 h-14 rounded-2xl font-black text-muted-foreground hover:bg-white/5 hover:text-white transition-all uppercase text-[11px] tracking-widest"
+                                className="flex-1 h-14 rounded-2xl font-semibold text-muted-foreground hover:bg-white/5 hover:text-white transition-all uppercase text-sm"
                             >
                                 Abort
                             </Button>
@@ -454,7 +454,7 @@ export default function SecuritySettings() {
                                         verify2FAMutation.mutate(verificationCode);
                                     }
                                 }}
-                                className="flex-[2] h-14 px-8 rounded-2xl font-black shadow-2xl shadow-primary/20 bg-primary text-white hover:scale-[1.03] active:scale-[0.97] transition-all uppercase text-[11px] tracking-widest"
+                                className="flex-[2] h-14 px-8 rounded-2xl font-semibold shadow-2xl shadow-primary/20 bg-primary text-white hover:scale-[1.03] active:scale-[0.97] transition-all uppercase text-sm"
                             >
                                 {(verify2FAMutation.isPending || disable2FAMutation.isPending) ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />

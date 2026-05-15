@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { Animated, AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Search, Grid, Code, Smartphone, Brain, Cloud, Briefcase, Clock, Calendar, ArrowUpRight, Filter } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 import { useBlogContentStore, type BlogCategory } from "@/lib/store/blog-content";
 import { AdSlot } from "@/components/ads/ad-slot";
@@ -27,9 +29,10 @@ export default function BlogList() {
     const [activeCategory, setActiveCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(6);
 
     // Filter Logic
-    const filteredPosts = posts.filter(post => {
+  const filteredPosts = posts.filter(post => {
         const matchesCategory = activeCategory === "all" || post.category === activeCategory;
         const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                               post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
@@ -57,36 +60,60 @@ export default function BlogList() {
                         </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                        {/* Search Bar */}
-                        <div className={cn(
-                            "relative group transition-all duration-300",
-                            isSearchFocused ? "w-full lg:w-[320px]" : "w-full lg:w-[280px]"
-                        )}>
+                    <Sheet>
+                        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                            {/* Search Bar */}
                             <div className={cn(
-                                "absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-xl blur-md transition-opacity",
-                                isSearchFocused ? "opacity-100" : "opacity-0"
-                            )} />
-                            <div className="relative flex items-center">
-                                <Search className="absolute left-3 w-4 h-4 text-muted-foreground z-10" />
-                                <Input 
-                                    type="text" 
-                                    placeholder="Search articles..." 
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onFocus={() => setIsSearchFocused(true)}
-                                    onBlur={() => setIsSearchFocused(false)}
-                                    className="pl-10 h-12 bg-card border-border shadow-sm focus-visible:ring-primary/50 transition-all rounded-xl"
-                                />
+                                "relative group transition-all duration-300",
+                                isSearchFocused ? "w-full lg:w-[320px]" : "w-full lg:w-[280px]"
+                            )}>
+                                <div className={cn(
+                                    "absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-xl blur-md transition-opacity",
+                                    isSearchFocused ? "opacity-100" : "opacity-0"
+                                )} />
+                                <div className="relative flex items-center">
+                                    <Search className="absolute left-3 w-4 h-4 text-muted-foreground z-10" />
+                                    <Input 
+                                        type="text" 
+                                        placeholder="Search articles..." 
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onFocus={() => setIsSearchFocused(true)}
+                                        onBlur={() => setIsSearchFocused(false)}
+                                        className="pl-10 h-12 bg-card border-border shadow-sm focus-visible:ring-primary/50 transition-all rounded-xl"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Filter Button (Mobile only perhaps, or just extra action) */}
-                         <Button variant="outline" className="lg:hidden h-12 gap-2 rounded-xl">
-                            <Filter className="w-4 h-4" />
-                            <span>Filters</span>
-                        </Button>
-                    </div>
+                            {/* Filter Button (Mobile only perhaps, or just extra action) */}
+                            <SheetTrigger asChild>
+                                <Button variant="outline" className="lg:hidden h-12 gap-2 rounded-xl">
+                                    <Filter className="w-4 h-4" />
+                                    <span>Filters</span>
+                                </Button>
+                            </SheetTrigger>
+                        </div>
+                        <SheetContent side="right">
+                            <SheetHeader>
+                                <SheetTitle>Filters</SheetTitle>
+                            </SheetHeader>
+                            <div className="mt-6 space-y-4">
+                                {categories.map((cat) => {
+                                    const Icon = iconMap[cat.icon || 'Grid'] || Grid;
+                                    return (
+                                        <Button key={cat.id}
+                                            onClick={() => setActiveCategory(cat.id)}
+                                            variant={activeCategory === cat.id ? "default" : "outline"}
+                                            className="w-full justify-start gap-2 rounded-xl"
+                                        >
+                                            <Icon className="w-4 h-4" />
+                                            <span>{cat.label}</span>
+                                        </Button>
+                                    );
+                                })}
+                            </div>
+                        </SheetContent>
+                    </Sheet>
                 </div>
 
                 {/* Categories - Scrollable on mobile */}
@@ -95,8 +122,7 @@ export default function BlogList() {
                         {categories.map((cat) => {
                              const Icon = iconMap[cat.icon || 'Grid'] || Grid;
                              return (
-                                <Button
-                                    key={cat.id}
+                                <Button key={cat.id}
                                     onClick={() => setActiveCategory(cat.id)}
                                     variant={activeCategory === cat.id ? "default" : "outline"}
                                     className={cn(
@@ -117,16 +143,15 @@ export default function BlogList() {
                 <AdSlot position="blog-list-top" />
 
                 {/* Posts Grid */}
-                <motion.div 
+                <AnimatedDiv 
                     layout 
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
                 >
                     <AnimatePresence mode="popLayout">
-                        {filteredPosts.map((post, index) => (
+                        {filteredPosts.slice(0, visibleCount).map((post, index) => (
                             <div key={`post-wrapper-${post.id}`} className="contents">
-                                <motion.article
-                                    layout
-                                    key={post.id}
+                                <Animated as="article"
+                                    layout key={post.id}
                                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
@@ -142,8 +167,7 @@ export default function BlogList() {
                                             {/* Image Area */}
                                             <div className="relative h-52 overflow-hidden bg-muted">
                                                 {post.coverImage ? (
-                                                    <img
-                                                        src={post.coverImage}
+                                                    <img src={post.coverImage}
                                                         alt={post.title}
                                                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                                     />
@@ -197,7 +221,7 @@ export default function BlogList() {
                                             </CardFooter>
                                         </Card>
                                     </Link>
-                                </motion.article>
+                                </Animated>
                                 {(index + 1) % 6 === 0 && (
                                     <div className="col-span-full py-8">
                                         <AdSlot position="blog-list-middle" />
@@ -206,11 +230,11 @@ export default function BlogList() {
                             </div>
                         ))}
                     </AnimatePresence>
-                </motion.div>
+                </AnimatedDiv>
 
                 {/* Empty State */}
                 {filteredPosts.length === 0 && (
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0 }} 
                         animate={{ opacity: 1 }} 
                         className="text-center py-20"
@@ -227,13 +251,13 @@ export default function BlogList() {
                         >
                             Clear all filters
                         </Button>
-                    </motion.div>
+                    </AnimatedDiv>
                 )}
 
                 {/* Load More Trigger (Visual Only for now) */}
                 {filteredPosts.length > 0 && (
                     <div className="mt-16 text-center">
-                        <Button variant="outline" className="px-8 py-6 rounded-full bg-card hover:bg-muted hover:border-primary/30 transition-all font-medium text-sm shadow-sm hover:shadow-md">
+                        <Button variant="outline" className="px-8 py-6 rounded-full bg-card hover:bg-muted hover:border-primary/30 transition-all font-medium text-sm shadow-sm hover:shadow-md" onClick={() => setVisibleCount(prev => prev + 6)}>
                             Load More Articles
                         </Button>
                     </div>

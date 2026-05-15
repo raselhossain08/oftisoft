@@ -1,6 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, useScrollY, useScrollProgress, useTransform, useSpring, useMotionValue } from "@/lib/animated";
 
-import { motion, useScroll, useTransform } from "framer-motion";
 import CountUp from "react-countup";
 import { TrendingUp, Users, Zap, DollarSign, Star, Quote, ArrowRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -88,10 +88,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function SuccessStories() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "end start"]
-    });
+    const scrollYProgress = useScrollProgress(containerRef);
 
     const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
     const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
@@ -106,15 +103,14 @@ export default function SuccessStories() {
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
                     
                     {/* Left: Testimonials Carousel */}
-                    <motion.div 
+                    <AnimatedDiv 
                         style={{ opacity }}
                         className="w-full lg:w-1/2 order-2 lg:order-1"
                     >
                          <div className="relative">
                             <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-[2rem] blur-2xl opacity-50" />
                             
-                            <Swiper
-                                effect={'cards'}
+                            <Swiper effect={'cards'}
                                 grabCursor={true}
                                 modules={[EffectCards, Autoplay, Pagination]}
                                 className="w-full max-w-sm md:max-w-md mx-auto"
@@ -152,12 +148,11 @@ export default function SuccessStories() {
                                 ))}
                             </Swiper>
                         </div>
-                    </motion.div>
+                    </AnimatedDiv>
 
                     {/* Right: Stats Grid */}
                     <div className="w-full lg:w-1/2 order-1 lg:order-2">
-                        <motion.div
-                            initial={{ opacity: 0, x: 50 }}
+                        <AnimatedDiv initial={{ opacity: 0, x: 50 }}
                             style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
@@ -175,8 +170,7 @@ export default function SuccessStories() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                                 {stats.map((stat, i) => (
-                                    <motion.div
-                                        key={stat.id}
+                                    <AnimatedDiv key={stat.id}
                                         initial={{ opacity: 0, y: 20 }}
                                         style={{ willChange: "transform, opacity" }}
                                         whileInView={{ opacity: 1, y: 0 }}
@@ -196,10 +190,10 @@ export default function SuccessStories() {
                                                 <p className="text-xs md:text-sm text-muted-foreground">{stat.desc}</p>
                                             </CardContent>
                                         </Card>
-                                    </motion.div>
+                                    </AnimatedDiv>
                                 ))}
                             </div>
-                        </motion.div>
+                        </AnimatedDiv>
                     </div>
 
                 </div>

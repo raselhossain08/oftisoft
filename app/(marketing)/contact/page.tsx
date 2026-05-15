@@ -1,5 +1,6 @@
-"use client";
-import { motion } from "framer-motion";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
@@ -18,8 +19,8 @@ const iconMap: any = {
 const pageData = {
     header: { badge: "CONNECT", titlePrefix: "Let's ", titleHighlight: "Talk", titleSuffix: "", description: "Have a project in mind? We'd love to hear about it. Schedule a free 15-minute discovery call." },
     contactInfo: [
-        { id: "email", iconName: "Mail", color: "text-blue-400", title: "EMAIL", value: "hello@oftisoft.com" },
-        { id: "phone", iconName: "Phone", color: "text-green-400", title: "PHONE", value: "+880 1410-615665" },
+        { id: "email", iconName: "Mail", color: "text-blue-400", title: "EMAIL", value: "oftisoft@gmail.com" },
+        { id: "phone", iconName: "Phone", color: "text-green-400", title: "PHONE", value: "+8801757220402" },
         { id: "location", iconName: "MapPin", color: "text-purple-400", title: "HQ", value: "Satkhira, Khulna, Bangladesh" },
     ],
     statusNode: { title: "RESPONSE TIME", status: "Under 1hr", latencyText: "Average response time during business hours. Typically within 30 minutes." },
@@ -67,28 +68,28 @@ export default function ContactPage() {
                     {/* Left Intelligence Column */}
                     <div className="lg:col-span-12 xl:col-span-5 space-y-12">
                         <div className="space-y-6">
-                            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                                 <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px]">
                                     {header?.badge ?? ""}
                                 </Badge>
-                            </motion.div>
-                            <motion.h1 
+                            </AnimatedDiv>
+                            <AnimatedH1 
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="text-6xl md:text-8xl font-bold tracking-tighter text-white leading-[0.9]"
                             >
                                 {header?.titlePrefix ?? ""} <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">{header?.titleHighlight ?? ""}</span>{header?.titleSuffix ?? ""}
-                            </motion.h1>
-                            <motion.p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-xl">
+                            </AnimatedH1>
+                            <AnimatedP className="text-xl text-muted-foreground font-medium leading-relaxed max-w-xl">
                                 {header?.description ?? ""}
-                            </motion.p>
+                            </AnimatedP>
                         </div>
 
                         <div className="space-y-8">
                             {contactInfo.map((item, idx) => {
                                 const Icon = iconMap[item.iconName ?? ''] || MapPin;
                                 return (
-                                <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }} className="flex items-center gap-6 group">
+                                <AnimatedDiv key={item.id} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }} className="flex items-center gap-6 group">
                                     <div className={cn("w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all group-hover:scale-110 group-hover:bg-white/10", item.color)}>
                                         <Icon size={28} />
                                     </div>
@@ -96,7 +97,7 @@ export default function ContactPage() {
                                         <h4 className="text-[10px] font-semibold tracking-widest text-muted-foreground">{item.title}</h4>
                                         <p className="text-xl font-bold text-white tracking-tight">{item.value}</p>
                                     </div>
-                                </motion.div>
+                                </AnimatedDiv>
                             );})}
                         </div>
 
@@ -112,8 +113,7 @@ export default function ContactPage() {
 
                     {/* Right Communication Core */}
                     <div className="lg:col-span-12 xl:col-span-7">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
+                        <AnimatedDiv initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.2 }}
                         >
@@ -154,7 +154,7 @@ export default function ContactPage() {
                                     </Button>
                                 </CardFooter>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
                     </div>
                 </div>
 

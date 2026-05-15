@@ -1,7 +1,6 @@
-"use client";
-
+"use client"
+import { AnimatedDiv, AnimatedSpan, useSpring, useTransform, Animated } from "@/lib/animated";
 import { useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import CountUp from "react-countup";
 import { Code2, Brain, Sparkles, Send, Github, Linkedin, Twitter } from "lucide-react";
 import Image from "next/image";
@@ -13,148 +12,75 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function FounderIntro({ data }: { data?: any }) {
     const founder = data;
-
-    // 3D Tilt Logic
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-
-    // Smoother Spring Physics
-    const mouseX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
-    const mouseY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
-
-    function onMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
-        const { left, top, width, height } = currentTarget.getBoundingClientRect();
-        x.set(clientX - left - width / 2);
-        y.set(clientY - top - height / 2);
-    }
-
-    const rotateX = useTransform(mouseY, [-300, 300], [8, -8]); // Increased range
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const mouseX = useSpring(mousePos.x, { stiffness: 150, damping: 15 });
+    const mouseY = useSpring(mousePos.y, { stiffness: 150, damping: 15 });
+    const rotateX = useTransform(mouseY, [-300, 300], [8, -8]);
     const rotateY = useTransform(mouseX, [-300, 300], [-8, 8]);
-
-    // Floating Animation when idle
-    const floatingVariants = {
-        animate: {
-            y: [0, -10, 0],
-            rotate: [0, 1, 0],
-            transition: {
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut" as const
-            }
-        }
-    };
 
     return (
         <section className="py-24 bg-transparent relative overflow-visible z-10">
-             {/* Background Gradient Mesh */}
-             <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
-
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
             <div className="container px-4 mx-auto">
                 <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
-                    <motion.div
-                        onMouseMove={onMouseMove}
-                        onMouseLeave={() => { x.set(0); y.set(0); }}
+<AnimatedDiv onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => {
+                        const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+                        setMousePos({ x: e.clientX - left - width / 2, y: e.clientY - top - height / 2 });
+                    }}
+                        onMouseLeave={() => setMousePos({ x: 0, y: 0 })}
                         className="relative perspective-1000 w-full max-w-md mx-auto"
-                        variants={floatingVariants}
-                        animate="animate"
                     >
-                        <motion.div
-                            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-                            className="relative aspect-[3/4] rounded-3xl bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-2 shadow-2xl overflow-hidden group will-change-transform" // Added will-change-transform
+                        <AnimatedDiv style={{ transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`, transformStyle: "preserve-3d" }}
+                            className="relative aspect-[3/4] rounded-3xl bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-2 shadow-2xl overflow-hidden group will-change-transform"
                         >
-                            {/* Inner Border Gradient */}
                             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-purple-500/20 opacity-50 rounded-3xl -z-10 group-hover:opacity-100 transition-opacity duration-700" />
-                            
-                            {/* Profile Image Container */}
                             <div className="relative w-full h-full rounded-2xl overflow-hidden bg-neutral-900 border border-white/5">
                                 {founder?.image ? (
-                                    <Image 
-                                        src={founder.image} 
-                                        alt={founder.name} 
-                                        fill 
-                                        className="object-cover"
-                                    />
+                                    <Image src={founder.image} alt={founder.name} fill className="object-cover" />
                                 ) : (
-                                    <>
-                                        {/* Placeholder gradient if no image */}
-                                        <div className="absolute inset-0 bg-gradient-to-b from-neutral-800 to-black" />
-                                        
-                                        {/* Image (replace with actual src) */}
-                                        <div className="absolute inset-0 flex items-center justify-center text-neutral-700 font-bold text-6xl opacity-20">
-                                            RH
-                                        </div>
-                                    </>
+                                    <div className="absolute inset-0 bg-gradient-to-b from-neutral-800 to-black flex items-center justify-center text-neutral-700 font-bold text-6xl opacity-20">
+                                        {founder?.name?.split(" ").map((n: string) => n[0]).join("") || "RH"}
+                                    </div>
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
                             </div>
-
-                            {/* Floating Card Content */}
-                            <motion.div 
-                                style={{ translateZ: 40 }}
-                                className="absolute bottom-8 left-8 right-8"
-                            >
+                            <AnimatedDiv style={{ transform: "translateZ(40px)" }} className="absolute bottom-8 left-8 right-8">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Badge variant="secondary" className="px-3 py-1 bg-primary/20 border-primary/20 text-primary text-xs font-semibold tracking-wide backdrop-blur-md">
+                                    <Badge variant="secondary" className="px-3 py-1 bg-primary/20 border-primary/20 text-primary text-sm font-semibold tracking-wide backdrop-blur-md">
                                         {founder?.role ?? ""}
                                     </Badge>
                                 </div>
                                 <h3 className="text-3xl font-bold text-white mb-1">{founder?.name ?? ""}</h3>
-                                <p className="text-white/60 text-sm mb-6">{founder?.tagline ?? ""}</p>
-                                
-                                {/* Socials */}
+                                <p className="text-white/60 text-base md:text-lg mb-6">{founder?.tagline ?? ""}</p>
                                 <div className="flex gap-3">
                                     {[
                                         { Icon: Github, href: founder?.socials.github },
                                         { Icon: Linkedin, href: founder?.socials.linkedin },
                                         { Icon: Twitter, href: founder?.socials.twitter }
                                     ].map(({ Icon, href }, i) => (
-                                        <Button
-                                            key={i} 
-                                            variant="outline"
-                                            size="icon"
-                                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white hover:text-black border-white/5 transition-all duration-300"
-                                            asChild
-                                        >
-                                            <Link href={href || '#'}>
-                                                <Icon className="w-5 h-5" />
-                                            </Link>
+                                        <Button key={i} variant="outline" size="icon" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white hover:text-black border-white/5 transition-all duration-300" asChild>
+                                            <Link href={href || '#'}><Icon className="w-5 h-5" /></Link>
                                         </Button>
                                     ))}
                                 </div>
-                            </motion.div>
-                        </motion.div>
+                            </AnimatedDiv>
+                        </AnimatedDiv>
+                        <AnimatedDiv animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            className="absolute -top-12 -right-12 w-64 h-64 border border-dashed border-white/10 rounded-full -z-10 pointer-events-none" />
+                        <AnimatedDiv animate={{ rotate: -360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                            className="absolute -bottom-12 -left-12 w-80 h-80 border border-dashed border-white/5 rounded-full -z-10 pointer-events-none" />
+                    </AnimatedDiv>
 
-                        {/* Background Decorative Elements */}
-                        <motion.div 
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                            className="absolute -top-12 -right-12 w-64 h-64 border border-dashed border-white/10 rounded-full -z-10 pointer-events-none"
-                        />
-                         <motion.div 
-                            animate={{ rotate: -360 }}
-                            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                            className="absolute -bottom-12 -left-12 w-80 h-80 border border-dashed border-white/5 rounded-full -z-10 pointer-events-none"
-                        />
-                    </motion.div>
-
-                    {/* Right Side: Editorial Content */}
                     <div className="space-y-8">
                         <div>
-                            <motion.div 
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true, margin: "-80px" }}
-                                transition={{ duration: 0.5 }}
-                                style={{ willChange: "transform, opacity" }}
-                                className="mb-4"
-                            >
-                                <Badge variant="outline" className="gap-2 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 font-semibold text-xs">
+                            <AnimatedDiv initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5 }} className="mb-4">
+                                <Badge variant="outline" className="gap-2 border-primary/20 text-primary tracking-wide px-3 py-1 bg-primary/5 font-semibold text-sm">
                                     <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                                     {founder?.badgeTitle ?? ""}
                                 </Badge>
-                            </motion.div>
-                            
+                            </AnimatedDiv>
                             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
                                 {founder?.titleLine1 ?? ""} <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
@@ -164,44 +90,27 @@ export default function FounderIntro({ data }: { data?: any }) {
                         </div>
 
                         <div className="prose prose-invert prose-lg text-muted-foreground/80 leading-relaxed">
-                            <p>
-                                {founder?.bioPar1 ?? ""}
-                            </p>
-                            <p>
-                                {founder?.bioPar2 ?? ""}
-                            </p>
+                            <p>{founder?.bioPar1 ?? ""}</p>
+                            <p>{founder?.bioPar2 ?? ""}</p>
                         </div>
 
-                        {/* Interactive Stats */}
                         <div className="grid grid-cols-3 gap-4 md:gap-8 py-8 border-y border-white/5 text-center md:text-left">
                             {(founder?.stats || []).map((stat: any, idx: number) => (
                                 <StatBlock key={idx} num={stat.num} label={stat.label} suffix={stat.suffix} delay={idx * 0.1} />
                             ))}
                         </div>
 
-                        {/* Signature / CTA */}
                         <div className="pt-4 flex items-center gap-8">
                             <div className="opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
-                                {/* SVG Signature Placeholder */}
-                                <svg width="180" height="50" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <motion.path 
-                                        d="M10 40 C 30 10, 60 60, 90 30 C 120 0, 150 50, 190 20" 
-                                        stroke="white" 
-                                        strokeWidth="3" 
-                                        strokeLinecap="round"
-                                        initial={{ pathLength: 0, opacity: 0 }}
-                                        whileInView={{ pathLength: 1, opacity: 1 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 2, ease: "easeInOut" }}
+<svg width="180" height="50" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 40 C 30 10, 60 60, 90 30 C 120 0, 150 50, 190 20"
+                                        stroke="white" strokeWidth="3" strokeLinecap="round"
+                                        className="opacity-70"
                                     />
                                     <text x="50" y="55" className="fill-white text-[10px] font-mono tracking-wide opacity-50">Founder's Signature</text>
                                 </svg>
                             </div>
-                            
-                            <Link 
-                                href="#contact" 
-                                className="group flex items-center gap-2 text-white font-medium hover:text-primary transition-colors"
-                            >
+                            <Link href="#contact" className="group flex items-center gap-2 text-white font-medium hover:text-primary transition-colors">
                                 Let's Talk
                                 <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                             </Link>
@@ -215,20 +124,14 @@ export default function FounderIntro({ data }: { data?: any }) {
 
 function StatBlock({ num, label, suffix, delay }: { num: number, label: string, suffix: string, delay: number }) {
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ delay: delay * 0.5, duration: 0.4 }}
-            style={{ willChange: "transform, opacity" }}
-        >
+        <AnimatedDiv initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }} transition={{ delay, duration: 0.4 }}>
             <div className="text-4xl font-bold text-white mb-1 flex items-baseline">
                 <CountUp end={num} duration={2.5} />
                 <span className="text-primary text-2xl ml-1">{suffix}</span>
             </div>
-            <div className="text-xs text-muted-foreground tracking-wide font-medium">
-                {label}
-            </div>
-        </motion.div>
+            <div className="text-sm text-muted-foreground tracking-wide font-medium">{label}</div>
+        </AnimatedDiv>
     );
 }
+

@@ -79,7 +79,7 @@ export default function UnifiedAnalyticsHub() {
     return (
       <div className="h-[70vh] flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary opacity-20" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">Initializing Intelligence Node...</p>
+        <p className="text-sm font-semibold  text-primary animate-pulse">Initializing Intelligence Node...</p>
       </div>
     );
   }
@@ -89,7 +89,7 @@ export default function UnifiedAnalyticsHub() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-black  tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Intelligence Hub
           </h1>
           <p className="text-muted-foreground font-medium mt-1 text-sm sm:text-base">
@@ -99,8 +99,7 @@ export default function UnifiedAnalyticsHub() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Button
-            variant="outline"
+          <Button variant="outline"
             size="sm"
             onClick={() => refresh(timeRange)}
             className="rounded-xl h-9 sm:h-11 border-border/50 bg-card/50 gap-2 font-bold text-xs sm:text-sm"
@@ -108,8 +107,7 @@ export default function UnifiedAnalyticsHub() {
             <RefreshCw className="w-4 h-4 text-primary shrink-0" />
             Sync Pipeline
           </Button>
-          <Button
-            size="sm"
+          <Button size="sm"
             className="rounded-xl h-9 sm:h-11 bg-primary text-primary-foreground gap-2 font-bold text-xs sm:text-sm"
             onClick={() => toast.info("Export feature coming soon")}
           >
@@ -123,28 +121,24 @@ export default function UnifiedAnalyticsHub() {
         {/* Tab Bar + Time Range */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <TabsList className="bg-muted/50  rounded-xl sm:rounded-2xl h-auto sm:h-14 w-full sm:w-fit border border-border/50 flex flex-wrap gap-1">
-            <TabsTrigger
-              value="performance"
+            <TabsTrigger value="performance"
               className="rounded-lg sm:rounded-xl h-auto gap-2 font-bold px-4 sm:px-6 text-xs sm:text-sm flex-1 sm:flex-initial data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:ring-2 data-[state=active]:ring-primary/20 data-[state=active]:border data-[state=active]:border-primary/30 transition-all duration-200"
             >
               <Gauge className="w-4 h-4 shrink-0" /> Productivity
             </TabsTrigger>
             {isAdmin && (
               <>
-                <TabsTrigger
-                  value="live"
+                <TabsTrigger value="live"
                   className="rounded-lg sm:rounded-xl h-auto gap-2 font-bold px-4 sm:px-6 text-xs sm:text-sm flex-1 sm:flex-initial data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:ring-2 data-[state=active]:ring-primary/20 data-[state=active]:border data-[state=active]:border-primary/30 transition-all duration-200"
                 >
                   <Globe className="w-4 h-4 shrink-0" /> Live Traffic
                 </TabsTrigger>
-                <TabsTrigger
-                  value="business"
+                <TabsTrigger value="business"
                   className="rounded-lg sm:rounded-xl h-auto gap-2 font-bold px-4 sm:px-6 text-xs sm:text-sm flex-1 sm:flex-initial data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:ring-2 data-[state=active]:ring-primary/20 data-[state=active]:border data-[state=active]:border-primary/30 transition-all duration-200"
                 >
                   <TrendingUp className="w-4 h-4 shrink-0" /> Business Intel
                 </TabsTrigger>
-                <TabsTrigger
-                  value="financial"
+                <TabsTrigger value="financial"
                   className="rounded-lg sm:rounded-xl h-auto gap-2 font-bold px-4 sm:px-6 text-xs sm:text-sm flex-1 sm:flex-initial data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:ring-2 data-[state=active]:ring-primary/20 data-[state=active]:border data-[state=active]:border-primary/30 transition-all duration-200"
                 >
                   <DollarSign className="w-4 h-4 shrink-0" /> Financials
@@ -155,13 +149,12 @@ export default function UnifiedAnalyticsHub() {
 
           <div className="flex items-center gap-1 p-1.5 bg-card/40 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-border/50">
             {["day", "week", "month"].map((t) => (
-              <Button
-                key={t}
+              <Button key={t}
                 variant="ghost"
                 size="sm"
                 onClick={() => { setTimeRange(t as "day" | "week" | "month"); refresh(t as "day" | "week" | "month"); }}
                 className={cn(
-                  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all h-8 sm:h-9",
+                  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-sm sm:text-xs font-bold  transition-all h-8 sm:h-9",
                   timeRange === t
                     ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:text-primary-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -174,8 +167,7 @@ export default function UnifiedAnalyticsHub() {
         </div>
 
         {/* Performance Tab */}
-        <TabsContent
-          value="performance"
+        <TabsContent value="performance"
           className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -213,34 +205,31 @@ export default function UnifiedAnalyticsHub() {
                 bg: "bg-orange-500",
               },
             ].map((stat, i) => (
-              <Card
-                key={i}
+              <Card key={i}
                 className="border-border/50 bg-card/40 backdrop-blur-md overflow-hidden relative group"
               >
-                <div
-                  className={cn(
+                <div className={cn(
                     "absolute top-0 right-0 w-24 h-24 blur-3xl rounded-full -mr-8 -mt-8 opacity-20",
                     stat.bg
                   )}
                 />
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
+                  <CardTitle className="text-sm font-semibold   text-muted-foreground">
                     {stat.label}
                   </CardTitle>
                   <stat.icon className={cn("h-4 w-4 shrink-0", stat.color)} />
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                  <div className="text-2xl sm:text-3xl font-black  tracking-tighter">
+                  <div className="text-2xl sm:text-3xl font-semibold">
                     {stat.value}
                   </div>
-                  <div
-                    className={cn(
-                      "flex items-center gap-1 text-[10px] font-black uppercase  mt-1",
+                  <div className={cn(
+                      "flex items-center gap-1 text-sm font-semibold   mt-1",
                       stat.trend === "—" ? "text-muted-foreground" : stat.trend.startsWith("+") ? "text-green-500" : "text-red-500"
                     )}
                   >
                     {stat.trend}{" "}
-                    <span className="text-muted-foreground font-medium ml-1 tracking-normal">
+                    <span className="text-muted-foreground font-medium ml-1">
                       vs last cycle
                     </span>
                   </div>
@@ -253,15 +242,14 @@ export default function UnifiedAnalyticsHub() {
             <Card className="lg:col-span-8 border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
               <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50 flex flex-row items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <CardTitle className="text-lg sm:text-xl font-black ">
+                  <CardTitle className="text-lg sm:text-xl font-semibold ">
                     Productivity Flow
                   </CardTitle>
                   <CardDescription className=" text-xs sm:text-sm">
                     Task completion trends across active architectural nodes.
                   </CardDescription>
                 </div>
-                <Button
-                  variant="ghost"
+                <Button variant="ghost"
                   size="icon"
                   className="shrink-0 h-9 w-9 text-muted-foreground hover:text-foreground hover:rotate-180 transition-transform duration-500"
                   onClick={() => refresh(timeRange)}
@@ -280,21 +268,18 @@ export default function UnifiedAnalyticsHub() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART_GRID} opacity={0.6} />
-                    <XAxis
-                      dataKey="name"
+                    <XAxis dataKey="name"
                       axisLine={false}
                       tickLine={false}
                       tick={{ fill: CHART_TEXT, fontSize: 12, fontWeight: 600 }}
                       dy={10}
                     />
-                    <YAxis
-                      axisLine={false}
+                    <YAxis axisLine={false}
                       tickLine={false}
                       tick={{ fill: CHART_TEXT, fontSize: 12, fontWeight: 600 }}
                       width={35}
                     />
-                    <Tooltip
-                      contentStyle={{
+                    <Tooltip contentStyle={{
                         backgroundColor: CHART_CARD_BG,
                         borderRadius: "12px",
                         border: `1px solid ${CHART_BORDER}`,
@@ -304,8 +289,7 @@ export default function UnifiedAnalyticsHub() {
                       labelStyle={{ fontWeight: 600, marginBottom: "8px", color: "#f8fafc" }}
                       itemStyle={{ color: CHART_PRIMARY, fontWeight: 600 }}
                     />
-                    <Area
-                      type="monotone"
+                    <Area type="monotone"
                       dataKey="completed"
                       stroke={CHART_PRIMARY}
                       strokeWidth={3}
@@ -319,7 +303,7 @@ export default function UnifiedAnalyticsHub() {
 
             <Card className="lg:col-span-4 border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
               <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50">
-                <CardTitle className="text-lg sm:text-xl font-black ">
+                <CardTitle className="text-lg sm:text-xl font-semibold ">
                   Operative Split
                 </CardTitle>
                 <CardDescription className=" text-xs sm:text-sm">
@@ -329,8 +313,7 @@ export default function UnifiedAnalyticsHub() {
               <CardContent className="h-[240px] sm:h-[300px] relative p-4 sm:p-6 md:p-8">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie
-                      data={stats?.taskDistribution ?? [{ name: "No Data", value: 100, color: "#64748b" }]}
+                    <Pie data={stats?.taskDistribution ?? [{ name: "No Data", value: 100, color: "#64748b" }]}
                       innerRadius={55}
                       outerRadius={90}
                       paddingAngle={4}
@@ -342,8 +325,7 @@ export default function UnifiedAnalyticsHub() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip
-                      contentStyle={{
+                    <Tooltip contentStyle={{
                         backgroundColor: CHART_CARD_BG,
                         borderRadius: "12px",
                         border: `1px solid ${CHART_BORDER}`,
@@ -354,30 +336,28 @@ export default function UnifiedAnalyticsHub() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
-                  <span className="text-3xl sm:text-4xl font-black  tracking-tighter">
+                  <span className="text-3xl sm:text-3xl font-semibold">
                     {stats?.totalTasks ?? 0}
                   </span>
-                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ">
+                  <span className="text-sm font-semibold  text-muted-foreground ">
                     Total Tasks
                   </span>
                 </div>
               </CardContent>
               <CardFooter className="p-4 sm:p-6 md:p-8 border-t border-border/50 bg-muted/20 flex flex-col gap-3">
                 {(stats?.taskDistribution ?? []).map((item: { name: string; value: number; color: string }, i: number) => (
-                  <div
-                    key={i}
+                  <div key={i}
                     className="flex items-center justify-between w-full"
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: item.color }}
                       />
                       <span className="text-xs font-bold ">
                         {item.name}
                       </span>
                     </div>
-                    <span className="text-xs font-black ">
+                    <span className="text-xs font-semibold ">
                       {item.value}%
                     </span>
                   </div>
@@ -395,19 +375,19 @@ export default function UnifiedAnalyticsHub() {
                     <CardHeader className="p-8 border-b border-border/50 bg-primary/[0.02]">
                         <div className="flex justify-between items-center">
                             <div>
-                                <CardTitle className="text-2xl font-black ">Live Site Traffic</CardTitle>
+                                <CardTitle className="text-2xl font-semibold ">Live Site Traffic</CardTitle>
                                 <CardDescription className="">In-flight connections and behavioral streaming.</CardDescription>
                             </div>
                             <div className="flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20">
                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
-                                <span className="text-[10px] font-black uppercase text-green-500 tracking-widest">{stats?.liveTracking?.activeNow || 0} Online</span>
+                                <span className="text-sm font-semibold  text-green-500">{stats?.liveTracking?.activeNow || 0} Online</span>
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm border-collapse">
-                                <thead className="bg-muted/30 text-muted-foreground font-black uppercase text-[9px] tracking-[0.2em]">
+                                <thead className="bg-muted/30 text-muted-foreground font-semibold  text-xs">
                                     <tr>
                                         <th className="p-6">Origin IP</th>
                                         <th className="p-6">Pathway</th>
@@ -427,10 +407,10 @@ export default function UnifiedAnalyticsHub() {
                                                     <span className="font-bold text-xs bg-muted/50 px-2 py-1 rounded-md">{visit.page}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-6 text-[10px] font-medium text-muted-foreground truncate max-w-[200px]">
+                                            <td className="p-6 text-sm font-medium text-muted-foreground truncate max-w-[200px]">
                                                 {visit.userAgent}
                                             </td>
-                                            <td className="p-6 text-[10px] font-black uppercase  text-muted-foreground/50 tabular-nums">
+                                            <td className="p-6 text-sm font-semibold   text-muted-foreground/50 tabular-nums">
                                                 {visit.timestamp ? new Date(visit.timestamp).toLocaleTimeString() : "—"}
                                             </td>
                                         </tr>
@@ -448,13 +428,13 @@ export default function UnifiedAnalyticsHub() {
 
                 <div className="space-y-6">
                     <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-[2.5rem] p-8">
-                        <h3 className="font-black  text-lg mb-6 flex items-center gap-3">
+                        <h3 className="font-semibold  text-lg mb-6 flex items-center gap-3">
                             <Target className="w-5 h-5 text-primary" /> Acquisition Heat
                         </h3>
                         <div className="space-y-6">
                             {(stats?.acquisition ?? [{ name: "Direct Traffic", value: 100, color: "bg-primary" }]).map((item: { name: string; value: number; color: string }) => (
                                 <div key={item.name} className="space-y-2">
-                                    <div className="flex justify-between text-[10px] font-black uppercase  tracking-widest text-muted-foreground">
+                                    <div className="flex justify-between text-sm font-semibold  text-muted-foreground">
                                         <span>{item.name}</span>
                                         <span className="text-foreground">{item.value}%</span>
                                     </div>
@@ -468,9 +448,9 @@ export default function UnifiedAnalyticsHub() {
 
                     <Card className="border-border/50 bg-primary shadow-xl shadow-primary/20 rounded-[2.5rem] p-8 text-primary-foreground relative overflow-hidden group">
                         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
-                        <h3 className="font-black  text-lg mb-2 z-10 relative">Growth Acceleration</h3>
+                        <h3 className="font-semibold  text-lg mb-2 z-10 relative">Growth Acceleration</h3>
                         <p className="text-sm opacity-80 mb-6 z-10 relative leading-relaxed">Optimization algorithms suggest prioritizing Search Engine node expanding.</p>
-                        <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl h-12 font-black  tracking-tight z-10 relative" onClick={() => toast.info("SEO tools coming soon")}>
+                        <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl h-12 font-semibold z-10 relative" onClick={() => toast.info("SEO tools coming soon")}>
                             Deploy SEO Core
                         </Button>
                     </Card>
@@ -481,8 +461,7 @@ export default function UnifiedAnalyticsHub() {
 
         {/* Business Intel Tab */}
         {isAdmin && (
-          <TabsContent
-            value="business"
+          <TabsContent value="business"
             className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -515,23 +494,21 @@ export default function UnifiedAnalyticsHub() {
                 const g = String(kpi.growth);
                 const trend = g === "—" ? "neutral" : g.startsWith("-") ? "down" : "up";
                 return (
-                <Card
-                  key={kpi.label}
+                <Card key={kpi.label}
                   className="border-border/50 bg-card/40 backdrop-blur-md overflow-hidden relative"
                 >
                   <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-4 sm:p-6">
-                    <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
+                    <CardTitle className="text-sm font-semibold   text-muted-foreground">
                       {kpi.label}
                     </CardTitle>
                     <kpi.icon className="h-4 w-4 text-primary shrink-0" />
                   </CardHeader>
                   <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                    <div className="text-2xl sm:text-3xl font-black  tracking-tighter">
+                    <div className="text-2xl sm:text-3xl font-semibold">
                       {kpi.value}
                     </div>
-                    <div
-                      className={cn(
-                        "flex items-center gap-1 text-[10px] font-black uppercase  mt-1",
+                    <div className={cn(
+                        "flex items-center gap-1 text-sm font-semibold   mt-1",
                         trend === "neutral" ? "text-muted-foreground" : trend === "up" ? "text-green-500" : "text-red-500"
                       )}
                     >
@@ -541,7 +518,7 @@ export default function UnifiedAnalyticsHub() {
                         <ArrowDownRight className="w-3 h-3 shrink-0" />
                       ) : null}
                       {kpi.growth}{" "}
-                      <span className="text-muted-foreground font-medium ml-1 tracking-normal">
+                      <span className="text-muted-foreground font-medium ml-1">
                         trailing month
                       </span>
                     </div>
@@ -554,7 +531,7 @@ export default function UnifiedAnalyticsHub() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
               <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
                 <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50">
-                  <CardTitle className="text-lg sm:text-xl font-black ">
+                  <CardTitle className="text-lg sm:text-xl font-semibold ">
                     Revenue Matrix
                   </CardTitle>
                   <CardDescription className=" text-xs sm:text-sm">
@@ -571,20 +548,17 @@ export default function UnifiedAnalyticsHub() {
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART_GRID} opacity={0.6} />
-                      <XAxis
-                        dataKey="name"
+                      <XAxis dataKey="name"
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: CHART_TEXT, fontSize: 12, fontWeight: 600 }}
                       />
-                      <YAxis
-                        axisLine={false}
+                      <YAxis axisLine={false}
                         tickLine={false}
                         tick={{ fill: CHART_TEXT, fontSize: 12, fontWeight: 600 }}
                         width={45}
                       />
-                      <Tooltip
-                        contentStyle={{
+                      <Tooltip contentStyle={{
                           backgroundColor: CHART_CARD_BG,
                           borderRadius: "12px",
                           border: `1px solid ${CHART_BORDER}`,
@@ -592,8 +566,7 @@ export default function UnifiedAnalyticsHub() {
                           color: "#f8fafc",
                         }}
                       />
-                      <Bar
-                        dataKey="revenue"
+                      <Bar dataKey="revenue"
                         fill="url(#barGradient)"
                         radius={[8, 8, 0, 0]}
                         barSize={36}
@@ -605,7 +578,7 @@ export default function UnifiedAnalyticsHub() {
 
               <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[32px] overflow-hidden">
                 <CardHeader className="p-4 sm:p-6 md:p-8 border-b border-border/50">
-                  <CardTitle className="text-lg sm:text-xl font-black ">
+                  <CardTitle className="text-lg sm:text-xl font-semibold ">
                     Market Geographics
                   </CardTitle>
                   <CardDescription className=" text-xs sm:text-sm">
@@ -615,8 +588,7 @@ export default function UnifiedAnalyticsHub() {
                 <CardContent className="h-[300px] sm:h-[400px] p-4 sm:p-6 md:p-8">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie
-                        data={(stats?.customerDemographics?.length ? stats.customerDemographics : [{ name: "No Data", value: 100 }])}
+                      <Pie data={(stats?.customerDemographics?.length ? stats.customerDemographics : [{ name: "No Data", value: 100 }])}
                         cx="50%"
                         cy="50%"
                         innerRadius={65}
@@ -628,15 +600,13 @@ export default function UnifiedAnalyticsHub() {
                       >
                         {(stats?.customerDemographics?.length ? stats.customerDemographics : [{ name: "No Data", value: 100 }]).map(
                           (entry: { name: string; value: number }, index: number) => (
-                            <Cell
-                              key={`cell-${index}`}
+                            <Cell key={`cell-${index}`}
                               fill={GEO_COLORS[index % GEO_COLORS.length]}
                             />
                           )
                         )}
                       </Pie>
-                      <Tooltip
-                        contentStyle={{
+                      <Tooltip contentStyle={{
                           backgroundColor: CHART_CARD_BG,
                           borderRadius: "12px",
                           border: `1px solid ${CHART_BORDER}`,
@@ -650,7 +620,7 @@ export default function UnifiedAnalyticsHub() {
                 <CardFooter className="p-4 sm:p-6 md:p-8 border-t border-border/50 bg-muted/20 grid grid-cols-2 gap-4">
                   {(stats?.customerDemographics?.length ? stats.customerDemographics : [{ name: "No Data", value: 100 }]).map((entry: { name: string; value: number }, index: number) => (
                     <div key={entry.name} className="space-y-1">
-                      <div className="flex justify-between items-center text-[10px] font-black uppercase ">
+                      <div className="flex justify-between items-center text-sm font-semibold  ">
                         <span className="text-muted-foreground truncate pr-2">
                           {entry.name}
                         </span>
@@ -659,8 +629,7 @@ export default function UnifiedAnalyticsHub() {
                         </span>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
+                        <div className="h-full rounded-full transition-all"
                           style={{
                             width: `${entry.value}%`,
                             backgroundColor: GEO_COLORS[index % GEO_COLORS.length],
@@ -677,8 +646,7 @@ export default function UnifiedAnalyticsHub() {
 
         {/* Financials Tab */}
         {isAdmin && (
-          <TabsContent
-            value="financial"
+          <TabsContent value="financial"
             className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0"
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
@@ -687,17 +655,16 @@ export default function UnifiedAnalyticsHub() {
                   <TrendingUp className="w-6 h-6 text-primary opacity-20" />
                 </div>
                 <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
+                  <CardTitle className="text-sm font-semibold   text-muted-foreground">
                     Operating Profit
                   </CardTitle>
-                  <div className="text-3xl sm:text-4xl font-black  tracking-tighter mt-2 text-primary">
+                  <div className="text-3xl sm:text-3xl font-semibold mt-2 text-primary">
                     ${(stats?.financial?.operatingProfit ?? 0).toLocaleString()}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
                   <p className="text-xs text-muted-foreground font-medium  leading-relaxed">
-                    Adjusted for global technical overhead and operational
-                    expenditures.
+                    Adjusted for global technical overhead and operational, expenditures.
                   </p>
                 </CardContent>
               </Card>
@@ -706,17 +673,16 @@ export default function UnifiedAnalyticsHub() {
                   <DollarSign className="w-6 h-6 text-green-500 opacity-20" />
                 </div>
                 <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
+                  <CardTitle className="text-sm font-semibold   text-muted-foreground">
                     Fiscal Reserves
                   </CardTitle>
-                  <div className="text-3xl sm:text-4xl font-black  tracking-tighter mt-2 text-green-500">
+                  <div className="text-3xl sm:text-3xl font-semibold mt-2 text-green-500">
                     ${(stats?.financial?.fiscalReserves ?? 0).toLocaleString()}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
                   <p className="text-xs text-muted-foreground font-medium  leading-relaxed">
-                    Liquidity nodes maintained for R&D and rapid infrastructure
-                    deployment.
+                    Liquidity nodes maintained for R&D and rapid infrastructure, deployment.
                   </p>
                 </CardContent>
               </Card>
@@ -725,17 +691,16 @@ export default function UnifiedAnalyticsHub() {
                   <Target className="w-6 h-6 text-orange-500 opacity-20" />
                 </div>
                 <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-[10px] font-black uppercase  text-muted-foreground tracking-widest">
+                  <CardTitle className="text-sm font-semibold   text-muted-foreground">
                     Marketing Spend
                   </CardTitle>
-                  <div className="text-3xl sm:text-4xl font-black  tracking-tighter mt-2 text-orange-500">
+                  <div className="text-3xl sm:text-3xl font-semibold mt-2 text-orange-500">
                     ${(stats?.financial?.marketingSpend ?? 0).toLocaleString()}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
                   <p className="text-xs text-muted-foreground font-medium  leading-relaxed">
-                    Budget allocation for tactical acquisition campaigns and
-                    brand awareness.
+                    Budget allocation for tactical acquisition campaigns and, brand awareness.
                   </p>
                 </CardContent>
               </Card>
@@ -744,15 +709,14 @@ export default function UnifiedAnalyticsHub() {
             <Card className="border-border/50 bg-card/40 backdrop-blur-md rounded-2xl sm:rounded-[40px] overflow-hidden">
               <CardHeader className="p-4 sm:p-6 md:p-10 border-b border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <CardTitle className="text-xl sm:text-2xl font-black ">
+                  <CardTitle className="text-xl sm:text-2xl font-semibold ">
                     Profit & Loss Summary
                   </CardTitle>
                   <CardDescription className=" text-xs sm:text-sm">
                     Detailed breakdown of organizational income and expenditures.
                   </CardDescription>
                 </div>
-                <Button
-                  size="sm"
+                <Button size="sm"
                   className="rounded-xl sm:rounded-2xl h-10 sm:h-14 px-6 sm:px-8 bg-primary text-primary-foreground font-bold gap-2 sm:gap-3 shrink-0"
                   onClick={() => toast.info("PDF export coming soon")}
                 >
@@ -770,38 +734,36 @@ export default function UnifiedAnalyticsHub() {
                       { category: "Operating Profit", income: profit, expense: 0, net: profit, color: "text-green-500" },
                     ] : [{ category: "No revenue data yet", income: 0, expense: 0, net: 0, color: "text-muted-foreground" }];
                     return items.map((row, i) => (
-                    <div
-                      key={i}
+                    <div key={i}
                       className="p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-primary/[0.02] transition-colors"
                     >
                       <div className="space-y-1 min-w-0">
-                        <h5 className="font-black  text-base sm:text-lg">
+                        <h5 className="font-semibold  text-base sm:text-lg">
                           {row.category}
                         </h5>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ">
+                        <p className="text-sm font-semibold  text-muted-foreground ">
                           Analytics data
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-4 sm:gap-16 text-right">
                         <div className="hidden md:block space-y-1">
-                          <p className="text-[9px] font-black uppercase text-muted-foreground  tracking-widest">
+                          <p className="text-xs font-semibold  text-muted-foreground">
                             Gross Inflow
                           </p>
                           <p className="font-bold tabular-nums">${Number(row.income).toLocaleString()}</p>
                         </div>
                         <div className="hidden md:block space-y-1">
-                          <p className="text-[9px] font-black uppercase text-muted-foreground  tracking-widest">
+                          <p className="text-xs font-semibold  text-muted-foreground">
                             Gross Outflow
                           </p>
                           <p className="font-bold tabular-nums">${Number(row.expense).toLocaleString()}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[9px] font-black uppercase text-muted-foreground  tracking-widest">
+                          <p className="text-xs font-semibold  text-muted-foreground">
                             Net Trajectory
                           </p>
-                          <p
-                            className={cn(
-                              "font-black  tabular-nums text-base sm:text-lg",
+                          <p className={cn(
+                              "font-semibold  tabular-nums text-base sm:text-lg",
                               row.color
                             )}
                           >

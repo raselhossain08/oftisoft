@@ -1,12 +1,14 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP, AnimatePresence } from "@/lib/animated";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useMemo } from "react";
 import { Globe, Smartphone, Brain, ShoppingCart, Building, Search, X, ExternalLink, ArrowRight, Github, Sparkles, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
-import { usePortfolioContentStore, type ProjectItem } from "@/lib/store/portfolio-content";
+import { usePortfolioContentStore, defaultContent, type ProjectItem } from "@/lib/store/portfolio-content";
+import { usePublicPortfolio, mapApiPortfolioToProjects } from "@/hooks/usePublicMarketing";
 
 // Re-export type for component usage if needed, or just use ProjectItem
 type Project = ProjectItem;
@@ -30,14 +32,15 @@ import { Input } from "@/components/ui/input";
 
 export default function PortfolioMain() {
     const { content } = usePortfolioContentStore();
-    const projects = content?.projects || [];
-    const header = content?.header;
+    const { data: apiPortfolio = [] } = usePublicPortfolio();
+    const apiProjects = useMemo(() => mapApiPortfolioToProjects(apiPortfolio), [apiPortfolio]);
+    const fallback = defaultContent;
+    const projects = apiProjects.length > 0 ? apiProjects : (content?.projects || fallback.projects);
+    const header = content?.header ?? fallback.header;
 
     const [filter, setFilter] = useState("All");
     const [search, setSearch] = useState("");
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-    if (!content) return null;
 
     const filteredProjects = projects.filter(p =>
         (filter === "All" || p.category === filter) &&
@@ -52,8 +55,7 @@ export default function PortfolioMain() {
 
                 {/* Header Section */}
                 <div className="flex flex-col items-center justify-center text-center mb-16 space-y-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                    <AnimatedDiv initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
@@ -61,29 +63,29 @@ export default function PortfolioMain() {
                             <Sparkles className="w-4 h-4" />
                             {header?.badge ?? ""}
                         </Badge>
-                    </motion.div>
+                    </AnimatedDiv>
                     
-                    <motion.h1 
+                    <AnimatedH1 
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-foreground/50"
                     >
                         {header?.title ?? ""}
-                    </motion.h1>
+                    </AnimatedH1>
                     
-                    <motion.p 
+                    <AnimatedP 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="text-lg md:text-xl text-muted-foreground max-w-2xl px-4"
                     >
                         {header?.description ?? ""}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Filter & Search Bar - Floating Glass Dock */}
-                <motion.div 
+                <AnimatedDiv 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
@@ -94,8 +96,7 @@ export default function PortfolioMain() {
                         {/* Scrollable Categories */}
                         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0 mask-gradient-right px-2">
                             {categories.map((cat) => (
-                                <Button
-                                    key={cat.id}
+                                <Button key={cat.id}
                                     variant={filter === cat.id ? "default" : "ghost"}
                                     size="sm"
                                     onClick={() => setFilter(cat.id)}
@@ -113,8 +114,7 @@ export default function PortfolioMain() {
                         {/* Search Input */}
                         <div className="relative w-full md:w-64">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                                type="text"
+                            <Input type="text"
                                 placeholder="Search..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -122,15 +122,13 @@ export default function PortfolioMain() {
                             />
                         </div>
                     </div>
-                </motion.div>
+                </AnimatedDiv>
 
                 {/* Project Grid */}
-                <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <AnimatedDiv layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                     <AnimatePresence mode="popLayout">
                         {filteredProjects.map((project) => (
-                            <motion.div
-                                layout
-                                key={project.id}
+                            <AnimatedDiv layout key={project.id}
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
@@ -141,31 +139,13 @@ export default function PortfolioMain() {
                                     
                                     {/* Image Area */}
                                     <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                                        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 transition-transform duration-700 group-hover:scale-110", project.gradient)} />
-                                        
-                                        {/* Abstract patterns or Placeholder Image */}
-                                        <div className="absolute inset-0 opacity-[0.1] bg-grain mix-blend-overlay" />
-                                        
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="text-4xl font-semibold text-foreground/5 group-hover:text-foreground/10 transition-colors tracking-tighter">
-                                                {project.category}
-                                            </span>
-                                        </div>
-
-                                        {/* Overlay Content */}
-                                        <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                                            <div className="flex flex-wrap gap-2 mb-2 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                                                {project.tags.slice(0, 3).map((tag) => (
-                                                    <Badge key={tag} variant="secondary" className="backdrop-blur-md bg-white/20 text-white/90 border-white/10 text-[10px] font-bold hover:bg-white/30">
-                                                        {tag}
-                                                    </Badge>
-                                                ))}
+                                        {project.image ? (
+                                            <Image src={project.image} alt={project.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                                        ) : (
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <span className="text-4xl font-semibold text-foreground/5 tracking-tighter">{project.category}</span>
                                             </div>
-                                        </div>
-
-                                        <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300">
-                                            <ArrowRight className="w-5 h-5 -rotate-45" />
-                                        </div>
+                                        )}
                                     </div>
 
                                     {/* Info Area */}
@@ -183,10 +163,10 @@ export default function PortfolioMain() {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         ))}
                     </AnimatePresence>
-                </motion.div>
+                </AnimatedDiv>
 
                 {/* Empty State */}
                 {filteredProjects.length === 0 && (
@@ -207,31 +187,25 @@ export default function PortfolioMain() {
                 <AnimatePresence>
                     {selectedProject && (
                         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 sm:p-6" style={{ margin: 0 }}> {/* Reset margin */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
+                            <AnimatedDiv initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 onClick={() => setSelectedProject(null)}
                                 className="absolute inset-0 bg-black/60 backdrop-blur-md"
                             />
                             
-                            <motion.div
-                                layoutId={`project-${selectedProject.id}`} 
+                            <AnimatedDiv layoutId={`project-${selectedProject.id}`} 
                                 className="relative w-full h-[85vh] md:max-h-[90vh] overflow-y-auto bg-background rounded-t-[2rem] md:rounded-[2rem] shadow-2xl border border-border/50 no-scrollbar"
                                 initial={{ opacity: 0, scale: 0.95, y: 100 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 100 }}
                             >
                                 {/* Modal Header (Image) */}
-                                <div className="relative h-56 md:h-96 w-full overflow-hidden">
-                                     <div className={cn("absolute inset-0 bg-gradient-to-br", selectedProject.gradient)} />
-                                     <div className="absolute inset-0 flex items-center justify-center">
-                                         <h2 className="text-5xl md:text-7xl font-semibold text-white/10 tracking-tighter">
-                                             {selectedProject.category}
-                                         </h2>
-                                     </div>
-                                     <Button
-                                        size="icon"
+                                <div className="relative h-56 md:h-96 w-full overflow-hidden bg-muted">
+                                    {selectedProject.image ? (
+                                        <Image src={selectedProject.image} alt={selectedProject.title} fill className="object-cover" />
+                                    ) : null}
+                                    <Button size="icon"
                                         variant="ghost"
                                         onClick={() => setSelectedProject(null)}
                                         className="absolute top-4 right-4 md:top-6 md:right-6 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/10 text-white hover:text-white transition-all z-20"
@@ -272,13 +246,17 @@ export default function PortfolioMain() {
 
                                             {/* Actions */}
                                             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                                <Button size="lg" className="flex-1 sm:flex-none gap-2 rounded-xl font-bold">
-                                                    <ExternalLink className="w-4 h-4" />
-                                                    View Live Site
+                                                <Button size="lg" className="flex-1 sm:flex-none gap-2 rounded-xl font-bold" asChild>
+                                                    <a href={selectedProject.url || '#'} target="_blank" rel="noreferrer">
+                                                        <ExternalLink className="w-4 h-4" />
+                                                        View Live Site
+                                                    </a>
                                                 </Button>
-                                                <Button size="lg" variant="outline" className="flex-1 sm:flex-none gap-2 rounded-xl font-bold bg-card">
-                                                    <Github className="w-4 h-4" />
-                                                    View Code
+                                                <Button size="lg" variant="outline" className="flex-1 sm:flex-none gap-2 rounded-xl font-bold bg-card" asChild>
+                                                    <a href={selectedProject.github || '#'} target="_blank" rel="noreferrer">
+                                                        <Github className="w-4 h-4" />
+                                                        View Code
+                                                    </a>
                                                 </Button>
                                             </div>
                                         </div>
@@ -308,7 +286,7 @@ export default function PortfolioMain() {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         </div>
                     )}
                 </AnimatePresence>

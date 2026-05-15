@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { User, Lock, Bell, LogOut, Blocks, CreditCard, Settings, ChevronRight, Menu, Globe } from "lucide-react";
+import { User, Lock, Bell, LogOut, Blocks, CreditCard, Settings, ChevronRight, Menu, Globe, Shield } from "lucide-react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useMemo } from "react";
@@ -16,6 +16,7 @@ const SETTINGS_TABS = [
     { id: "security", label: "Security", icon: Lock, href: "/dashboard/settings/security", description: "Password & 2FA", roles: ["Viewer", "Editor", "Admin", "Support"] },
     { id: "notifications", label: "Notifications", icon: Bell, href: "/dashboard/settings/notifications", description: "Alerts & preferences", roles: ["Viewer", "Editor", "Admin", "Support"] },
     { id: "payments", label: "Payments", icon: Globe, href: "/dashboard/settings/payments", description: "Gateway config", roles: ["Admin"] },
+    { id: "privacy", label: "Privacy", icon: Shield, href: "/dashboard/settings/privacy", description: "Data & deletion", roles: ["Viewer", "Editor", "Admin", "Support"] },
     { id: "integrations", label: "Integrations", icon: Blocks, href: "/dashboard/settings/integrations", description: "API & connections", roles: ["Admin"] },
     { id: "system", label: "System", icon: Settings, href: "/dashboard/settings/system", description: "Admin controls", roles: ["Admin"] },
 ];
@@ -51,7 +52,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                     </div>
                     <div>
                         <h1 className="font-bold text-lg">Settings</h1>
-                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Account settings</p>
+                            <p className="text-sm text-muted-foreground font-bold uppercase">Account settings</p>
                     </div>
                 </div>
                 <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -62,14 +63,13 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                     </SheetTrigger>
                     <SheetContent side="left" className="w-[300px] p-6">
                         <SheetHeader className="pb-8 border-b border-border/50">
-                            <SheetTitle className="text-2xl font-black tracking-tighter">Settings</SheetTitle>
+                            <SheetTitle className="text-2xl font-semibold">Settings</SheetTitle>
                         </SheetHeader>
                         <div className="space-y-2 mt-8">
                             {visibleTabs.map((tab) => {
                                 const isActive = pathname.startsWith(tab.href);
                                 return (
-                                    <NextLink
-                                        key={tab.id}
+                                    <NextLink key={tab.id}
                                         href={tab.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={cn(
@@ -81,8 +81,8 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                                     >
                                         <tab.icon className={cn("w-5 h-5", isActive ? "text-white" : "group-hover:text-primary")} />
                                         <div className="flex flex-col items-start text-left">
-                                            <span className="font-black text-sm">{tab.label}</span>
-                                            <span className={cn("text-[9px] font-bold uppercase tracking-tighter", isActive ? "text-white/70" : "text-muted-foreground/60")}>
+                                            <span className="font-semibold text-sm">{tab.label}</span>
+                                            <span className={cn("text-xs font-bold uppercase", isActive ? "text-white/70" : "text-muted-foreground/60")}>
                                                 {tab.description}
                                             </span>
                                         </div>
@@ -94,7 +94,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                             <button 
                                 onClick={handleLogout}
                                 disabled={isLoggingOut}
-                                className="w-full flex items-center gap-4 px-4 py-4 rounded-xl text-red-500 hover:bg-red-500/10 font-black transition-all group disabled:opacity-50"
+                                className="w-full flex items-center gap-4 px-4 py-4 rounded-xl text-red-500 hover:bg-red-500/10 font-semibold transition-all group disabled:opacity-50"
                             >
                                 <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
                                     {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
@@ -114,8 +114,8 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                             <Settings className="w-6 h-6 animate-spin-slow group-hover:rotate-180 transition-transform duration-700" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black tracking-tight">Settings</h1>
-                            <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Account settings</p>
+                            <h1 className="text-2xl font-semibold">Settings</h1>
+                            <p className="text-sm text-primary font-semibold uppercase">Account settings</p>
                         </div>
                     </div>
 
@@ -123,8 +123,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                         {visibleTabs.map((tab) => {
                             const isActive = pathname.startsWith(tab.href);
                             return (
-                                <NextLink
-                                    key={tab.id}
+                                <NextLink key={tab.id}
                                     href={tab.href}
                                     className={cn(
                                         "flex items-center justify-between px-4 py-4 rounded-2xl transition-all group",
@@ -141,8 +140,8 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                                             <tab.icon className="w-5 h-5" />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="font-black text-sm">{tab.label}</span>
-                                            <span className={cn("text-[9px] font-bold uppercase tracking-tighter opacity-60", isActive ? "text-white" : "text-muted-foreground")}>
+                                            <span className="font-semibold text-sm">{tab.label}</span>
+                                            <span className={cn("text-xs font-bold uppercase opacity-60", isActive ? "text-white" : "text-muted-foreground")}>
                                                 {tab.description}
                                             </span>
                                         </div>
@@ -157,7 +156,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                         <button 
                             onClick={handleLogout}
                             disabled={isLoggingOut}
-                            className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-red-500 hover:bg-red-500/10 font-black transition-all group disabled:opacity-50"
+                            className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-red-500 hover:bg-red-500/10 font-semibold transition-all group disabled:opacity-50"
                         >
                             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
                                 {isLoggingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}

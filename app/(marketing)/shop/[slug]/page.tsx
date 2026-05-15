@@ -1,6 +1,8 @@
 "use client"
-import { useEffect, useState, use } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+import { useState, use, useMemo } from "react";
+import { toast } from "sonner";
+import { useCart } from "@/hooks/use-cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,44 +26,39 @@ import {
     ChevronRight,
     Play
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { useShopContentStore } from "@/lib/store/shop-content";
+import { usePublicProducts, mapApiProductsToShop } from "@/hooks/usePublicMarketing";
 import Link from 'next/link';
 
 export default function ProductDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
-    const { pageContent, isLoading } = usePageContent('shop');
-    const setContent = useShopContentStore((state) => state.setContent);
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
-
     const { content } = useShopContentStore();
-    const products = content?.products || [];
+    const { data: apiProducts = [] } = usePublicProducts();
+    const apiMapped = useMemo(() => mapApiProductsToShop(apiProducts), [apiProducts]);
+    const products = apiMapped.length > 0 ? apiMapped : (content?.products || []);
     const product = products.find(p => p.slug === slug);
     const [selectedLicense, setSelectedLicense] = useState<'regular' | 'extended'>('regular');
     const [activeScreenshot, setActiveScreenshot] = useState(0);
 
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Syncing Asset Details...
-                </div>
-            </div>
-        );
-    }
-
-    if (!product && !isLoading) {
+    if (!product) {
         return notFound();
     }
 
     if (!product) return null;
+
+    const cart = useCart();
+    const handleAddToCart = () => {
+        cart.addItem({
+            id: product.id,
+            name: product.name,
+            slug: product.slug,
+            price: selectedLicense === 'regular' ? product.licenseRegular : product.licenseExtended,
+            image: product.image,
+        });
+        toast.success("Added to cart!");
+    };
 
     const relatedProducts = products.filter(p => p.id !== product.id).slice(0, 3);
     const allScreenshots = [product.image, ...product.screenshots];
@@ -80,27 +77,24 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
                 <div className="lg:col-span-8 space-y-12">
                     {/* Gallery Section */}
                     <div className="space-y-4">
-                        <motion.div 
+                        <AnimatedDiv 
                             layoutId={`img-${product.id}`}
                             className="relative aspect-[16/10] rounded-3xl overflow-hidden border border-border bg-muted/30 shadow-2xl"
                         >
                             <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={activeScreenshot}
+                                <AnimatedDiv key={activeScreenshot}
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     transition={{ duration: 0.3 }}
                                     className="absolute inset-0"
                                 >
-                                    <Image
-                                        src={allScreenshots[activeScreenshot] ?? ""}
+                                    <Image src={allScreenshots[activeScreenshot] ?? ""}
                                         alt={product.name}
-                                        fill
-                                        className="object-cover"
+                                        fill className="object-cover"
                                         priority
                                     />
-                                </motion.div>
+                                </AnimatedDiv>
                             </AnimatePresence>
                             
                             {/* Overlay Controls */}
@@ -114,12 +108,11 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
                                     </Button>
                                 )}
                             </div>
-                        </motion.div>
+                        </AnimatedDiv>
 
                         <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
                             {allScreenshots.map((img, i) => (
-                                <button
-                                    key={i}
+                                <button key={i}
                                     onClick={() => setActiveScreenshot(i)}
                                     className={`relative flex-shrink-0 w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all ${
                                         activeScreenshot === i ? "border-primary ring-2 ring-primary/20 scale-105" : "border-transparent opacity-60 hover:opacity-100"
@@ -264,16 +257,14 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
                         <CardContent className="space-y-6 relative">
                             {/* License Toggle */}
                             <div className="grid grid-cols-2 p-1 bg-muted rounded-xl border border-border">
-                                <button
-                                    onClick={() => setSelectedLicense('regular')}
+                                <button onClick={() => setSelectedLicense('regular')}
                                     className={`py-2 text-sm font-bold rounded-lg transition-all ${
                                         selectedLicense === 'regular' ? "bg-background shadow-sm text-primary" : "text-muted-foreground"
                                     }`}
                                 >
                                     Regular
                                 </button>
-                                <button
-                                    onClick={() => setSelectedLicense('extended')}
+                                <button onClick={() => setSelectedLicense('extended')}
                                     className={`py-2 text-sm font-bold rounded-lg transition-all ${
                                         selectedLicense === 'extended' ? "bg-background shadow-sm text-primary" : "text-muted-foreground"
                                     }`}
@@ -304,11 +295,11 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
                             <Separator />
 
                             <div className="space-y-3">
-                                <Button size="lg" className="w-full rounded-2xl h-14 font-bold text-lg shadow-xl shadow-primary/20">
+                                <Button size="lg" className="w-full rounded-2xl h-14 font-bold text-lg shadow-xl shadow-primary/20" onClick={handleAddToCart}>
                                     <ShoppingCart className="mr-2 h-5 w-5" />
                                     Add to Cart
                                 </Button>
-                                <Button variant="outline" size="lg" className="w-full rounded-2xl h-14 font-bold">
+                                <Button variant="outline" size="lg" className="w-full rounded-2xl h-14 font-bold" onClick={() => { handleAddToCart(); setTimeout(() => window.location.href = '/shop/checkout', 100); }}>
                                     Buy Now
                                 </Button>
                             </div>
@@ -357,7 +348,10 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
                         <MessageSquare className="w-8 h-8 text-primary mx-auto mb-3" />
                         <h4 className="font-bold mb-2">Got Questions?</h4>
                         <p className="text-xs text-muted-foreground mb-4">Our developers are online and ready to assist with any pre-sale questions.</p>
-                        <Button variant="outline" size="sm" className="rounded-full w-full">
+                        <Button variant="outline" size="sm" className="rounded-full w-full" onClick={() => {
+                            window.dispatchEvent(new CustomEvent('open-live-chat'));
+                            toast.info("Opening live chat...");
+                        }}>
                             Chat with Support
                         </Button>
                     </div>
@@ -371,9 +365,11 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
                         <h2 className="text-3xl font-bold">Related Products</h2>
                         <p className="text-muted-foreground">Explore more premium assets from the {product.category} category.</p>
                     </div>
-                    <Button variant="ghost" className="hidden md:flex gap-2">
-                        View All Assets
-                        <ChevronRight className="w-4 h-4" />
+                    <Button variant="ghost" className="hidden md:flex gap-2" asChild>
+                        <Link href="/shop">
+                            View All Assets
+                            <ChevronRight className="w-4 h-4" />
+                        </Link>
                     </Button>
                 </div>
                 

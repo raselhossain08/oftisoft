@@ -1,5 +1,8 @@
-"use client";
-import { motion } from "framer-motion";
+"use client"
+import { useState } from "react";
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+import { toast } from "sonner";
+import api from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -53,6 +56,25 @@ const pageData = {
 export default function CommunityPage() {
     const { header, links, newsletter, stats } = pageData;
     const activeLinks = links.filter(l => l.isActive);
+    const [email, setEmail] = useState("");
+    const [subscribed, setSubscribed] = useState(false);
+    const [subscribing, setSubscribing] = useState(false);
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email || subscribing) return;
+        setSubscribing(true);
+        try {
+            await api.post("/leads/subscribe", { email });
+            setSubscribed(true);
+            setEmail("");
+            toast.success("Subscribed successfully!");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Subscription failed");
+        } finally {
+            setSubscribing(false);
+        }
+    };
 
     return (
         <div className="relative min-h-screen pt-32 pb-24 bg-[#020202]">
@@ -66,21 +88,21 @@ export default function CommunityPage() {
             <div className="container px-6 mx-auto relative z-10 space-y-24">
                 {/* Header Section */}
                 <div className="text-center space-y-8 max-w-4xl mx-auto">
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-[0.3em] text-[10px] shadow-[0_0_20px_rgba(var(--primary),0.2)]">
                             {header?.badge ?? ""}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 
+                    </AnimatedDiv>
+                    <AnimatedH1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-8xl font-semibold tracking-tighter text-white"
                     >
                         {header?.title ?? ""} <span className="text-primary">{header?.highlight ?? ""}</span>.
-                    </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+                    </AnimatedH1>
+                    <AnimatedP className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
                         {header?.description ?? ""}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 {/* Grid */}
@@ -88,8 +110,7 @@ export default function CommunityPage() {
                     {activeLinks.map((item, idx) => {
                         const Icon = iconMap[item.iconName ?? ''] || Github;
                         return (
-                        <motion.div
-                            key={item.id}
+                        <AnimatedDiv key={item.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-80px" }}
@@ -109,7 +130,7 @@ export default function CommunityPage() {
                                     </CardContent>
                                 </Card>
                             </a>
-                        </motion.div>
+                        </AnimatedDiv>
                     );})}
                 </div>
 
@@ -127,15 +148,18 @@ export default function CommunityPage() {
                             </p>
                         </div>
                         <div className="space-y-6">
-                            <form className="relative group/form" onSubmit={(e) => e.preventDefault()}>
+                            <form className="relative group/form" onSubmit={handleSubscribe}>
                                 <div className="relative overflow-hidden rounded-[28px] bg-white/[0.03] border border-white/10 p-3 backdrop-blur-xl group-focus-within/form:border-primary/50 transition-all duration-500">
                                     <div className="flex flex-col sm:flex-row gap-4">
-                                        <Input 
-                                            placeholder={newsletter?.placeholder ?? ""}
+                                        <Input
+                                            value={subscribed ? "" : email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder={subscribed ? "You're subscribed!" : newsletter?.placeholder ?? ""}
+                                            disabled={subscribed || subscribing}
                                             className="h-16 border-none bg-transparent text-white placeholder:text-white/20 focus-visible:ring-0 text-lg font-bold px-8"
                                         />
-                                        <Button className="h-16 px-12 rounded-[22px] bg-primary hover:bg-primary/90 text-white font-semibold text-lg shadow-2xl shadow-primary/30 transition-all active:scale-95 group/btn">
-                                            {newsletter?.buttonText ?? ""} <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-2 transition-transform" />
+                                        <Button type="submit" disabled={subscribed || subscribing || !email.trim()} className="h-16 px-12 rounded-[22px] bg-primary hover:bg-primary/90 text-white font-semibold text-lg shadow-2xl shadow-primary/30 transition-all active:scale-95 group/btn">
+                                            {subscribing ? "Subscribing..." : subscribed ? "Subscribed" : newsletter?.buttonText ?? ""} <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-2 transition-transform" />
                                         </Button>
                                     </div>
                                 </div>

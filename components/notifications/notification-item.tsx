@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatedDiv } from "@/lib/animated";
 import { Check, Trash2, Archive, ArchiveRestore, Clock, AlertTriangle, FileText, UserPlus, CreditCard, Settings, Bell, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
@@ -41,16 +41,14 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
     const canMarkAsReadOnClick = !notif.read && filter !== "archived";
 
     return (
-        <motion.div
-            layout
-            role={canMarkAsReadOnClick ? "button" : undefined}
+        <AnimatedDiv layout role={canMarkAsReadOnClick ? "button" : undefined}
             tabIndex={canMarkAsReadOnClick ? 0 : undefined}
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ delay: index * 0.1 }}
             onClick={canMarkAsReadOnClick ? () => onMarkAsRead(notif.id) : undefined}
-            onKeyDown={canMarkAsReadOnClick ? (e) => e.key === "Enter" && onMarkAsRead(notif.id) : undefined}
+            onKeyDown={canMarkAsReadOnClick ? (e: React.KeyboardEvent) => e.key === "Enter" && onMarkAsRead(notif.id) : undefined}
             className={cn(
                 "flex items-start gap-5 p-6 rounded-[24px] border transition-all hover:shadow-lg relative group bg-card",
                 canMarkAsReadOnClick && "cursor-pointer",
@@ -75,15 +73,13 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
                 <div className="flex flex-wrap items-center gap-4 pt-1 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0" onClick={(e) => e.stopPropagation()}>
                     {notif.link && (
                         notif.link.startsWith("/") ? (
-                            <Link
-                                href={notif.link}
+                            <Link href={notif.link}
                                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
                             >
                                 <ExternalLink className="w-3.5 h-3.5" /> View
                             </Link>
                         ) : (
-                            <a
-                                href={notif.link}
+                            <a href={notif.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
@@ -93,8 +89,7 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
                         )
                     )}
                     {!notif.read && filter !== "archived" && (
-                        <button
-                            type="button"
+                        <button type="button"
                             onClick={() => onMarkAsRead(notif.id)}
                             className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
                         >
@@ -102,8 +97,7 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
                         </button>
                     )}
                     {filter !== "archived" && (
-                        <button
-                            type="button"
+                        <button type="button"
                             onClick={() => onArchive(notif.id)}
                             className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"
                         >
@@ -112,15 +106,13 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
                     )}
                     {filter === "archived" && (
                         <>
-                            <button
-                                type="button"
+                            <button type="button"
                                 onClick={() => onUnarchive(notif.id)}
                                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
                             >
                                 <ArchiveRestore className="w-3.5 h-3.5" /> Restore
                             </button>
-                            <button
-                                type="button"
+                            <button type="button"
                                 onClick={() => onDelete(notif.id, notif.title || "Notification")}
                                 className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1.5 transition-colors"
                             >
@@ -134,6 +126,6 @@ export function NotificationItem({ notification: notif, filter, onMarkAsRead, on
             {!notif.read && filter !== 'archived' && (
                 <div className="absolute top-6 right-6 w-2.5 h-2.5 bg-primary rounded-full animate-pulse md:block hidden shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
             )}
-        </motion.div>
+        </AnimatedDiv>
     );
 }

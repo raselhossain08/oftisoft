@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { Animated, AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -209,25 +210,21 @@ export default function EmailLoginPage() {
             <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/10 via-[#030712] to-[#030712]" />
             <div className="absolute top-0 left-0 w-full h-full bg-grain opacity-[0.03] mix-blend-overlay" />
 
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
+            <AnimatedDiv initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.5, ease: "easeOut" }}
               className="absolute top-1/4 right-0 pointer-events-none"
             >
               <div className="relative w-[500px] h-[500px]">
-                <motion.div
-                  animate={{ rotate: 360 }}
+                <AnimatedDiv animate={{ rotate: 360 }}
                   transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
                   className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full border border-white/5 border-dashed"
                 />
-                <motion.div
-                  animate={{ rotate: -360 }}
+                <AnimatedDiv animate={{ rotate: -360 }}
                   transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                   className="absolute top-10 right-10 w-[300px] h-[300px] rounded-full border border-white/5"
                 />
-                <motion.div
-                  animate={{ y: [0, -15, 0] }}
+                <AnimatedDiv animate={{ y: [0, -15, 0] }}
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                   className="absolute top-20 right-20 w-72 bg-gray-900/50 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl rotate-[-6deg]"
                 >
@@ -247,19 +244,18 @@ export default function EmailLoginPage() {
                       <span className="text-green-400">&quot;Ofitsoft&quot;</span>;
                     </div>
                     <div className="w-full h-px bg-white/10 my-2" />
-                    <div className="flex gap-2 text-[10px] opacity-50">
+                    <div className="flex gap-2 text-sm opacity-50">
                       // System Optimized
                     </div>
                   </div>
-                </motion.div>
+                </AnimatedDiv>
               </div>
-            </motion.div>
+            </AnimatedDiv>
           </div>
 
           <div className="relative z-10 h-full flex flex-col justify-between">
             <div>
-              <Link
-                href="/"
+              <Link href="/"
                 className="text-2xl xl:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
               >
                 Ofitsoft
@@ -271,8 +267,7 @@ export default function EmailLoginPage() {
 
             <div className="max-w-xl">
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentTestimonial}
+                <AnimatedDiv key={currentTestimonial}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -280,14 +275,13 @@ export default function EmailLoginPage() {
                 >
                   <div className="flex gap-1 mb-4">
                     {[...Array(testimonials[currentTestimonial].stars)].map((_, i) => (
-                      <motion.div
-                        key={i}
+                      <AnimatedDiv key={i}
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.1 }}
                       >
                         <span className="text-yellow-500">★</span>
-                      </motion.div>
+                      </AnimatedDiv>
                     ))}
                   </div>
                   <h3 className="text-xl xl:text-2xl font-medium text-white mb-6 leading-relaxed">
@@ -301,7 +295,7 @@ export default function EmailLoginPage() {
                       {testimonials[currentTestimonial].role}
                     </p>
                   </div>
-                </motion.div>
+                </AnimatedDiv>
               </AnimatePresence>
             </div>
 
@@ -320,8 +314,7 @@ export default function EmailLoginPage() {
 
         {/* RIGHT SIDE - FORM (40%) */}
         <div className="w-full lg:w-[40%] bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
+          <AnimatedDiv initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="w-full max-w-md space-y-6 sm:space-y-8"
@@ -341,8 +334,7 @@ export default function EmailLoginPage() {
 
             <AnimatePresence mode="wait">
               {step === "success" ? (
-                <motion.div
-                  key="success"
+                <AnimatedDiv key="success"
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="flex flex-col items-center justify-center py-8 sm:py-12 text-center"
@@ -356,9 +348,9 @@ export default function EmailLoginPage() {
                   <p className="text-muted-foreground text-sm sm:text-base">
                     Redirecting to dashboard...
                   </p>
-                </motion.div>
+                </AnimatedDiv>
               ) : step === "email" ? (
-                <motion.form
+                <Animated as="form"
                   key="email"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -370,8 +362,7 @@ export default function EmailLoginPage() {
                     <Label htmlFor="email">Email Address</Label>
                     <div className="relative group">
                       <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
-                      <Input
-                        id="email"
+                      <Input id="email"
                         {...registerEmail("email")}
                         type="email"
                         placeholder="name@company.com"
@@ -387,8 +378,7 @@ export default function EmailLoginPage() {
                     )}
                   </div>
 
-                  <Button
-                    type="submit"
+                  <Button type="submit"
                     disabled={isLoading}
                     className={cn(
                       "w-full h-10 sm:h-12 font-bold rounded-xl",
@@ -418,11 +408,9 @@ export default function EmailLoginPage() {
                     </span>
                   </div>
 
-                  <Button
-                    type="button"
+                  <Button type="button"
                     variant="outline"
-                    asChild
-                    className="w-full h-10 sm:h-11 rounded-xl gap-2 font-medium"
+                    asChild className="w-full h-10 sm:h-11 rounded-xl gap-2 font-medium"
                   >
                     <Link href="/dashboard/login">
                       <KeyRound className="w-4 h-4 mr-2" />
@@ -439,9 +427,9 @@ export default function EmailLoginPage() {
                       </Link>
                     </Button>
                   </p>
-                </motion.form>
+                </Animated>
               ) : (
-                <motion.form
+                <Animated as="form"
                   key="otp"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -453,8 +441,7 @@ export default function EmailLoginPage() {
                     <Label htmlFor="otp">Verification Code</Label>
                     <div className="relative group">
                       <KeyRound className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
-                      <Input
-                        id="otp"
+                      <Input id="otp"
                         {...registerOtp("otp")}
                         type="text"
                         inputMode="numeric"
@@ -462,7 +449,7 @@ export default function EmailLoginPage() {
                         placeholder="000000"
                         onChange={handleOtpChange}
                         className={cn(
-                          "pl-10 sm:pl-12 h-10 sm:h-11 text-center text-lg tracking-[0.5em] font-mono",
+                          "pl-10 sm:pl-12 h-10 sm:h-11 text-center text-lg  font-mono",
                           otpErrors.otp && "border-destructive focus-visible:ring-destructive/20"
                         )}
                         aria-invalid={!!otpErrors.otp}
@@ -476,8 +463,7 @@ export default function EmailLoginPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
                       {canResend ? (
-                        <button
-                          type="button"
+                        <button type="button"
                           onClick={handleResendOtp}
                           disabled={isLoading}
                           className="text-primary hover:underline flex items-center gap-1 disabled:opacity-50"
@@ -495,8 +481,7 @@ export default function EmailLoginPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button
-                      type="button"
+                    <Button type="button"
                       variant="outline"
                       onClick={() => setStep("email")}
                       disabled={isLoading}
@@ -505,8 +490,7 @@ export default function EmailLoginPage() {
                       <ArrowLeft className="w-4 h-4" />
                       Back
                     </Button>
-                    <Button
-                      type="submit"
+                    <Button type="submit"
                       disabled={isLoading}
                       className={cn(
                         "flex-[2] h-10 sm:h-11 font-bold rounded-xl",
@@ -533,10 +517,10 @@ export default function EmailLoginPage() {
                   <p className="text-center text-xs text-muted-foreground">
                     Check your spam folder if you don&apos;t see the email.
                   </p>
-                </motion.form>
+                </Animated>
               )}
             </AnimatePresence>
-          </motion.div>
+          </AnimatedDiv>
         </div>
       </div>
     </div>

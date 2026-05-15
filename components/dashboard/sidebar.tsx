@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedSpan, AnimatedAside } from "@/lib/animated";
+;
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -32,9 +34,16 @@ import {
   Folder,
   ShoppingCart,
   HomeIcon,
+  GalleryVerticalEnd,
+  UserCircle,
+  Quote,
+  ClipboardCheck,
+  Calendar,
+  ScrollText,
+  Store,
+  Ticket,
 } from "lucide-react";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -67,8 +76,8 @@ const NAV_GROUPS = [
       { icon: ShoppingCart, label: "Orders", href: "/dashboard/orders", badgeKey: "orders", roles: ["Viewer", "Editor", "Admin", "SuperAdmin", "Support"] },
       { icon: Package, label: "Products", href: "/dashboard/products", roles: ["Admin", "Editor", "SuperAdmin"] },
       { icon: Briefcase, label: "Services", href: "/dashboard/services", roles: ["Viewer", "Editor", "Admin", "SuperAdmin", "Support"] },
-      { icon: FileText, label: "Quotes", href: "/dashboard/quotes", roles: ["Viewer", "Editor", "Admin", "SuperAdmin"] },
-      { icon: ShoppingBag, label: "Purchases", href: "/dashboard/purchases", roles: ["Viewer", "Editor", "Admin", "SuperAdmin"] },
+      { icon: FileText, label: "Quotes", href: "/dashboard/quotes", roles: ["Viewer", "Editor", "Admin", "SuperAdmin", "Support"] },
+      { icon: ShoppingBag, label: "Purchases", href: "/dashboard/purchases", roles: ["Viewer", "Editor", "Admin", "SuperAdmin", "Support"] },
     ]
 
   },
@@ -93,17 +102,28 @@ const NAV_GROUPS = [
   {
     label: "Management",
     items: [
-      { icon: Users, label: "Users", href: "/dashboard/admin/users", roles: ["Admin", "SuperAdmin"] },
-      { icon: Wallet, label: "Finance", href: "/dashboard/admin/finance", roles: ["Admin", "SuperAdmin"] },
-      { icon: Layout, label: "Content", href: "/dashboard/admin/content", roles: ["Admin", "Editor", "SuperAdmin"] },
+      { icon: Users, label: "Users", href: "/dashboard/users", roles: ["Admin", "SuperAdmin"] },
+      { icon: Wallet, label: "Finance", href: "/dashboard/finance", roles: ["Admin", "SuperAdmin"] },
       { icon: FileText, label: "Posts", href: "/dashboard/posts", roles: ["Admin", "Editor", "SuperAdmin"] },
       { icon: MessageCircle, label: "Comments", href: "/dashboard/posts/comments", roles: ["Admin", "Editor", "SuperAdmin"] },
       { icon: Tag, label: "Tags", href: "/dashboard/posts/tags", roles: ["Admin", "Editor", "SuperAdmin"] },
       { icon: Folder, label: "Categories", href: "/dashboard/posts/categories", roles: ["Admin", "Editor", "SuperAdmin"] },
       { icon: ShieldCheck, label: "System", href: "/dashboard/settings/system", roles: ["Admin", "SuperAdmin"] },
-      { icon: CreditCard, label: "Billing", href: "/dashboard/billing", roles: ["Admin", "Viewer", "Editor", "SuperAdmin"] },
+      { icon: CreditCard, label: "Billing", href: "/dashboard/billing", roles: ["Editor", "Admin", "SuperAdmin"] },
       { icon: Settings, label: "Settings", href: "/dashboard/settings", roles: ["Viewer", "Editor", "Admin", "SuperAdmin"] },
       { icon: MessageCircle, label: "Support", href: "/dashboard/support", roles: ["Viewer", "Editor", "Admin", "SuperAdmin", "Support"] },
+    ]
+  },
+  {
+    label: "Admin",
+    items: [
+      { icon: GalleryVerticalEnd, label: "Portfolio", href: "/dashboard/portfolio", roles: ["Admin", "SuperAdmin"] },
+      { icon: UserCircle, label: "Team", href: "/dashboard/team", roles: ["Admin", "SuperAdmin"] },
+      { icon: Star, label: "Testimonials", href: "/dashboard/testimonials", roles: ["Admin", "SuperAdmin"] },
+      { icon: Ticket, label: "Tickets", href: "/dashboard/tickets", roles: ["Admin", "SuperAdmin"] },
+      { icon: Calendar, label: "Events", href: "/dashboard/events", roles: ["Admin", "SuperAdmin"] },
+      { icon: ScrollText, label: "Audit", href: "/dashboard/audit", roles: ["Admin", "SuperAdmin"] },
+      { icon: Megaphone, label: "Marketing", href: "/dashboard/marketing", roles: ["Admin", "SuperAdmin"] },
     ]
   }
 ];
@@ -116,22 +136,36 @@ type SidebarContentProps = {
 function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const role = useAuth((s) => s.user?.role);
+
+  // Hierarchy-based permission check
+  const ROLE_HIERARCHY: Record<string, number> = {
+    SuperAdmin: 5,
+    Admin: 4,
+    Editor: 3,
+    Support: 2,
+    Viewer: 1,
+  };
+  const userRoleLevel = ROLE_HIERARCHY[role || "Viewer"] || 1;
+  const hasAccess = (requiredRoles: string[]) =>
+    requiredRoles.some((r) => ROLE_HIERARCHY[r] <= userRoleLevel);
+
   const badgeCounts = useBadgeCounts();
 
   const activeRole = user?.role || "Viewer";
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <div className="flex-1 min-h-0 px-3 overflow-y-auto overflow-x-hidden overscroll-contain">
+      <div data-lenis-prevent className="flex-1 min-h-0 px-3 overflow-y-auto overflow-x-hidden overscroll-contain">
         <div className="space-y-6 py-4">
           {NAV_GROUPS.map((group) => {
-            const filteredItems = group.items.filter((item) => item.roles.includes(activeRole));
+            const filteredItems = group.items.filter((item) => hasAccess(item.roles));
             if (filteredItems.length === 0) return null;
 
             return (
               <div key={group.label} className="space-y-2">
                 {!collapsed && (
-                  <h4 className="px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-3">
+                  <h4 className="px-4 text-xs font-semibold uppercase text-muted-foreground/60 mb-3">
                     {group.label}
                   </h4>
                 )}
@@ -142,8 +176,7 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
                     const hasBadge = badgeCount > 0;
 
                     return (
-                      <Link
-                        key={item.href}
+                      <Link key={item.href}
                         href={item.href}
                         onClick={onNavClick}
                         className={cn(
@@ -153,26 +186,23 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
                             : "text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground"
                         )}
                       >
-                        <item.icon
-                          className={cn(
+                        <item.icon className={cn(
                             "w-5 h-5 shrink-0 transition-all duration-300",
                             isActive ? "text-primary scale-110" : "group-hover:text-foreground group-hover:scale-110"
                           )}
                         />
 
                         {!collapsed && (
-                          <motion.span
-                            initial={{ opacity: 0, x: -10 }}
+                          <AnimatedSpan initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             className="whitespace-nowrap flex-1 truncate text-sm font-medium tracking-tight"
                           >
                             {item.label}
-                          </motion.span>
+                          </AnimatedSpan>
                         )}
 
                         {hasBadge && !collapsed && (
-                          <Badge
-                            className={cn(
+                          <Badge className={cn(
                               "text-[10px] font-semibold px-1.5 py-0 h-4 min-w-[16px] flex items-center justify-center rounded-full border-none",
                               isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground"
                             )}
@@ -224,8 +254,7 @@ function SidebarContent({ collapsed = false, onNavClick }: SidebarContentProps) 
           </div>
         )}
 
-        <Button
-          variant="ghost"
+        <Button variant="ghost"
           size="sm"
           onClick={() => void logout()}
           className={cn(
@@ -250,29 +279,27 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <motion.aside
-        initial={{ width: 280 }}
-        animate={{ width: collapsed ? 100 : 280 }}
-        transition={{ type: "spring", stiffness: 350, damping: 35 }}
-        className="h-screen sticky top-0 bg-[#050505]/60 backdrop-blur-2xl border-r border-white/5 flex flex-col z-40 hidden lg:flex"
+      <AnimatedAside
+        className={cn(
+          "h-screen sticky top-0 bg-[#050505]/60 backdrop-blur-2xl border-r border-white/5 flex flex-col z-40 hidden lg:flex transition-all duration-300",
+          collapsed ? "w-[100px]" : "w-72"
+        )}
       >
         <div className="h-20 flex items-center justify-between px-6 border-b border-white/5 shrink-0 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
           {!collapsed ? (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
+            <AnimatedDiv initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-4 font-semibold overflow-hidden"
             >
               <Logo variant="white" size="lg" />
-            </motion.div>
+            </AnimatedDiv>
           ) : (
             <Logo showText={false} size="lg" className="mx-auto" />
           )}
 
-          <Button
-            variant="ghost"
+          <Button variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
             className="absolute -right-3 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full border border-white/10 bg-[#0A0A0A] shadow-xl text-muted-foreground hover:text-white transition-all z-50 invisible lg:visible"
@@ -282,7 +309,7 @@ export default function Sidebar() {
         </div>
 
         <SidebarContent collapsed={collapsed} />
-      </motion.aside>
+      </AnimatedAside>
 
       {/* Mobile Sidebar Sheet */}
       <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>

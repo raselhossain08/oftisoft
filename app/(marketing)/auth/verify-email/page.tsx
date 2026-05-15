@@ -1,9 +1,10 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,8 +46,7 @@ function VerifyEmailContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#030712] to-[#0f172a] p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
+      <AnimatedDiv initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
@@ -55,30 +55,27 @@ function VerifyEmailContent() {
           <CardHeader className="text-center">
             <div className="mx-auto w-20 h-20 mb-4 relative">
               {status === "loading" && (
-                <motion.div
-                  animate={{ rotate: 360 }}
+                <AnimatedDiv animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
                   <Loader2 className="w-20 h-20 text-primary" />
-                </motion.div>
+                </AnimatedDiv>
               )}
               {status === "success" && (
-                <motion.div
-                  initial={{ scale: 0 }}
+                <AnimatedDiv initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200 }}
                 >
                   <CheckCircle className="w-20 h-20 text-green-500" />
-                </motion.div>
+                </AnimatedDiv>
               )}
               {status === "error" && (
-                <motion.div
-                  initial={{ scale: 0 }}
+                <AnimatedDiv initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200 }}
                 >
                   <XCircle className="w-20 h-20 text-red-500" />
-                </motion.div>
+                </AnimatedDiv>
               )}
             </div>
             <CardTitle className="text-2xl font-bold text-white">
@@ -93,8 +90,7 @@ function VerifyEmailContent() {
           
           <CardContent className="space-y-4">
             {status === "success" && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
+              <AnimatedDiv initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
                 className="space-y-4"
@@ -110,12 +106,11 @@ function VerifyEmailContent() {
                     Continue to Login
                   </Link>
                 </Button>
-              </motion.div>
+              </AnimatedDiv>
             )}
             
             {status === "error" && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
+              <AnimatedDiv initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
                 className="space-y-4"
@@ -137,7 +132,7 @@ function VerifyEmailContent() {
                     Return to Homepage
                   </Link>
                 </Button>
-              </motion.div>
+              </AnimatedDiv>
             )}
             
             {status === "loading" && (
@@ -148,7 +143,7 @@ function VerifyEmailContent() {
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </AnimatedDiv>
     </div>
   );
 }
@@ -159,9 +154,9 @@ export default function VerifyEmailPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#030712] to-[#0f172a] p-4">
         <Card className="border-white/10 bg-white/5 backdrop-blur-xl w-full max-w-md">
           <CardHeader className="text-center">
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+            <AnimatedDiv animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
               <Loader2 className="w-20 h-20 text-primary mx-auto" />
-            </motion.div>
+            </AnimatedDiv>
             <CardTitle className="text-2xl font-bold text-white mt-4">Loading...</CardTitle>
           </CardHeader>
         </Card>

@@ -1,12 +1,17 @@
-"use client";
+"use client"
+import { AnimatedDiv, useReducedMotion } from "@/lib/animated";
 
-import { motion, HTMLMotionProps } from "framer-motion";
-import { useReducedMotion } from "framer-motion";
-import { forwardRef } from "react";
+import { useRef } from "react";
 
-type AnimateSectionProps = HTMLMotionProps<"div"> & {
+type AnimateSectionProps = {
   children: React.ReactNode;
   className?: string;
+  variants?: any;
+  initial?: any;
+  whileInView?: any;
+  viewport?: any;
+  transition?: any;
+  style?: React.CSSProperties;
 };
 
 const defaultVariants = {
@@ -14,32 +19,27 @@ const defaultVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-const AnimateSection = forwardRef<HTMLDivElement, AnimateSectionProps>(
-  ({ children, className, variants, initial, whileInView, viewport, transition, ...props }, ref) => {
-    const prefersReduced = useReducedMotion();
+function AnimateSection({ children, className, variants, initial, whileInView, viewport, transition, style }: AnimateSectionProps) {
+  const prefersReduced = useReducedMotion();
+  const fallbackRef = useRef<HTMLDivElement>(null);
 
-    if (prefersReduced) {
-      return <div ref={ref} className={className}>{children}</div>;
-    }
-
-    return (
-      <motion.div
-        ref={ref}
-        className={className}
-        variants={variants || defaultVariants}
-        initial={initial ?? "hidden"}
-        whileInView={whileInView ?? "visible"}
-        viewport={viewport ?? { once: true, margin: "-80px" }}
-        transition={transition ?? { duration: 0.5, ease: "easeOut" }}
-        style={{ willChange: "transform, opacity" }}
-        {...props}
-      >
-        {children}
-      </motion.div>
-    );
+  if (prefersReduced) {
+    return <div ref={fallbackRef} className={className}>{children}</div>;
   }
-);
 
-AnimateSection.displayName = "AnimateSection";
+  return (
+    <AnimatedDiv
+      className={className}
+      variants={variants || defaultVariants}
+      initial={initial ?? "hidden"}
+      whileInView={whileInView ?? "visible"}
+      viewport={viewport ?? { once: true, margin: "-80px" }}
+      transition={transition ?? { duration: 0.5, ease: "easeOut" }}
+      style={{ willChange: "transform, opacity", ...style }}
+    >
+      {children}
+    </AnimatedDiv>
+  );
+}
 
 export { AnimateSection };

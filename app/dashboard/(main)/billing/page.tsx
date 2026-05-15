@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useState, useMemo, useCallback } from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import {
     CreditCard, Download, AlertCircle, Zap, Shield, FileText, Plus, Lock, Loader2, Trash2, RefreshCw
@@ -141,7 +142,7 @@ export default function BillingOverview() {
 
             <div className="flex justify-between items-center flex-wrap gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight">Billing & Usage</h1>
+                    <h1 className="text-3xl font-semibold">Billing & Usage</h1>
                     <p className="text-muted-foreground font-medium">Manage your subscription, methods and monitor usage.</p>
                 </div>
                 <div className="flex gap-3">
@@ -151,7 +152,7 @@ export default function BillingOverview() {
                     <Link href="/dashboard/billing/invoices" className="px-5 py-2.5 border border-border/50 bg-card rounded-2xl font-bold hover:bg-muted transition-all text-sm shadow-sm inline-flex items-center">
                         View Ledger
                     </Link>
-                    <Link href="/dashboard/billing/subscription" className="px-5 py-2.5 bg-primary text-white rounded-2xl font-black text-sm hover:scale-[1.02] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
+                    <Link href="/dashboard/billing/subscription" className="px-5 py-2.5 bg-primary text-white rounded-2xl font-semibold text-sm hover:scale-[1.02] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
                         <Zap className="w-4 h-4 fill-white" /> Upgrade Tier
                     </Link>
                 </div>
@@ -160,8 +161,7 @@ export default function BillingOverview() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                 {/* Current Plan */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                <AnimatedDiv initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
                         "md:col-span-1 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl transition-all duration-500",
@@ -173,12 +173,12 @@ export default function BillingOverview() {
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-8">
                             <div>
-                                <p className="text-white/60 text-xs font-black uppercase tracking-widest mb-1">Compute Tier</p>
-                                <h2 className="text-4xl font-black flex items-center gap-3 tracking-tighter">
+                                <p className="text-white/60 text-xs font-semibold  mb-1">Compute Tier</p>
+                                <h2 className="text-3xl font-semibold flex items-center gap-3">
                                     {subscription?.plan || 'Starter'} <Zap className="w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
                                 </h2>
                             </div>
-                            <div className="bg-white/10 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter backdrop-blur-md border border-white/20">
+                            <div className="bg-white/10 px-4 py-1.5 rounded-xl text-sm font-semibold  backdrop-blur-md border border-white/20">
                                 {subscription?.status === 'active' ? 'Active System' : 'Maintenance'}
                             </div>
                         </div>
@@ -186,14 +186,14 @@ export default function BillingOverview() {
                         <div className="space-y-6 mb-10">
                             <div className="space-y-2 group/usage">
                                 <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-white/70 uppercase flex items-center gap-1.5">
+                                    <span className="text-white/70  flex items-center gap-1.5">
                                         Storage Cluster 
                                         { (usage?.storage?.percent || 80) > 85 && <AlertCircle className="w-3 h-3 text-orange-300 animate-pulse" /> }
                                     </span>
-                                    <span className="font-black tracking-wider">{usage?.storage?.used || "0.4GB"} / {usage?.storage?.total || "0.5GB"}</span>
+                                    <span className="font-semibold">{usage?.storage?.used || "0.4GB"} / {usage?.storage?.total || "0.5GB"}</span>
                                 </div>
                                 <div className="w-full bg-black/30 rounded-full h-2.5 p-0.5 overflow-hidden border border-white/10 relative">
-                                    <motion.div 
+                                    <AnimatedDiv 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${usage?.storage?.percent || 80}%` }}
                                         className={cn(
@@ -207,11 +207,11 @@ export default function BillingOverview() {
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-white/70 uppercase">Throughput / API</span>
-                                    <span className="font-black tracking-wider">{usage?.apiCalls?.used || "450"} / {usage?.apiCalls?.total || "500"}</span>
+                                    <span className="text-white/70 ">Throughput / API</span>
+                                    <span className="font-semibold">{usage?.apiCalls?.used || "450"} / {usage?.apiCalls?.total || "500"}</span>
                                 </div>
                                 <div className="w-full bg-black/30 rounded-full h-2.5 p-0.5 overflow-hidden border border-white/10">
-                                    <motion.div 
+                                    <AnimatedDiv 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${usage?.apiCalls?.percent || 90}%` }}
                                         className={cn(
@@ -225,7 +225,7 @@ export default function BillingOverview() {
                             </div>
                         </div>
 
-                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest border-t border-white/10 pt-6">
+                        <div className="flex justify-between items-center text-sm font-semibold  border-t border-white/10 pt-6">
                             <span className="text-white/50">Next Cycle: {nextBillingDate}</span>
                             <span className="text-white flex items-center gap-1.5">
                                 <Lock className="w-2.5 h-2.5 opacity-50" />
@@ -236,7 +236,7 @@ export default function BillingOverview() {
 
                     <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/5 rounded-full blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-black/20 rounded-full blur-3xl" />
-                </motion.div>
+                </AnimatedDiv>
 
                 {/* Usage Chart */}
                 <div className="md:col-span-2 bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
@@ -245,12 +245,12 @@ export default function BillingOverview() {
                     </div>
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h3 className="font-black text-xl tracking-tight leading-none mb-1">Computational Investment</h3>
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Efficiency tracking pipeline</p>
+                            <h3 className="font-semibold text-xl leading-none mb-1">Computational Investment</h3>
+                            <p className="text-sm font-bold text-muted-foreground ">Efficiency tracking pipeline</p>
                         </div>
                         <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-border/50 shadow-inner">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                            <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Trend 6M</span>
+                            <span className="text-sm font-semibold  text-muted-foreground">Trend 6M</span>
                         </div>
                     </div>
                     <div className="h-[200px] w-full">
@@ -263,11 +263,10 @@ export default function BillingOverview() {
                                     </linearGradient>
                                 </defs>
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 800 }} />
-                                <Tooltip
-                                    cursor={{ fill: 'rgba(99, 102, 241, 0.05)', radius: 12 }}
+                                <Tooltip cursor={{ fill: 'rgba(99, 102, 241, 0.05)', radius: 12 }}
                                     contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: 'none', borderRadius: '24px', color: '#fff', backdropFilter: 'blur(12px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
                                     itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                                    labelStyle={{ fontWeight: 'black', color: '#6366f1', marginBottom: '6px', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.15em' }}
+                                    labelStyle={{ fontWeight: 'black', color: '#6366f1', marginBottom: '6px', textTransform: '', fontSize: '10px', letterSpacing: '0.15em' }}
                                 />
                                 <Bar dataKey="amount" radius={[10, 10, 10, 10]} barSize={40}>
                                     {chartData.map((entry, index) => (
@@ -290,14 +289,14 @@ export default function BillingOverview() {
                 <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm">
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h3 className="font-black text-xl tracking-tight">Authorized Methods</h3>
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active payment vectors</p>
+                            <h3 className="font-semibold text-xl">Authorized Methods</h3>
+                            <p className="text-sm font-bold text-muted-foreground ">Active payment vectors</p>
                         </div>
                         <Button 
                             variant="ghost"
                             size="sm"
                             onClick={() => setIsAddCardOpen(true)}
-                            className="text-primary h-10 px-4 bg-primary/5 font-black uppercase tracking-widest text-[10px] hover:bg-primary/10 rounded-xl border border-primary/10 transition-all"
+                            className="text-primary h-10 px-4 bg-primary/5 font-semibold  text-sm hover:bg-primary/10 rounded-xl border border-primary/10 transition-all"
                         >
                             <Plus size={14} className="mr-2 stroke-[3px]" /> Add Entity
                         </Button>
@@ -306,7 +305,7 @@ export default function BillingOverview() {
                         {isLoadingMethods ? (
                             <div className="py-12 flex flex-col items-center justify-center gap-3 opacity-50">
                                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                                <span className="text-[10px] font-black tracking-widest uppercase text-primary">Decryption in progress...</span>
+                                <span className="text-sm font-semibold  text-primary">Decryption in progress...</span>
                             </div>
                         ) : paymentMethods.length === 0 ? (
                             <div className="py-16 flex flex-col items-center justify-center text-center gap-4 border-2 border-dashed border-border/50 rounded-[2rem] bg-muted/5">
@@ -314,7 +313,7 @@ export default function BillingOverview() {
                                     <CreditCard className="w-8 h-8" />
                                 </div>
                                 <div>
-                                    <p className="font-black text-sm uppercase tracking-widest text-muted-foreground">No Methods Found</p>
+                                    <p className="font-semibold text-sm  text-muted-foreground">No Methods Found</p>
                                     <p className="text-xs text-muted-foreground/60 font-medium">Connect a credit source to enable services.</p>
                                 </div>
                             </div>
@@ -327,14 +326,14 @@ export default function BillingOverview() {
                                             card.brand.toLowerCase() === 'visa' ? "bg-blue-600 border-blue-400/30" : "bg-slate-800 border-slate-600/30"
                                         )}>
                                             <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent" />
-                                            <span className="text-[10px] font-black text-white  tracking-tighter z-10">{card.brand}</span>
+                                            <span className="text-sm font-semibold text-white z-10">{card.brand}</span>
                                         </div>
                                         <div>
-                                            <p className="font-black text-sm tracking-[0.2em] leading-none mb-1.5 uppercase opacity-80 group-hover:opacity-100 transition-opacity">•••• •••• •••• {card.last4}</p>
+                                            <p className="font-semibold text-sm leading-none mb-1.5  opacity-80 group-hover:opacity-100 transition-opacity">•••• •••• •••• {card.last4}</p>
                                             <div className="flex items-center gap-2">
-                                                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest opacity-60">Cycle {card.expiry}</p>
+                                                <p className="text-xs font-semibold  text-muted-foreground opacity-60">Cycle {card.expiry}</p>
                                                 <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                                                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest opacity-60">{card.type}</p>
+                                                <p className="text-xs font-semibold  text-muted-foreground opacity-60">{card.type}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -342,7 +341,7 @@ export default function BillingOverview() {
                                         {card.isDefault ? (
                                             <div className="px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 flex items-center gap-2 shadow-sm">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                                <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">Primary</span>
+                                                <span className="text-sm font-semibold text-green-600 ">Primary</span>
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
@@ -350,7 +349,7 @@ export default function BillingOverview() {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDefaultMethod(card.id)}
-                                                    className="h-9 px-4 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 rounded-xl"
+                                                    className="h-9 px-4 text-sm font-semibold  text-primary hover:bg-primary/10 rounded-xl"
                                                 >
                                                     Activate
                                                 </Button>
@@ -374,7 +373,7 @@ export default function BillingOverview() {
                 {/* Recent Invoices */}
                 <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-8 shadow-sm">
                     <div className="flex justify-between items-center mb-8">
-                        <h3 className="font-black text-xl tracking-tight">Recent Ledger</h3>
+                        <h3 className="font-semibold text-xl">Recent Ledger</h3>
                     </div>
                     <div className="space-y-1">
                         {isLoadingInvoices ? (
@@ -391,15 +390,15 @@ export default function BillingOverview() {
                                             <FileText className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <p className="font-black text-sm tracking-tight">{inv.amount}</p>
-                                            <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
+                                            <p className="font-semibold text-sm">{inv.amount}</p>
+                                            <p className="text-sm font-bold text-muted-foreground  opacity-60">
                                                 {new Date(inv.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <span className={cn(
-                                            "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border",
+                                            "text-xs font-semibold  px-2.5 py-1 rounded-lg border",
                                             inv.status === 'completed' ? "bg-green-500/10 text-green-600 border-green-500/10" : "bg-orange-500/10 text-orange-600 border-orange-500/10"
                                         )}>
                                             {inv.status}
@@ -426,7 +425,7 @@ export default function BillingOverview() {
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                             <CreditCard className="w-7 h-7 text-primary" />
                         </div>
-                        <DialogTitle className="text-3xl font-black tracking-tighter">Register Method</DialogTitle>
+                        <DialogTitle className="text-3xl font-semibold">Register Method</DialogTitle>
                         <DialogDescription className="text-sm">
                             Connect a new computational credit source to your cluster.
                         </DialogDescription>
@@ -435,36 +434,34 @@ export default function BillingOverview() {
                     <form onSubmit={handleAddCard} className="space-y-6 py-4">
                         <div className="p-4 bg-green-500/5 rounded-2xl border border-green-500/20 flex items-start gap-4">
                             <Shield className="w-5 h-5 text-green-500 mt-0.5" />
-                            <p className="text-[10px] text-muted-foreground font-medium leading-relaxed">
+                            <p className="text-sm text-muted-foreground font-medium leading-relaxed">
                                 YOUR CREDENTIALS ARE ENCRYPTED VIA QUANTUM-RESISTANT SHS-256 INFRASTRUCTURE. WE NEVER STORE SENSITIVE PII.
                             </p>
                         </div>
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Entity Name</Label>
+                                <Label className="text-sm font-semibold  text-muted-foreground ml-1">Entity Name</Label>
                                 <Input 
-                                    required
-                                    value={newCard.name}
+                                    required value={newCard.name}
                                     onChange={(e) => setNewCard({...newCard, name: e.target.value})}
                                     placeholder="JAYDEN DOE"
-                                    className="h-auto border-border/50 bg-muted/20 rounded-xl font-bold uppercase placeholder:opacity-30 placeholder:normal-case"
+                                    className="h-auto border-border/50 bg-muted/20 rounded-xl font-bold  placeholder:opacity-30 placeholder:normal-case"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Universal Identifier (PAN)</Label>
+                                <Label className="text-sm font-semibold  text-muted-foreground ml-1">Universal Identifier (PAN)</Label>
                                 <div className="relative">
                                     <Input 
-                                        required
-                                        value={newCard.number}
+                                        required value={newCard.number}
                                         onChange={(e) => {
                                             const val = e.target.value.replace(/\s/g, "").replace(/[^0-9]/g, "");
                                             const formatted = val.match(/.{1,4}/g)?.join(" ") || val;
                                             setNewCard({...newCard, number: formatted.slice(0, 19)});
                                         }}
                                         placeholder="0000 0000 0000 0000"
-                                        className="h-auto pl-12 border-border/50 bg-muted/20 rounded-xl font-black tracking-widest"
+                                        className="h-auto pl-12 border-border/50 bg-muted/20 rounded-xl font-semibold"
                                     />
                                     <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
                                 </div>
@@ -472,29 +469,27 @@ export default function BillingOverview() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Cycle Expiry</Label>
+                                    <Label className="text-sm font-semibold  text-muted-foreground ml-1">Cycle Expiry</Label>
                                     <Input 
-                                        required
-                                        value={newCard.expiry}
+                                        required value={newCard.expiry}
                                         onChange={(e) => {
                                             let val = e.target.value.replace(/[^0-9]/g, "");
                                             if (val.length >= 2) val = val.slice(0, 2) + "/" + val.slice(2, 4);
                                             setNewCard({...newCard, expiry: val.slice(0, 5)});
                                         }}
                                         placeholder="MM/YY"
-                                        className="h-auto border-border/50 bg-muted/20 rounded-xl font-black text-center"
+                                        className="h-auto border-border/50 bg-muted/20 rounded-xl font-semibold text-center"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-1">Security Key (CVC)</Label>
+                                    <Label className="text-sm font-semibold  text-muted-foreground ml-1">Security Key (CVC)</Label>
                                     <div className="relative">
                                         <Input 
-                                            required
-                                            type="password"
+                                            required type="password"
                                             value={newCard.cvc}
                                             onChange={(e) => setNewCard({...newCard, cvc: e.target.value.slice(0, 4)})}
                                             placeholder="•••"
-                                            className="h-auto border-border/50 bg-muted/20 rounded-xl font-black text-center tracking-[0.5em]"
+                                            className="h-auto border-border/50 bg-muted/20 rounded-xl font-semibold text-center"
                                         />
                                         <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
                                     </div>
@@ -506,7 +501,7 @@ export default function BillingOverview() {
                             <Button 
                                 type="submit"
                                 disabled={isAddingCard}
-                                className="w-full h-14 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform"
+                                className="w-full h-14 bg-primary text-white rounded-2xl font-semibold  shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform"
                             >
                                 {isAddingCard ? (
                                     <Loader2 className="w-6 h-6 animate-spin" />

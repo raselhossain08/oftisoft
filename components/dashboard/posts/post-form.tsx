@@ -285,8 +285,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Title */}
                     <div className="space-y-2">
-                        <Input
-                            placeholder="Add title"
+                        <Input placeholder="Add title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             className="text-3xl font-bold border-0 px-0 focus-visible:ring-0 h-auto py-2 placeholder:text-muted-foreground/50"
@@ -294,8 +293,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Globe className="w-3 h-3" />
                             <span>/</span>
-                            <input
-                                value={slug}
+                            <input value={slug}
                                 onChange={(e) => setSlug(e.target.value)}
                                 className="bg-transparent border-none outline-none text-xs text-muted-foreground focus:text-foreground"
                                 placeholder="post-url-slug"
@@ -349,10 +347,8 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div
-                                ref={editorRef}
-                                contentEditable
-                                onInput={handleEditorInput}
+                            <div ref={editorRef}
+                                contentEditable onInput={handleEditorInput}
                                 dangerouslySetInnerHTML={{ __html: content }}
                                 className="min-h-[400px] p-4 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 prose prose-sm dark:prose-invert max-w-none"
                                 data-placeholder="Start writing..."
@@ -371,8 +367,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                             <CardDescription>Write a short summary for listings and SEO</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Textarea
-                                value={excerpt}
+                            <Textarea value={excerpt}
                                 onChange={(e) => setExcerpt(e.target.value)}
                                 placeholder="Brief summary of your article..."
                                 className="min-h-[80px]"
@@ -389,16 +384,14 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label>SEO Title</Label>
-                                <Input
-                                    value={seoTitle}
+                                <Input value={seoTitle}
                                     onChange={(e) => setSeoTitle(e.target.value)}
                                     placeholder={title || "SEO title..."}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Meta Description</Label>
-                                <Textarea
-                                    value={seoDescription}
+                                <Textarea value={seoDescription}
                                     onChange={(e) => setSeoDescription(e.target.value)}
                                     placeholder="Brief description for search engines..."
                                     className="min-h-[60px]"
@@ -406,8 +399,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                             </div>
                             <div className="space-y-2">
                                 <Label>Canonical URL</Label>
-                                <Input
-                                    value={canonicalUrl}
+                                <Input value={canonicalUrl}
                                     onChange={(e) => setCanonicalUrl(e.target.value)}
                                     placeholder="https://oftisoft.com/blog/post-slug"
                                 />
@@ -425,8 +417,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                                     ))}
                                 </div>
                                 <div className="flex gap-2">
-                                    <Input
-                                        value={keywordInput}
+                                    <Input value={keywordInput}
                                         onChange={(e) => setKeywordInput(e.target.value)}
                                         placeholder="Add keyword..."
                                         onKeyDown={(e) => {
@@ -499,8 +490,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                             {status === "published" && (
                                 <div className="space-y-2">
                                     <Label>Schedule Publish</Label>
-                                    <Input
-                                        type="datetime-local"
+                                    <Input type="datetime-local"
                                         value={scheduledDate ? scheduledDate.toISOString().slice(0, 16) : ""}
                                         onChange={(e) => setScheduledDate(e.target.value ? new Date(e.target.value) : undefined)}
                                     />
@@ -602,8 +592,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                                 ))}
                             </div>
                             <div className="flex gap-2">
-                                <Input
-                                    value={tagInput}
+                                <Input value={tagInput}
                                     onChange={(e) => setTagInput(e.target.value)}
                                     placeholder="Add tag..."
                                     onKeyDown={(e) => {
@@ -620,8 +609,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                             {tagInput && filteredTagSuggestions.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
                                     {filteredTagSuggestions.slice(0, 5).map((tag: string) => (
-                                        <button
-                                            key={tag}
+                                        <button key={tag}
                                             onClick={() => addTag(tag)}
                                             className="text-xs text-muted-foreground hover:text-foreground bg-muted px-2 py-1 rounded-md"
                                         >
@@ -644,21 +632,18 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                         <CardContent className="space-y-3">
                             {featuredImage ? (
                                 <div className="relative rounded-lg overflow-hidden">
-                                    <img
-                                        src={featuredImage}
+                                    <img src={featuredImage}
                                         alt={featuredImageAlt || "Featured"}
                                         className="w-full h-32 object-cover"
                                     />
                                     <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                        <Button
-                                            variant="secondary"
+                                        <Button variant="secondary"
                                             size="sm"
                                             onClick={() => { setMediaPickerTarget("featured"); setMediaPickerOpen(true); }}
                                         >
                                             Replace
                                         </Button>
-                                        <Button
-                                            variant="destructive"
+                                        <Button variant="destructive"
                                             size="sm"
                                             onClick={() => setFeaturedImage("")}
                                         >
@@ -667,8 +652,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                                     </div>
                                 </div>
                             ) : (
-                                <div
-                                    onClick={() => { setMediaPickerTarget("featured"); setMediaPickerOpen(true); }}
+                                <div onClick={() => { setMediaPickerTarget("featured"); setMediaPickerOpen(true); }}
                                     className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
                                 >
                                     <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
@@ -676,8 +660,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
                                 </div>
                             )}
                             {featuredImage && (
-                                <Input
-                                    value={featuredImageAlt}
+                                <Input value={featuredImageAlt}
                                     onChange={(e) => setFeaturedImageAlt(e.target.value)}
                                     placeholder="Alt text for featured image..."
                                     className="text-xs"
@@ -689,8 +672,7 @@ export function PostForm({ isEdit, initialData }: PostFormProps) {
             </div>
 
             {/* Media Picker Modal */}
-            <MediaPickerModal
-                open={mediaPickerOpen}
+            <MediaPickerModal open={mediaPickerOpen}
                 onOpenChange={setMediaPickerOpen}
                 onSelect={handleMediaSelect}
                 title={mediaPickerTarget === "featured" ? "Select Featured Image" : "Insert Image"}
@@ -731,8 +713,7 @@ function ToolbarButton({
     title: string;
 }) {
     return (
-        <button
-            type="button"
+        <button type="button"
             onClick={onClick}
             title={title}
             className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"

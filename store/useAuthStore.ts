@@ -24,7 +24,7 @@ export function getAuthCheckComplete() {
   return authCheckComplete;
 }
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;

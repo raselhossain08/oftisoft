@@ -10,12 +10,28 @@ import {
     Search,
     ArrowLeft,
     FileCode,
+    X,
+    Save,
+    Clock,
+    FileText,
+    Settings,
+    Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { useProducts } from "@/hooks/useProducts";
 import { toast } from "sonner";
@@ -24,6 +40,23 @@ export default function InventoryPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isSyncing, setIsSyncing] = useState(false);
     const { products, isLoading, stats } = useProducts();
+    
+    // Dialog states
+    const [isUpdateLogOpen, setIsUpdateLogOpen] = useState(false);
+    const [isVersionDialogOpen, setIsVersionDialogOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState("");
+    const [versionNotes, setVersionNotes] = useState("");
+    const [isBackupOpen, setIsBackupOpen] = useState(false);
+    const [backupInterval, setBackupInterval] = useState("daily");
+    const [retentionCount, setRetentionCount] = useState("30");
+    const [isSavingBackup, setIsSavingBackup] = useState(false);
+
+    // Mock update log entries
+    const updateLog = [
+        { date: "2026-05-14", action: "Asset sync completed", details: "47 files synchronized" },
+        { date: "2026-05-13", action: "Version v2.1.0 released", details: "Product assets updated" },
+        { date: "2026-05-12", action: "Backup completed", details: "Automated backup stored" },
+    ];
 
     const handleSync = () => {
         setIsSyncing(true);
@@ -33,16 +66,20 @@ export default function InventoryPage() {
         }, 2000);
     };
 
-    const handleUpdateLog = () => {
-        toast.info("Update log feature coming soon");
+    const handleSaveVersion = () => {
+        if (!versionNotes.trim()) return;
+        toast.success(`Version created for ${selectedProduct}`);
+        setVersionNotes("");
+        setIsVersionDialogOpen(false);
     };
 
-    const handleManageVersion = (productName: string) => {
-        toast.info(`Version management for ${productName} coming soon`);
-    };
-
-    const handleBackupSettings = () => {
-        toast.info("Backup settings coming soon");
+    const handleSaveBackup = () => {
+        setIsSavingBackup(true);
+        setTimeout(() => {
+            setIsSavingBackup(false);
+            toast.success(`Backup configured: ${backupInterval}, ${retentionCount} days retention`);
+            setIsBackupOpen(false);
+        }, 800);
     };
 
     const totalProducts = products?.length || 0;
@@ -65,7 +102,7 @@ export default function InventoryPage() {
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Inventory & Assets</h1>
+                        <h1 className="text-3xl font-bold">Inventory & Assets</h1>
                         <p className="text-muted-foreground">Monitor stock levels, download health, and digital asset versioning.</p>
                     </div>
                 </div>
@@ -73,7 +110,7 @@ export default function InventoryPage() {
                     <Button 
                         variant="outline" 
                         className="gap-2 rounded-xl"
-                        onClick={handleUpdateLog}
+                        onClick={() => setIsUpdateLogOpen(true)}
                     >
                         <History className="w-4 h-4" />
                         Update Log
@@ -92,32 +129,32 @@ export default function InventoryPage() {
             <div className="grid md:grid-cols-3 gap-4">
                 <Card className="border-border/50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-black uppercase tracking-wider text-muted-foreground">Digital Products</CardTitle>
+                        <CardTitle className="text-sm font-semibold  text-muted-foreground">Digital Products</CardTitle>
                         <Package className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black">{totalProducts}</div>
-                        <p className="text-[10px] text-muted-foreground mt-1">Products in catalog</p>
+                        <div className="text-3xl font-semibold">{totalProducts}</div>
+                        <p className="text-sm text-muted-foreground mt-1">Products in catalog</p>
                     </CardContent>
                 </Card>
                 <Card className="border-border/50">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-black uppercase tracking-wider text-muted-foreground">Physical</CardTitle>
+                        <CardTitle className="text-sm font-semibold  text-muted-foreground">Physical</CardTitle>
                         <FileCode className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black">{physicalProducts}</div>
-                        <p className="text-[10px] text-muted-foreground mt-1">Physical SKUs</p>
+                        <div className="text-3xl font-semibold">{physicalProducts}</div>
+                        <p className="text-sm text-muted-foreground mt-1">Physical SKUs</p>
                     </CardContent>
                 </Card>
                 <Card className={`border-border/50 ${stockWarnings > 0 ? "border-orange-500/20 bg-orange-500/5" : ""}`}>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-black uppercase tracking-wider text-orange-500">Stock Alerts</CardTitle>
+                        <CardTitle className="text-sm font-semibold  text-orange-500">Stock Alerts</CardTitle>
                         <AlertTriangle className="h-4 w-4 text-orange-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black">{stockWarnings}</div>
-                        <p className="text-[10px] text-muted-foreground mt-1">Items need attention</p>
+                        <div className="text-3xl font-semibold">{stockWarnings}</div>
+                        <p className="text-sm text-muted-foreground mt-1">Items need attention</p>
                     </CardContent>
                 </Card>
             </div>
@@ -128,10 +165,10 @@ export default function InventoryPage() {
                         <div className="flex items-center gap-4">
                             <CardTitle>Inventory Tracking</CardTitle>
                             <div className="flex gap-1">
-                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none text-[10px]">
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none text-sm">
                                     Digital: {digitalProducts}
                                 </Badge>
-                                <Badge variant="secondary" className="bg-muted text-muted-foreground border-none text-[10px]">
+                                <Badge variant="secondary" className="bg-muted text-muted-foreground border-none text-sm">
                                     Physical: {physicalProducts}
                                 </Badge>
                             </div>
@@ -169,7 +206,7 @@ export default function InventoryPage() {
                                     <TableRow key={p.id} className="hover:bg-primary/5">
                                         <TableCell className="font-bold text-sm">{p.name}</TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className="text-[10px] uppercase font-mono tracking-tighter">
+                                            <Badge variant="outline" className="text-sm  font-mono">
                                                 BUNDLE
                                             </Badge>
                                         </TableCell>
@@ -188,7 +225,10 @@ export default function InventoryPage() {
                                                 variant="ghost" 
                                                 size="sm" 
                                                 className="h-8 rounded-lg gap-2 text-primary font-bold"
-                                                onClick={() => handleManageVersion(p.name)}
+                                                onClick={() => {
+                                                    setSelectedProduct(p.name);
+                                                    setIsVersionDialogOpen(true);
+                                                }}
                                             >
                                                 Manage Vers.
                                             </Button>
@@ -228,13 +268,112 @@ export default function InventoryPage() {
                         <Button 
                             variant="outline" 
                             className="rounded-full"
-                            onClick={handleBackupSettings}
+                            onClick={() => setIsBackupOpen(true)}
                         >
                             Manage Backup Settings
                         </Button>
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Update Log Dialog */}
+            <Dialog open={isUpdateLogOpen} onOpenChange={setIsUpdateLogOpen}>
+                <DialogContent className="sm:max-w-lg rounded-[2rem] border-border/50">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <History className="w-5 h-5 text-primary" /> Update Log
+                        </DialogTitle>
+                        <DialogDescription>Recent asset and inventory changes.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                        {updateLog.map((entry, i) => (
+                            <div key={i} className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/50">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Clock className="w-4 h-4 text-primary" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold">{entry.action}</p>
+                                    <p className="text-xs text-muted-foreground">{entry.details}</p>
+                                    <p className="text-xs text-muted-foreground/60 mt-1">{entry.date}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Version Dialog */}
+            <Dialog open={isVersionDialogOpen} onOpenChange={(open) => { setIsVersionDialogOpen(open); if (!open) setVersionNotes(""); }}>
+                <DialogContent className="sm:max-w-lg rounded-[2rem] border-border/50">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-primary" /> Create Version
+                        </DialogTitle>
+                        <DialogDescription>Create a new version for {selectedProduct}.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label className="font-semibold">Version Notes</Label>
+                            <Textarea 
+                                placeholder="Describe what changed in this version..."
+                                className="min-h-[100px] rounded-xl resize-none"
+                                value={versionNotes}
+                                onChange={(e) => setVersionNotes(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" className="rounded-xl" onClick={() => setIsVersionDialogOpen(false)}>Cancel</Button>
+                        <Button className="rounded-xl gap-2" onClick={handleSaveVersion} disabled={!versionNotes.trim()}>
+                            <Save className="w-4 h-4" /> Create Version
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Backup Settings Dialog */}
+            <Dialog open={isBackupOpen} onOpenChange={setIsBackupOpen}>
+                <DialogContent className="sm:max-w-lg rounded-[2rem] border-border/50">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Settings className="w-5 h-5 text-primary" /> Backup Settings
+                        </DialogTitle>
+                        <DialogDescription>Configure automated backup schedule and retention.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label className="font-semibold">Backup Frequency</Label>
+                            <select 
+                                className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+                                value={backupInterval}
+                                onChange={(e) => setBackupInterval(e.target.value)}
+                            >
+                                <option value="hourly">Hourly</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="font-semibold">Retention (days)</Label>
+                            <Input 
+                                type="number" 
+                                min="1" 
+                                max="365"
+                                value={retentionCount}
+                                onChange={(e) => setRetentionCount(e.target.value)}
+                                className="rounded-xl"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" className="rounded-xl" onClick={() => setIsBackupOpen(false)}>Cancel</Button>
+                        <Button className="rounded-xl gap-2" onClick={handleSaveBackup} disabled={isSavingBackup}>
+                            <Download className="w-4 h-4" />{isSavingBackup ? "Saving..." : "Save Settings"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

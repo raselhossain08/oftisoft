@@ -1,8 +1,8 @@
 "use client"
+import { AnimatedDiv } from "@/lib/animated";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { ArrowRight, Menu, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/ui/logo";
 
 const navLinks = [
+    { id: "about", href: "/about", label: "About" },
     { id: "services", href: "/services", label: "Services" },
     { id: "portfolio", href: "/portfolio", label: "Portfolio" },
     { id: "shop", href: "/shop", label: "Shop" },
@@ -37,8 +38,7 @@ export default function Navbar() {
     const cart = useCart();
 
     return (
-        <nav
-            className={cn(
+        <nav className={cn(
                 "fixed top-0 left-0 right-0 z-50 flex justify-center transition-all duration-300",
                 scrolled ? "py-4" : "py-6"
             )}
@@ -61,8 +61,7 @@ export default function Navbar() {
                     {navLinks.map((link, i) => {
                         const isActive = pathname === link.href;
                         return (
-                            <Link
-                                key={link.id || link.href || i}
+                            <Link key={link.id || link.href || i}
                                 href={link.href}
                                 className={cn(
                                     "relative px-5 py-2 text-sm font-medium rounded-full transition-all duration-300",
@@ -70,8 +69,7 @@ export default function Navbar() {
                                 )}
                             >
                                 {isActive && (
-                                    <motion.div
-                                        layoutId="navbar-pill"
+                                    <AnimatedDiv layoutId="navbar-pill"
                                         className="absolute inset-0 bg-primary rounded-full shadow-md"
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
@@ -155,8 +153,7 @@ export default function Navbar() {
                             </SheetHeader>
                             <div className="flex flex-col items-center space-y-6 w-full relative z-10">
                                 {navLinks.map((link, i) => (
-                                    <Link
-                                        key={link.id || link.href || i}
+                                    <Link key={link.id || link.href || i}
                                         href={link.href}
                                         onClick={() => setIsOpen(false)}
                                         className={cn(

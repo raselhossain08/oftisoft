@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import { useShopContentStore } from "@/lib/store/shop-content";
 import type { Bundle } from "@/lib/store/shop-content";
@@ -7,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingCart, ArrowRight, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-
+import Link from "next/link";
+import { toast } from "sonner";
 interface BundleDealsProps {
     bundles?: Bundle[];
 }
@@ -28,15 +30,16 @@ export function BundleDeals({ bundles: bundlesProp }: BundleDealsProps = {}) {
                         <h2 className="text-4xl md:text-6xl font-semibold mb-6">Stack & Save</h2>
                         <p className="text-muted-foreground text-xl">Get our most popular assets bundled together for a massive discount. Perfect for enterprise-ready production apps.</p>
                     </div>
-                    <Button variant="ghost" className="hidden md:flex gap-2 text-primary font-bold">
-                        View All Bundles <ArrowRight className="w-4 h-4" />
+                    <Button variant="ghost" className="hidden md:flex gap-2 text-primary font-bold" asChild>
+                        <Link href="/shop">
+                            View All Bundles <ArrowRight className="w-4 h-4" />
+                        </Link>
                     </Button>
                 </div>
 
                 <div className="grid gap-8">
                     {bundles.map((bundle) => (
-                        <motion.div
-                            key={bundle.id}
+                        <AnimatedDiv key={bundle.id}
                             initial={{ opacity: 0, scale: 0.98 }}
                             style={{ willChange: "transform, opacity" }}
                             whileInView={{ opacity: 1, scale: 1 }}
@@ -70,7 +73,7 @@ export function BundleDeals({ bundles: bundlesProp }: BundleDealsProps = {}) {
                                                     <p className="text-sm text-muted-foreground line-through">${bundle.originalPrice}</p>
                                                     <p className="text-4xl font-semibold text-primary">${bundle.price}</p>
                                                 </div>
-                                                <Button size="lg" className="rounded-full h-14 px-8 font-bold text-lg gap-2 shadow-xl shadow-primary/30">
+                                                <Button size="lg" className="rounded-full h-14 px-8 font-bold text-lg gap-2 shadow-xl shadow-primary/30" onClick={() => toast.success('Bundle added to cart!')}>
                                                     <ShoppingCart className="w-5 h-5" />
                                                     Grab the Bundle
                                                 </Button>
@@ -84,7 +87,7 @@ export function BundleDeals({ bundles: bundlesProp }: BundleDealsProps = {}) {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
                     ))}
                 </div>
             </div>

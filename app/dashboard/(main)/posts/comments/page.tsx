@@ -130,8 +130,7 @@ export default function CommentsPage() {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search comments, authors, posts..."
+          <Input placeholder="Search comments, authors, posts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -148,8 +147,7 @@ export default function CommentsPage() {
             <SelectItem value="spam">Spam</SelectItem>
           </SelectContent>
         </Select>
-        <Button
-          variant="outline"
+        <Button variant="outline"
           size="icon"
           onClick={() => queryClient.invalidateQueries({ queryKey: ["admin-comments"] })}
         >
@@ -200,8 +198,7 @@ export default function CommentsPage() {
                     </TableCell>
                     <TableCell>
                       {comment.post ? (
-                        <Link
-                          href={`/blog/${comment.post.slug}`}
+                        <Link href={`/blog/${comment.post.slug}`}
                           target="_blank"
                           className="text-sm text-primary hover:underline flex items-center gap-1"
                         >
@@ -218,8 +215,7 @@ export default function CommentsPage() {
                       {format(new Date(comment.createdAt), "MMM d, yyyy")}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
+                      <Badge variant="outline"
                         className={`gap-1 ${statusColors[comment.status] || ""}`}
                       >
                         <StatusIcon className="w-3 h-3" />
@@ -228,8 +224,7 @@ export default function CommentsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Select
-                          value={comment.status}
+                        <Select value={comment.status}
                           onValueChange={(value) =>
                             statusMutation.mutate({ id: comment.id, status: value })
                           }
@@ -243,8 +238,7 @@ export default function CommentsPage() {
                             <SelectItem value="spam">Spam</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Button
-                          variant="ghost"
+                        <Button variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-destructive hover:bg-destructive/10"
                           onClick={() => {

@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -124,25 +125,21 @@ export default function RegisterPage() {
           <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/10 via-[#030712] to-[#030712]" />
           <div className="absolute top-0 left-0 w-full h-full bg-grain opacity-[0.03] mix-blend-overlay" />
 
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
+          <AnimatedDiv initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="absolute top-1/4 right-0 pointer-events-none"
           >
             <div className="relative w-[500px] h-[500px]">
-              <motion.div
-                animate={{ rotate: 360 }}
+              <AnimatedDiv animate={{ rotate: 360 }}
                 transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
                 className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full border border-white/5 border-dashed"
               />
-              <motion.div
-                animate={{ rotate: -360 }}
+              <AnimatedDiv animate={{ rotate: -360 }}
                 transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                 className="absolute top-10 right-10 w-[300px] h-[300px] rounded-full border border-white/5"
               />
-              <motion.div
-                animate={{ y: [0, -15, 0] }}
+              <AnimatedDiv animate={{ y: [0, -15, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute top-20 right-20 w-72 bg-gray-900/50 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl -rotate-6"
               >
@@ -162,19 +159,18 @@ export default function RegisterPage() {
                     <span className="text-green-400">&quot;Welcome!&quot;</span>;
                   </div>
                   <div className="w-full h-px bg-white/10 my-2" />
-                  <div className="flex gap-2 text-[10px] opacity-50">
+                  <div className="flex gap-2 text-sm opacity-50">
                     // Create your account
                   </div>
                 </div>
-              </motion.div>
+              </AnimatedDiv>
             </div>
-          </motion.div>
+          </AnimatedDiv>
         </div>
 
         <div className="relative z-10 h-full flex flex-col justify-between">
           <div>
-            <Link
-              href="/"
+            <Link href="/"
               className="text-2xl xl:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
             >
               Ofitsoft
@@ -186,8 +182,7 @@ export default function RegisterPage() {
 
           <div className="max-w-xl">
             <AnimatePresence mode="wait">
-              <motion.div
-                key={currentTestimonial}
+              <AnimatedDiv key={currentTestimonial}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -196,14 +191,13 @@ export default function RegisterPage() {
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonials[currentTestimonial].stars)].map(
                     (_, i) => (
-                      <motion.div
-                        key={i}
+                      <AnimatedDiv key={i}
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.1 }}
                       >
                         <span className="text-yellow-500">★</span>
-                      </motion.div>
+                      </AnimatedDiv>
                     )
                   )}
                 </div>
@@ -218,14 +212,13 @@ export default function RegisterPage() {
                     {testimonials[currentTestimonial].role}
                   </p>
                 </div>
-              </motion.div>
+              </AnimatedDiv>
             </AnimatePresence>
           </div>
 
           <div className="flex flex-wrap gap-6 xl:gap-8">
             {features.map((feature, i) => (
-              <div
-                key={i}
+              <div key={i}
                 className="flex items-center gap-3 text-sm text-gray-300"
               >
                 <div className="p-2 rounded-full bg-white/5 border border-white/10 text-primary shrink-0">
@@ -240,8 +233,7 @@ export default function RegisterPage() {
 
       {/* RIGHT SIDE - FORM (40%) */}
       <div className="w-full lg:w-[40%] bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
+        <AnimatedDiv initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="w-full max-w-md space-y-6 sm:space-y-8"
@@ -256,8 +248,7 @@ export default function RegisterPage() {
           </div>
 
           {isSuccess ? (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
+            <AnimatedDiv initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="flex flex-col items-center justify-center py-8 sm:py-12 text-center"
             >
@@ -270,18 +261,16 @@ export default function RegisterPage() {
               <p className="text-muted-foreground text-sm sm:text-base">
                 Redirecting to dashboard...
               </p>
-            </motion.div>
+            </AnimatedDiv>
           ) : (
-            <form
-              onSubmit={handleSubmit(onSubmit)}
+            <form onSubmit={handleSubmit(onSubmit)}
               className="space-y-4 sm:space-y-5"
             >
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative group">
                   <User className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
-                  <Input
-                    id="name"
+                  <Input id="name"
                     {...register("name")}
                     type="text"
                     placeholder="John Doe"
@@ -302,8 +291,7 @@ export default function RegisterPage() {
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative group">
                   <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
-                  <Input
-                    id="email"
+                  <Input id="email"
                     {...register("email")}
                     type="email"
                     placeholder="john@example.com"
@@ -326,8 +314,7 @@ export default function RegisterPage() {
                 <Label htmlFor="phone">Phone Number</Label>
                 <div className="relative group">
                   <Phone className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
-                  <Input
-                    id="phone"
+                  <Input id="phone"
                     {...register("phone")}
                     type="tel"
                     inputMode="numeric"
@@ -351,8 +338,7 @@ export default function RegisterPage() {
                 <Label htmlFor="password">Password</Label>
                 <div className="relative group">
                   <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
-                  <Input
-                    id="password"
+                  <Input id="password"
                     {...register("password")}
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password (min 8 characters)"
@@ -363,8 +349,7 @@ export default function RegisterPage() {
                     )}
                     aria-invalid={!!errors.password}
                   />
-                  <Button
-                    type="button"
+                  <Button type="button"
                     variant="ghost"
                     size="icon"
                     className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
@@ -387,8 +372,7 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              <Button
-                type="submit"
+              <Button type="submit"
                 disabled={authLoading}
                 className={cn(
                   "w-full h-10 sm:h-12 font-bold rounded-xl",
@@ -416,8 +400,7 @@ export default function RegisterPage() {
               <p className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <Button variant="link" asChild className="h-auto p-0 font-bold">
-                  <Link
-                    href="/dashboard/login"
+                  <Link href="/dashboard/login"
                     className="inline-flex items-center gap-2 group"
                   >
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -427,7 +410,7 @@ export default function RegisterPage() {
               </p>
             </form>
           )}
-        </motion.div>
+        </AnimatedDiv>
       </div>
       </div>
      

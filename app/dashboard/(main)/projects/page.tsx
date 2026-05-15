@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { Animated, AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
     Search, Filter, Plus, LayoutGrid, List, MoreVertical,
     Calendar, Users, AlertCircle, CheckCircle2, Clock,
@@ -50,8 +51,7 @@ export default function ProjectsOverview() {
                     <p className="text-muted-foreground">Manage and track all your ongoing projects.</p>
                 </div>
 
-                <Link
-                    href="/dashboard/projects/new"
+                <Link href="/dashboard/projects/new"
                     className="relative group px-6 py-3 bg-primary text-white rounded-xl font-bold transition-all hover:scale-105 shadow-lg shadow-primary/25 overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -63,13 +63,12 @@ export default function ProjectsOverview() {
 
             {/* Spotlight Carousel */}
             <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase">
                     <AlertCircle className="w-4 h-4 text-orange-500" /> Urgent Attention
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
                     {urgentProjects.map((p, i) => (
-                         <motion.div
-                            key={p.id}
+                         <AnimatedDiv key={p.id}
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.1 }}
@@ -79,7 +78,7 @@ export default function ProjectsOverview() {
                                 <div className="p-2 bg-orange-500/10 rounded-xl text-orange-500">
                                     <Clock className="w-5 h-5" />
                                 </div>
-                                <span className="text-[10px] font-bold bg-background border border-border px-2 py-1 rounded-full">{formatDate(p.dueDate)}</span>
+                                <span className="text-sm font-bold bg-background border border-border px-2 py-1 rounded-full">{formatDate(p.dueDate)}</span>
                             </div>
                             <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
                                 <Link href={`/dashboard/projects/${p.id}`}>{p.title}</Link>
@@ -91,14 +90,14 @@ export default function ProjectsOverview() {
                                     <span className="text-orange-500">{p.progress}%</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                                    <motion.div 
+                                    <AnimatedDiv 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${p.progress}%` }}
                                         className="h-full bg-orange-500 rounded-full"
                                     />
                                 </div>
                             </div>
-                         </motion.div>
+                         </AnimatedDiv>
                     ))}
                     {/* Add Placeholder if no urgent projects */}
                     {urgentProjects.length === 0 && (
@@ -115,8 +114,7 @@ export default function ProjectsOverview() {
                 {/* Search */}
                 <div className="relative w-full md:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                        type="text"
+                    <input type="text"
                         placeholder="Search projects..."
                         className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                         value={search}
@@ -127,8 +125,7 @@ export default function ProjectsOverview() {
                 {/* Filters */}
                 <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
                     {["All", "In Progress", "Completed", "Delayed"].map(status => (
-                        <button
-                            key={status}
+                        <button key={status}
                             onClick={() => setFilter(status)}
                             className={cn(
                                 "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
@@ -144,8 +141,7 @@ export default function ProjectsOverview() {
 
                 {/* View Toggle */}
                 <div className="flex items-center bg-muted/50 rounded-lg p-1 border border-border">
-                    <button
-                        onClick={() => setView("grid")}
+                    <button onClick={() => setView("grid")}
                         className={cn(
                             "p-2 rounded-md transition-all",
                             view === "grid" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -153,8 +149,7 @@ export default function ProjectsOverview() {
                     >
                         <LayoutGrid className="w-4 h-4" />
                     </button>
-                    <button
-                        onClick={() => setView("table")}
+                    <button onClick={() => setView("table")}
                         className={cn(
                             "p-2 rounded-md transition-all",
                             view === "table" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -178,18 +173,15 @@ export default function ProjectsOverview() {
 
                     {/* Grid View */}
                     {view === "grid" && (
-                        <motion.div
-                            key="grid"
+                        <AnimatedDiv key="grid"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                         >
                             {filteredProjects.map((project, i) => (
-                                <motion.div
-                                    key={project.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
+                                <AnimatedDiv key={project.id}
+                                    layout initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     transition={{ duration: 0.2 }}
@@ -234,8 +226,7 @@ export default function ProjectsOverview() {
                                                 <span className="font-bold">{project.progress}%</span>
                                             </div>
                                             <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                                                <motion.div
-                                                    initial={{ width: 0 }}
+                                                <AnimatedDiv initial={{ width: 0 }}
                                                     animate={{ width: `${project.progress}%` }}
                                                     transition={{ duration: 1, delay: 0.5 }}
                                                     className={cn("h-full rounded-full", project.progress === 100 ? "bg-green-500" : "bg-primary")}
@@ -254,15 +245,14 @@ export default function ProjectsOverview() {
                                             </div>
                                         </div>
                                     </div>
-                                </motion.div>
+                                </AnimatedDiv>
                             ))}
-                        </motion.div>
+                        </AnimatedDiv>
                     )}
 
                     {/* Table View */}
                     {view === "table" && (
-                        <motion.div
-                            key="table"
+                        <AnimatedDiv key="table"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -282,7 +272,7 @@ export default function ProjectsOverview() {
                                 </thead>
                                 <tbody>
                                     {filteredProjects.map((project, i) => (
-                                        <motion.tr
+                                        <Animated as="tr"
                                             key={project.id}
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
@@ -305,7 +295,7 @@ export default function ProjectsOverview() {
                                             </td>
                                             <td className="p-4">
                                                  <div className="flex items-center gap-2">
-                                                    <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase border", PAYMENT_STATUS_COLORS[project.paymentStatus as keyof typeof PAYMENT_STATUS_COLORS])}>
+                                                    <span className={cn("px-2 py-0.5 rounded text-sm font-bold uppercase border", PAYMENT_STATUS_COLORS[project.paymentStatus as keyof typeof PAYMENT_STATUS_COLORS])}>
                                                         {project.paymentStatus}
                                                     </span>
                                                     {project.paymentStatus === "Unpaid" && (
@@ -337,11 +327,11 @@ export default function ProjectsOverview() {
                                                     <MoreVertical className="w-4 h-4" />
                                                 </Link>
                                             </td>
-                                        </motion.tr>
+                                        </Animated>
                                     ))}
                                 </tbody>
                             </table>
-                        </motion.div>
+                        </AnimatedDiv>
                     )}
                 </AnimatePresence>
             )}

@@ -123,7 +123,7 @@ export default function AffiliateAdminPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Affiliate Admin Portal
           </h1>
           <p className="text-muted-foreground font-medium mt-1">
@@ -191,10 +191,10 @@ export default function AffiliateAdminPage() {
             <Card key={i} className="border-border/50 bg-card/50 backdrop-blur-md rounded-[32px] p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">
+                  <p className="text-sm font-semibold  text-muted-foreground mb-1">
                     {stat.label}
                   </p>
-                  <h4 className="text-2xl font-black">{stat.value}</h4>
+                  <h4 className="text-2xl font-semibold">{stat.value}</h4>
                   <p className="text-xs text-muted-foreground mt-1">{stat.sub}</p>
                 </div>
                 <div 
@@ -232,7 +232,7 @@ export default function AffiliateAdminPage() {
             {/* Monthly Performance Chart */}
             <Card className="border-border/50 bg-card/60 backdrop-blur-md rounded-[32px] p-6">
               <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-xl font-black flex items-center gap-2">
+                <CardTitle className="text-xl font-semibold flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-primary" /> Monthly Performance
                 </CardTitle>
               </CardHeader>
@@ -270,7 +270,7 @@ export default function AffiliateAdminPage() {
             {/* Top Affiliates */}
             <Card className="border-border/50 bg-card/60 backdrop-blur-md rounded-[32px] p-6">
               <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-xl font-black flex items-center gap-2">
+                <CardTitle className="text-xl font-semibold flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" /> Top Affiliates
                 </CardTitle>
               </CardHeader>
@@ -297,10 +297,10 @@ export default function AffiliateAdminPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-sm" style={{ color: THEME_PRIMARY }}>
+                        <p className="font-semibold text-sm" style={{ color: THEME_PRIMARY }}>
                           ${Number(affiliate.totalEarnings || 0).toLocaleString()}
                         </p>
-                        <p className="text-[10px] text-muted-foreground uppercase font-bold">
+                        <p className="text-sm text-muted-foreground  font-bold">
                           {affiliate.tier}
                         </p>
                       </div>
@@ -445,7 +445,7 @@ function AffiliatesList({
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-muted/30 border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+            <tr className="bg-muted/30 border-b border-border/50 text-sm font-semibold  text-muted-foreground">
               <th className="px-6 py-4">Affiliate</th>
               <th className="px-6 py-4">Status</th>
               <th className="px-6 py-4">Tier</th>
@@ -483,12 +483,12 @@ function AffiliatesList({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge className={cn("text-[10px] font-black uppercase", getStatusBadge(affiliate.status))}>
+                    <Badge className={cn("text-sm font-semibold ", getStatusBadge(affiliate.status))}>
                       {affiliate.status}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant="outline" className="text-[10px] font-black uppercase">
+                    <Badge variant="outline" className="text-sm font-semibold ">
                       {affiliate.tier}
                     </Badge>
                   </td>
@@ -556,16 +556,14 @@ function AffiliatesList({
             Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
           </p>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
+            <Button variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button
-              variant="outline"
+            <Button variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
@@ -636,7 +634,7 @@ function CommissionsList({
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-muted/30 border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+            <tr className="bg-muted/30 border-b border-border/50 text-sm font-semibold  text-muted-foreground">
               <th className="px-6 py-4">ID</th>
               <th className="px-6 py-4">Affiliate</th>
               <th className="px-6 py-4">Order</th>
@@ -676,7 +674,7 @@ function CommissionsList({
                     +${Number(commission.amount).toFixed(2)}
                   </td>
                   <td className="px-6 py-4">
-                    <Badge className={cn("text-[10px] font-black uppercase", getStatusBadge(commission.status))}>
+                    <Badge className={cn("text-sm font-semibold ", getStatusBadge(commission.status))}>
                       {commission.status}
                     </Badge>
                   </td>
@@ -719,16 +717,14 @@ function CommissionsList({
             Page {pagination.page} of {pagination.totalPages}
           </p>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
+            <Button variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button
-              variant="outline"
+            <Button variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
@@ -799,7 +795,7 @@ function WithdrawalsList({
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-muted/30 border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+            <tr className="bg-muted/30 border-b border-border/50 text-sm font-semibold  text-muted-foreground">
               <th className="px-6 py-4">ID</th>
               <th className="px-6 py-4">Affiliate</th>
               <th className="px-6 py-4">Amount</th>
@@ -835,9 +831,9 @@ function WithdrawalsList({
                   <td className="px-6 py-4 font-mono font-bold" style={{ color: THEME_DANGER }}>
                     -${Number(withdrawal.amount).toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 text-sm uppercase">{withdrawal.method}</td>
+                  <td className="px-6 py-4 text-sm ">{withdrawal.method}</td>
                   <td className="px-6 py-4">
-                    <Badge className={cn("text-[10px] font-black uppercase", getStatusBadge(withdrawal.status))}>
+                    <Badge className={cn("text-sm font-semibold ", getStatusBadge(withdrawal.status))}>
                       {withdrawal.status}
                     </Badge>
                   </td>
@@ -904,16 +900,14 @@ function WithdrawalsList({
             Page {pagination.page} of {pagination.totalPages}
           </p>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
+            <Button variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button
-              variant="outline"
+            <Button variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}

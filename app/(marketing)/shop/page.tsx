@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { usePageContent } from "@/hooks/usePageContent";
+import { useState, useMemo } from "react";
 import { usePublicProducts, usePublicBundles, mapApiProductsToShop, mapApiBundlesToShop } from "@/hooks/usePublicMarketing";
 import { ShopSidebar } from "@/components/sections/shop/shop-sidebar";
 import { ProductCard } from "@/components/sections/shop/product-card";
@@ -10,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { motion } from "framer-motion";
 import { BundleDeals } from "@/components/sections/shop/bundle-deals";
 import { ShopTestimonials } from "@/components/sections/shop/shop-testimonials";
 import { SupportPromise } from "@/components/sections/shop/support-promise";
@@ -19,17 +17,9 @@ import { useFavorites } from "@/hooks/useFavorites";
 import Link from "next/link";
 
 export default function ShopPage() {
-    const { pageContent, isLoading } = usePageContent('shop');
-    const setContent = useShopContentStore((state) => state.setContent);
     const { data: apiProducts = [] } = usePublicProducts();
     const { data: apiBundles = [] } = usePublicBundles();
     const { wishlist, addToWishlist, removeFromWishlist } = useFavorites();
-
-    useEffect(() => {
-        if (pageContent?.content) {
-            setContent(pageContent.content);
-        }
-    }, [pageContent, setContent]);
 
     const { content } = useShopContentStore();
     const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +36,7 @@ export default function ShopPage() {
         let result = [...products];
         
         // Search
-        if (searchQuery) {
+  if (searchQuery) {
             result = result.filter(p => 
                 p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 p.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -54,22 +44,12 @@ export default function ShopPage() {
         }
 
         // Sort
-        if (selectedSort === "price-low") result.sort((a, b) => a.price - b.price);
+  if (selectedSort === "price-low") result.sort((a, b) => a.price - b.price);
         if (selectedSort === "price-high") result.sort((a, b) => b.price - a.price);
         if (selectedSort === "popular") result.sort((a, b) => b.reviews - a.reviews);
 
         return result;
     }, [searchQuery, selectedSort, products]);
-
-    if (isLoading && !pageContent) {
-        return (
-            <div className="fixed inset-0 bg-[#020202] flex items-center justify-center z-[100]">
-                <div className="text-primary font-semibold animate-pulse tracking-[0.3em]">
-                    Loading Assets...
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-24 pb-20">
@@ -160,10 +140,10 @@ export default function ShopPage() {
 
                         {filteredProducts.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                                {filteredProducts.map((product) => (
-                                    <ProductCard
-                                        key={product.id}
+                                {filteredProducts.map((product, i) => (
+                                    <ProductCard key={product.id}
                                         product={product}
+                                        index={i}
                                         isFavorite={favoriteIds.has(product.id)}
                                         onToggleWishlist={() => {
                                             if (favoriteIds.has(product.id)) {

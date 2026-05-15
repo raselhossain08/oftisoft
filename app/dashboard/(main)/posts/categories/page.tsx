@@ -119,8 +119,7 @@ export default function PostCategoriesPage() {
                 <CardContent>
                     <div className="relative max-w-sm mb-4">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search categories..."
+                        <Input placeholder="Search categories..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="pl-9"
@@ -184,24 +183,21 @@ export default function PostCategoriesPage() {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label>Name *</Label>
-                            <Input
-                                value={form.name}
+                            <Input value={form.name}
                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                                 placeholder="e.g. Technology, Design"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Slug</Label>
-                            <Input
-                                value={form.slug}
+                            <Input value={form.slug}
                                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
                                 placeholder="Auto-generated if empty"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Description</Label>
-                            <Textarea
-                                value={form.description}
+                            <Textarea value={form.description}
                                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                                 placeholder="Brief description of this category"
                             />
@@ -227,8 +223,7 @@ export default function PostCategoriesPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() => { if (deleteTarget) { deleteCategory(deleteTarget.id); setDeleteTarget(null); } }}
+                        <AlertDialogAction onClick={() => { if (deleteTarget) { deleteCategory(deleteTarget.id); setDeleteTarget(null); } }}
                             className="bg-destructive hover:bg-destructive/90"
                         >
                             Delete

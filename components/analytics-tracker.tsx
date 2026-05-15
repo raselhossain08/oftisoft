@@ -14,7 +14,7 @@ function TrackerContent() {
         const track = async () => {
             try {
                 // Handle Referral Tracking
-                const ref = searchParams.get('ref');
+  const ref = searchParams.get('ref');
                 if (ref) {
                     localStorage.setItem('ofti_referral', ref);
                 }

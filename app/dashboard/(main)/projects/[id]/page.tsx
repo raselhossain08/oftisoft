@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
     ChevronLeft, MoreVertical, Calendar, Flag, PieChart,
     MessageSquare, FolderOpen, Clock, Settings,
@@ -82,17 +83,16 @@ export default function ProjectDetailsPage() {
 
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="flex items-center gap-4">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
+                        <AnimatedDiv initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-bold text-2xl border border-primary/20 shadow-lg shadow-primary/5"
                         >
                             {project.title.substring(0, 2).toUpperCase()}
-                        </motion.div>
+                        </AnimatedDiv>
                         <div>
                             <h1 className="text-2xl font-bold flex items-center gap-3">
                                 {project.title}
-                                <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border", STATUS_COLORS[project.status])}>
+                                <span className={cn("px-2.5 py-0.5 rounded-full text-sm font-extrabold uppercase border", STATUS_COLORS[project.status])}>
                                     {project.status}
                                 </span>
                             </h1>
@@ -104,8 +104,7 @@ export default function ProjectDetailsPage() {
                         <button className="p-2.5 border border-border rounded-xl hover:bg-muted transition-colors">
                             <Share2 className="w-4 h-4" />
                         </button>
-                        <button
-                            onClick={() => setShowEditDialog(true)}
+                        <button onClick={() => setShowEditDialog(true)}
                             className="px-5 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 text-center flex items-center gap-2"
                         >
                             <Edit3 className="w-4 h-4" /> Edit Project
@@ -120,8 +119,7 @@ export default function ProjectDetailsPage() {
                     {TABS.map((tab) => {
                         const isActive = activeTab === tab.id;
                         return (
-                            <button
-                                key={tab.id}
+                            <button key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={cn(
                                     "flex items-center gap-2 px-6 py-4 text-sm font-bold transition-all relative whitespace-nowrap",
@@ -131,8 +129,7 @@ export default function ProjectDetailsPage() {
                                 <tab.icon className={cn("w-4 h-4 transition-transform", isActive && "scale-110")} />
                                 {tab.label}
                                 {isActive && (
-                                    <motion.div
-                                        layoutId="tab-underline-project"
+                                    <AnimatedDiv layoutId="tab-underline-project"
                                         className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_-2px_8px_rgba(var(--primary),0.3)]"
                                     />
                                 )}
@@ -144,8 +141,7 @@ export default function ProjectDetailsPage() {
 
             {/* Content Swapper */}
             <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeTab}
+                <AnimatedDiv key={activeTab}
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
@@ -163,19 +159,19 @@ export default function ProjectDetailsPage() {
                                     </p>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-border">
                                         <div>
-                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Created</p>
+                                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Created</p>
                                             <p className="font-bold">{formatDate(project.createdAt)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Deadline</p>
+                                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Deadline</p>
                                             <p className="font-bold text-red-500">{formatDate(project.dueDate)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Budget</p>
+                                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Budget</p>
                                             <p className="font-bold text-green-500">${project.budget?.toLocaleString() || 'N/A'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Team Size</p>
+                                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Team Size</p>
                                             <p className="font-bold">{project.members} members</p>
                                         </div>
                                     </div>
@@ -201,8 +197,7 @@ export default function ProjectDetailsPage() {
                                                 <span>{project.progress}%</span>
                                             </div>
                                             <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                                                <motion.div
-                                                    initial={{ width: 0 }}
+                                                <AnimatedDiv initial={{ width: 0 }}
                                                     animate={{ width: `${project.progress}%` }}
                                                     className="bg-primary h-full rounded-full shadow-[0_0_10px_rgba(var(--primary),0.3)]"
                                                 />
@@ -232,21 +227,21 @@ export default function ProjectDetailsPage() {
                                 <h3 className="font-bold text-lg mb-6">Project Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Project ID</p>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Project ID</p>
                                         <p className="font-mono text-sm bg-muted px-3 py-2 rounded-lg">{project.id}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Status</p>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Status</p>
                                         <span className={cn("px-3 py-1.5 rounded-full text-xs font-bold border inline-block", STATUS_COLORS[project.status])}>
                                             {project.status}
                                         </span>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Created At</p>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Created At</p>
                                         <p className="font-bold">{formatDate(project.createdAt)}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Last Updated</p>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Last Updated</p>
                                         <p className="font-bold">{formatDate(project.updatedAt)}</p>
                                     </div>
                                 </div>
@@ -316,8 +311,7 @@ export default function ProjectDetailsPage() {
                                     <p className="text-sm text-muted-foreground mb-4">
                                         Deleting a project is irreversible. All project data will be permanently removed.
                                     </p>
-                                    <button
-                                        onClick={() => setShowDeleteDialog(true)}
+                                    <button onClick={() => setShowDeleteDialog(true)}
                                         disabled={isDeleting}
                                         className="px-6 py-3 border-2 border-red-500/20 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 transition-all flex items-center gap-2 disabled:opacity-50"
                                     >
@@ -328,22 +322,20 @@ export default function ProjectDetailsPage() {
                         </div>
                     )}
 
-                </motion.div>
+                </AnimatedDiv>
             </AnimatePresence>
 
             {/* Dialogs */}
             <AnimatePresence>
                 {showDeleteDialog && (
-                    <DeleteDialog
-                        isOpen={showDeleteDialog}
+                    <DeleteDialog isOpen={showDeleteDialog}
                         onClose={() => setShowDeleteDialog(false)}
                         onConfirm={handleDelete}
                         projectTitle={project.title}
                     />
                 )}
                 {showEditDialog && (
-                    <EditDialog
-                        isOpen={showEditDialog}
+                    <EditDialog isOpen={showEditDialog}
                         onClose={() => setShowEditDialog(false)}
                         project={project}
                         onSave={handleUpdate}

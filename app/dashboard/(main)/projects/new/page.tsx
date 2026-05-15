@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
     Layout, CheckSquare, Users, Calendar, Rocket,
     ArrowRight, ArrowLeft, Wand2, Plus, X, DollarSign
@@ -26,7 +27,7 @@ export default function CreateProjectPage() {
     const [step, setStep] = useState(1);
 
     // Form State
-    const [title, setTitle] = useState("");
+  const [title, setTitle] = useState("");
     const [client, setClient] = useState("");
     const [description, setDescription] = useState("");
     const [projectType, setProjectType] = useState("");
@@ -43,7 +44,7 @@ export default function CreateProjectPage() {
 
     const handleLaunch = () => {
         // Validate required fields
-        if (!title || !client) {
+  if (!title || !client) {
             toast.error("Please fill in all required fields");
             return;
         }
@@ -114,8 +115,7 @@ export default function CreateProjectPage() {
 
                         {/* Step 1: Basics */}
                         {step === 1 && (
-                            <motion.div
-                                key="step1"
+                            <AnimatedDiv key="step1"
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
@@ -129,8 +129,7 @@ export default function CreateProjectPage() {
                                 <div className="space-y-6 max-w-2xl mx-auto">
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold">Project Title *</label>
-                                        <input
-                                            value={title}
+                                        <input value={title}
                                             onChange={(e) => setTitle(e.target.value)}
                                             placeholder="e.g. E-commerce Redesign"
                                             className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
@@ -139,8 +138,7 @@ export default function CreateProjectPage() {
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold">Client Name *</label>
-                                        <input
-                                            value={client}
+                                        <input value={client}
                                             onChange={(e) => setClient(e.target.value)}
                                             placeholder="e.g. Acme Corporation"
                                             className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
@@ -149,8 +147,7 @@ export default function CreateProjectPage() {
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold">Description</label>
-                                        <textarea
-                                            value={description}
+                                        <textarea value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                             placeholder="Brief description of the project..."
                                             rows={4}
@@ -162,8 +159,7 @@ export default function CreateProjectPage() {
                                         <label className="text-sm font-bold">Project Type</label>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             {PROJECT_TYPES.map((type) => (
-                                                <button
-                                                    key={type.id}
+                                                <button key={type.id}
                                                     onClick={() => setProjectType(type.id)}
                                                     className={cn(
                                                         "relative p-4 rounded-2xl border text-left transition-all hover:shadow-lg group",
@@ -185,13 +181,12 @@ export default function CreateProjectPage() {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         )}
 
                         {/* Step 2: Details */}
                         {step === 2 && (
-                            <motion.div
-                                key="step2"
+                            <AnimatedDiv key="step2"
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
@@ -208,8 +203,7 @@ export default function CreateProjectPage() {
                                             <label className="text-sm font-bold flex items-center gap-2">
                                                 <DollarSign className="w-4 h-4" /> Budget
                                             </label>
-                                            <input
-                                                type="number"
+                                            <input type="number"
                                                 value={budget}
                                                 onChange={(e) => setBudget(e.target.value)}
                                                 placeholder="e.g. 50000"
@@ -221,8 +215,7 @@ export default function CreateProjectPage() {
                                             <label className="text-sm font-bold flex items-center gap-2">
                                                 <Users className="w-4 h-4" /> Team Members
                                             </label>
-                                            <input
-                                                type="number"
+                                            <input type="number"
                                                 min="1"
                                                 value={members}
                                                 onChange={(e) => setMembers(parseInt(e.target.value) || 1)}
@@ -233,8 +226,7 @@ export default function CreateProjectPage() {
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold">Status</label>
-                                        <select
-                                            value={status}
+                                        <select value={status}
                                             onChange={(e) => setStatus(e.target.value)}
                                             className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
                                         >
@@ -258,7 +250,7 @@ export default function CreateProjectPage() {
                                             </button>
                                         </form>
                                         <div className="flex flex-wrap gap-2">
-                                            {requirements.length === 0 && <span className="text-sm text-muted-foreground italic">No requirements added yet.</span>}
+                                            {requirements.length === 0 && <span className="text-sm text-muted-foreground ">No requirements added yet.</span>}
                                             {requirements.map((req, i) => (
                                                 <span key={i} className="bg-card border border-border pl-3 pr-2 py-1.5 rounded-full text-sm font-medium flex items-center gap-2">
                                                     {req}
@@ -270,13 +262,12 @@ export default function CreateProjectPage() {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         )}
 
                         {/* Step 3: Timeline */}
                         {step === 3 && (
-                            <motion.div
-                                key="step3"
+                            <AnimatedDiv key="step3"
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
@@ -292,8 +283,7 @@ export default function CreateProjectPage() {
                                         <label className="text-sm font-bold flex items-center gap-2">
                                             <Calendar className="w-4 h-4" /> Due Date
                                         </label>
-                                        <input
-                                            type="date"
+                                        <input type="date"
                                             value={dueDate}
                                             onChange={(e) => setDueDate(e.target.value)}
                                             className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 outline-none"
@@ -302,8 +292,7 @@ export default function CreateProjectPage() {
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold">Additional Notes</label>
-                                        <textarea
-                                            value={notes}
+                                        <textarea value={notes}
                                             onChange={(e) => setNotes(e.target.value)}
                                             placeholder="Any additional information about the project..."
                                             rows={6}
@@ -311,13 +300,12 @@ export default function CreateProjectPage() {
                                         />
                                     </div>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         )}
 
                         {/* Step 4: Launch */}
                         {step === 4 && (
-                            <motion.div
-                                key="step4"
+                            <AnimatedDiv key="step4"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="text-center py-10"
@@ -356,15 +344,14 @@ export default function CreateProjectPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <button
-                                            onClick={handleLaunch}
+                                        <button onClick={handleLaunch}
                                             className="px-8 py-4 bg-primary text-white text-lg font-bold rounded-xl shadow-lg shadow-primary/30 hover:scale-105 transition-transform flex items-center gap-3 mx-auto"
                                         >
                                             <Rocket className="w-5 h-5" /> Create Project
                                         </button>
                                     </div>
                                 )}
-                            </motion.div>
+                            </AnimatedDiv>
                         )}
 
                     </AnimatePresence>
@@ -373,16 +360,14 @@ export default function CreateProjectPage() {
                 {/* Footer Actions */}
                 {!isCreating && step < 4 && (
                     <div className="bg-muted/30 p-6 border-t border-border flex justify-between items-center">
-                        <button
-                            onClick={prevStep}
+                        <button onClick={prevStep}
                             disabled={step === 1}
                             className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-muted-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" /> Back
                         </button>
 
-                        <button
-                            onClick={nextStep}
+                        <button onClick={nextStep}
                             disabled={(step === 1 && (!title || !client))}
                             className="flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >

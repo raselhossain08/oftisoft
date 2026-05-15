@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv } from "@/lib/animated";
+;
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, RefreshCw, Home, MessageSquare } from "lucide-react";
@@ -51,8 +52,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#030712] to-[#0f172a]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          <AnimatedDiv initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="w-full max-w-lg"
@@ -108,7 +108,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </Button>
               </CardContent>
             </Card>
-          </motion.div>
+          </AnimatedDiv>
         </div>
       );
     }

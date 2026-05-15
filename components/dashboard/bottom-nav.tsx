@@ -1,11 +1,11 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedSpan, AnimatePresence } from "@/lib/animated";
+;
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Folder, MessageSquare, Bell, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -32,12 +32,10 @@ export default function BottomNav() {
               (link.href !== "/dashboard" && pathname.startsWith(link.href));
 
             return (
-              <Button
-                key={link.href}
+              <Button key={link.href}
                 variant="ghost"
                 size="sm"
-                asChild
-                className={cn(
+                asChild className={cn(
                   "relative flex flex-col items-center justify-center p-0 h-12 w-12 rounded-2xl transition-all duration-500",
                   isActive
                     ? "text-primary basis-1/4"
@@ -46,8 +44,7 @@ export default function BottomNav() {
               >
                 <Link href={link.href} className="flex flex-col items-center gap-1">
                   {isActive && (
-                    <motion.div
-                      layoutId="nav-pill"
+                    <AnimatedDiv layoutId="nav-pill"
                       className="absolute inset-0 bg-primary/10 rounded-2xl border border-primary/20"
                       transition={{
                         type: "spring",
@@ -57,38 +54,34 @@ export default function BottomNav() {
                     />
                   )}
 
-                  <div
-                    className={cn(
+                  <div className={cn(
                       "relative z-10 flex flex-col items-center justify-center transition-all duration-500",
                       isActive ? "text-primary scale-110" : "text-muted-foreground/60"
                     )}
                   >
-                    <motion.div
-                      whileTap={{ scale: 0.8 }}
+                    <AnimatedDiv whileTap={{ scale: 0.8 }}
                       transition={{
                         type: "spring",
                         stiffness: 400,
                         damping: 15,
                       }}
                     >
-                      <link.icon
-                        className={cn(
+                      <link.icon className={cn(
                           "w-6 h-6 transition-all duration-500",
                           isActive ? "stroke-[2.5px] drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]" : "stroke-2"
                         )}
                       />
-                    </motion.div>
+                    </AnimatedDiv>
                     
                     <AnimatePresence>
                       {isActive && (
-                        <motion.span
-                          initial={{ opacity: 0, y: 5 }}
+                        <AnimatedSpan initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 5 }}
                           className="text-[8px] font-black uppercase tracking-[0.2em] mt-1"
                         >
                           {link.label}
-                        </motion.span>
+                        </AnimatedSpan>
                       )}
                     </AnimatePresence>
                   </div>

@@ -278,7 +278,7 @@ const defaultContent: HomePageContent = {
         primaryCTA: { text: 'Start Project', link: '/#contact' },
         secondaryCTA: { text: 'Showreel', link: '/portfolio' },
         stats: [
-            { value: 150, suffix: '+', label: 'Projects Completed' },
+            { value: 500, suffix: '+', label: 'Projects Completed' },
             { value: 98, suffix: '%', label: 'Client Satisfaction' },
             { value: 6, suffix: 'Y', label: 'Years Experience' }
         ],
@@ -598,8 +598,8 @@ const defaultContent: HomePageContent = {
         buttonText: 'Get in Touch',
         buttonLink: '/contact',
         contactInfo: {
-            email: 'hello@oftisoft.com',
-            phone: '+1 (555) 000-0000',
+            email: 'oftisoft@gmail.com',
+            phone: '+8801757220402',
             location: 'San Francisco, CA'
         },
         enabled: true,
@@ -608,7 +608,7 @@ const defaultContent: HomePageContent = {
         title: 'Oftisoft - Premium Software Solutions',
         description: 'Transform your digital vision into reality with modern, high-performance software solutions.',
         keywords: ['software development', 'web development', 'mobile apps', 'custom software'],
-        ogImage: '/og-image.jpg',
+        ogImage: '/og-image.svg',
         ogTitle: 'Oftisoft - Premium Software Solutions',
         ogDescription: 'Transform your digital vision into reality with modern, high-performance software solutions.',
         twitterCard: 'summary_large_image',

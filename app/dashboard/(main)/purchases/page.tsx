@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import { 
@@ -44,7 +46,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 import { useOrders } from "@/hooks/useOrders";
 import { useCart } from "@/hooks/use-cart";
 import { ReportIssueDialog } from "@/components/report-issue-dialog";
@@ -56,8 +57,7 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }: any) => {
     
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+            <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-card w-full max-w-2xl rounded-3xl border border-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
@@ -136,7 +136,7 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }: any) => {
                         Close
                     </Button>
                 </div>
-            </motion.div>
+            </AnimatedDiv>
         </div>
     );
 };
@@ -183,7 +183,7 @@ export default function MyOrdersPage() {
                 id: item.productId,
                 name: item.productName,
                 price: item.price,
-                image: "", // Image isn't usually in order item, handled by cart logic or placeholder
+                image: item.productImage || "",
                 slug: item.productSlug || `product-${item.productId}`,
                 type: 'product'
             });
@@ -224,7 +224,7 @@ export default function MyOrdersPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                         My Purchases
                     </h1>
                     <p className="text-muted-foreground mt-1 text-sm font-medium">Access your digital assets, track active orders, and manage invoices.</p>
@@ -246,7 +246,7 @@ export default function MyOrdersPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <AnimatePresence>
                     {activeOrders.slice(0, 2).map(activeOrder => (
-                        <motion.div 
+                        <AnimatedDiv 
                             key={activeOrder.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -258,8 +258,8 @@ export default function MyOrdersPage() {
                                     <Clock className="w-5 h-5 text-primary animate-pulse" />
                                 </div>
                                 <CardHeader className="pb-2">
-                                    <CardDescription className="text-[10px] uppercase font-black tracking-widest text-primary/60">Active Shipment</CardDescription>
-                                    <CardTitle className="text-lg font-black">Order #{activeOrder.id.substring(0, 8)}</CardTitle>
+                                    <CardDescription className="text-sm uppercase font-semibold text-primary/60">Active Shipment</CardDescription>
+                                    <CardTitle className="text-lg font-semibold">Order #{activeOrder.id.substring(0, 8)}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center justify-between text-xs">
@@ -267,21 +267,21 @@ export default function MyOrdersPage() {
                                         <span className="text-muted-foreground">Estimated: 2 days</span>
                                     </div>
                                     <div className="h-1.5 bg-primary/10 rounded-full overflow-hidden">
-                                        <motion.div 
+                                        <AnimatedDiv 
                                             initial={{ width: 0 }}
                                             animate={{ width: activeOrder.status === 'processing' ? "65%" : "20%" }}
                                             className="h-full bg-primary"
                                         />
                                     </div>
                                     {activeOrder.trackingNumber && (
-                                        <div className="flex items-center gap-2 text-[10px] font-mono bg-background/50 p-2 rounded-lg border border-border/50 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => window.open(`https://track.example.com/${activeOrder.trackingNumber}`, '_blank')}>
+                                        <div className="flex items-center gap-2 text-sm font-mono bg-background/50 p-2 rounded-lg border border-border/50 hover:border-primary/30 transition-colors cursor-pointer" onClick={() => window.open(`https://track.example.com/${activeOrder.trackingNumber}`, '_blank')}>
                                             <Hash className="w-3 h-3 text-primary" /> {activeOrder.trackingNumber}
                                             <ExternalLink className="w-3 h-3 ml-auto opacity-50 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                     )}
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
                     ))}
                 </AnimatePresence>
 
@@ -291,9 +291,9 @@ export default function MyOrdersPage() {
                     </div>
                     <div>
                         <p className="text-sm font-bold">Need help with an order?</p>
-                        <p className="text-[10px] text-muted-foreground px-4">Our support agents are available 24/7 to assist you.</p>
+                        <p className="text-sm text-muted-foreground px-4">Our support agents are available 24/7 to assist you.</p>
                     </div>
-                    <Button variant="link" className="text-primary font-black text-xs p-0 h-auto" onClick={() => router.push('/dashboard/support')}>
+                    <Button variant="link" className="text-primary font-semibold text-xs p-0 h-auto" onClick={() => router.push('/dashboard/support')}>
                         Contact Support <ChevronRight className="w-3 h-3" />
                     </Button>
                 </Card>
@@ -336,12 +336,12 @@ export default function MyOrdersPage() {
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/5 hover:bg-transparent border-border/50">
-                                <TableHead className="px-6 h-12 text-xs uppercase tracking-wider font-bold text-muted-foreground">Order</TableHead>
-                                <TableHead className="h-12 text-xs uppercase tracking-wider font-bold text-muted-foreground">Date</TableHead>
-                                <TableHead className="h-12 text-xs uppercase tracking-wider font-bold text-muted-foreground">Status</TableHead>
-                                <TableHead className="h-12 text-xs uppercase tracking-wider font-bold text-muted-foreground">Products</TableHead>
-                                <TableHead className="h-12 text-xs uppercase tracking-wider font-bold text-muted-foreground">Total</TableHead>
-                                <TableHead className="text-right px-6 h-12 text-xs uppercase tracking-wider font-bold text-muted-foreground">Actions</TableHead>
+                                <TableHead className="px-6 h-12 text-xs uppercase font-bold text-muted-foreground">Order</TableHead>
+                                <TableHead className="h-12 text-xs uppercase font-bold text-muted-foreground">Date</TableHead>
+                                <TableHead className="h-12 text-xs uppercase font-bold text-muted-foreground">Status</TableHead>
+                                <TableHead className="h-12 text-xs uppercase font-bold text-muted-foreground">Products</TableHead>
+                                <TableHead className="h-12 text-xs uppercase font-bold text-muted-foreground">Total</TableHead>
+                                <TableHead className="text-right px-6 h-12 text-xs uppercase font-bold text-muted-foreground">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -349,8 +349,8 @@ export default function MyOrdersPage() {
                                 <TableRow key={o.id} className="group hover:bg-primary/[0.02] transition-colors border-border/50">
                                     <TableCell className="px-6 py-4">
                                         <div className="flex flex-col">
-                                            <span className="font-mono text-sm font-black text-primary/80">#{o.id.substring(0, 8)}</span>
-                                            <span className="text-[10px] text-muted-foreground uppercase">{o.items.length} Item(s)</span>
+                                            <span className="font-mono text-sm font-semibold text-primary/80">#{o.id.substring(0, 8)}</span>
+                                            <span className="text-sm text-muted-foreground uppercase">{o.items.length} Item(s)</span>
                                         </div>
                                     </TableCell>
                                     <TableCell className="py-4">
@@ -366,18 +366,18 @@ export default function MyOrdersPage() {
                                                 <div key={idx} className="flex items-center gap-2">
                                                     <span className="text-sm font-medium line-clamp-1">{item.productName}</span>
                                                     {item.downloadUrl && o.status === "completed" && (
-                                                        <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-green-500/30 text-green-500 bg-green-500/5 cursor-pointer hover:bg-green-500/10 transition-colors">
+                                                        <Badge variant="outline" className="text-xs h-4 px-1.5 border-green-500/30 text-green-500 bg-green-500/5 cursor-pointer hover:bg-green-500/10 transition-colors">
                                                             Download
                                                         </Badge>
                                                     )}
                                                 </div>
                                             ))}
                                             {o.items.length > 2 && (
-                                                <span className="text-[10px] text-muted-foreground font-medium italic">+ {o.items.length - 2} more items</span>
+                                                <span className="text-sm text-muted-foreground font-medium ">+ {o.items.length - 2} more items</span>
                                             )}
                                         </div>
                                     </TableCell>
-                                    <TableCell className="py-4 font-black text-base text-foreground/80">${Number(o.total).toFixed(2)}</TableCell>
+                                    <TableCell className="py-4 font-semibold text-base text-foreground/80">${Number(o.total).toFixed(2)}</TableCell>
                                     <TableCell className="text-right px-6 py-4">
                                         <div className="flex items-center justify-end gap-2">
                                             {o.status === "completed" && (
@@ -397,7 +397,7 @@ export default function MyOrdersPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 border-border/50 backdrop-blur-xl bg-card/95">
-                                                    <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground p-3 pt-2">Order Options</DropdownMenuLabel>
+                                                    <DropdownMenuLabel className="text-sm uppercase font-semibold text-muted-foreground p-3 pt-2">Order Options</DropdownMenuLabel>
                                                     <DropdownMenuItem 
                                                         className="rounded-xl flex items-center gap-3 p-3 cursor-pointer group hover:bg-primary/5 focus:bg-primary/5"
                                                         onClick={() => setSelectedOrder(o)}
@@ -438,7 +438,7 @@ export default function MyOrdersPage() {
                                         <div className="flex flex-col items-center justify-center gap-4 opacity-50">
                                             <ShoppingBag className="w-16 h-16 text-muted-foreground" />
                                             <div className="space-y-1">
-                                                <p className="font-black text-xl">No Orders Found</p>
+                                                <p className="font-semibold text-xl">No Orders Found</p>
                                                 <p className="text-sm font-medium">Try adjusting your filters or search query.</p>
                                             </div>
                                         </div>
@@ -449,7 +449,7 @@ export default function MyOrdersPage() {
                     </Table>
                 </CardContent>
                 <CardFooter className="bg-muted/5 border-t border-border/50 px-6 py-4 justify-between items-center">
-                    <p className="text-[10px] text-muted-foreground font-medium italic">Showing {filteredOrders.length} order(s)</p>
+                    <p className="text-sm text-muted-foreground font-medium ">Showing {filteredOrders.length} order(s)</p>
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg" disabled><ChevronRight className="w-4 h-4 rotate-180" /></Button>
                         <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-lg" disabled><ChevronRight className="w-4 h-4" /></Button>
@@ -460,8 +460,7 @@ export default function MyOrdersPage() {
             {/* Order Details Dialog */}
             <AnimatePresence>
                 {selectedOrder && (
-                    <OrderDetailsDialog
-                        isOpen={!!selectedOrder}
+                    <OrderDetailsDialog isOpen={!!selectedOrder}
                         onClose={() => setSelectedOrder(null)}
                         order={selectedOrder}
                     />
@@ -470,8 +469,7 @@ export default function MyOrdersPage() {
 
             {/* Report Issue Dialog */}
             {reportingOrder && (
-                <ReportIssueDialog
-                    isOpen={!!reportingOrder}
+                <ReportIssueDialog isOpen={!!reportingOrder}
                     onClose={() => setReportingOrder(null)}
                     orderId={reportingOrder.id}
                 />

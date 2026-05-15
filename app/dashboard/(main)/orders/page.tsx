@@ -54,7 +54,7 @@ const OrdersPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [cancelTarget, setCancelTarget] = useState<{ id: string } | null>(null);
-    const { orders = [], isLoading, exportReport, isExportingReport, downloadInvoice, updateStatus } = useOrders();
+    const { orders = [], isLoading, exportReport, isExportingReport, downloadInvoice, isDownloadingInvoice, updateStatus, isUpdatingStatus } = useOrders();
 
     const filteredOrders = orders.filter(o => {
         const matchesStatus = statusFilter === "all" || o.status.toLowerCase() === statusFilter.toLowerCase();
@@ -86,7 +86,7 @@ const OrdersPage = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
+                    <h1 className="text-3xl font-bold">Orders</h1>
                     <p className="text-muted-foreground">Monitor customer transactions, track fulfillment, and manage refunds.</p>
                 </div>
                 <div className="flex gap-2">
@@ -241,7 +241,7 @@ const OrdersPage = () => {
                                             </div>
                                         </TableCell>
                                         <TableCell><StatusBadge status={o.status} /></TableCell>
-                                        <TableCell className="font-black text-primary">${Number(o.total).toFixed(2)}</TableCell>
+                                        <TableCell className="font-semibold text-primary">${Number(o.total).toFixed(2)}</TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -256,17 +256,16 @@ const OrdersPage = () => {
                                                             <Eye className="w-4 h-4" /> View Details
                                                         </Link>
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        className="flex items-center gap-2 cursor-pointer"
+                                                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer"
                                                         onClick={() => downloadInvoice(o.id)}
+                                                        disabled={isDownloadingInvoice}
                                                     >
-                                                        <Download className="w-4 h-4" /> Download Invoice
+                                                        <Download className="w-4 h-4" /> {isDownloadingInvoice ? "Downloading..." : "Download Invoice"}
                                                     </DropdownMenuItem>
                                                     {o.status !== "cancelled" && o.status !== "refunded" && (
                                                         <>
                                                             <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                className="flex items-center gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                                                            <DropdownMenuItem className="flex items-center gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
                                                                 onClick={() => setCancelTarget({ id: o.id })}
                                                             >
                                                                 <XCircle className="w-4 h-4" /> Cancel order
@@ -296,12 +295,12 @@ const OrdersPage = () => {
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2 sm:gap-0">
                         <AlertDialogCancel className="rounded-xl font-bold">Keep order</AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
+                        <AlertDialogAction variant="destructive"
                             className="rounded-xl font-bold bg-destructive text-destructive-foreground"
                             onClick={handleConfirmCancel}
+                            disabled={isUpdatingStatus}
                         >
-                            Cancel order
+                            {isUpdatingStatus ? "Cancelling..." : "Cancel order"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

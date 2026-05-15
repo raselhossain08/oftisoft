@@ -1,6 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatedSpan, AnimatedH2, AnimatedH3, AnimatedP, useScrollProgress, useTransform } from "@/lib/animated";
 
-import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { 
     Cpu, 
@@ -50,10 +50,7 @@ const capabilities = [
 
 export default function CapabilityEngine() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "end start"]
-    });
+    const scrollYProgress = useScrollProgress(containerRef);
 
     const scale = useTransform(scrollYProgress, [0, 0.5], [0.8, 1]);
     const opacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
@@ -69,18 +66,17 @@ export default function CapabilityEngine() {
 
             <div className="container px-6 mx-auto relative z-10">
                 <div className="text-center space-y-4 mb-24">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                         style={{ willChange: "transform, opacity" }}
                     >
-                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-wide text-xs">
+                        <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary font-semibold tracking-wide text-sm">
                             Technical Capability Matrix
                         </Badge>
-                    </motion.div>
-                    <motion.h2 
+                    </AnimatedDiv>
+                    <AnimatedH2 
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -89,8 +85,8 @@ export default function CapabilityEngine() {
                         style={{ willChange: "transform, opacity" }}
                     >
                         The Oftisoft <span className="text-primary">Engine</span>.
-                    </motion.h2>
-                    <motion.p 
+                    </AnimatedH2>
+                    <AnimatedP 
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -99,10 +95,10 @@ export default function CapabilityEngine() {
                         style={{ willChange: "transform, opacity" }}
                     >
                         Our architecture is built on three fundamental layers of digital sovereignty.
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
-                <motion.div 
+                <AnimatedDiv 
                     style={{ scale, opacity }}
                     className="grid lg:grid-cols-3 gap-8"
                 >
@@ -115,10 +111,10 @@ export default function CapabilityEngine() {
                                         <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${cap.color} p-4 flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500`}>
                                             <cap.icon size={32} />
                                         </div>
-                                        <span className="text-xs font-semibold text-primary tracking-wide opacity-60">{cap.badge}</span>
+                                        <span className="text-sm font-semibold text-primary tracking-wide opacity-60">{cap.badge}</span>
                                     </div>
                                     <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{cap.title}</h3>
-                                    <p className="text-muted-foreground font-normal leading-relaxed text-sm">
+                                    <p className="text-muted-foreground font-normal leading-relaxed text-base md:text-lg">
                                         {cap.description}
                                     </p>
                                 </div>
@@ -128,7 +124,7 @@ export default function CapabilityEngine() {
                                     {cap.stats.map((stat, i) => (
                                         <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/5">
                                             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                                            <span className="text-xs font-medium text-white/80">{stat}</span>
+                                            <span className="text-sm font-medium text-white/80">{stat}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -136,18 +132,18 @@ export default function CapabilityEngine() {
                                 {/* Features List with Hover Detail */}
                                 <div className="space-y-4 pt-4 border-t border-white/5 mt-auto relative z-20">
                                     <div className="flex justify-between items-center group/title">
-                                        <h4 className="text-xs font-semibold text-primary/70 tracking-wide">Protocol Breakdown</h4>
+                                        <h4 className="text-sm font-semibold text-primary/70 tracking-wide">Protocol Breakdown</h4>
                                         <div className="h-4 w-4 rounded-full border border-primary/20 flex items-center justify-center text-[8px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">?</div>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {cap.features.map((feature, i) => (
-                                            <motion.span 
+                                            <AnimatedSpan 
                                                 key={i} 
                                                 whileHover={{ scale: 1.05, backgroundColor: "rgba(var(--primary-rgb), 0.2)" }}
-                                                className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-semibold text-primary cursor-default transition-colors"
+                                                className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-sm font-semibold text-primary cursor-default transition-colors"
                                             >
                                                 {feature}
-                                            </motion.span>
+                                            </AnimatedSpan>
                                         ))}
                                     </div>
                                 </div>
@@ -161,7 +157,7 @@ export default function CapabilityEngine() {
 
                                 {/* Decorative Scanning Line */}
                                 <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[36px]">
-                                    <motion.div 
+                                    <AnimatedDiv 
                                         animate={{ y: ['-100%', '200%'] }}
                                         transition={{ duration: 4, repeat: Infinity, ease: "linear", delay: idx * 1.5 }}
                                         className="h-1/2 w-full bg-gradient-to-b from-transparent via-primary/5 to-transparent skew-y-12"
@@ -170,8 +166,13 @@ export default function CapabilityEngine() {
                             </div>
                         </Card>
                     ))}
-                </motion.div>
+                </AnimatedDiv>
             </div>
         </section>
     );
 }
+
+
+
+
+

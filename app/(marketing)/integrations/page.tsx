@@ -1,5 +1,6 @@
-"use client";
-import { motion } from "framer-motion";
+"use client"
+import { AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatedP } from "@/lib/animated";
+;
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,24 +48,24 @@ export default function IntegrationsPage() {
 
             <div className="container px-6 mx-auto relative z-10 space-y-20">
                 <div className="text-center space-y-6 max-w-4xl mx-auto">
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                    <AnimatedDiv initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                         <Badge variant="outline" className="px-6 py-2 rounded-full border-blue-500/20 bg-blue-500/5 text-blue-400 font-semibold tracking-[0.3em] text-[10px]">
                             {header?.badge ?? ""}
                         </Badge>
-                    </motion.div>
-                    <motion.h1 className="text-5xl md:text-8xl font-semibold tracking-tighter text-white">
+                    </AnimatedDiv>
+                    <AnimatedH1 className="text-5xl md:text-8xl font-semibold tracking-tighter text-white">
                         {header?.titlePrefix ?? ""} <span className="text-blue-500">{header?.titleHighlight ?? ""}</span>.
-                    </motion.h1>
-                    <motion.p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
+                    </AnimatedH1>
+                    <AnimatedP className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
                         {header?.description ?? ""}
-                    </motion.p>
+                    </AnimatedP>
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {integrations.map((item, idx) => {
                         const Icon = iconMap[item.iconName ?? ''] || Zap;
                         return (
-                        <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }}>
+                        <AnimatedDiv key={item.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: idx * 0.1 }} style={{ willChange: "transform, opacity" }}>
                             <Card className="h-full border-white/5 bg-white/[0.01] backdrop-blur-3xl rounded-[32px] overflow-hidden hover:border-blue-500/30 transition-all duration-700 group">
                                 <CardContent className="p-8 space-y-6">
                                     <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
@@ -79,7 +80,7 @@ export default function IntegrationsPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </AnimatedDiv>
                     );})}
                 </div>
 
@@ -88,8 +89,10 @@ export default function IntegrationsPage() {
                     <div className="flex-1 space-y-6 relative z-10 text-center md:text-left">
                         <h2 className="text-4xl md:text-6xl font-semibold tracking-tighter text-white">{cta?.title ?? ""}</h2>
                         <p className="text-lg text-muted-foreground font-medium">{cta?.description ?? ""}</p>
-                        <Button className="h-14 px-10 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-xl shadow-blue-600/20">
-                            {cta?.buttonText ?? ""} <ArrowRight className="w-5 h-5 ml-2" />
+                        <Button className="h-14 px-10 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-xl shadow-blue-600/20" asChild>
+                            <Link href="/contact">
+                                {cta?.buttonText ?? ""} <ArrowRight className="w-5 h-5 ml-2" />
+                            </Link>
                         </Button>
                     </div>
                 </div>
@@ -98,5 +101,6 @@ export default function IntegrationsPage() {
     );
 }
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 

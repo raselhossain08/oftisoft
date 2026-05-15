@@ -87,8 +87,7 @@ export default function TwoFactorPage() {
         <CardContent className="px-4 sm:px-6 space-y-6">
           <div className="flex gap-1.5 sm:gap-2 justify-center flex-wrap">
             {code.map((digit, i) => (
-              <Input
-                key={i}
+              <Input key={i}
                 id={`code-${i}`}
                 type="text"
                 inputMode="numeric"
@@ -104,8 +103,7 @@ export default function TwoFactorPage() {
             ))}
           </div>
 
-          <Button
-            onClick={() => void handleVerify()}
+          <Button onClick={() => void handleVerify()}
             disabled={code.some((c) => !c) || loading}
             className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold"
             size="lg"
@@ -124,8 +122,7 @@ export default function TwoFactorPage() {
         <CardFooter className="flex justify-center px-4 sm:px-6 pb-6 sm:pb-8">
           <p className="text-xs sm:text-sm text-muted-foreground">
             Didn&apos;t receive code?{" "}
-            <Button
-              variant="link"
+            <Button variant="link"
               className="h-auto p-0 text-primary font-semibold hover:underline"
             >
               Resend

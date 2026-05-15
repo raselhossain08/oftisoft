@@ -73,8 +73,7 @@ export default function ParticlesBackground() {
                     quantity: 2, // Reduced from 4
                 },
                 repulse: {
-                    distance: 100, // Reduced from 200
-                    duration: 0.4,
+                    distance: 100, // Reduced from 200, duration: 0.4,
                 },
             },
         },
@@ -124,8 +123,7 @@ export default function ParticlesBackground() {
     if (init) {
         return (
             <div ref={containerRef} className="absolute inset-0 -z-10">
-                <Particles
-                    id="tsparticles"
+                <Particles id="tsparticles"
                     className="absolute inset-0"
                     options={options}
                     particlesLoaded={particlesLoaded}

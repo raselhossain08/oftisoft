@@ -1,4 +1,5 @@
 "use client"
+import { AnimatedDiv, AnimatedSpan } from "@/lib/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,8 +17,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-creative";
 import "swiper/css/navigation";
-import { motion } from "framer-motion";
-
 import { useCart } from "@/hooks/use-cart";
 
 const iconMap: any = {
@@ -26,12 +25,18 @@ const iconMap: any = {
     Layout, Video, FileText, Code2, ClipboardCheck, HeartPulse, Globe, Code, ShieldCheck, Layers
 };
 
+const pkgBgMap: Record<string, string> = {
+    blue: 'from-blue-600/20 to-blue-600/5', purple: 'from-purple-600/20 to-purple-600/5',
+    green: 'from-green-600/20 to-green-600/5', orange: 'from-orange-600/20 to-orange-600/5',
+    indigo: 'from-indigo-600/20 to-indigo-600/5',
+};
+
 const packages = [
-    { id: "web-starter", name: "Web App Starter", price: 2999, description: "A complete MVP-ready web application — frontend, backend, database, and deployment.", features: ["React/Next.js Frontend", "Node.js API", "PostgreSQL Database", "Authentication", "Responsive Design", "1 Month Support"], gradient: "from-blue-500 to-cyan-500", icon: "Globe" },
-    { id: "mobile-starter", name: "Mobile App Starter", price: 4999, description: "Cross-platform mobile application with backend, push notifications, and app store deployment.", features: ["React Native App", "REST API Backend", "Push Notifications", "App Store Deploy", "Analytics SDK", "2 Months Support"], gradient: "from-purple-500 to-pink-500", icon: "Smartphone" },
-    { id: "ai-integration", name: "AI Integration", price: 7999, description: "Custom AI model development and integration — LLM, computer vision, or predictive analytics.", features: ["Model Selection & Training", "API Integration", "Prompt Engineering", "Performance Tuning", "Documentation", "3 Months Support"], gradient: "from-green-500 to-teal-500", icon: "Brain" },
-    { id: "saas-platform", name: "SaaS Platform", price: 14999, description: "Full SaaS platform with multi-tenancy, subscription billing, and admin dashboard.", features: ["Multi-tenant Architecture", "Subscription Billing", "Admin Dashboard", "Team Management", "Audit Logging", "3 Months Support"], gradient: "from-orange-500 to-red-500", icon: "Cloud", popular: true },
-    { id: "enterprise-suite", name: "Enterprise Suite", price: 29999, description: "Enterprise-grade solution with microservices, SSO, compliance, and dedicated infrastructure.", features: ["Microservices Architecture", "SSO & RBAC", "GDPR/HIPAA Compliance", "Dedicated Infrastructure", "24/7 On-Call Support", "6 Months Support"], gradient: "from-indigo-500 to-violet-500", icon: "Server" },
+    { id: "web-starter", name: "Web App Starter", price: 2999, description: "A complete MVP-ready web application — frontend, backend, database, and deployment.", features: ["React/Next.js Frontend", "Node.js API", "PostgreSQL Database", "Authentication", "Responsive Design", "1 Month Support"], color: "blue", icon: "Globe" },
+    { id: "mobile-starter", name: "Mobile App Starter", price: 4999, description: "Cross-platform mobile application with backend, push notifications, and app store deployment.", features: ["React Native App", "REST API Backend", "Push Notifications", "App Store Deploy", "Analytics SDK", "2 Months Support"], color: "purple", icon: "Smartphone" },
+    { id: "ai-integration", name: "AI Integration", price: 7999, description: "Custom AI model development and integration — LLM, computer vision, or predictive analytics.", features: ["Model Selection & Training", "API Integration", "Prompt Engineering", "Performance Tuning", "Documentation", "3 Months Support"], color: "green", icon: "Brain" },
+    { id: "saas-platform", name: "SaaS Platform", price: 14999, description: "Full SaaS platform with multi-tenancy, subscription billing, and admin dashboard.", features: ["Multi-tenant Architecture", "Subscription Billing", "Admin Dashboard", "Team Management", "Audit Logging", "3 Months Support"], color: "orange", icon: "Cloud", popular: true },
+    { id: "enterprise-suite", name: "Enterprise Suite", price: 29999, description: "Enterprise-grade solution with microservices, SSO, compliance, and dedicated infrastructure.", features: ["Microservices Architecture", "SSO & RBAC", "GDPR/HIPAA Compliance", "Dedicated Infrastructure", "24/7 On-Call Support", "6 Months Support"], color: "indigo", icon: "Server" },
 ];
 
 export default function ServicePackages() {
@@ -48,7 +53,7 @@ export default function ServicePackages() {
 
             <div className="container px-4 mx-auto relative z-10">
                 <div className="text-center mb-12 md:mb-16 space-y-6">
-                    <motion.div 
+                    <AnimatedDiv 
                         initial={{ opacity: 0, y: 20 }}
                         style={{ willChange: "transform, opacity" }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -59,10 +64,10 @@ export default function ServicePackages() {
                             <Zap className="w-3.5 h-3.5" />
                             Pricing Plans
                         </Badge>
-                    </motion.div>
+                    </AnimatedDiv>
                     
                     <h2 className="text-3xl md:text-6xl font-semibold tracking-tight">
-                        Choose Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">Trajectory</span>
+                        Choose Your <span className="text-primary">Trajectory</span>
                     </h2>
                     
                     {/* Billing Toggle */}
@@ -72,7 +77,7 @@ export default function ServicePackages() {
                             onClick={() => setBilling(b => b === 'one-time' ? 'monthly' : 'one-time')}
                             className="w-14 h-8 rounded-full bg-input border border-border relative flex items-center p-1 cursor-pointer hover:border-primary/50 transition-colors"
                         >
-                            <motion.div 
+                            <AnimatedDiv 
                                 className="w-6 h-6 rounded-full bg-primary shadow-lg shadow-primary/30"
                                 animate={{ x: billing === 'one-time' ? 0 : 24 }}
                                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
@@ -84,8 +89,7 @@ export default function ServicePackages() {
 
                 {/* Responsive Carousel */}
                 <div className="relative group/swiper">
-                    <Swiper
-                        modules={[Pagination, EffectCreative, Autoplay, Navigation]}
+                    <Swiper modules={[Pagination, EffectCreative, Autoplay, Navigation]}
                         navigation={{
                             prevEl: '.pricing-prev',
                             nextEl: '.pricing-next',
@@ -159,8 +163,8 @@ function PricingCard({ pkg, billing }: { pkg: any, billing: 'one-time' | 'monthl
             "relative h-full flex flex-col rounded-[2.5rem] border transition-all duration-300 group hover:-translate-y-2 overflow-hidden bg-card/40 backdrop-blur-sm",
             pkg.highlight ? "border-primary/50 shadow-2xl shadow-primary/10" : "border-border hover:border-primary/30 hover:shadow-xl"
         )}>
-             {/* Gradient Background */}
-             <div className={cn("absolute inset-0 bg-gradient-to-b opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none", pkg.gradient)} />
+             {/* Background Tint */}
+             <div className={cn("absolute inset-0 bg-gradient-to-b opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none", pkgBgMap[pkg.color] || 'from-primary/20 to-primary/5')} />
              
              {/* Highlight Badge */}
              {pkg.highlight && (
@@ -183,14 +187,14 @@ function PricingCard({ pkg, billing }: { pkg: any, billing: 'one-time' | 'monthl
             <CardContent className="relative z-10 flex-1 space-y-6">
                 <div>
                     <div className="flex items-baseline gap-1">
-                        <motion.span 
+                        <AnimatedSpan 
                             key={priceDisplay}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-4xl md:text-5xl font-semibold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
+                            className="text-4xl md:text-5xl font-semibold tracking-tighter text-foreground"
                         >
                             {priceDisplay}
-                        </motion.span>
+                        </AnimatedSpan>
                         <span className="text-muted-foreground font-medium">{period}</span>
                     </div>
                      {billing === 'monthly' && !isCustom && (

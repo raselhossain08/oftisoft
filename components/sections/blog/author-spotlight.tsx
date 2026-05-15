@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { Animated, AnimatedDiv, AnimatedP } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectCreative } from "swiper/modules";
 import { Twitter, Linkedin, Github, Globe, Sparkles } from "lucide-react";
@@ -31,7 +32,7 @@ export default function AuthorSpotlight() {
             </div>
 
             <div className="container px-4 mx-auto relative z-10">
-                <motion.div 
+                <AnimatedDiv 
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -49,11 +50,10 @@ export default function AuthorSpotlight() {
                     <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
                         Meet the brilliant minds sharing insights, tutorials, and deep dives into the world of technology and design.
                     </p>
-                </motion.div>
+                </AnimatedDiv>
 
                 <div className="mx-auto">
-                    <Swiper
-                        modules={[Pagination, Autoplay, EffectCreative]}
+                    <Swiper modules={[Pagination, Autoplay, EffectCreative]}
                         effect={'creative'}
                         creativeEffect={{
                             prev: {
@@ -85,17 +85,15 @@ export default function AuthorSpotlight() {
                                             <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto">
                                                 <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
                                                     <circle className="text-muted stroke-current" strokeWidth="2" cx="50" cy="50" r="48" fill="transparent" />
-                                                    <motion.circle 
-                                                        className="text-primary stroke-current" 
+                                                    <circle 
+                                                        className="text-primary stroke-current transition-all duration-[1500ms] ease-in-out" 
                                                         strokeWidth="2" 
                                                         cx="50" 
                                                         cy="50" 
                                                         r="48" 
                                                         fill="transparent" 
                                                         strokeDasharray="301.59"
-                                                        strokeDashoffset="301.59"
-                                                        animate={{ strokeDashoffset: activeIndex === index ? 0 : 301.59 }}
-                                                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                                                        strokeDashoffset={activeIndex === index ? 0 : 301.59}
                                                     />
                                                 </svg>
                                                 <div className="absolute inset-4 rounded-full overflow-hidden border-4 border-background shadow-inner bg-muted">
@@ -108,7 +106,7 @@ export default function AuthorSpotlight() {
                                                     )}
                                                 </div>
                                                 
-                                                <motion.div 
+                                                <AnimatedDiv 
                                                     initial={{ scale: 0 }}
                                                     animate={{ scale: activeIndex === index ? 1 : 0 }}
                                                     transition={{ delay: 0.5, type: "spring" }}
@@ -117,34 +115,33 @@ export default function AuthorSpotlight() {
                                                     <Badge className="text-[10px] font-bold px-2 py-0.5 md:py-1 rounded-full h-auto">
                                                         PRO
                                                     </Badge>
-                                                </motion.div>
+                                                </AnimatedDiv>
                                             </div>
                                         </div>
 
                                         {/* Content Section */}
                                         <div className="text-center md:text-left">
-                                            <motion.div
-                                                initial={{ opacity: 0, x: 20 }}
+                                            <AnimatedDiv initial={{ opacity: 0, x: 20 }}
                                                 animate={{ opacity: activeIndex === index ? 1 : 0, x: activeIndex === index ? 0 : 20 }}
                                                 transition={{ delay: 0.2 }}
                                             >
                                                 <h3 className="text-2xl md:text-3xl font-bold mb-2">{author.name}</h3>
                                                 <p className="text-primary font-medium text-base md:text-lg mb-6">{author.role}</p>
-                                            </motion.div>
+                                            </AnimatedDiv>
 
-                                            <motion.p 
+                                            <AnimatedP 
                                                 className="text-muted-foreground mb-8 text-base md:text-lg leading-relaxed"
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: activeIndex === index ? 1 : 0 }}
                                                 transition={{ delay: 0.3 }}
                                             >
                                                 {author.bio}
-                                            </motion.p>
+                                            </AnimatedP>
 
                                             {/* Stats Grid */}
                                             <div className="grid grid-cols-3 gap-2 md:gap-4 mb-8 border-y border-border/50 py-6">
                                                 {(author.stats || []).map((stat: any, i: number) => (
-                                                    <motion.div 
+                                                    <AnimatedDiv 
                                                         key={stat.label}
                                                         initial={{ opacity: 0, y: 10 }}
                                                         animate={{ opacity: activeIndex === index ? 1 : 0, y: activeIndex === index ? 0 : 10 }}
@@ -153,12 +150,12 @@ export default function AuthorSpotlight() {
                                                     >
                                                         <div className="font-bold text-xl md:text-2xl text-foreground">{stat.value}</div>
                                                         <div className="text-[10px] md:text-xs text-muted-foreground tracking-wider">{stat.label}</div>
-                                                    </motion.div>
+                                                    </AnimatedDiv>
                                                 ))}
                                             </div>
 
                                             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                                                <motion.div 
+                                                <AnimatedDiv 
                                                     className="flex flex-wrap gap-2 justify-center md:justify-start"
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: activeIndex === index ? 1 : 0 }}
@@ -169,9 +166,9 @@ export default function AuthorSpotlight() {
                                                             #{tag}
                                                         </Badge>
                                                     ))}
-                                                </motion.div>
+                                                </AnimatedDiv>
 
-                                                <motion.div 
+                                                <AnimatedDiv 
                                                     className="flex gap-2 md:gap-3"
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: activeIndex === index ? 1 : 0 }}
@@ -205,7 +202,7 @@ export default function AuthorSpotlight() {
                                                             </a>
                                                         </Button>
                                                     )}
-                                                </motion.div>
+                                                </AnimatedDiv>
                                             </div>
                                         </div>
                                     </CardContent>

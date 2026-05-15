@@ -15,7 +15,7 @@ export default function CartPage() {
     const { items: cartItems, removeItem, updateQuantity } = useCart();
     
     // Prevent hydration mismatch
-    const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
     useEffect(() => {
         setIsMounted(true);
     }, []);
@@ -58,11 +58,9 @@ export default function CartPage() {
                         <Card key={item.id} className="overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
                             <CardContent className="p-4 md:p-6 flex gap-6 items-center">
                                 <div className="h-24 w-24 relative rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
-                                    <Image
-                                        src={item.image ?? ""}
+                                    <Image src={item.image ?? ""}
                                         alt={item.name}
-                                        fill
-                                        className="object-cover"
+                                        fill className="object-cover"
                                     />
                                 </div>
 

@@ -85,8 +85,7 @@ export function CommentSection({ postId, allowComments }: CommentSectionProps) {
 
             {user ? (
                 <div className="mt-8 space-y-3">
-                    <Textarea
-                        value={newComment}
+                    <Textarea value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Share your thoughts..."
                         className="min-h-[100px] resize-none"
@@ -116,8 +115,7 @@ export function CommentSection({ postId, allowComments }: CommentSectionProps) {
             ) : (
                 <div className="space-y-2">
                     {nested.map((comment) => (
-                        <CommentThread
-                            key={comment.id}
+                        <CommentThread key={comment.id}
                             comment={comment}
                             postId={postId}
                             replyTarget={replyTarget}
@@ -177,16 +175,14 @@ function CommentThread({ comment, postId, replyTarget, replyContent, onReplyClic
                         </div>
                         <p className="text-sm text-foreground/90 leading-relaxed">{comment.content}</p>
                         <div className="flex items-center gap-3 mt-2">
-                            <button
-                                onClick={() => onLike(comment.id)}
+                            <button onClick={() => onLike(comment.id)}
                                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                             >
                                 <ThumbsUp className="w-3.5 h-3.5" />
                                 {comment.likes > 0 && <span>{comment.likes}</span>}
                             </button>
                             {depth < maxDepth && (
-                                <button
-                                    onClick={() => onReplyClick(isReplying ? null : comment.id)}
+                                <button onClick={() => onReplyClick(isReplying ? null : comment.id)}
                                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                                 >
                                     <Reply className="w-3.5 h-3.5" />
@@ -194,8 +190,7 @@ function CommentThread({ comment, postId, replyTarget, replyContent, onReplyClic
                                 </button>
                             )}
                             {currentUserId === comment.userId && (
-                                <button
-                                    onClick={() => onDelete(comment.id)}
+                                <button onClick={() => onDelete(comment.id)}
                                     className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 transition-colors ml-auto"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -204,8 +199,7 @@ function CommentThread({ comment, postId, replyTarget, replyContent, onReplyClic
                         </div>
                         {isReplying && (
                             <div className="mt-3 space-y-2">
-                                <Textarea
-                                    value={replyContent}
+                                <Textarea value={replyContent}
                                     onChange={(e) => onReplyContent(e.target.value)}
                                     placeholder="Write a reply..."
                                     className="min-h-[60px] resize-none text-sm"
@@ -222,8 +216,7 @@ function CommentThread({ comment, postId, replyTarget, replyContent, onReplyClic
                 </div>
             </div>
             {comment.replies?.map((reply: any) => (
-                <CommentThread
-                    key={reply.id}
+                <CommentThread key={reply.id}
                     comment={reply}
                     postId={postId}
                     replyTarget={replyTarget}

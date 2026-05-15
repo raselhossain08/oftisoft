@@ -113,8 +113,7 @@ export default function TagsPage() {
                 <CardContent>
                     <div className="relative max-w-sm mb-4">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search tags..."
+                        <Input placeholder="Search tags..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="pl-9"
@@ -180,16 +179,14 @@ export default function TagsPage() {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label>Name *</Label>
-                            <Input
-                                value={form.name}
+                            <Input value={form.name}
                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                                 placeholder="e.g. React, JavaScript"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Description</Label>
-                            <Textarea
-                                value={form.description}
+                            <Textarea value={form.description}
                                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                                 placeholder="Brief description of this tag"
                             />
@@ -197,14 +194,12 @@ export default function TagsPage() {
                         <div className="space-y-2">
                             <Label>Color</Label>
                             <div className="flex items-center gap-2">
-                                <input
-                                    type="color"
+                                <input type="color"
                                     value={form.color || "#6366f1"}
                                     onChange={(e) => setForm({ ...form, color: e.target.value })}
                                     className="w-10 h-10 rounded cursor-pointer"
                                 />
-                                <Input
-                                    value={form.color}
+                                <Input value={form.color}
                                     onChange={(e) => setForm({ ...form, color: e.target.value })}
                                     placeholder="#6366f1"
                                     className="flex-1"
@@ -232,8 +227,7 @@ export default function TagsPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() => { if (deleteTarget) { deleteTag(deleteTarget.id); setDeleteTarget(null); } }}
+                        <AlertDialogAction onClick={() => { if (deleteTarget) { deleteTag(deleteTarget.id); setDeleteTarget(null); } }}
                             className="bg-destructive hover:bg-destructive/90"
                         >
                             Delete

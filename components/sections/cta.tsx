@@ -1,6 +1,7 @@
-"use client";
+"use client"
+import { Animated, AnimatedDiv, AnimatedH1, AnimatedH2, AnimatedH3, AnimatePresence } from "@/lib/animated";
+;
 
-import { motion, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle2, ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -21,8 +22,8 @@ export default function CTA() {
         buttonText: "Start Conversation",
         buttonLink: "/contact",
         contactInfo: {
-            email: 'hello@oftisoft.com',
-            phone: '+880 1410-615665',
+            email: 'oftisoft@gmail.com',
+            phone: '+8801757220402',
             location: 'Satkhira, Khulna, Bangladesh'
         }
     };
@@ -30,9 +31,9 @@ export default function CTA() {
     const { createLead, isCreating } = useLeads();
     const [formState, setFormState] = useState<'idle' | 'success'>('idle');
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+        const formData = new FormData(e.currentTarget as HTMLFormElement);
         const data = {
             name: `${formData.get('firstName')} ${formData.get('lastName')}`,
             email: formData.get('email') as string,
@@ -58,7 +59,7 @@ export default function CTA() {
                     
                     {/* Left: Content Info */}
                     <div className="max-w-xl pt-8 order-2 lg:order-1">
-                        <motion.h2 
+                        <AnimatedH2 
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-80px" }}
@@ -71,7 +72,7 @@ export default function CTA() {
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                                 {ctaContent.title.split(' ').slice(-2).join(' ')}
                             </span>
-                        </motion.h2>
+                        </AnimatedH2>
 
                         <p className="text-lg md:text-xl text-muted-foreground/80 mb-12 leading-relaxed">
                             {ctaContent.description}
@@ -89,8 +90,7 @@ export default function CTA() {
                     </div>
 
                     {/* Right: Modern Glass Form */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 40 }}
+                    <AnimatedDiv initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-80px" }}
                         transition={{ duration: 0.5 }}
@@ -106,8 +106,7 @@ export default function CTA() {
 
                             <AnimatePresence mode="wait">
                                 {formState === 'success' ? (
-                                    <motion.div
-                                        key="success"
+                                    <AnimatedDiv key="success"
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
@@ -120,16 +119,15 @@ export default function CTA() {
                                         <p className="text-muted-foreground mb-8 text-lg">
                                             We've sent a confirmation email to your inbox. Expect a reply within 24 hours.
                                         </p>
-                                        <Button
-                                            onClick={() => setFormState('idle')}
+                                        <Button onClick={() => setFormState('idle')}
                                             variant="outline"
                                             className="px-6 py-3 rounded-full border-white/10 hover:bg-white/10 text-white font-medium transition-colors h-auto"
                                         >
                                             Send another message
                                         </Button>
-                                    </motion.div>
+                                    </AnimatedDiv>
                                 ) : (
-                                    <motion.form
+                                    <Animated as="form"
                                         key="form"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -165,8 +163,7 @@ export default function CTA() {
                                             />
                                         </div>
 
-                                        <Button
-                                            type="submit"
+                                        <Button type="submit"
                                             disabled={isCreating}
                                             className="w-full h-auto py-4 bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.98]"
                                         >
@@ -186,11 +183,11 @@ export default function CTA() {
                                         <p className="text-xs text-center text-muted-foreground mt-4">
                                             By submitting, you agree to our <Link href="/privacy" className="underline hover:text-white">Privacy Policy</Link>.
                                         </p>
-                                    </motion.form>
+                                    </Animated>
                                 )}
                             </AnimatePresence>
                         </div>
-                    </motion.div>
+                    </AnimatedDiv>
                 </div>
             </div>
         </section>
@@ -203,7 +200,7 @@ function ContactItem({ icon: Icon, title, value, delay }: { icon: any, title: st
     const href = isEmail ? `mailto:${value}` : isPhone ? `tel:${value.replace(/[^0-9+]/g, '')}` : undefined;
 
     const Content = (
-        <motion.div 
+        <AnimatedDiv 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
@@ -218,7 +215,7 @@ function ContactItem({ icon: Icon, title, value, delay }: { icon: any, title: st
                 <h4 className="text-sm font-semibold text-white/40 tracking-wide mb-1 group-hover:text-primary transition-colors">{title}</h4>
                 <p className="text-lg font-medium text-white">{value}</p>
             </div>
-        </motion.div>
+        </AnimatedDiv>
     );
 
     if (href) {

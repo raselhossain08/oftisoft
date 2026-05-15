@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
 import { 
@@ -26,7 +28,6 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { 
     DropdownMenu, 
@@ -71,19 +72,19 @@ export default function BillingSettings() {
     });
 
     // Fetch Payment Methods
-    const { data: cards, isLoading: cardsLoading, error: cardsError } = useQuery({
+  const { data: cards, isLoading: cardsLoading, error: cardsError } = useQuery({
         queryKey: ["payment-methods"],
         queryFn: () => billingAPI.getPaymentMethods(),
     });
 
     // Fetch Transactions
-    const { data: transactions, isLoading: txLoading } = useQuery({
+  const { data: transactions, isLoading: txLoading } = useQuery({
         queryKey: ["transactions"],
         queryFn: () => billingAPI.getTransactions(),
     });
 
     // Mutation: Set Default
-    const setDefaultMutation = useMutation({
+  const setDefaultMutation = useMutation({
         mutationFn: (id: string) => billingAPI.setDefaultPaymentMethod(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
@@ -95,7 +96,7 @@ export default function BillingSettings() {
     });
 
     // Mutation: Delete
-    const deleteMutation = useMutation({
+  const deleteMutation = useMutation({
         mutationFn: (id: string) => billingAPI.deletePaymentMethod(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
@@ -106,7 +107,7 @@ export default function BillingSettings() {
     });
 
     // Mutation: Add
-    const addMutation = useMutation({
+  const addMutation = useMutation({
         mutationFn: (data: Partial<PaymentMethod>) => billingAPI.addPaymentMethod(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
@@ -123,7 +124,7 @@ export default function BillingSettings() {
         if (value.length > 16) value = value.slice(0, 16);
         
         // Auto-detect Brand
-        let brand = 'Visa';
+  let brand = 'Visa';
         if (value.startsWith('5')) brand = 'Mastercard';
         else if (value.startsWith('3')) brand = 'Amex';
         else if (value.startsWith('6')) brand = 'Discover';
@@ -178,7 +179,7 @@ export default function BillingSettings() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
                 <Loader2 className="w-12 h-auto animate-spin text-primary opacity-20" />
-                <p className="text-muted-foreground font-black animate-pulse">Accessing Encrypted Vault...</p>
+                <p className="text-muted-foreground font-semibold animate-pulse">Accessing Encrypted Vault...</p>
             </div>
         );
     }
@@ -188,14 +189,14 @@ export default function BillingSettings() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-10">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
+                    <h2 className="text-3xl md:text-3xl font-semibold bg-gradient-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
                         Financial Settlement
                     </h2>
                     <p className="text-muted-foreground font-medium mt-2">Manage institutional payment vectors and global billing infrastructure.</p>
                 </div>
                 <div className="flex items-center gap-3 text-indigo-500 bg-indigo-500/5 px-5 py-2.5 rounded-full border border-indigo-500/20 shadow-inner">
                     <BadgeCheck className="w-5 h-5" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Premium Ledger Active</span>
+                    <span className="text-sm font-semibold uppercase">Premium Ledger Active</span>
                 </div>
             </div>
 
@@ -206,18 +207,18 @@ export default function BillingSettings() {
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                              <CreditCard className="w-4 h-4" />
                         </div>
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Payment Vault</h3>
+                        <h3 className="text-xs font-semibold uppercase text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Payment Vault</h3>
                     </div>
                     
                     <Dialog open={isAddCardOpen} onOpenChange={setIsAddCardOpen}>
                         <DialogTrigger asChild>
-                            <Button className="h-11 rounded-xl gap-3 font-black px-6 shadow-xl shadow-primary/20 transition-all hover:scale-[1.05]">
+                            <Button className="h-11 rounded-xl gap-3 font-semibold px-6 shadow-xl shadow-primary/20 transition-all hover:scale-[1.05]">
                                 <Plus className="w-5 h-5" /> Secure Addition
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-md rounded-[32px] p-0 overflow-hidden border-none shadow-2xl">
                             <DialogHeader className="p-8 md:p-10 border-b bg-muted/20">
-                                <DialogTitle className="text-2xl font-black tracking-tight">Add Payment Vector</DialogTitle>
+                                <DialogTitle className="text-2xl font-semibold">Add Payment Vector</DialogTitle>
                                 <DialogDescription className="font-medium mt-2 text-muted-foreground">
                                     Your data is encrypted using L1 institutional grade protocols.
                                 </DialogDescription>
@@ -226,8 +227,8 @@ export default function BillingSettings() {
                                 <div className="space-y-4">
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-center px-1">
-                                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Instrument Details</Label>
-                                            <Badge variant="outline" className="text-[9px] font-black uppercase tracking-tighter h-5 px-3 rounded-full border-primary/30 text-primary bg-primary/5">
+                                            <Label className="text-sm font-semibold uppercase text-muted-foreground">Instrument Details</Label>
+                                            <Badge variant="outline" className="text-xs font-semibold uppercase h-5 px-3 rounded-full border-primary/30 text-primary bg-primary/5">
                                                 {newCard.brand} Node
                                             </Badge>
                                         </div>
@@ -243,7 +244,7 @@ export default function BillingSettings() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground pl-1">Expiry</Label>
+                                            <Label className="text-sm font-semibold uppercase text-muted-foreground pl-1">Expiry</Label>
                                             <Input 
                                                 placeholder="MM/YY" 
                                                 value={newCard.expiry}
@@ -252,7 +253,7 @@ export default function BillingSettings() {
                                             />
                                         </div>
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground pl-1">Secure CVC</Label>
+                                            <Label className="text-sm font-semibold uppercase text-muted-foreground pl-1">Secure CVC</Label>
                                             <Input 
                                                 placeholder="•••" 
                                                 maxLength={3}
@@ -265,11 +266,11 @@ export default function BillingSettings() {
                                 </div>
                                 <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-2xl border border-primary/20">
                                     <Shield className="w-5 h-5 text-primary" />
-                                    <p className="text-[10px] font-bold text-muted-foreground leading-snug">PCI-DSS Compliant Encryption Hub. Credentials never reside on this device.</p>
+                                    <p className="text-sm font-bold text-muted-foreground leading-snug">PCI-DSS Compliant Encryption Hub. Credentials never reside on this device.</p>
                                 </div>
                                 <DialogFooter className="pt-4">
                                     <Button 
-                                        className="w-full h-14 rounded-2xl font-black text-lg shadow-xl shadow-primary/20" 
+                                        className="w-full h-14 rounded-2xl font-semibold text-lg shadow-xl shadow-primary/20" 
                                         disabled={addMutation.isPending}
                                         onClick={handleAddCard}
                                     >
@@ -284,9 +285,7 @@ export default function BillingSettings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <AnimatePresence mode="popLayout">
                         {cards?.map((card) => (
-                            <motion.div
-                                layout
-                                key={card.id}
+                            <AnimatedDiv layout key={card.id}
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
@@ -308,7 +307,7 @@ export default function BillingSettings() {
                                             <CreditCard className={cn("w-7 h-7", card.isDefault ? "text-primary" : "text-muted-foreground")} />
                                         </div>
                                         <div className="flex gap-3">
-                                            {card.isDefault && <Badge className="bg-primary text-white font-black text-[9px] uppercase tracking-tighter px-4 h-7 rounded-full">Primary Node</Badge>}
+                                            {card.isDefault && <Badge className="bg-primary text-white font-semibold text-xs uppercase px-4 h-7 rounded-full">Primary Node</Badge>}
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-2xl hover:bg-muted transition-all">
@@ -337,22 +336,22 @@ export default function BillingSettings() {
 
                                     <div className="space-y-6 relative z-10">
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-50">Cipher Stream ID</p>
-                                            <h4 className="text-3xl font-black font-mono tracking-[0.25em]">•••• {card.last4}</h4>
+                                            <p className="text-sm font-semibold text-muted-foreground uppercase opacity-50">Cipher Stream ID</p>
+                                            <h4 className="text-3xl font-semibold font-mono">•••• {card.last4}</h4>
                                         </div>
                                         <div className="flex justify-between items-end">
                                             <div>
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase opacity-50 mb-1">Vector Type</p>
-                                                <p className="text-sm font-black tracking-tight">{card.type}</p>
+                                                <p className="text-sm font-semibold text-muted-foreground uppercase opacity-50 mb-1">Vector Type</p>
+                                                <p className="text-sm font-semibold">{card.type}</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase opacity-50 mb-1">Temporal Code</p>
-                                                <p className="text-sm font-black tracking-tight">{card.expiry}</p>
+                                                <p className="text-sm font-semibold text-muted-foreground uppercase opacity-50 mb-1">Temporal Code</p>
+                                                <p className="text-sm font-semibold">{card.expiry}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </AnimatedDiv>
                         ))}
                     </AnimatePresence>
 
@@ -365,8 +364,8 @@ export default function BillingSettings() {
                             <Plus size={40} className="stroke-[1]" />
                         </div>
                         <div>
-                            <h4 className="font-black text-lg tracking-tight">New Settlement Vector</h4>
-                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider max-w-[200px] mx-auto mt-2 opacity-60">Encrypt & Append credentials</p>
+                            <h4 className="font-semibold text-lg">New Settlement Vector</h4>
+                            <p className="text-sm text-muted-foreground font-bold uppercase max-w-[200px] mx-auto mt-2 opacity-60">Encrypt & Append credentials</p>
                         </div>
                     </Button>
                 </div>
@@ -380,12 +379,12 @@ export default function BillingSettings() {
                         <Smartphone className="w-9 h-9" />
                     </div>
                     <div className="space-y-3 relative z-10">
-                        <h4 className="font-black text-2xl tracking-tight">Biometric Node Sync</h4>
+                        <h4 className="font-semibold text-2xl">Biometric Node Sync</h4>
                         <p className="text-sm text-muted-foreground font-medium leading-relaxed opacity-80">
                             Synchronize your mobile biometric wallet for frictionless holographic checkout and instant settlement across the Oftisoft network.
                         </p>
                     </div>
-                    <Button variant="link" className="text-indigo-500 p-0 h-auto font-black text-[11px] uppercase underline underline-offset-8 tracking-tighter relative z-10 hover:text-indigo-600" onClick={() => toast.info("Biometric sync: connect your mobile wallet in the app.")}>Initialize Ecosystem Sync</Button>
+                    <Button variant="link" className="text-indigo-500 p-0 h-auto font-semibold text-sm uppercase underline underline-offset-8 relative z-10 hover:text-indigo-600" onClick={() => toast.info("Biometric sync: connect your mobile wallet in the app.")}>Initialize Ecosystem Sync</Button>
                 </Card>
 
                 <Card className="rounded-[48px] bg-primary/[0.04] border-none p-10 space-y-8 group relative overflow-hidden backdrop-blur-sm self-start">
@@ -394,7 +393,7 @@ export default function BillingSettings() {
                         <ShieldCheck className="w-9 h-9" />
                     </div>
                     <div className="space-y-3 relative z-10">
-                        <h4 className="font-black text-2xl tracking-tight">PCI-DSS L1 Governance</h4>
+                        <h4 className="font-semibold text-2xl">PCI-DSS L1 Governance</h4>
                         <p className="text-sm text-muted-foreground font-medium leading-relaxed opacity-80">
                             All transactional vectors are tokenized and stored in a hardened hardware security module (HSM). Oftisoft never retains raw metadata.
                         </p>
@@ -403,7 +402,7 @@ export default function BillingSettings() {
                         <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
                              <Lock className="w-3.5 h-3.5" />
                         </div>
-                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">End-to-End Cryptography Active</span>
+                        <span className="text-sm font-semibold uppercase text-muted-foreground">End-to-End Cryptography Active</span>
                     </div>
                 </Card>
             </div>
@@ -415,14 +414,14 @@ export default function BillingSettings() {
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                              <History className="w-4 h-4" />
                         </div>
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Ledger Snapshot</h3>
+                        <h3 className="text-xs font-semibold uppercase text-muted-foreground/60 underline decoration-primary/30 underline-offset-8">Ledger Snapshot</h3>
                     </div>
-                    <Button variant="ghost" className="text-[11px] font-black uppercase text-primary tracking-widest h-auto p-0 hover:bg-transparent transition-all hover:scale-110" onClick={() => toast.info("Full transaction history is shown above.")}>View Full History</Button>
+                    <Button variant="ghost" className="text-sm font-semibold uppercase text-primary h-auto p-0 hover:bg-transparent transition-all hover:scale-110" onClick={() => toast.info("Full transaction history is shown above.")}>View Full History</Button>
                 </div>
                 
                 <div className="grid gap-4">
                     {txLoading ? (
-                         <div className="p-12 text-center text-muted-foreground font-black animate-pulse">Scanning Global Ledgers...</div>
+                         <div className="p-12 text-center text-muted-foreground font-semibold animate-pulse">Scanning Global Ledgers...</div>
                     ) : transactions?.map((entry, i) => (
                         <div key={i} className="flex items-center justify-between p-7 bg-muted/20 border border-border/40 rounded-[32px] hover:border-primary/30 hover:bg-muted/30 transition-all cursor-pointer group relative overflow-hidden">
                             <div className="flex items-center gap-6 relative z-10">
@@ -430,14 +429,14 @@ export default function BillingSettings() {
                                     {entry.type.includes("Service") ? <Crown size={24} className="stroke-[1.5]" /> : <Zap size={24} className="stroke-[1.5]" />}
                                 </div>
                                 <div>
-                                    <p className="text-base font-black tracking-tight">{entry.invoiceId} <span className="mx-2 opacity-20">|</span> {entry.type}</p>
-                                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+                                    <p className="text-base font-semibold">{entry.invoiceId} <span className="mx-2 opacity-20">|</span> {entry.type}</p>
+                                    <p className="text-sm font-bold text-muted-foreground uppercase mt-1 opacity-60">
                                         {new Date(entry.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-8 relative z-10">
-                                <span className="font-black text-xl tracking-tight">{entry.amount}</span>
+                                <span className="font-semibold text-xl">{entry.amount}</span>
                                 <Button variant="ghost" size="icon" className="h-auto w-12 rounded-2xl hover:bg-primary/10 transition-all">
                                     <FileText className="w-5 h-5 text-primary opacity-40 group-hover:opacity-100 transition-all group-hover:rotate-12" />
                                 </Button>
@@ -454,17 +453,17 @@ export default function BillingSettings() {
             <AlertDialog open={!!cardToDelete} onOpenChange={(open: boolean) => !open && setCardToDelete(null)}>
                 <AlertDialogContent className="rounded-[32px] border-none shadow-2xl p-10 bg-card">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-2xl font-black tracking-tight">De-Authorize Instrument?</AlertDialogTitle>
+                        <AlertDialogTitle className="text-2xl font-semibold">De-Authorize Instrument?</AlertDialogTitle>
                         <AlertDialogDescription className="font-medium text-muted-foreground mt-4">
                             You are about to dismantle the link to this payment vector. 
                             This action is irreversible and will remove the encrypted credentials from the vault.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="mt-8 gap-4">
-                        <AlertDialogCancel className="h-12 px-8 rounded-xl font-black border-none bg-muted/30 hover:bg-muted/50 transition-all">Abort Deletion</AlertDialogCancel>
+                        <AlertDialogCancel className="h-12 px-8 rounded-xl font-semibold border-none bg-muted/30 hover:bg-muted/50 transition-all">Abort Deletion</AlertDialogCancel>
                         <AlertDialogAction 
                             onClick={executeDelete}
-                            className="h-12 px-8 rounded-xl font-black bg-red-500 text-white hover:bg-red-600 shadow-xl shadow-red-500/20 transition-all"
+                            className="h-12 px-8 rounded-xl font-semibold bg-red-500 text-white hover:bg-red-600 shadow-xl shadow-red-500/20 transition-all"
                         >
                             Confirm De-Auth
                         </AlertDialogAction>

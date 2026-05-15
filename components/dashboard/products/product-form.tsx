@@ -45,7 +45,7 @@ export function ProductForm({ isEdit, initialData }: ProductFormProps) {
     const { categories = [] } = useCategories();
     
     // Form state
-    const [name, setName] = useState(initialData?.name || "");
+  const [name, setName] = useState(initialData?.name || "");
     const [slug, setSlug] = useState(initialData?.slug || "");
     const [description, setDescription] = useState(initialData?.description || "");
     const [category, setCategory] = useState(initialData?.category || "");

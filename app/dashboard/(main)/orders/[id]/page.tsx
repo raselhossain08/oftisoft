@@ -41,7 +41,7 @@ export default function OrderDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const id = params?.id as string;
-    const { order, isLoading, updateStatus, updateOrder, downloadInvoice, isDownloadingInvoice, isUpdatingStatus } = useOrders(id);
+    const { order, isLoading, updateStatus, updateOrder, isUpdatingOrder, downloadInvoice, isDownloadingInvoice, isUpdatingStatus } = useOrders(id);
     const [status, setStatus] = useState<string>("");
     const [internalNotes, setInternalNotes] = useState("");
 
@@ -105,7 +105,7 @@ export default function OrderDetailsPage() {
                     </Button>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-black tracking-tighter">Order {order.id.substring(0, 8)}...</h1>
+                            <h1 className="text-3xl font-semibold">Order {order.id.substring(0, 8)}...</h1>
                             <StatusBadge status={status} className="text-base px-3 py-1" />
                         </div>
                         <p className="text-muted-foreground text-sm">Placed on {format(new Date(order.createdAt), "PPP")} • {order.items?.length ?? 0} items</p>
@@ -157,7 +157,7 @@ export default function OrderDetailsPage() {
                                             </div>
                                             <div>
                                                 <p className="font-bold">{item.productName}</p>
-                                                <p className="text-xs text-muted-foreground uppercase font-mono">ID: {item.productId}</p>
+                                                <p className="text-xs text-muted-foreground  font-mono">ID: {item.productId}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -179,7 +179,7 @@ export default function OrderDetailsPage() {
                                     <span>$0.00</span>
                                 </div>
                                 <Separator className="bg-border/50 my-4" />
-                                <div className="flex justify-between text-xl font-black">
+                                <div className="flex justify-between text-xl font-semibold">
                                     <span>Total</span>
                                     <span className="text-primary">${Number(order.total).toFixed(2)}</span>
                                 </div>
@@ -199,7 +199,7 @@ export default function OrderDetailsPage() {
                             <CardContent className="space-y-6">
                                     <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-1">
-                                        <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Tracking</p>
+                                        <p className="text-xs font-semibold  text-muted-foreground">Tracking</p>
                                         <p className="font-bold">{order.trackingNumber ? "Shipped" : "Pending"}</p>
                                         <p className="text-xs text-muted-foreground mt-4">Tracking Number</p>
                                         <span className="font-mono text-primary font-bold">{order.trackingNumber || "—"}</span>
@@ -212,7 +212,7 @@ export default function OrderDetailsPage() {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-bold">Order placed</p>
-                                                <p className="text-[10px] text-muted-foreground">{format(new Date(order.createdAt), "MMM d, h:mm a")}</p>
+                                                <p className="text-sm text-muted-foreground">{format(new Date(order.createdAt), "MMM d, h:mm a")}</p>
                                             </div>
                                         </div>
                                         {(status === "processing" || status === "completed") && (
@@ -222,7 +222,7 @@ export default function OrderDetailsPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-primary">{status === "completed" ? "Completed" : "Processing"}</p>
-                                                    <p className="text-[10px] text-muted-foreground">{order.updatedAt ? format(new Date(order.updatedAt), "MMM d, h:mm a") : "—"}</p>
+                                                    <p className="text-sm text-muted-foreground">{order.updatedAt ? format(new Date(order.updatedAt), "MMM d, h:mm a") : "—"}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -242,7 +242,7 @@ export default function OrderDetailsPage() {
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-xs font-black uppercase text-muted-foreground">Status</label>
+                                <label className="text-xs font-semibold  text-muted-foreground">Status</label>
                                 <Select value={status} onValueChange={handleStatusChange} disabled={status === "cancelled" || status === "refunded" || isUpdatingStatus}>
                                     <SelectTrigger className="rounded-xl h-11 font-bold">
                                         <SelectValue />
@@ -259,8 +259,7 @@ export default function OrderDetailsPage() {
                             
                             {status !== 'refunded' && status !== 'cancelled' && (
                                 <div className="pt-4 space-y-2">
-                                    <Button
-                                        variant="outline"
+                                    <Button variant="outline"
                                         className="w-full rounded-xl gap-2 font-bold h-11 text-destructive hover:bg-destructive/5 hover:text-destructive"
                                         onClick={handleRefund}
                                         disabled={isUpdatingStatus}
@@ -268,7 +267,7 @@ export default function OrderDetailsPage() {
                                         <RotateCcw className={cn("w-4 h-4", isUpdatingStatus && "animate-spin")} />
                                         {isUpdatingStatus ? "Processing..." : "Process Full Refund"}
                                     </Button>
-                                    <p className="text-[10px] text-center text-muted-foreground uppercase font-black">Process takes 3-5 business days</p>
+                                    <p className="text-sm text-center text-muted-foreground  font-semibold">Process takes 3-5 business days</p>
                                 </div>
                             )}
                         </CardContent>
@@ -284,14 +283,14 @@ export default function OrderDetailsPage() {
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div>
-                                <p className="text-xs font-black uppercase text-muted-foreground mb-1">Name</p>
+                                <p className="text-xs font-semibold  text-muted-foreground mb-1">Name</p>
                                 <p className="font-bold">{order.user?.name ?? "—"}</p>
                                 <p className="text-sm text-primary">{order.user?.email ?? "—"}</p>
                             </div>
                             
                             {order.shippingAddress && (
                                 <div>
-                                    <p className="text-xs font-black uppercase text-muted-foreground mb-1">Shipping Address</p>
+                                    <p className="text-xs font-semibold  text-muted-foreground mb-1">Shipping Address</p>
                                     <p className="text-sm leading-relaxed font-medium">
                                         {order.shippingAddress.street}<br />
                                         {order.shippingAddress.city}, {order.shippingAddress.zip}<br />
@@ -301,13 +300,13 @@ export default function OrderDetailsPage() {
                             )}
 
                             <div>
-                                <p className="text-xs font-black uppercase text-muted-foreground mb-2">Payment</p>
+                                <p className="text-xs font-semibold  text-muted-foreground mb-2">Payment</p>
                                 <div className="p-4 rounded-xl bg-muted/30 border border-border flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <CreditCard className="w-4 h-4 text-muted-foreground" />
                                         <span className="text-sm font-bold">{order.paymentMethod}</span>
                                     </div>
-                                    <Badge variant="outline" className="text-[10px] bg-background">Paid</Badge>
+                                    <Badge variant="outline" className="text-sm bg-background">Paid</Badge>
                                 </div>
                             </div>
                         </CardContent>
@@ -322,14 +321,13 @@ export default function OrderDetailsPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            <textarea
-                                className="w-full min-h-[100px] rounded-xl border border-border/50 bg-background px-4 py-3 text-sm resize-y"
+                            <textarea className="w-full min-h-[100px] rounded-xl border border-border/50 bg-background px-4 py-3 text-sm resize-y"
                                 placeholder="Add internal notes (not visible to customer)..."
                                 value={internalNotes}
                                 onChange={(e) => setInternalNotes(e.target.value)}
                             />
-                            <Button variant="outline" size="sm" className="w-full rounded-xl font-bold" onClick={handleSaveNotes}>
-                                Save notes
+                            <Button variant="outline" size="sm" className="w-full rounded-xl font-bold" onClick={handleSaveNotes} disabled={isUpdatingOrder}>
+                                {isUpdatingOrder ? "Saving..." : "Save notes"}
                             </Button>
                         </CardContent>
                     </Card>

@@ -1,7 +1,8 @@
-"use client";
+"use client"
+import { AnimatedDiv, AnimatePresence } from "@/lib/animated";
+;
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Check, Settings, Inbox, RefreshCw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -78,14 +79,13 @@ export default function NotificationsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight">Notifications</h1>
+                    <h1 className="text-3xl font-semibold">Notifications</h1>
                     <p className="text-muted-foreground text-sm mt-1">
                         {unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up"}
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button
-                        variant="ghost"
+                    <Button variant="ghost"
                         size="sm"
                         onClick={handleRefresh}
                         disabled={isLoading || isRefreshing}
@@ -94,8 +94,7 @@ export default function NotificationsPage() {
                         <RefreshCw className={cn("w-4 h-4 mr-2", isRefreshing && "animate-spin")} />
                         Refresh
                     </Button>
-                    <Button
-                        variant="ghost"
+                    <Button variant="ghost"
                         size="sm"
                         onClick={() => markAllAsRead()}
                         disabled={!canMarkAllRead}
@@ -118,8 +117,7 @@ export default function NotificationsPage() {
                         const isActive = filter === tab.id;
                         const count = "count" in tab ? tab.count ?? 0 : 0;
                         return (
-                            <button
-                                key={tab.id}
+                            <button key={tab.id}
                                 type="button"
                                 onClick={() => setFilter(tab.id)}
                                 className={cn(
@@ -129,9 +127,8 @@ export default function NotificationsPage() {
                             >
                                 {tab.label}
                                 {count > 0 && (
-                                    <span
-                                        className={cn(
-                                            "min-w-5 h-5 px-1.5 rounded-full text-[10px] font-black flex items-center justify-center",
+                                    <span className={cn(
+                                            "min-w-5 h-5 px-1.5 rounded-full text-sm font-semibold flex items-center justify-center",
                                             isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                                         )}
                                     >
@@ -139,8 +136,7 @@ export default function NotificationsPage() {
                                     </span>
                                 )}
                                 {isActive && (
-                                    <motion.div
-                                        layoutId="notif-tab"
+                                    <AnimatedDiv layoutId="notif-tab"
                                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_10px_rgba(99,102,241,0.5)]"
                                     />
                                 )}
@@ -173,8 +169,7 @@ export default function NotificationsPage() {
                 ) : (
                     <AnimatePresence mode="popLayout">
                         {notifications.map((notif, i) => (
-                            <NotificationItem
-                                key={notif.id}
+                            <NotificationItem key={notif.id}
                                 notification={notif}
                                 filter={filter}
                                 onMarkAsRead={markAsRead}
@@ -200,8 +195,7 @@ export default function NotificationsPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2 sm:gap-0">
                         <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
+                        <AlertDialogAction variant="destructive"
                             className="rounded-xl font-bold bg-destructive text-destructive-foreground"
                             onClick={handleConfirmDelete}
                         >

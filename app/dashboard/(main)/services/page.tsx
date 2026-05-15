@@ -121,7 +121,7 @@ export default function ServicesManagementPage() {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Service Requests</h1>
+                    <h1 className="text-3xl font-bold">Service Requests</h1>
                     <p className="text-muted-foreground">Manage custom development orders, project milestones, and resource allocation.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -258,7 +258,7 @@ export default function ServicesManagementPage() {
                                                             <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
                                                                 <div className="h-full bg-primary transition-all" style={{ width: `${project.progress}%` }} />
                                                             </div>
-                                                            <span className="text-[10px] font-bold shrink-0">{project.progress}%</span>
+                                                            <span className="text-sm font-bold shrink-0">{project.progress}%</span>
                                                         </div>
                                                         <div className="flex items-center justify-between pt-2">
                                                             <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -289,18 +289,18 @@ export default function ServicesManagementPage() {
                                                 <TableCell>
                                                     <div className="flex flex-col">
                                                         <span className="font-bold text-sm">{project.title}</span>
-                                                        <span className="text-[10px] text-muted-foreground font-mono">{project.id.substring(0, 8)}</span>
+                                                        <span className="text-sm text-muted-foreground font-mono">{project.id.substring(0, 8)}</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-sm font-medium">
                                                     <div className="flex flex-col">
                                                         <span>{project.client}</span>
-                                                        {project.budget && <span className="text-[10px] text-muted-foreground">${project.budget.toLocaleString()}</span>}
+                                                        {project.budget && <span className="text-sm text-muted-foreground">${project.budget.toLocaleString()}</span>}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
                                                             {project.members || 1}
                                                         </div>
                                                         <span className="text-xs">Members</span>
@@ -312,7 +312,7 @@ export default function ServicesManagementPage() {
                                                         <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
                                                             <div className="h-full bg-primary" style={{ width: `${project.progress}%` }} />
                                                         </div>
-                                                        <span className="text-[10px] font-bold">{project.progress}%</span>
+                                                        <span className="text-sm font-bold">{project.progress}%</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right">
@@ -345,8 +345,8 @@ export default function ServicesManagementPage() {
                                     <CardHeader className="flex flex-row items-start justify-between">
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                                <Badge variant="outline" className="text-[10px] font-bold border-primary/20 text-primary tracking-wider uppercase">{quote.serviceType}</Badge>
-                                                <span className="text-[10px] text-muted-foreground">{new Date(quote.createdAt).toLocaleDateString()}</span>
+                                                <Badge variant="outline" className="text-sm font-bold border-primary/20 text-primary uppercase">{quote.serviceType}</Badge>
+                                                <span className="text-sm text-muted-foreground">{new Date(quote.createdAt).toLocaleDateString()}</span>
                                             </div>
                                             <CardTitle className="text-xl font-bold truncate pr-4">{quote.description?.length > 50 ? `${quote.description.substring(0, 50)}...` : (quote.description || "Quote")}</CardTitle>
                                         </div>
@@ -355,12 +355,12 @@ export default function ServicesManagementPage() {
                                         </Badge>
                                     </CardHeader>
                                     <CardContent>
-                                        <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-4 py-1 line-clamp-3">
+                                        <p className="text-sm text-muted-foreground leading-relaxed  border-l-2 border-primary/20 pl-4 py-1 line-clamp-3">
                                             "{quote.description}"
                                         </p>
                                         <div className="mt-6 flex items-center justify-between pt-4 border-t border-border/50">
                                             <div>
-                                                <p className="text-[10px] text-muted-foreground uppercase font-black">Budget</p>
+                                                <p className="text-sm text-muted-foreground uppercase font-semibold">Budget</p>
                                                 <p className="font-bold text-lg text-primary">{quote.budget}</p>
                                             </div>
                                             <div className="flex gap-2">

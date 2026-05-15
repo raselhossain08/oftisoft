@@ -1,10 +1,5 @@
-"use client";
-
-import {
-  motion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+"use client"
+import { AnimatedDiv, useScrollY } from "@/lib/animated";
 import {
   ArrowLeft,
   Calendar,
@@ -37,8 +32,10 @@ export default function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { scrollYProgress } = useScroll();
-  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const scrollY = useScrollY();
+  const scrollProgress = typeof document !== "undefined"
+    ? Math.min(scrollY / Math.max(document.documentElement.scrollHeight - window.innerHeight, 1), 1)
+    : 0;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: post, isLoading } = useQuery({
@@ -100,18 +97,15 @@ export default function BlogPostPage({
   }
 
   return (
-    <main
-      className="min-h-screen bg-background relative overflow-hidden"
+    <main className="min-h-screen bg-background relative overflow-hidden"
       ref={scrollRef}
     >
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary to-purple-600 z-[60] origin-left shadow-glow"
-        style={{ scaleX }}
+      <AnimatedDiv className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary to-purple-600 z-[60] origin-left shadow-glow"
+        style={{ transform: `scaleX(${scrollProgress})` }}
       />
 
       <nav className="fixed top-0 left-0 right-0 z-50 p-6 flex justify-between items-center pointer-events-none">
-        <Link
-          href="/blog"
+        <Link href="/blog"
           className="pointer-events-auto w-12 h-12 rounded-full bg-background/80 backdrop-blur-md border border-border flex items-center justify-center hover:bg-muted transition-all group shadow-lg"
         >
           <ArrowLeft className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -124,8 +118,7 @@ export default function BlogPostPage({
       <section className="relative h-[85vh] min-h-[600px] flex items-end justify-center pb-24 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <div className="relative w-full h-full">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
+            <div className="absolute inset-0 bg-cover bg-center"
               style={{
                 backgroundImage: `url('${post.featuredImage ?? ""}')`,
               }}
@@ -136,8 +129,7 @@ export default function BlogPostPage({
         </div>
 
         <div className="container px-4 mx-auto relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
+          <AnimatedDiv initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
@@ -175,7 +167,7 @@ export default function BlogPostPage({
                 <span>{post.readTime} min read</span>
               </div>
             </div>
-          </motion.div>
+          </AnimatedDiv>
         </div>
       </section>
 
@@ -188,28 +180,23 @@ export default function BlogPostPage({
               <div className="text-[10px] font-semibold tracking-[0.2em] text-muted-foreground vertical-text rotate-180 mb-4">
                 Share Project
               </div>
-              <ShareButton
-                icon={Twitter}
+              <ShareButton icon={Twitter}
                 color="hover:text-[#1DA1F2] hover:border-[#1DA1F2]"
               />
-              <ShareButton
-                icon={Linkedin}
+              <ShareButton icon={Linkedin}
                 color="hover:text-[#0A66C2] hover:border-[#0A66C2]"
               />
-              <ShareButton
-                icon={Facebook}
+              <ShareButton icon={Facebook}
                 color="hover:text-[#1877F2] hover:border-[#1877F2]"
               />
               <div className="h-12 w-px bg-border my-2" />
-              <ShareButton
-                icon={Bookmark}
+              <ShareButton icon={Bookmark}
                 color="hover:text-primary hover:border-primary"
               />
             </aside>
 
             <article className="flex-1 max-w-3xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0 }}
+              <AnimatedDiv initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
@@ -219,12 +206,11 @@ export default function BlogPostPage({
                 <p className="lead text-2xl md:text-3xl text-foreground font-light mb-12 border-l-4 border-primary pl-6">
                   {post.excerpt}
                 </p>
-                <div
-                  dangerouslySetInnerHTML={{
+                <div dangerouslySetInnerHTML={{
                     __html: post.content ?? "",
                   }}
                 />
-              </motion.div>
+              </AnimatedDiv>
 
               <div className="mt-16 pt-10 border-t border-border">
                 <div className="flex items-center gap-4 mb-6">
@@ -234,8 +220,7 @@ export default function BlogPostPage({
                   <div className="flex flex-wrap gap-2">
                     {post.tags && post.tags.length > 0
                       ? post.tags.map((tag: any) => (
-                          <span
-                            key={tag.id}
+                          <span key={tag.id}
                             className="px-4 py-2 bg-muted/50 border border-border rounded-full text-xs font-bold text-muted-foreground hover:text-primary hover:border-primary transition-all cursor-pointer"
                           >
                             #{tag.name}
@@ -310,16 +295,14 @@ export default function BlogPostPage({
         <div className="container px-4 mx-auto">
           <div className="flex items-center justify-between mb-12">
             <h2 className="text-3xl font-bold">Keep Reading</h2>
-            <Link
-              href="/blog"
+            <Link href="/blog"
               className="hidden md:flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all"
             >
               View All Posts <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
-          <Swiper
-            modules={[Autoplay]}
+          <Swiper modules={[Autoplay]}
             spaceBetween={30}
             slidesPerView={1}
             breakpoints={{
@@ -334,8 +317,7 @@ export default function BlogPostPage({
                   <Link href={`/blog/${related.slug}`}>
                     <div className="relative h-64 w-full rounded-2xl overflow-hidden mb-6 bg-muted">
                       {related.featuredImage ? (
-                        <img
-                          src={related.featuredImage}
+                        <img src={related.featuredImage}
                           alt={related.title}
                           className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
                         />
@@ -368,8 +350,7 @@ export default function BlogPostPage({
 
 function ShareButton({ icon: Icon, color }: { icon: any; color: string }) {
   return (
-    <button
-      className={`w-12 h-12 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground transition-all duration-300 ${color} hover:bg-muted`}
+    <button className={`w-12 h-12 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground transition-all duration-300 ${color} hover:bg-muted`}
     >
       <Icon className="w-5 h-5" />
     </button>

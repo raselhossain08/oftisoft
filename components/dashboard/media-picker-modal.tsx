@@ -44,8 +44,7 @@ export function MediaPickerModal({
         // error handled by hook
       }
       if (fileInputRef.current) fileInputRef.current.value = "";
-    },
-    [uploadMutation, onSelect, onOpenChange]
+    }, [uploadMutation, onSelect, onOpenChange]
   );
 
   const handleUrlSubmit = useCallback(() => {
@@ -60,8 +59,7 @@ export function MediaPickerModal({
     (url: string) => {
       onSelect(url);
       onOpenChange(false);
-    },
-    [onSelect, onOpenChange]
+    }, [onSelect, onOpenChange]
   );
 
   return (
@@ -87,8 +85,7 @@ export function MediaPickerModal({
           </TabsList>
 
           <TabsContent value="upload" className="space-y-4 flex-1">
-            <div
-              onClick={() => fileInputRef.current?.click()}
+            <div onClick={() => fileInputRef.current?.click()}
               className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
             >
               <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
@@ -99,8 +96,7 @@ export function MediaPickerModal({
                 PNG, JPG, GIF, WebP up to 5MB
               </p>
             </div>
-            <input
-              ref={fileInputRef}
+            <input ref={fileInputRef}
               type="file"
               accept="image/*"
               className="hidden"
@@ -120,8 +116,7 @@ export function MediaPickerModal({
             </div>
 
             <div className="flex gap-2">
-              <Input
-                value={urlInput}
+              <Input value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 placeholder="https://example.com/image.jpg"
                 onKeyDown={(e) => {
@@ -149,13 +144,11 @@ export function MediaPickerModal({
             ) : (
               <div className="grid grid-cols-3 gap-3 p-1">
                 {mediaFiles.map((file) => (
-                  <button
-                    key={file.key}
+                  <button key={file.key}
                     onClick={() => handleSelectFile(file.url)}
                     className="group relative aspect-video rounded-lg overflow-hidden border bg-muted/20 hover:border-primary/50 transition-all"
                   >
-                    <img
-                      src={file.url}
+                    <img src={file.url}
                       alt={file.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
