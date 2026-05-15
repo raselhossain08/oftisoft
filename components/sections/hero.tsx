@@ -108,8 +108,8 @@ export default function Hero({ data }: HeroProps) {
       onMouseMove={handleMouseMove}
     >
       {/* Ambient Background Glows - Optimized with translate3d for GPU */}
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] mix-blend-screen opacity-20 pointer-events-none will-change-transform" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px] mix-blend-screen opacity-20 pointer-events-none will-change-transform" />
+      <div className="absolute top-[-10%] right-[-5%] w-[300px] sm:w-[400px] lg:w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] bg-primary/20 rounded-full blur-[80px] lg:blur-[120px] mix-blend-screen opacity-20 pointer-events-none will-change-transform" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[250px] sm:w-[350px] lg:w-[500px] h-[250px] sm:h-[350px] lg:h-[500px] bg-secondary/10 rounded-full blur-[60px] lg:blur-[100px] mix-blend-screen opacity-20 pointer-events-none will-change-transform" />
 
       <div className="container relative z-10 px-4 mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -131,7 +131,7 @@ export default function Hero({ data }: HeroProps) {
 
             <AnimatedH1 initial={false}
               style={{ willChange: "transform, opacity" }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold tracking-tight leading-[1.1]"
+              className="text-[1.75rem] sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold tracking-tight leading-[1.1]"
             >
               <span className="block text-foreground drop-shadow-sm">
                 {heroContent.title ?? "Engineering the Future of"}
@@ -140,7 +140,7 @@ export default function Hero({ data }: HeroProps) {
             </AnimatedH1>
 
             <AnimatedP initial={false}
-              className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground/80 font-light leading-relaxed"
+              className="text-sm sm:text-base md:text-lg lg:text-2xl text-muted-foreground/80 font-light leading-relaxed"
             >
               {heroContent.description ?? "We architect high-performance applications that scale."}
             </AnimatedP>
@@ -173,16 +173,16 @@ export default function Hero({ data }: HeroProps) {
             </AnimatedDiv>
 
             <AnimatedDiv initial={false}
-              className="pt-10 w-full border-t border-white/5 mt-8 flex flex-wrap justify-center md:justify-between lg:justify-start gap-x-6 sm:gap-x-8 xl:gap-x-12 gap-y-6"
+              className="pt-10 w-full border-t border-white/5 mt-8 flex flex-wrap justify-center md:justify-between lg:justify-start gap-x-4 sm:gap-x-6 md:gap-x-8 xl:gap-x-12 gap-y-4 sm:gap-y-6"
             >
               {heroContent.stats?.map((stat: HeroStat, i: number) => (
                 <div key={i}
-                  className="relative group flex flex-col items-center lg:items-start min-w-[100px]"
+                  className="relative group flex flex-col items-center lg:items-start min-w-[80px] sm:min-w-[100px]"
                 >
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative w-full">
                     <div className="flex items-baseline justify-center lg:justify-start gap-1">
-                      <span className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+                      <span className="text-xl sm:text-2xl md:text-3xl xl:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                         <CountUp end={stat.value}
                           duration={2.5}
                           enableScrollSpy scrollSpyOnce
@@ -192,8 +192,8 @@ export default function Hero({ data }: HeroProps) {
                         {stat.suffix}
                       </span>
                     </div>
-                    <div className="h-0.5 w-6 sm:w-8 bg-primary/30 mt-2 mb-2 mx-auto lg:mx-0 group-hover:w-full transition-all duration-500" />
-                    <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground tracking-wide font-medium text-center lg:text-left">
+                    <div className="h-0.5 w-4 sm:w-6 md:w-8 bg-primary/30 mt-1.5 mb-1.5 mx-auto lg:mx-0 group-hover:w-full transition-all duration-500" />
+                    <p className="text-[9px] sm:text-[10px] md:text-xs xl:text-sm text-muted-foreground tracking-wide font-medium text-center lg:text-left">
                       {stat.label}
                     </p>
                   </div>
@@ -203,9 +203,9 @@ export default function Hero({ data }: HeroProps) {
           </div>
 
           {/* Right: 3D Animation Hub - REFINED & FLICKER-FREE */}
-          <div className="relative hidden lg:flex h-[600px] w-full items-center justify-center perspective-[2000px]">
+          <div className="relative hidden lg:flex min-h-[400px] xl:min-h-[600px] w-full items-center justify-center perspective-[2000px]">
             <AnimatedDiv style={{ transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)` }}
-              className="relative w-[500px] h-[500px] flex items-center justify-center transform-style-3d will-change-transform"
+              className="relative w-full max-w-[400px] xl:max-w-[500px] aspect-square flex items-center justify-center transform-style-3d will-change-transform"
             >
               <div className="absolute z-40">
                   {heroContent.image || heroContent.imageUrl ? (
@@ -229,12 +229,12 @@ export default function Hero({ data }: HeroProps) {
 
               {/* 4. The Logo - Centered */}
               <Link href="/">
-                <AnimatedDiv animate={{ scale: [1, 1.03, 1] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative w-44 h-44 rounded-full bg-gradient-to-br from-blue-600 via-indigo-500 to-purple-600 shadow-[0_0_60px_rgba(99,102,241,0.3)] flex flex-col items-center justify-center z-10 group cursor-pointer"
+                  <AnimatedDiv animate={{ scale: [1, 1.03, 1] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="relative w-32 h-32 lg:w-36 lg:h-36 xl:w-44 xl:h-44 rounded-full bg-gradient-to-br from-blue-600 via-indigo-500 to-purple-600 shadow-[0_0_60px_rgba(99,102,241,0.3)] flex flex-col items-center justify-center z-10 group cursor-pointer"
                 >
-                  <span className="text-5xl font-bold text-white drop-shadow-lg">O</span>
-                  <span className="text-[11px] font-bold text-white/90 tracking-[0.2em] mt-1">OFTISOFT</span>
+                  <span className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white drop-shadow-lg">O</span>
+                  <span className="text-[9px] lg:text-[10px] xl:text-[11px] font-bold text-white/90 tracking-[0.2em] mt-1">OFTISOFT</span>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-t from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute inset-0 rounded-full ring-1 ring-white/20 group-hover:ring-white/40 transition-all duration-500" />
                 </AnimatedDiv>
@@ -250,7 +250,7 @@ export default function Hero({ data }: HeroProps) {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute -top-4 -left-4 w-48 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl transform-style-3d hover:border-purple-500/50 transition-colors cursor-pointer group"
+                  className="absolute -top-4 -left-4 w-36 lg:w-40 xl:w-48 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-3 xl:p-4 shadow-2xl transform-style-3d hover:border-purple-500/50 transition-colors cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/40 transition-colors">
@@ -274,7 +274,7 @@ export default function Hero({ data }: HeroProps) {
                     ease: "easeInOut",
                     delay: 1,
                   }}
-                  className="absolute bottom-8 -right-8 w-44 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl transform-style-3d hover:border-blue-500/50 transition-colors cursor-pointer group"
+                  className="absolute bottom-6 lg:bottom-8 -right-6 lg:-right-8 w-32 lg:w-36 xl:w-44 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-3 xl:p-4 shadow-2xl transform-style-3d hover:border-blue-500/50 transition-colors cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/40 transition-colors">
@@ -300,7 +300,7 @@ export default function Hero({ data }: HeroProps) {
                     ease: "easeInOut",
                     delay: 0.5,
                   }}
-                  className="absolute top-1/2 -right-24 -translate-y-1/2 px-4 py-3 bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl flex items-center gap-3 transform-style-3d hover:scale-105 transition-transform cursor-pointer"
+                  className="absolute top-1/2 -right-16 xl:-right-24 -translate-y-1/2 px-3 xl:px-4 py-2 xl:py-3 bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl flex items-center gap-2 xl:gap-3 transform-style-3d hover:scale-105 transition-transform cursor-pointer"
                 >
                   <span className="relative flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -346,7 +346,7 @@ function SmoothTypewriter({ heroContent }: { heroContent: HeroContent }) {
       : defaultWords;
 
   return (
-    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 h-[1.1em] inline-block min-w-[14em]">
+    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 h-[1.1em] inline-block min-w-[8em] sm:min-w-[12em] md:min-w-[14em]">
       <TypeAnimation
         sequence={words.flat() as (string | number)[]}
         wrapper="span"

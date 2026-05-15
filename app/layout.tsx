@@ -91,11 +91,11 @@ export default function RootLayout({
             <QueryProvider>
               <AuthProvider>
                 <AnalyticsTracker />
-                <SmoothScroller>
+                <>
                   <main id="main-content" tabIndex={-1}>
                     {children}
                   </main>
-                </SmoothScroller>
+                </>
                 <CartSheet />
                 <CookieConsent />
                 <SeoScripts />
